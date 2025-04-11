@@ -362,14 +362,14 @@ const TwitterSentimentAnalysis: React.FC = () => {
                                 <Cell key={`cell-${index}`} fill={COLORS[index]} />
                               ))}
                             </Pie>
-                            <Tooltip formatter={(value) => [value, 'Cantidad']} />
+                            <Tooltip formatter={(value) => [value, 'Amount']} />
                           </RechartsPieChart>
                         </ResponsiveContainer>
                       </div>
                     </div>
                     
                     <div className="bg-card/50 p-4 rounded-lg">
-                      <h3 className="text-lg font-medium mb-2">Tweets Recientes</h3>
+                      <h3 className="text-lg font-medium mb-2">Recent Tweets</h3>
                       <ScrollArea className="h-[220px]">
                         <div className="space-y-3">
                           {sentimentData.recentTweets.map((tweet) => (
@@ -390,13 +390,13 @@ const TwitterSentimentAnalysis: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <p>No se pudieron cargar los datos de sentimiento.</p>
+                  <p>Could not load sentiment data.</p>
                   <Button 
                     variant="outline" 
                     className="mt-2"
                     onClick={() => fetchSentimentData(selectedCrypto)}
                   >
-                    Reintentar
+                    Retry
                   </Button>
                 </div>
               )}
@@ -411,7 +411,7 @@ const TwitterSentimentAnalysis: React.FC = () => {
               ) : (
                 <div className="space-y-6">
                   <div className="bg-card/50 p-4 rounded-lg">
-                    <h3 className="text-lg font-medium mb-4">Comparación de Sentimiento de Mercado</h3>
+                    <h3 className="text-lg font-medium mb-4">Market Sentiment Comparison</h3>
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <RechartsBarChart
@@ -439,17 +439,17 @@ const TwitterSentimentAnalysis: React.FC = () => {
                   </div>
                   
                   <div className="bg-card/50 p-4 rounded-lg">
-                    <h3 className="text-lg font-medium mb-3">Resumen de Sentimiento por Criptomoneda</h3>
+                    <h3 className="text-lg font-medium mb-3">Sentiment Summary by Cryptocurrency</h3>
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
                           <tr className="border-b border-muted">
-                            <th className="px-4 py-2 text-left">Símbolo</th>
-                            <th className="px-4 py-2 text-left">Nombre</th>
-                            <th className="px-4 py-2 text-left">Sentimiento</th>
+                            <th className="px-4 py-2 text-left">Symbol</th>
+                            <th className="px-4 py-2 text-left">Name</th>
+                            <th className="px-4 py-2 text-left">Sentiment</th>
                             <th className="px-4 py-2 text-right">Score</th>
-                            <th className="px-4 py-2 text-center">Tendencia</th>
-                            <th className="px-4 py-2 text-right">Volumen 24h</th>
+                            <th className="px-4 py-2 text-center">Trend</th>
+                            <th className="px-4 py-2 text-right">Volume 24h</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -488,7 +488,7 @@ const TwitterSentimentAnalysis: React.FC = () => {
                       </table>
                     </div>
                     <div className="mt-2 text-right text-xs text-muted-foreground">
-                      Última actualización: {marketSentiment.last_updated ? formatDate(marketSentiment.last_updated) : 'N/A'}
+                      Last updated: {marketSentiment.last_updated ? formatDate(marketSentiment.last_updated) : 'N/A'}
                     </div>
                   </div>
                 </div>
