@@ -5,6 +5,7 @@ import { setupWebSocketServer } from "./websocket";
 import Stripe from "stripe";
 import fs from 'fs';
 import path from 'path';
+import { googleTTSHandler, elevenLabsTTSHandler } from "./tts";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
