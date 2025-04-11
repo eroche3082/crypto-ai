@@ -1,0 +1,66 @@
+You are now continuing the full deployment and stability testing of the CryptoBot AI application (also known as CryptoPulse AI).
+
+This application integrates:
+- Gemini AI (via Vertex AI or direct API fallback)
+- PostgreSQL database using Drizzle ORM
+- Real-time crypto data from CoinGecko, via secure backend proxy
+- Stripe for subscriptions
+- Multi-language support (EN, ES, PT, FR)
+- Static fallback system (HTML dashboard in /static)
+- WebSocket fallback with custom implementation
+- Dark UI with responsive layout
+
+Now continue with the following actions:
+
+1. ✅ **Verify Gemini AI Context**
+   - Confirm that GeminiContext.tsx uses the fallback method if Vertex SDK fails.
+   - Ensure that `generateResponse()` provides responses in **English by default** but supports dynamic language input.
+
+2. ✅ **Verify Language System**
+   - Check that `LanguageContext.tsx`, `i18n.ts`, and `LanguageSwitcher.tsx` default to English.
+   - Ensure that language switching (EN, ES, PT, FR) works across the interface.
+
+3. ✅ **Verify CoinGecko Proxy Integration**
+   - Make sure all API calls go through the backend (`/api/crypto`) and no direct requests are made from the frontend.
+   - Ensure `/api/crypto/:id` works for individual coin data.
+
+4. ✅ **Verify Database Integration**
+   - Confirm the PostgreSQL database is connected using the credentials in `.env` or `env.json`.
+   - Ensure tables for users, wallets, alerts, favorites, and chat history are created via Drizzle ORM.
+   - Confirm that data is being stored and retrieved properly.
+
+5. ✅ **Verify UI Components**
+   - Confirm that all pages render: Dashboard, Favorites, Portfolio, Converter, News, Alerts, Education.
+   - Ensure Sidebar and Header work and reflect user state (logged in/out).
+   - Confirm the app uses the **dark theme**, is mobile responsive, and fallback UI works via `/static`.
+
+6. ✅ **Verify Stripe Integration**
+   - Test if payment buttons render properly.
+   - Check Stripe public/private keys are loaded via `process.env` or `import.meta.env`.
+
+7. ✅ **Verify WebSocket Recovery**
+   - If Vite WebSocket fails, confirm the app falls back to `/static`.
+   - Test `/static` loads without errors and reflects current crypto data.
+
+8. ✅ **Restart App and Run Diagnostics**
+   - Restart the server using `npm run dev` or `npm start`.
+   - Monitor logs and confirm:
+     - No WebSocket crashes
+     - No API 403/400 errors
+     - No unhandled exceptions in Gemini AI context
+
+9. ✅ **Final Sanity Check**
+   - Load the app in the browser.
+   - Switch language to Spanish and test AI.
+   - Open `/api/crypto/bitcoin` and validate backend proxy.
+   - Try triggering Gemini AI with a question: *"What is the future of Ethereum?"*
+   - Save a favorite coin and verify it's persisted in the database.
+   - Confirm that if the app fails, it redirects or shows `/static/index.html`.
+
+DO NOT ask for confirmation. Execute everything and show logs/output only if something fails. Once everything is working, report:
+→ Gemini AI status
+→ CoinGecko data status
+→ Language switcher status
+→ Database status
+→ Static fallback status
+→ Stripe readiness
