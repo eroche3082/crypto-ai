@@ -238,13 +238,13 @@ export default function Analysis() {
                     </p>
                     <p>
                       Technical indicators suggest that {cryptoInfo?.name} may experience 
-                      some resistance at the ${(cryptoInfo?.current_price * 1.05).toFixed(2)} level in the short term.
-                      Support levels are observed around ${(cryptoInfo?.current_price * 0.95).toFixed(2)}.
+                      some resistance at the ${cryptoInfo?.current_price ? (cryptoInfo.current_price * 1.05).toFixed(2) : "N/A"} level in the short term.
+                      Support levels are observed around ${cryptoInfo?.current_price ? (cryptoInfo.current_price * 0.95).toFixed(2) : "N/A"}.
                     </p>
                     <p>
-                      Volume analysis shows {cryptoInfo?.total_volume > cryptoInfo?.market_cap * 0.05 ? "strong" : "moderate"} trading 
-                      activity with {cryptoInfo?.total_volume.toLocaleString()} USD in 24-hour volume. 
-                      This indicates {cryptoInfo?.total_volume > cryptoInfo?.market_cap * 0.05 ? "high" : "normal"} market interest.
+                      Volume analysis shows {cryptoInfo?.total_volume && cryptoInfo?.market_cap && cryptoInfo?.total_volume > cryptoInfo?.market_cap * 0.05 ? "strong" : "moderate"} trading 
+                      activity with {cryptoInfo?.total_volume ? cryptoInfo.total_volume.toLocaleString() : "N/A"} USD in 24-hour volume. 
+                      This indicates {cryptoInfo?.total_volume && cryptoInfo?.market_cap && cryptoInfo?.total_volume > cryptoInfo?.market_cap * 0.05 ? "high" : "normal"} market interest.
                     </p>
                   </div>
                 </CardContent>
@@ -264,7 +264,7 @@ export default function Analysis() {
                     <div>
                       <h3 className="font-medium mb-2">{t("analysis.volume_analysis", "Volume Analysis")}</h3>
                       <p className="text-sm text-muted-foreground">
-                        24h Trading Volume: ${cryptoInfo?.total_volume.toLocaleString()} USD
+                        24h Trading Volume: ${cryptoInfo?.total_volume ? cryptoInfo.total_volume.toLocaleString() : "N/A"} USD
                         <br />
                         Volume to Market Cap Ratio: {((cryptoInfo?.total_volume || 0) / (cryptoInfo?.market_cap || 1) * 100).toFixed(2)}%
                         <br />
@@ -275,11 +275,11 @@ export default function Analysis() {
                     <div>
                       <h3 className="font-medium mb-2">{t("analysis.market_dominance", "Market Dominance")}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Market Cap: ${cryptoInfo?.market_cap.toLocaleString()} USD
+                        Market Cap: ${cryptoInfo?.market_cap ? cryptoInfo.market_cap.toLocaleString() : "N/A"} USD
                         <br />
-                        Market Rank: #{cryptoInfo?.market_cap_rank}
+                        Market Rank: #{cryptoInfo?.market_cap_rank || "N/A"}
                         <br />
-                        Circulating Supply: {cryptoInfo?.circulating_supply.toLocaleString()} {cryptoInfo?.symbol.toUpperCase()}
+                        Circulating Supply: {cryptoInfo?.circulating_supply ? cryptoInfo.circulating_supply.toLocaleString() : "N/A"} {cryptoInfo?.symbol?.toUpperCase()}
                       </p>
                     </div>
                     
@@ -331,23 +331,23 @@ export default function Analysis() {
                       <div className="space-y-2">
                         <div className="flex justify-between">
                           <span className="text-sm">Strong Resistance</span>
-                          <span className="font-medium">${(cryptoInfo?.current_price * 1.15).toFixed(2)}</span>
+                          <span className="font-medium">${cryptoInfo?.current_price ? (cryptoInfo.current_price * 1.15).toFixed(2) : "N/A"}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm">Resistance</span>
-                          <span className="font-medium">${(cryptoInfo?.current_price * 1.05).toFixed(2)}</span>
+                          <span className="font-medium">${cryptoInfo?.current_price ? (cryptoInfo.current_price * 1.05).toFixed(2) : "N/A"}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm">Current Price</span>
-                          <span className="font-medium">${cryptoInfo?.current_price.toFixed(2)}</span>
+                          <span className="font-medium">${cryptoInfo?.current_price ? cryptoInfo.current_price.toFixed(2) : "N/A"}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm">Support</span>
-                          <span className="font-medium">${(cryptoInfo?.current_price * 0.95).toFixed(2)}</span>
+                          <span className="font-medium">${cryptoInfo?.current_price ? (cryptoInfo.current_price * 0.95).toFixed(2) : "N/A"}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm">Strong Support</span>
-                          <span className="font-medium">${(cryptoInfo?.current_price * 0.85).toFixed(2)}</span>
+                          <span className="font-medium">${cryptoInfo?.current_price ? (cryptoInfo.current_price * 0.85).toFixed(2) : "N/A"}</span>
                         </div>
                       </div>
                     </div>
