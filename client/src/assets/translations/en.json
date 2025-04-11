@@ -1,0 +1,205 @@
+{
+  "header": {
+    "title": "CryptoBot Assistant",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "darkTheme": "Dark",
+    "lightTheme": "Light",
+    "logout": "Logout",
+    "close": "Close"
+  },
+  "sidebar": {
+    "language": "Language",
+    "audio": "Audio",
+    "camera": "Camera",
+    "qr": "QR",
+    "ar": "AR",
+    "portfolio": "Portfolio",
+    "alerts": "Alerts",
+    "converter": "Converter",
+    "education": "Education",
+    "news": "News"
+  },
+  "aiConfig": {
+    "currentConfig": "Current AI Configuration",
+    "model": "Model",
+    "language": "Language",
+    "change": "Change",
+    "save": "Save",
+    "selectModel": "Select model",
+    "selectLanguage": "Select language"
+  },
+  "languages": {
+    "es": "Spanish",
+    "en": "English",
+    "pt": "Portuguese",
+    "fr": "French"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Select language"
+  },
+  "dashboard": {
+    "title": "Cryptocurrency Dashboard",
+    "timeFilter": "Time Period",
+    "error": "Error loading data"
+  },
+  "chatContainer": {
+    "welcomeMessage": "👋 Hello! I'm your CryptoBot assistant. I'm here to help you with information about cryptocurrencies, market analysis, predictions, and more.\n\nHow can I help you today?",
+    "errorMessage": "Sorry, there was an error generating the response. Please try again."
+  },
+  "quickPrompts": {
+    "trending": "What's trending today?",
+    "btcPrediction": "BTC price prediction",
+    "explainDefi": "Explain DeFi",
+    "bestAltcoins": "Best altcoins to watch",
+    "onChainAnalysis": "On-chain analysis",
+    "marketSentiment": "Market sentiment"
+  },
+  "messageInput": {
+    "placeholder": "Ask about crypto, trends, prices, etc.",
+    "send": "Send",
+    "voice": "Voice",
+    "speechRecognitionNotSupported": "Speech recognition is not supported in this browser."
+  },
+  "portfolio": {
+    "title": "Portfolio Simulator",
+    "subtitle": "Simulate and track your cryptocurrency investments",
+    "addAsset": "Add Asset",
+    "addNewAsset": "Add New Asset",
+    "selectCrypto": "Select cryptocurrency",
+    "amount": "Amount",
+    "add": "Add",
+    "empty": "Your portfolio is empty",
+    "emptyDesc": "Add cryptocurrencies to your portfolio to start tracking your investment"
+  },
+  "alerts": {
+    "title": "Alert System",
+    "subtitle": "Set up alerts to track price movements",
+    "createAlert": "Create Alert",
+    "newAlert": "New Alert",
+    "selectCrypto": "Select cryptocurrency",
+    "alertWhen": "Alert when",
+    "priceAbove": "Price above",
+    "priceBelow": "Price below",
+    "noAlerts": "You have no alerts set up",
+    "noAlertsDesc": "Set up alerts to receive notifications about price movements",
+    "status": "Status",
+    "currentPrice": "Current price",
+    "targetPrice": "Target price",
+    "above": "above",
+    "below": "below"
+  },
+  "converter": {
+    "title": "Cryptocurrency Converter",
+    "subtitle": "Convert between different cryptocurrencies with real-time values",
+    "from": "From",
+    "to": "To",
+    "exchangeRate": "Exchange rate",
+    "usdValue": "USD Value"
+  },
+  "education": {
+    "title": "Education Hub",
+    "subtitle": "Learn about cryptocurrencies, blockchain, and decentralized finance",
+    "featuredResources": "Featured Resources",
+    "readMore": "Read more",
+    "basics": {
+      "title": "Basics",
+      "description": "Basic concepts of cryptocurrencies and blockchain",
+      "what": {
+        "question": "What are cryptocurrencies?",
+        "answer": "Cryptocurrencies are digital currencies that use cryptography to secure transactions, control the creation of additional units, and verify the transfer of assets. Unlike traditional money, they operate on decentralized networks based on blockchain technology, without the need for intermediaries like central banks."
+      },
+      "blockchain": {
+        "question": "What is blockchain?",
+        "answer": "Blockchain is a distributed ledger technology consisting of cryptographically linked data blocks. Each block contains a set of transactions and a link to the previous block, forming an immutable chain. Information is replicated across multiple nodes in the network, creating a system resistant to censorship and manipulation."
+      },
+      "wallet": {
+        "question": "How do wallets work?",
+        "answer": "Cryptocurrency wallets are tools that allow you to interact with blockchain networks. They use a pair of keys: a private key (which must be kept secure) and a public key (address for receiving funds). Wallets don't actually store the cryptocurrencies, but rather manage these keys to allow access to assets recorded on the blockchain."
+      },
+      "mining": {
+        "question": "What is cryptocurrency mining?",
+        "answer": "Mining is the process by which new transactions are verified and added to the blockchain. In networks that use the Proof of Work consensus mechanism (like Bitcoin), miners compete to solve complex mathematical problems. The first to find the solution wins the right to add the next block and receives a reward in the native cryptocurrency."
+      }
+    },
+    "defi": {
+      "title": "DeFi",
+      "description": "Decentralized Finance and blockchain financial applications",
+      "what": {
+        "question": "What is DeFi?",
+        "answer": "DeFi (Decentralized Finance) is an ecosystem of financial applications built on blockchain networks that eliminate the need for traditional intermediaries. These applications enable lending, trading, investing, and other financial services in a transparent, permissionless manner accessible to anyone with an internet connection."
+      },
+      "differ": {
+        "question": "How is DeFi different from traditional finance?",
+        "answer": "The main differences include:<br/><br/>- <strong>Decentralization</strong>: It doesn't rely on centralized entities like banks.<br/>- <strong>Accessibility</strong>: Anyone with internet can access without verification requirements.<br/>- <strong>Transparency</strong>: All transactions and rules are verifiable on the blockchain.<br/>- <strong>Interoperability</strong>: Protocols can interact with each other, creating complex financial products.<br/>- <strong>Automation</strong>: They use smart contracts that automatically execute operations without human intervention."
+      },
+      "protocols": {
+        "question": "What are the main DeFi protocols?",
+        "answer": "Some of the most important DeFi protocols are:<br/><br/>- <strong>Aave and Compound</strong>: Lending and deposit platforms.<br/>- <strong>Uniswap and SushiSwap</strong>: Decentralized exchanges (DEX).<br/>- <strong>MakerDAO</strong>: Issuer of the DAI stablecoin.<br/>- <strong>Curve Finance</strong>: Specialized in efficient stablecoin exchange.<br/>- <strong>Yearn Finance</strong>: Yield aggregator that automatically optimizes investment strategies."
+      },
+      "risks": {
+        "question": "What are the risks of DeFi?",
+        "answer": "The main risks include:<br/><br/>- <strong>Smart contract risk</strong>: Vulnerabilities in the code can be exploited.<br/>- <strong>Liquidity risk</strong>: Low market depth in some assets.<br/>- <strong>Collateral risk</strong>: Volatility that can trigger liquidations.<br/>- <strong>Governance risk</strong>: Decisions made by token holders may not be optimal.<br/>- <strong>Regulatory risk</strong>: Legal uncertainty and possible government restrictions."
+      }
+    },
+    "nft": {
+      "title": "NFTs",
+      "description": "Non-Fungible Tokens and unique digital assets",
+      "what": {
+        "question": "What are NFTs?",
+        "answer": "NFTs (Non-Fungible Tokens) are unique digital assets that represent ownership of a specific digital item. Unlike cryptocurrencies like Bitcoin, which are fungible (interchangeable with each other), each NFT has unique properties and cannot be exchanged for another of equal value."
+      },
+      "work": {
+        "question": "How do NFTs work?",
+        "answer": "NFTs operate primarily on blockchains that support smart contracts, such as Ethereum. They use standards like ERC-721 or ERC-1155 that define how to create and transfer unique tokens. Each NFT contains metadata that can include details about the digital asset it represents, its creator, ownership history, and special characteristics."
+      },
+      "use": {
+        "question": "What are the use cases for NFTs?",
+        "answer": "NFTs have various applications:<br/><br/>- <strong>Digital art</strong>: Certify ownership and authenticity of digital works.<br/>- <strong>Collectibles</strong>: From sports cards to virtual characters.<br/>- <strong>Gaming</strong>: Items, characters, and land in blockchain games.<br/>- <strong>Music and entertainment</strong>: Rights to songs and multimedia content.<br/>- <strong>Virtual real estate</strong>: Properties in metaverses and digital worlds.<br/>- <strong>Identity and certifications</strong>: Academic degrees, event tickets, etc."
+      }
+    },
+    "trading": {
+      "title": "Trading",
+      "description": "Strategies and analysis for cryptocurrency trading",
+      "analysis": {
+        "question": "What types of analysis are used in crypto trading?",
+        "answer": "The main types of analysis are:<br/><br/>- <strong>Technical Analysis</strong>: Studies price patterns and volume on charts to predict future movements.<br/>- <strong>Fundamental Analysis</strong>: Evaluates the intrinsic value of the project, its technology, team, and adoption.<br/>- <strong>On-Chain Analysis</strong>: Examines blockchain data such as address activity, coin distribution, and exchange flows.<br/>- <strong>Sentiment Analysis</strong>: Monitors market perception on social networks and specialized media."
+      },
+      "strategy": {
+        "question": "What are common trading strategies?",
+        "answer": "Some popular strategies include:<br/><br/>- <strong>HODL</strong>: Buy and hold for the long term.<br/>- <strong>Day Trading</strong>: Intraday operations seeking profits from small movements.<br/>- <strong>Swing Trading</strong>: Takes advantage of short and medium-term trends.<br/>- <strong>Scalping</strong>: Very quick operations with minimal but frequent profits.<br/>- <strong>Dollar-Cost Averaging (DCA)</strong>: Investing fixed amounts at regular intervals.<br/>- <strong>Arbitrage</strong>: Exploiting price differences between different exchanges."
+      },
+      "risk": {
+        "question": "How to manage risk in crypto trading?",
+        "answer": "Risk management is fundamental:<br/><br/>- <strong>Diversification</strong>: Don't concentrate all investments in a single asset.<br/>- <strong>Position sizing</strong>: Limit each operation to a small percentage of total capital.<br/>- <strong>Stop Loss</strong>: Set automatic orders that limit losses.<br/>- <strong>Take Profit</strong>: Set realistic profit targets.<br/>- <strong>Research</strong>: Only trade with projects that you understand well.<br/>- <strong>Emotional control</strong>: Avoid impulsive decisions based on fear or greed."
+      }
+    },
+    "resources": {
+      "bitcoin": "Bitcoin Whitepaper",
+      "bitcoinDesc": "The original document by Satoshi Nakamoto that introduced Bitcoin to the world",
+      "ethereum": "Ethereum Whitepaper",
+      "ethereumDesc": "Vitalik Buterin's vision for a smart contract platform",
+      "defiPrimer": "DeFi Introduction Guide",
+      "defiPrimerDesc": "A comprehensive beginner's guide to Decentralized Finance"
+    }
+  },
+  "news": {
+    "title": "Crypto News",
+    "subtitle": "Latest news and analysis from the crypto world",
+    "readMore": "Read more",
+    "noResults": "No news found for this category",
+    "categories": {
+      "all": "All",
+      "bitcoin": "Bitcoin",
+      "ethereum": "Ethereum",
+      "defi": "DeFi",
+      "nft": "NFTs",
+      "regulation": "Regulation",
+      "market": "Market"
+    }
+  }
+}

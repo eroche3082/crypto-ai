@@ -1,0 +1,205 @@
+{
+  "header": {
+    "title": "CryptoBot Assistant",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "theme": "Tema",
+    "darkTheme": "Oscuro",
+    "lightTheme": "Claro",
+    "logout": "Cerrar sesión",
+    "close": "Cerrar"
+  },
+  "sidebar": {
+    "language": "Idioma",
+    "audio": "Audio",
+    "camera": "Cámara",
+    "qr": "QR",
+    "ar": "AR",
+    "portfolio": "Portfolio",
+    "alerts": "Alertas",
+    "converter": "Conversor",
+    "education": "Educación",
+    "news": "Noticias"
+  },
+  "aiConfig": {
+    "currentConfig": "Configuración actual del AI",
+    "model": "Modelo",
+    "language": "Idioma",
+    "change": "Cambiar",
+    "save": "Guardar",
+    "selectModel": "Seleccionar modelo",
+    "selectLanguage": "Seleccionar idioma"
+  },
+  "languages": {
+    "es": "Español",
+    "en": "Inglés",
+    "pt": "Portugués",
+    "fr": "Francés"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Seleccionar idioma"
+  },
+  "dashboard": {
+    "title": "Dashboard de Criptomonedas",
+    "timeFilter": "Período",
+    "error": "Error al cargar los datos"
+  },
+  "chatContainer": {
+    "welcomeMessage": "👋 ¡Hola! Soy tu asistente CryptoBot. Estoy aquí para ayudarte con información sobre criptomonedas, análisis de mercado, predicciones y más.\n\n¿En qué puedo ayudarte hoy?",
+    "errorMessage": "Lo siento, hubo un error al generar la respuesta. Por favor, intenta de nuevo."
+  },
+  "quickPrompts": {
+    "trending": "¿Qué está en tendencia hoy?",
+    "btcPrediction": "Predicción precio BTC",
+    "explainDefi": "Explicar DeFi",
+    "bestAltcoins": "Mejores altcoins para observar",
+    "onChainAnalysis": "Análisis on-chain",
+    "marketSentiment": "Sentimiento del mercado"
+  },
+  "messageInput": {
+    "placeholder": "Pregunta sobre crypto, tendencias, precios, etc.",
+    "send": "Enviar",
+    "voice": "Voz",
+    "speechRecognitionNotSupported": "El reconocimiento de voz no está soportado en este navegador."
+  },
+  "portfolio": {
+    "title": "Simulador de Portafolio",
+    "subtitle": "Simula y rastrea tu inversión en criptomonedas",
+    "addAsset": "Añadir Activo",
+    "addNewAsset": "Añadir Nuevo Activo",
+    "selectCrypto": "Seleccionar criptomoneda",
+    "amount": "Cantidad",
+    "add": "Añadir",
+    "empty": "Tu portafolio está vacío",
+    "emptyDesc": "Añade criptomonedas a tu portafolio para comenzar a rastrear tu inversión"
+  },
+  "alerts": {
+    "title": "Sistema de Alertas",
+    "subtitle": "Configura alertas para seguir los movimientos de precios",
+    "createAlert": "Crear Alerta",
+    "newAlert": "Nueva Alerta",
+    "selectCrypto": "Seleccionar criptomoneda",
+    "alertWhen": "Alertar cuando",
+    "priceAbove": "Precio por encima de",
+    "priceBelow": "Precio por debajo de",
+    "noAlerts": "No tienes alertas configuradas",
+    "noAlertsDesc": "Configura alertas para recibir notificaciones sobre movimientos de precios",
+    "status": "Estado",
+    "currentPrice": "Precio actual",
+    "targetPrice": "Precio objetivo",
+    "above": "por encima de",
+    "below": "por debajo de"
+  },
+  "converter": {
+    "title": "Conversor de Criptomonedas",
+    "subtitle": "Convierte entre diferentes criptomonedas con valores en tiempo real",
+    "from": "De",
+    "to": "A",
+    "exchangeRate": "Tasa de cambio",
+    "usdValue": "Valor en USD"
+  },
+  "education": {
+    "title": "Centro Educativo",
+    "subtitle": "Aprende sobre criptomonedas, blockchain y finanzas descentralizadas",
+    "featuredResources": "Recursos Destacados",
+    "readMore": "Leer más",
+    "basics": {
+      "title": "Fundamentos",
+      "description": "Conceptos básicos de criptomonedas y blockchain",
+      "what": {
+        "question": "¿Qué son las criptomonedas?",
+        "answer": "Las criptomonedas son monedas digitales que utilizan criptografía para asegurar transacciones, controlar la creación de unidades adicionales y verificar la transferencia de activos. A diferencia del dinero tradicional, operan en redes descentralizadas basadas en tecnología blockchain, sin necesidad de intermediarios como bancos centrales."
+      },
+      "blockchain": {
+        "question": "¿Qué es blockchain?",
+        "answer": "Blockchain es una tecnología de registro distribuido que consiste en bloques de datos enlazados criptográficamente. Cada bloque contiene un conjunto de transacciones y un enlace al bloque anterior, formando una cadena inmutable. La información se replica en múltiples nodos de la red, creando un sistema resistente a la censura y manipulación."
+      },
+      "wallet": {
+        "question": "¿Cómo funcionan las wallets?",
+        "answer": "Las wallets o monederos de criptomonedas son herramientas que permiten interactuar con redes blockchain. Utilizan un par de claves: una clave privada (que debe mantenerse segura) y una clave pública (dirección para recibir fondos). Las wallets no almacenan realmente las criptomonedas, sino que gestionan estas claves para permitir el acceso a los activos registrados en la blockchain."
+      },
+      "mining": {
+        "question": "¿Qué es la minería de criptomonedas?",
+        "answer": "La minería es el proceso mediante el cual se verifican y añaden nuevas transacciones a la blockchain. En redes que utilizan el mecanismo de consenso Proof of Work (como Bitcoin), los mineros compiten por resolver problemas matemáticos complejos. El primero en encontrar la solución gana el derecho de añadir el siguiente bloque y recibe una recompensa en la criptomoneda nativa."
+      }
+    },
+    "defi": {
+      "title": "DeFi",
+      "description": "Finanzas Descentralizadas y aplicaciones financieras blockchain",
+      "what": {
+        "question": "¿Qué es DeFi?",
+        "answer": "DeFi (Finanzas Descentralizadas) es un ecosistema de aplicaciones financieras construidas sobre redes blockchain que eliminan la necesidad de intermediarios tradicionales. Estas aplicaciones permiten préstamos, intercambios, inversiones y otros servicios financieros de manera transparente, sin permisos y accesible para cualquier persona con una conexión a internet."
+      },
+      "differ": {
+        "question": "¿En qué se diferencia DeFi de las finanzas tradicionales?",
+        "answer": "Las principales diferencias incluyen:<br/><br/>- <strong>Descentralización</strong>: No depende de entidades centralizadas como bancos.<br/>- <strong>Accesibilidad</strong>: Cualquier persona con internet puede acceder sin requisitos de verificación.<br/>- <strong>Transparencia</strong>: Todas las transacciones y reglas son verificables en la blockchain.<br/>- <strong>Interoperabilidad</strong>: Los protocolos pueden interactuar entre sí, creando productos financieros complejos.<br/>- <strong>Automatización</strong>: Utilizan contratos inteligentes que ejecutan automáticamente las operaciones sin intervención humana."
+      },
+      "protocols": {
+        "question": "¿Cuáles son los principales protocolos DeFi?",
+        "answer": "Algunos de los protocolos DeFi más importantes son:<br/><br/>- <strong>Aave y Compound</strong>: Plataformas de préstamos y depósitos.<br/>- <strong>Uniswap y SushiSwap</strong>: Intercambios descentralizados (DEX).<br/>- <strong>MakerDAO</strong>: Emisor de la stablecoin DAI.<br/>- <strong>Curve Finance</strong>: Especializado en intercambio eficiente de stablecoins.<br/>- <strong>Yearn Finance</strong>: Agregador de rendimiento que optimiza automáticamente las estrategias de inversión."
+      },
+      "risks": {
+        "question": "¿Cuáles son los riesgos de DeFi?",
+        "answer": "Los principales riesgos incluyen:<br/><br/>- <strong>Riesgo de contratos inteligentes</strong>: Vulnerabilidades en el código pueden ser explotadas.<br/>- <strong>Riesgo de liquidez</strong>: Poca profundidad de mercado en algunos activos.<br/>- <strong>Riesgo de colateral</strong>: Volatilidad que puede provocar liquidaciones.<br/>- <strong>Riesgo de gobernanza</strong>: Decisiones tomadas por los poseedores de tokens pueden no ser óptimas.<br/>- <strong>Riesgo regulatorio</strong>: La incertidumbre legal y posibles restricciones gubernamentales."
+      }
+    },
+    "nft": {
+      "title": "NFTs",
+      "description": "Tokens No Fungibles y activos digitales únicos",
+      "what": {
+        "question": "¿Qué son los NFTs?",
+        "answer": "Los NFTs (Tokens No Fungibles) son activos digitales únicos que representan la propiedad de un item digital específico. A diferencia de las criptomonedas como Bitcoin, que son fungibles (intercambiables entre sí), cada NFT tiene propiedades únicas y no puede ser intercambiado por otro de igual valor."
+      },
+      "work": {
+        "question": "¿Cómo funcionan los NFTs?",
+        "answer": "Los NFTs operan principalmente en blockchains que soportan contratos inteligentes, como Ethereum. Utilizan estándares como el ERC-721 o ERC-1155 que definen cómo crear y transferir tokens únicos. Cada NFT contiene metadatos que pueden incluir detalles sobre el activo digital que representa, su creador, historial de propiedad y características especiales."
+      },
+      "use": {
+        "question": "¿Cuáles son los casos de uso de los NFTs?",
+        "answer": "Los NFTs tienen diversas aplicaciones:<br/><br/>- <strong>Arte digital</strong>: Certifican la propiedad y autenticidad de obras digitales.<br/>- <strong>Coleccionables</strong>: Desde tarjetas deportivas hasta personajes virtuales.<br/>- <strong>Gaming</strong>: Items, personajes y terrenos en juegos blockchain.<br/>- <strong>Música y entretenimiento</strong>: Derechos sobre canciones y contenido multimedia.<br/>- <strong>Bienes raíces virtuales</strong>: Propiedades en metaversos y mundos digitales.<br/>- <strong>Identidad y certificaciones</strong>: Títulos académicos, entradas para eventos, etc."
+      }
+    },
+    "trading": {
+      "title": "Trading",
+      "description": "Estrategias y análisis para el trading de criptomonedas",
+      "analysis": {
+        "question": "¿Qué tipos de análisis se usan en crypto trading?",
+        "answer": "Los principales tipos de análisis son:<br/><br/>- <strong>Análisis Técnico</strong>: Estudia patrones de precio y volumen en gráficos para predecir movimientos futuros.<br/>- <strong>Análisis Fundamental</strong>: Evalúa el valor intrínseco del proyecto, su tecnología, equipo y adopción.<br/>- <strong>Análisis On-Chain</strong>: Examina datos de la blockchain como actividad de direcciones, distribución de monedas y flujos de exchange.<br/>- <strong>Análisis de Sentimiento</strong>: Monitorea la percepción del mercado en redes sociales y medios especializados."
+      },
+      "strategy": {
+        "question": "¿Cuáles son las estrategias comunes de trading?",
+        "answer": "Algunas estrategias populares incluyen:<br/><br/>- <strong>HODL</strong>: Comprar y mantener a largo plazo.<br/>- <strong>Day Trading</strong>: Operaciones intradía buscando beneficios de pequeños movimientos.<br/>- <strong>Swing Trading</strong>: Aprovecha tendencias a corto y medio plazo.<br/>- <strong>Scalping</strong>: Operaciones muy rápidas con beneficios mínimos pero frecuentes.<br/>- <strong>Dollar-Cost Averaging (DCA)</strong>: Invertir cantidades fijas a intervalos regulares.<br/>- <strong>Arbitraje</strong>: Explotar diferencias de precio entre distintos exchanges."
+      },
+      "risk": {
+        "question": "¿Cómo gestionar el riesgo en crypto trading?",
+        "answer": "La gestión de riesgos es fundamental:<br/><br/>- <strong>Diversificación</strong>: No concentrar todas las inversiones en un solo activo.<br/>- <strong>Tamaño de posición</strong>: Limitar cada operación a un pequeño porcentaje del capital total.<br/>- <strong>Stop Loss</strong>: Establecer órdenes automáticas que limiten las pérdidas.<br/>- <strong>Take Profit</strong>: Fijar objetivos de beneficio realistas.<br/>- <strong>Investigación</strong>: Operar solo con proyectos que se comprenden bien.<br/>- <strong>Control emocional</strong>: Evitar decisiones impulsivas basadas en miedo o codicia."
+      }
+    },
+    "resources": {
+      "bitcoin": "Bitcoin Whitepaper",
+      "bitcoinDesc": "El documento original de Satoshi Nakamoto que introdujo Bitcoin al mundo",
+      "ethereum": "Ethereum Whitepaper",
+      "ethereumDesc": "La visión de Vitalik Buterin para una plataforma de contratos inteligentes",
+      "defiPrimer": "Guía de introducción a DeFi",
+      "defiPrimerDesc": "Una guía completa para principiantes sobre Finanzas Descentralizadas"
+    }
+  },
+  "news": {
+    "title": "Noticias de Criptomonedas",
+    "subtitle": "Las últimas noticias y análisis del mundo crypto",
+    "readMore": "Leer más",
+    "noResults": "No se encontraron noticias para esta categoría",
+    "categories": {
+      "all": "Todas",
+      "bitcoin": "Bitcoin",
+      "ethereum": "Ethereum",
+      "defi": "DeFi",
+      "nft": "NFTs",
+      "regulation": "Regulación",
+      "market": "Mercado"
+    }
+  }
+}
