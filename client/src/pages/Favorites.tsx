@@ -1,129 +1,146 @@
 import { useState, useEffect } from "react";
 import { useCrypto } from "@/contexts/CryptoContext";
 import CryptoCard from "@/components/CryptoCard";
-import { Loader2 } from "lucide-react";
+import { Star, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 
 export default function Favorites() {
+  const { t } = useTranslation();
   const { cryptoData } = useCrypto();
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState("24h");
   const { toast } = useToast();
-  
+
+  // Fetch favorites from the server
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const response = await apiRequest("GET", "/api/favorites");
-        const data = await response.json();
-        const symbols = data.map((fav: any) => fav.symbol);
-        setFavorites(symbols);
+        setIsLoading(true);
+        const response = await fetch("/api/favorites");
+        if (response.ok) {
+          const data = await response.json();
+          setFavorites(data.map((item: any) => item.symbol.toLowerCase()));
+        }
       } catch (error) {
-        console.error("Failed to fetch favorites:", error);
+        console.error("Error fetching favorites:", error);
         toast({
-          title: "Error",
-          description: "Failed to load your favorite cryptocurrencies",
           variant: "destructive",
+          title: "Error",
+          description: "Failed to load your favorite cryptocurrencies"
         });
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     fetchFavorites();
   }, [toast]);
-  
+
+  // Toggle favorite status
   const toggleFavorite = async (symbol: string) => {
     try {
-      if (favorites.includes(symbol)) {
-        await apiRequest("DELETE", `/api/favorites/${symbol}`);
-        setFavorites(favorites.filter(fav => fav !== symbol));
-        toast({
-          title: "Removed from favorites",
-          description: `${symbol.toUpperCase()} has been removed from your favorites`,
-        });
-      } else {
-        await apiRequest("POST", "/api/favorites", { symbol });
-        setFavorites([...favorites, symbol]);
-        toast({
-          title: "Added to favorites",
-          description: `${symbol.toUpperCase()} has been added to your favorites`,
-        });
+      const method = favorites.includes(symbol.toLowerCase()) ? "DELETE" : "POST";
+      const response = await fetch(`/api/favorites/${symbol}`, { method });
+      
+      if (response.ok) {
+        if (method === "DELETE") {
+          setFavorites(favorites.filter(fav => fav !== symbol.toLowerCase()));
+          toast({
+            title: "Removed from favorites",
+            description: `${symbol.toUpperCase()} has been removed from your favorites`
+          });
+        } else {
+          setFavorites([...favorites, symbol.toLowerCase()]);
+          toast({
+            title: "Added to favorites",
+            description: `${symbol.toUpperCase()} has been added to your favorites`
+          });
+        }
       }
     } catch (error) {
-      console.error("Failed to update favorites:", error);
+      console.error("Error toggling favorite:", error);
       toast({
-        title: "Error",
-        description: "Failed to update your favorites",
         variant: "destructive",
+        title: "Error",
+        description: "Failed to update favorites"
       });
     }
   };
-  
-  // Filter cryptoData to only show favorites
-  const favoriteCryptos = cryptoData?.filter(crypto => 
+
+  const favoritesCryptoData = cryptoData?.filter(crypto => 
     favorites.includes(crypto.symbol.toLowerCase())
-  ) || [];
-  
+  );
+
+  // Change time filter
+  const handleTimeFilterChange = (filter: string) => {
+    setTimeFilter(filter);
+  };
+
   return (
-    <div className="container mx-auto p-6 h-full overflow-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Favorite Cryptocurrencies</h1>
-        <p className="text-muted-foreground">Track and manage your favorite crypto assets</p>
-      </div>
-      
-      <div className="mb-6 flex justify-between items-center">
+    <div className="container py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <Star className="text-yellow-500" size={24} />
+          {t("favorites.title", "Favorite Cryptocurrencies")}
+        </h1>
+        
         <div className="flex items-center gap-2">
-          <Button
-            variant={timeFilter === "24h" ? "default" : "outline"}
-            onClick={() => setTimeFilter("24h")}
-            size="sm"
-          >
-            24h
-          </Button>
-          <Button
-            variant={timeFilter === "7d" ? "default" : "outline"}
-            onClick={() => setTimeFilter("7d")}
-            size="sm"
-          >
-            7d
-          </Button>
-          <Button
-            variant={timeFilter === "30d" ? "default" : "outline"}
-            onClick={() => setTimeFilter("30d")}
-            size="sm"
-          >
-            30d
+          <div className="flex bg-card rounded-lg p-1">
+            {["24h", "7d", "14d", "30d"].map((filter) => (
+              <Button
+                key={filter}
+                variant={timeFilter === filter ? "default" : "ghost"}
+                size="sm"
+                onClick={() => handleTimeFilterChange(filter)}
+                className="text-xs"
+              >
+                {filter}
+              </Button>
+            ))}
+          </div>
+          
+          <Button variant="outline" size="icon">
+            <RefreshCw size={18} />
           </Button>
         </div>
       </div>
-      
+
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-card rounded-lg p-4">
+              <Skeleton className="h-8 w-2/3 mb-2" />
+              <Skeleton className="h-6 w-1/2 mb-4" />
+              <Skeleton className="h-24 w-full mb-2" />
+              <Skeleton className="h-6 w-1/3" />
+            </div>
+          ))}
         </div>
-      ) : favoriteCryptos.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {favoriteCryptos.map(crypto => (
+      ) : favorites.length === 0 ? (
+        <div className="bg-card/50 rounded-lg p-8 text-center">
+          <Star className="mx-auto text-muted-foreground mb-4" size={48} />
+          <h3 className="text-xl font-medium mb-2">{t("favorites.empty", "No favorites yet")}</h3>
+          <p className="text-muted-foreground mb-4">
+            {t("favorites.empty.description", "Add cryptocurrencies to your favorites to track them easily")}
+          </p>
+          <Button asChild>
+            <a href="/">{t("favorites.browse", "Browse Cryptocurrencies")}</a>
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {favoritesCryptoData?.map((crypto) => (
             <CryptoCard
               key={crypto.id}
               crypto={crypto}
               timeFilter={timeFilter}
-              onClick={() => toggleFavorite(crypto.symbol.toLowerCase())}
+              onClick={() => toggleFavorite(crypto.symbol)}
             />
           ))}
-        </div>
-      ) : (
-        <div className="bg-card rounded-lg p-8 text-center">
-          <h3 className="text-xl font-medium mb-2">No favorites yet</h3>
-          <p className="text-muted-foreground mb-6">
-            You haven't added any cryptocurrencies to your favorites list yet.
-          </p>
-          <Button asChild>
-            <a href="/">Browse Cryptocurrencies</a>
-          </Button>
         </div>
       )}
     </div>

@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 const Sidebar = () => {
   const [location] = useLocation();
   const { t } = useTranslation();
+  const { language } = useLanguage();
   const [showLanguageSwitcher, setShowLanguageSwitcher] = useState(false);
 
   const navItems = [
@@ -74,7 +75,9 @@ const Sidebar = () => {
         >
           <Globe size={20} />
           <span className="text-sm">{t("language.settings", "Language Settings")}</span>
-          <span className="ml-auto text-xs bg-primary/20 text-primary rounded-full px-1.5 py-0.5">ES</span>
+          <span className="ml-auto text-xs bg-primary/20 text-primary rounded-full px-1.5 py-0.5">
+            {language.toUpperCase()}
+          </span>
         </div>
       </div>
 
