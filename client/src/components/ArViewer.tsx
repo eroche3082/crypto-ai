@@ -189,7 +189,8 @@ const ArViewer: React.FC<ArViewerProps> = ({ cryptoSymbol, onCancel }) => {
         </Button>
       </div>
       
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(5deg); }
@@ -203,7 +204,8 @@ const ArViewer: React.FC<ArViewerProps> = ({ cryptoSymbol, onCancel }) => {
         .animate-float {
           animation: float 6s ease-in-out infinite;
         }
-      `}</style>
+        `
+      }} />
     </div>
   );
 };
