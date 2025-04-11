@@ -329,7 +329,7 @@ const TaxSimulator: React.FC = () => {
             <TabsTrigger value="results">3. Results</TabsTrigger>
           </TabsList>
           
-          {/* Sección de Transacciones */}
+          {/* Transactions Section */}
           <TabsContent value="transactions" className="space-y-4 pt-4">
             <Card>
               <CardHeader>
@@ -347,20 +347,20 @@ const TaxSimulator: React.FC = () => {
                         name="type"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.transactionType", "Tipo de Transacción")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.transactionType", "Transaction Type")}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder={t("taxSimulator.selectType", "Seleccionar tipo")} />
+                                  <SelectValue placeholder={t("taxSimulator.selectType", "Select type")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="buy">{t("taxSimulator.buy", "Compra")}</SelectItem>
-                                <SelectItem value="sell">{t("taxSimulator.sell", "Venta")}</SelectItem>
-                                <SelectItem value="swap">{t("taxSimulator.swap", "Intercambio")}</SelectItem>
-                                <SelectItem value="mining">{t("taxSimulator.mining", "Minería")}</SelectItem>
+                                <SelectItem value="buy">{t("taxSimulator.buy", "Buy")}</SelectItem>
+                                <SelectItem value="sell">{t("taxSimulator.sell", "Sell")}</SelectItem>
+                                <SelectItem value="swap">{t("taxSimulator.swap", "Swap")}</SelectItem>
+                                <SelectItem value="mining">{t("taxSimulator.mining", "Mining")}</SelectItem>
                                 <SelectItem value="staking">{t("taxSimulator.staking", "Staking")}</SelectItem>
-                                <SelectItem value="gift">{t("taxSimulator.gift", "Regalo/Donación")}</SelectItem>
+                                <SelectItem value="gift">{t("taxSimulator.gift", "Gift/Donation")}</SelectItem>
                                 <SelectItem value="airdrop">{t("taxSimulator.airdrop", "Airdrop")}</SelectItem>
                               </SelectContent>
                             </Select>
@@ -465,13 +465,13 @@ const TaxSimulator: React.FC = () => {
               </CardContent>
             </Card>
             
-            {/* Lista de Transacciones */}
+            {/* Transactions List */}
             {transactions.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("taxSimulator.transactions", "Transacciones")}</CardTitle>
+                  <CardTitle>{t("taxSimulator.transactions", "Transactions")}</CardTitle>
                   <CardDescription>
-                    {t("taxSimulator.transactionsDesc", `${transactions.length} transacciones registradas`)}
+                    {t("taxSimulator.transactionsDesc", `${transactions.length} registered transactions`)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -528,13 +528,13 @@ const TaxSimulator: React.FC = () => {
             )}
           </TabsContent>
           
-          {/* Sección de Información Fiscal */}
+          {/* Tax Information Section */}
           <TabsContent value="taxinfo" className="space-y-4 pt-4">
             <Card>
               <CardHeader>
-                <CardTitle>{t("taxSimulator.taxInfo", "Información Fiscal")}</CardTitle>
+                <CardTitle>{t("taxSimulator.taxInfo", "Tax Information")}</CardTitle>
                 <CardDescription>
-                  {t("taxSimulator.taxInfoDesc", "Configura tus preferencias fiscales para el cálculo de impuestos")}
+                  {t("taxSimulator.taxInfoDesc", "Configure your tax preferences for tax calculation")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -669,57 +669,57 @@ const TaxSimulator: React.FC = () => {
             </Card>
           </TabsContent>
           
-          {/* Sección de Resultados */}
+          {/* Results Section */}
           <TabsContent value="results" className="space-y-4 pt-4">
             {taxResults ? (
               <>
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("taxSimulator.results", "Resultados del Cálculo de Impuestos")}</CardTitle>
+                    <CardTitle>{t("taxSimulator.results", "Tax Calculation Results")}</CardTitle>
                     <CardDescription>
-                      {t("taxSimulator.resultsDesc", "Resumen de tus obligaciones fiscales potenciales")}
+                      {t("taxSimulator.resultsDesc", "Summary of your potential tax obligations")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div className="bg-card/50 p-4 rounded-lg">
-                        <h3 className="text-lg font-medium mb-2">{t("taxSimulator.summary", "Resumen Fiscal")}</h3>
+                        <h3 className="text-lg font-medium mb-2">{t("taxSimulator.summary", "Tax Summary")}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.totalGainLoss", "Ganancia/Pérdida Total")}</p>
+                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.totalGainLoss", "Total Gain/Loss")}</p>
                             <p className={`text-xl font-semibold ${taxResults.summary.totalGainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                               ${taxResults.summary.totalGainLoss.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </p>
                           </div>
                           
                           <div>
-                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.totalTax", "Impuesto Total Estimado")}</p>
+                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.totalTax", "Estimated Total Tax")}</p>
                             <p className="text-xl font-semibold">
                               ${taxResults.summary.totalTax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </p>
                           </div>
                           
                           <div>
-                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.shortTermGains", "Ganancias a corto plazo")}</p>
+                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.shortTermGains", "Short-term Gains")}</p>
                             <p className={`${taxResults.summary.shortTermGainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                               ${taxResults.summary.shortTermGainLoss.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </p>
                           </div>
                           
                           <div>
-                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.longTermGains", "Ganancias a largo plazo")}</p>
+                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.longTermGains", "Long-term Gains")}</p>
                             <p className={`${taxResults.summary.longTermGainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                               ${taxResults.summary.longTermGainLoss.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </p>
                           </div>
                           
                           <div>
-                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.taxableIncome", "Ingresos imponibles (minería, staking, etc.)")}</p>
+                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.taxableIncome", "Taxable Income (mining, staking, etc.)")}</p>
                             <p>${taxResults.summary.taxableIncome.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                           </div>
                           
                           <div>
-                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.effectiveTaxRate", "Tasa impositiva efectiva")}</p>
+                            <p className="text-sm text-muted-foreground mb-1">{t("taxSimulator.effectiveTaxRate", "Effective Tax Rate")}</p>
                             <p>{(taxResults.summary.effectiveTaxRate * 100).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}%</p>
                           </div>
                         </div>
@@ -728,7 +728,7 @@ const TaxSimulator: React.FC = () => {
                       <Separator />
                       
                       <div>
-                        <h3 className="text-lg font-medium mb-2">{t("taxSimulator.detailedResults", "Resultados Detallados por Activo")}</h3>
+                        <h3 className="text-lg font-medium mb-2">{t("taxSimulator.detailedResults", "Detailed Results by Asset")}</h3>
                         <ScrollArea className="h-[300px]">
                           {Object.keys(taxResults.assetResults).map((asset) => {
                             const result = taxResults.assetResults[asset];
@@ -743,22 +743,22 @@ const TaxSimulator: React.FC = () => {
                                 
                                 <div className="grid grid-cols-2 gap-2 text-sm">
                                   <div>
-                                    <p className="text-muted-foreground">{t("taxSimulator.bought", "Comprado")}</p>
+                                    <p className="text-muted-foreground">{t("taxSimulator.bought", "Bought")}</p>
                                     <p>{result.bought.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 8})} {asset}</p>
                                   </div>
                                   
                                   <div>
-                                    <p className="text-muted-foreground">{t("taxSimulator.sold", "Vendido")}</p>
+                                    <p className="text-muted-foreground">{t("taxSimulator.sold", "Sold")}</p>
                                     <p>{result.sold.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 8})} {asset}</p>
                                   </div>
                                   
                                   <div>
-                                    <p className="text-muted-foreground">{t("taxSimulator.costBasis", "Base de costo")}</p>
+                                    <p className="text-muted-foreground">{t("taxSimulator.costBasis", "Cost Basis")}</p>
                                     <p>${result.costBasis.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                   </div>
                                   
                                   <div>
-                                    <p className="text-muted-foreground">{t("taxSimulator.proceeds", "Ingresos")}</p>
+                                    <p className="text-muted-foreground">{t("taxSimulator.proceeds", "Proceeds")}</p>
                                     <p>${result.proceeds.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                   </div>
                                 </div>
@@ -774,7 +774,7 @@ const TaxSimulator: React.FC = () => {
                           onClick={exportReport}
                         >
                           <Download className="mr-2 h-4 w-4" />
-                          {t("taxSimulator.export", "Exportar Informe")}
+                          {t("taxSimulator.export", "Export Report")}
                         </Button>
                         
                         <Button 
@@ -785,30 +785,30 @@ const TaxSimulator: React.FC = () => {
                           }}
                         >
                           <FilePieChart className="mr-2 h-4 w-4" />
-                          {t("taxSimulator.adjustTransactions", "Ajustar Transacciones")}
+                          {t("taxSimulator.adjustTransactions", "Adjust Transactions")}
                         </Button>
                       </div>
                     </div>
                   </CardContent>
                   <CardFooter className="text-sm text-muted-foreground">
                     <div className="flex flex-col gap-1 w-full">
-                      <p>{t("taxSimulator.disclaimer", "Descargo de responsabilidad:")}</p>
-                      <p>{t("taxSimulator.disclaimerText", "Esta herramienta solo proporciona cálculos aproximados. Para una evaluación fiscal precisa, siempre consulta con un profesional de impuestos calificado.")}</p>
+                      <p>{t("taxSimulator.disclaimer", "Disclaimer:")}</p>
+                      <p>{t("taxSimulator.disclaimerText", "This tool only provides approximate calculations. For accurate tax assessment, always consult with a qualified tax professional.")}</p>
                     </div>
                   </CardFooter>
                 </Card>
                 
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("taxSimulator.taxTips", "Consejos Fiscales para Criptomonedas")}</CardTitle>
+                    <CardTitle>{t("taxSimulator.taxTips", "Cryptocurrency Tax Tips")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2 list-disc pl-5">
-                      <li>{t("taxSimulator.tip1", "Mantén registros detallados de todas tus transacciones, incluyendo fechas, cantidades y precios.")}</li>
-                      <li>{t("taxSimulator.tip2", "Considera mantener activos por más de un año para potencialmente calificar para tasas de ganancias de capital a largo plazo.")}</li>
-                      <li>{t("taxSimulator.tip3", "Las pérdidas de criptomonedas pueden ser utilizadas para compensar ganancias de capital en muchas jurisdicciones.")}</li>
-                      <li>{t("taxSimulator.tip4", "Los ingresos por minería, staking y airdrops suelen considerarse como ingresos ordinarios en el momento de la recepción.")}</li>
-                      <li>{t("taxSimulator.tip5", "Algunas jurisdicciones consideran el intercambio entre criptomonedas como eventos imponibles.")}</li>
+                      <li>{t("taxSimulator.tip1", "Keep detailed records of all your transactions, including dates, quantities, and prices.")}</li>
+                      <li>{t("taxSimulator.tip2", "Consider holding assets for more than a year to potentially qualify for lower long-term capital gains tax rates.")}</li>
+                      <li>{t("taxSimulator.tip3", "Cryptocurrency losses can be used to offset capital gains in many jurisdictions.")}</li>
+                      <li>{t("taxSimulator.tip4", "Income from mining, staking, and airdrops is usually considered as ordinary income at the time of receipt.")}</li>
+                      <li>{t("taxSimulator.tip5", "Some jurisdictions consider exchanges between cryptocurrencies as taxable events.")}</li>
                     </ul>
                   </CardContent>
                 </Card>
@@ -818,14 +818,14 @@ const TaxSimulator: React.FC = () => {
                 <CardContent className="flex flex-col items-center justify-center p-6">
                   <div className="text-center">
                     <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-medium mb-2">{t("taxSimulator.noResults", "No hay resultados disponibles")}</h3>
+                    <h3 className="text-lg font-medium mb-2">{t("taxSimulator.noResults", "No results available")}</h3>
                     <p className="text-muted-foreground mb-4">
-                      {t("taxSimulator.addTransactionsFirst", "Añade transacciones y configura tus preferencias fiscales para ver los resultados.")}
+                      {t("taxSimulator.addTransactionsFirst", "Add transactions and configure your tax preferences to see results.")}
                     </p>
                     <Button 
                       onClick={() => setActiveTab("transactions")}
                     >
-                      {t("taxSimulator.goToTransactions", "Ir a Transacciones")}
+                      {t("taxSimulator.goToTransactions", "Go to Transactions")}
                     </Button>
                   </div>
                 </CardContent>
