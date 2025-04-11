@@ -1,0 +1,81 @@
+# CryptoBot AI System Full Setup Prompt
+
+Build a fully functional cryptocurrency assistant system with the following integrated modules and features:
+
+1. **Framework & AI Models**
+   - Use **Genkit** as the core framework.
+   - Set **Vertex AI** with `gemini-1.5-flash` as the default LLM.
+   - Use **OpenAI GPT-4o** as fallback if Vertex is unavailable.
+   - Activate real-time reasoning, knowledge retrieval, and contextual memory per user.
+
+2. **Visual Chat Interface (Zoom Style)**
+   - Chat bubble opens from bottom-right corner.
+   - On click, open **full-screen chat window** with:
+     - Avatar displayed **on the left** (static from DALL·E or animated in future).
+     - Conversational chat flow **on the right**.
+     - Responsive layout for desktop, tablet, mobile.
+
+3. **Avatar Integration**
+   - Use **DALL·E 3** or equivalent to render the default CryptoBot avatar.
+   - Avatar should be intelligent, financial, analytical, and modern.
+   - Future-ready for **Ready Player Me** (API integration support).
+   - Load avatar dynamically and allow upload from Admin Panel.
+
+4. **Voice & Multimodal Input**
+   - Enable:
+     - **Microphone input** (speech-to-text using Google STT).
+     - **Text-to-speech** output (using ElevenLabs or Google TTS).
+     - **QR code scanning**
+     - **Camera input** (for ID verification or coin scanning).
+   - Activate **one-question-at-a-time** conversation flow for better logic handling.
+
+5. **APIs & Data Sources**
+   - Connect to real-time crypto APIs:
+     - CoinGecko (primary)
+     - CoinMarketCap (backup)
+     - CoinPaprika (tertiary)
+     - NewsAPI for crypto news
+     - Whale Alert for large transactions
+   - Provide:
+     - Real-time prices, charts, news, alerts, on-chain analysis
+     - Portfolio tracking, favorites, historical data
+     - Simulated trading options or paper trading (optional)
+
+6. **Modules and Features**
+   - Dashboard with current prices and trends
+   - AI assistant with dynamic crypto Q&A
+   - Alerts system (custom price thresholds)
+   - Portfolio builder and wallet tracker
+   - Education module (crypto learning guide)
+   - Converter and calculator
+   - Real-time sentiment analysis
+   - AI chart insights (lightweight-charts + indicators)
+   - NFT + DeFi assistant tabs (optional extensions)
+
+7. **Personalization & Memory**
+   - Connect to Firebase or PostgreSQL (NeonDB) for:
+     - User memory and profiles
+     - Language preferences
+     - Custom portfolios and alerts
+     - Persistent conversation context
+
+8. **Multilingual Support**
+   - Enable full multilingual UI with dynamic switching
+   - Default languages: English, Spanish
+   - Include translation fallback (RapidAPI, Google Translate)
+
+9. **Security & Access**
+   - Implement Firebase App Check
+   - Optional Firebase Authentication
+   - Protect all AI routes and endpoints
+
+10. **UI/UX & Branding**
+   - Dark mode interface with neon-style highlights
+   - Follow design system similar to **CryptoPulse** or **Binance Terminal**
+   - Include user settings toggle for AI model, language, voice, currency
+
+11. **Deployment Readiness**
+   - Ensure all modules are functional and ready to **deploy to Firebase Hosting**
+   - SDKs must be connected for Gemini, Firebase, and DALL·E
+   - UI and backend must sync through secure WebSockets or REST
+

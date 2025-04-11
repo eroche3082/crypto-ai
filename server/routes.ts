@@ -8,6 +8,7 @@ import path from 'path';
 import { googleTTSHandler, elevenLabsTTSHandler } from "./tts";
 import { analyzeImage, uploadMiddleware } from "./vision";
 import { getTwitterSentiment, getMarketSentiment } from "./twitter";
+import { analyzeSentiment } from "./sentiment";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
