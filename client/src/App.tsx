@@ -12,6 +12,7 @@ import Locations from "./pages/Locations";
 import Analysis from "./pages/Analysis";
 import Watchlist from "./pages/Watchlist";
 import InvestmentAdvisor from "./pages/InvestmentAdvisor";
+import TwitterSentiment from "./pages/TwitterSentiment";
 import NotFound from "@/pages/not-found";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";

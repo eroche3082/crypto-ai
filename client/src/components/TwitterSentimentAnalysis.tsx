@@ -68,7 +68,7 @@ const TwitterSentimentAnalysis: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [chartTab, setChartTab] = useState<'pie' | 'bar'>('pie');
   const { toast } = useToast();
-  const { cryptos } = useCrypto();
+  const { cryptoData } = useCrypto();
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
@@ -103,7 +103,9 @@ const TwitterSentimentAnalysis: React.FC = () => {
   const fetchMarketSentiment = async () => {
     try {
       // Get the top 10 cryptocurrencies by market cap
-      const symbols = cryptos.slice(0, 10).map(crypto => crypto.symbol.toUpperCase()).join(',');
+      const symbols = cryptoData && cryptoData.length > 0 
+        ? cryptoData.slice(0, 10).map((crypto: any) => crypto.symbol.toUpperCase()).join(',')
+        : 'BTC,ETH,SOL,XRP,BNB';
       const response = await fetch(`/api/sentiment/market?symbols=${symbols}`);
       if (!response.ok) {
         throw new Error('Failed to fetch market sentiment data');
@@ -199,7 +201,7 @@ const TwitterSentimentAnalysis: React.FC = () => {
           <CardContent className="p-4">
             <div className="mb-6">
               <div className="flex overflow-x-auto pb-2 gap-2">
-                {cryptos.slice(0, 12).map((crypto) => (
+                {cryptoData && cryptoData.length > 0 ? cryptoData.slice(0, 12).map((crypto: any) => (
                   <Button
                     key={crypto.symbol}
                     variant={selectedCrypto === crypto.symbol.toUpperCase() ? "default" : "outline"}
@@ -208,7 +210,19 @@ const TwitterSentimentAnalysis: React.FC = () => {
                   >
                     {crypto.symbol.toUpperCase()}
                   </Button>
-                ))}
+                )) : (
+                  // Fallback buttons when no crypto data is available
+                  ['BTC', 'ETH', 'SOL', 'XRP', 'BNB'].map((symbol) => (
+                    <Button
+                      key={symbol}
+                      variant={selectedCrypto === symbol ? "default" : "outline"}
+                      className="whitespace-nowrap"
+                      onClick={() => setSelectedCrypto(symbol)}
+                    >
+                      {symbol}
+                    </Button>
+                  ))
+                )}
               </div>
             </div>
 
