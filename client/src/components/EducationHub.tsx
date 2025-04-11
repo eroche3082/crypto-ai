@@ -248,6 +248,38 @@ const EducationHub = () => {
     }
   };
   
+  // Handle course bookmarking
+  const handleBookmarkCourse = (courseId: string) => {
+    setBookmarkedCourses(prev => 
+      prev.includes(courseId) 
+        ? prev.filter(id => id !== courseId)
+        : [...prev, courseId]
+    );
+    
+    toast({
+      title: bookmarkedCourses.includes(courseId) 
+        ? t("education.courseRemovedFromBookmarks", "Course removed from bookmarks") 
+        : t("education.courseAddedToBookmarks", "Course added to bookmarks"),
+      duration: 3000
+    });
+  };
+  
+  // Handle course enrollment
+  const handleEnrollCourse = (courseId: string) => {
+    setSelectedCourseForEnroll(courseId);
+    setEnrollDialogOpen(true);
+  };
+  
+  // Complete enrollment process
+  const completeEnrollment = () => {
+    toast({
+      title: t("education.enrollmentSuccessful", "Enrollment Successful"),
+      description: t("education.enrollmentSuccessfulDesc", "You have successfully enrolled in the course"),
+      duration: 3000
+    });
+    setEnrollDialogOpen(false);
+  };
+  
   const getTotalProgress = () => {
     const totalTopics = educationCategories.reduce((acc, category) => acc + category.content.length, 0);
     return Math.round((completedTopics.length / totalTopics) * 100);
@@ -268,7 +300,7 @@ const EducationHub = () => {
       </div>
       
       <div className="bg-secondary/50 rounded-lg p-4 mb-6">
-        <div className="flex space-x-4">
+        <div className="flex flex-wrap gap-2">
           <Button 
             variant={view === "topics" ? "default" : "outline"} 
             onClick={() => setView("topics")}
@@ -283,7 +315,15 @@ const EducationHub = () => {
             className="flex items-center"
           >
             <span className="material-icons mr-2 text-sm">school</span>
-            {t("education.coursesView", "Courses")}
+            {t("education.coursesView", "Beginner Courses")}
+          </Button>
+          <Button 
+            variant={view === "realCourses" ? "default" : "outline"} 
+            onClick={() => setView("realCourses")}
+            className="flex items-center"
+          >
+            <span className="material-icons mr-2 text-sm">workspace_premium</span>
+            {t("education.realCoursesView", "Pro Courses")}
           </Button>
           <Button 
             variant={view === "resources" ? "default" : "outline"} 
@@ -448,6 +488,14 @@ const EducationHub = () => {
         </div>
       )}
       
+      {view === "realCourses" && (
+        <RealCourses 
+          onEnroll={handleEnrollCourse}
+          onBookmark={handleBookmarkCourse}
+          bookmarkedCourses={bookmarkedCourses}
+        />
+      )}
+      
       {view === "resources" && (
         <div>
           <div className="mb-6">
@@ -532,6 +580,22 @@ const EducationHub = () => {
           )}
         </div>
       )}
+      
+      {/* Enrollment confirmation dialog */}
+      <AlertDialog open={enrollDialogOpen} onOpenChange={setEnrollDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("education.enrollmentConfirmation", "Enrollment Confirmation")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("education.enrollmentConfirmationDescription", "You are about to enroll in this course. Some courses may have fees associated with them. Continue?")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel", "Cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={completeEnrollment}>{t("education.enrollNow", "Enroll Now")}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
