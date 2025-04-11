@@ -286,8 +286,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { vs_currency, ids, category, order, per_page, page, sparkline, price_change_percentage } = req.query;
       
-      // Use free API for now since the Pro API seems to have authentication issues
-      const apiKey = process.env.VITE_COINGECKO_API_KEY;
+      // Use free API since the Pro API seems to have authentication issues
+      // const apiKey = process.env.VITE_COINGECKO_API_KEY;
       const baseUrl = "https://api.coingecko.com/api/v3";
       const url = new URL(`${baseUrl}/coins/markets`);
       
@@ -302,18 +302,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (sparkline) url.searchParams.append("sparkline", sparkline as string);
       if (price_change_percentage) url.searchParams.append("price_change_percentage", price_change_percentage as string);
       
-      // Configure headers with API key
+      // Configure headers
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
         "Accept": "application/json",
       };
       
-      if (apiKey) {
-        headers["x-cg-pro-api-key"] = apiKey;
-        console.log("Using CoinGecko Pro API with API key");
-      } else {
-        console.log("Using CoinGecko free API tier (no API key provided)");
-      }
+      console.log("Using CoinGecko free API tier");
       
       // Implement retry logic
       const maxRetries = 3;
@@ -393,20 +388,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = req.params.id;
       const queryParams = new URLSearchParams(req.query as any);
       
-      // Use free API for now since the Pro API seems to have authentication issues
-      const apiKey = process.env.VITE_COINGECKO_API_KEY;
+      // Use free API since the Pro API seems to have authentication issues
+      // const apiKey = process.env.VITE_COINGECKO_API_KEY;
       const baseUrl = "https://api.coingecko.com/api/v3";
       const url = `${baseUrl}/coins/${id}?${queryParams.toString()}`;
       
-      // Configure headers with API key
+      // Configure headers
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
         "Accept": "application/json",
       };
       
-      if (apiKey) {
-        headers["x-cg-pro-api-key"] = apiKey;
-      }
+      console.log("Using CoinGecko free API tier for coin details");
       
       // Implement retry logic for individual coin data
       const maxRetries = 3;
@@ -839,6 +832,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Text-to-Speech API routes
   app.post('/api/tts/google', googleTTSHandler);
   app.post('/api/tts/elevenlabs', elevenLabsTTSHandler);
+  
+  // API routes for Favorites
+  app.get("/api/favorites", async (req, res) => {
+    try {
+      // In a real app, we would get the user ID from the session
+      // For now, using a mock user ID of 1
+      const userId = 1;
+      const favorites = await storage.getFavorites(userId);
+      res.json(favorites);
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+  
+  app.post("/api/favorites/:symbol", async (req, res) => {
+    try {
+      // In a real app, we would get the user ID from the session
+      const userId = 1;
+      const symbol = req.params.symbol.toLowerCase();
+      
+      // Check if already a favorite
+      const exists = await storage.checkFavorite(userId, symbol);
+      if (exists) {
+        return res.status(400).json({ error: "Already a favorite" });
+      }
+      
+      const favorite = await storage.createFavorite({
+        userId,
+        symbol,
+        addedAt: new Date()
+      });
+      
+      res.status(201).json(favorite);
+    } catch (error) {
+      console.error("Error adding favorite:", error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+  
+  app.delete("/api/favorites/:symbol", async (req, res) => {
+    try {
+      // In a real app, we would get the user ID from the session
+      const userId = 1;
+      const symbol = req.params.symbol.toLowerCase();
+      
+      // Get the favorite first
+      const favorites = await storage.getFavorites(userId);
+      const favorite = favorites.find(f => f.symbol.toLowerCase() === symbol);
+      
+      if (!favorite) {
+        return res.status(404).json({ error: "Favorite not found" });
+      }
+      
+      const result = await storage.deleteFavorite(favorite.id);
+      
+      if (result) {
+        res.json({ success: true });
+      } else {
+        res.status(500).json({ error: "Failed to delete favorite" });
+      }
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
   
   return httpServer;
 }
