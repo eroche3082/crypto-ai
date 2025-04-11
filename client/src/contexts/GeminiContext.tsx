@@ -15,7 +15,7 @@ interface GeminiContextType {
 }
 
 const GeminiContext = createContext<GeminiContextType>({
-  model: "gemini-1.5-pro-latest",
+  model: "gemini-1.5-flash-latest",
   setModel: () => {},
   language: "en",
   setLanguage: () => {},
@@ -30,7 +30,7 @@ interface GeminiProviderProps {
 }
 
 export const GeminiProvider = ({ children }: GeminiProviderProps) => {
-  const [model, setModel] = useState("gemini-1.5-pro-latest");
+  const [model, setModel] = useState("gemini-1.5-flash-latest");
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState("en");
   
