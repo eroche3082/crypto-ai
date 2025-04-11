@@ -15,6 +15,9 @@ import NotFound from "@/pages/not-found";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import { GeminiProvider } from "./contexts/GeminiContext";
+import { CryptoProvider } from "./contexts/CryptoContext";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -145,25 +148,31 @@ function App() {
   
   // Main application
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-foreground">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Switch>
-          <Route path="/" component={Dashboard} />
-          <Route path="/portfolio" component={Portfolio} />
-          <Route path="/favorites" component={Favorites} />
-          <Route path="/alerts" component={Alerts} />
-          <Route path="/converter" component={Converter} />
-          <Route path="/education" component={Education} />
-          <Route path="/news" component={News} />
-          <Route path="/locations" component={Locations} />
-          <Route path="/analysis" component={Analysis} />
-          <Route path="/watchlist" component={Watchlist} />
-          <Route component={NotFound} />
-        </Switch>
-      </div>
-      <FloatingChatbot />
-    </div>
+    <LanguageProvider>
+      <GeminiProvider>
+        <CryptoProvider>
+          <div className="flex h-screen overflow-hidden bg-background text-foreground">
+            <Sidebar />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <Switch>
+                <Route path="/" component={Dashboard} />
+                <Route path="/portfolio" component={Portfolio} />
+                <Route path="/favorites" component={Favorites} />
+                <Route path="/alerts" component={Alerts} />
+                <Route path="/converter" component={Converter} />
+                <Route path="/education" component={Education} />
+                <Route path="/news" component={News} />
+                <Route path="/locations" component={Locations} />
+                <Route path="/analysis" component={Analysis} />
+                <Route path="/watchlist" component={Watchlist} />
+                <Route component={NotFound} />
+              </Switch>
+            </div>
+            <FloatingChatbot />
+          </div>
+        </CryptoProvider>
+      </GeminiProvider>
+    </LanguageProvider>
   );
 }
 

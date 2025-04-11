@@ -105,17 +105,12 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 // Create a wrapped app with all providers
+// Remove nested providers to prevent circular dependencies
 const WrappedApp = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <GeminiProvider>
-          <CryptoProvider>
-            <App />
-            <Toaster />
-          </CryptoProvider>
-        </GeminiProvider>
-      </LanguageProvider>
+      <App />
+      <Toaster />
     </QueryClientProvider>
   </ErrorBoundary>
 );

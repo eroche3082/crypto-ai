@@ -1,7 +1,9 @@
 import { useLocation, Link } from "wouter";
 import { useState } from "react";
-import { useLanguage } from "../contexts/LanguageContext";
 import { useTranslation } from "react-i18next";
+// Create a local version of useLanguage hook
+import { useContext } from "react";
+import { createContext } from "react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { 
   LayoutDashboard, 

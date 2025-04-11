@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useGemini } from "@/contexts/GeminiContext";
+import { useGemini } from "../contexts/GeminiContext";
 // Using language directly from GeminiContext
 import { 
   MessageSquare, X, Settings, Mic, Camera, 
