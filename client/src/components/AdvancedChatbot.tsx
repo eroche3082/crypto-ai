@@ -43,7 +43,18 @@ import CameraCapture from "@/components/CameraCapture";
 import QrScanner from "@/components/QrScanner";
 import ArViewer from "@/components/ArViewer";
 import { auth } from "../firebase";
-import { motion, AnimatePresence } from "framer-motion";
+// No necesitamos importar framer-motion directamente
+// import { motion, AnimatePresence } from "framer-motion";
+
+// En su lugar, usamos los componentes ya configurados con shadcn/ui
+import { 
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // Avatar animation
 const AvatarAnimation = () => {
@@ -446,20 +457,15 @@ export default function AdvancedChatbot() {
   return (
     <>
       {/* Floating button */}
-      <AnimatePresence>
-        {!isChatOpen && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            onClick={() => setIsChatOpen(true)}
-            className="fixed bottom-6 right-6 bg-primary text-white rounded-full p-4 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/50 z-50"
-          >
-            <MessageSquare className="w-6 h-6" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {!isChatOpen && (
+        <Button
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-primary text-white rounded-full p-4 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/50 z-50"
+          size="icon"
+        >
+          <MessageSquare className="w-6 h-6" />
+        </Button>
+      )}
 
       {/* Active tool overlay */}
       {isChatOpen && activeToolType === 'audio' && (
@@ -487,15 +493,10 @@ export default function AdvancedChatbot() {
       )}
       
       {/* Chat overlay */}
-      <AnimatePresence>
-        {isChatOpen && !activeToolType && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className={`fixed ${isFullscreen ? 'inset-0' : 'bottom-6 right-6 w-[95%] sm:w-[400px] h-[600px] sm:max-w-[90vw] sm:max-h-[80vh]'} 
-            z-50 bg-background border border-border shadow-2xl rounded-lg flex flex-col overflow-hidden`}
+      {isChatOpen && !activeToolType && (
+        <Card 
+          className={`fixed ${isFullscreen ? 'inset-0' : 'bottom-6 right-6 w-[95%] sm:w-[400px] h-[600px] sm:max-w-[90vw] sm:max-h-[80vh]'} 
+          z-50 bg-background border border-border shadow-2xl rounded-lg flex flex-col overflow-hidden`}
           >
             {/* Chat header */}
             <div className="border-b py-3 px-4 flex items-center justify-between shrink-0">
@@ -1051,9 +1052,8 @@ export default function AdvancedChatbot() {
                 </Tabs>
               </div>
             </div>
-          </motion.div>
+          </Card>
         )}
-      </AnimatePresence>
       
       {/* Settings dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
