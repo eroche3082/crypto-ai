@@ -34,11 +34,11 @@ const transactionSchema = z.object({
   ),
 });
 
-// Schema para el formulario de información fiscal
+// Schema for the tax information form
 const taxInfoSchema = z.object({
-  country: z.string().min(1, { message: "País requerido" }),
-  taxYear: z.string().min(1, { message: "Año fiscal requerido" }),
-  taxBracket: z.string().min(1, { message: "Tasa impositiva requerida" }),
+  country: z.string().min(1, { message: "Country required" }),
+  taxYear: z.string().min(1, { message: "Tax year required" }),
+  taxBracket: z.string().min(1, { message: "Tax rate required" }),
   holdingPeriod: z.string().optional(),
 });
 
@@ -49,16 +49,16 @@ interface Transaction extends TransactionFormValues {
   id: string;
 }
 
-// Opciones predefinidas
+// Predefined options
 const COUNTRIES = [
-  { value: "us", label: "Estados Unidos" },
-  { value: "es", label: "España" },
-  { value: "mx", label: "México" },
+  { value: "us", label: "United States" },
+  { value: "es", label: "Spain" },
+  { value: "mx", label: "Mexico" },
   { value: "ar", label: "Argentina" },
   { value: "co", label: "Colombia" },
   { value: "cl", label: "Chile" },
-  { value: "pe", label: "Perú" },
-  { value: "other", label: "Otro" },
+  { value: "pe", label: "Peru" },
+  { value: "other", label: "Other" },
 ];
 
 const TAX_YEARS = [
@@ -75,7 +75,7 @@ const TAX_BRACKETS = [
   { value: "0.30", label: "30%" },
   { value: "0.35", label: "35%" },
   { value: "0.37", label: "37%" },
-  { value: "custom", label: "Personalizado" },
+  { value: "custom", label: "Custom" },
 ];
 
 const TaxSimulator: React.FC = () => {
@@ -88,7 +88,7 @@ const TaxSimulator: React.FC = () => {
   const [customTaxRate, setCustomTaxRate] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("transactions");
 
-  // Formulario para transacciones
+  // Transaction form
   const transactionForm = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
@@ -101,7 +101,7 @@ const TaxSimulator: React.FC = () => {
     },
   });
 
-  // Formulario para la información fiscal
+  // Tax information form
   const taxInfoForm = useForm<TaxInfoFormValues>({
     resolver: zodResolver(taxInfoSchema),
     defaultValues: {
@@ -112,7 +112,7 @@ const TaxSimulator: React.FC = () => {
     },
   });
 
-  // Añadir una transacción
+  // Add a transaction
   const onAddTransaction = (data: TransactionFormValues) => {
     const newTransaction: Transaction = {
       ...data,
@@ -130,23 +130,23 @@ const TaxSimulator: React.FC = () => {
     });
     
     toast({
-      title: "Transacción añadida",
-      description: `Transacción de ${data.type} añadida correctamente.`,
+      title: "Transaction added",
+      description: `${data.type.charAt(0).toUpperCase() + data.type.slice(1)} transaction added successfully.`,
     });
   };
 
-  // Eliminar una transacción
+  // Delete a transaction
   const onDeleteTransaction = (id: string) => {
     setTransactions(transactions.filter(t => t.id !== id));
     toast({
-      title: "Transacción eliminada",
-      description: "La transacción ha sido eliminada correctamente.",
+      title: "Transaction deleted",
+      description: "The transaction has been successfully deleted.",
     });
   };
 
-  // Guardar información fiscal
+  // Save tax information
   const onSaveTaxInfo = (data: TaxInfoFormValues) => {
-    // Si la tasa es personalizada, usamos el valor ingresado por el usuario
+    // If a custom tax rate is selected, use the value entered by the user
     if (data.taxBracket === "custom" && customTaxRate) {
       const customRate = parseFloat(customTaxRate) / 100;
       data.taxBracket = customRate.toString();
@@ -157,23 +157,23 @@ const TaxSimulator: React.FC = () => {
     calculateTaxes(data);
     
     toast({
-      title: "Información fiscal guardada",
-      description: "Tus preferencias fiscales han sido actualizadas.",
+      title: "Tax information saved",
+      description: "Your tax preferences have been updated.",
     });
   };
 
-  // Calcular impuestos
+  // Calculate taxes
   const calculateTaxes = (taxData: TaxInfoFormValues) => {
     if (transactions.length === 0) {
       toast({
         title: "Error",
-        description: "Debes añadir al menos una transacción para calcular impuestos.",
+        description: "You must add at least one transaction to calculate taxes.",
         variant: "destructive",
       });
       return;
     }
 
-    // Agrupar transacciones por tipo de activo
+    // Group transactions by asset type
     const assetGroups: Record<string, Transaction[]> = {};
     transactions.forEach(transaction => {
       if (!assetGroups[transaction.asset]) {
@@ -187,7 +187,7 @@ const TaxSimulator: React.FC = () => {
     let longTermGainLoss = 0;
     let taxableIncome = 0;
     
-    // Calcular ganancias/pérdidas por activo
+    // Calculate gains/losses by asset
     const assetResults: Record<string, any> = {};
     
     Object.keys(assetGroups).forEach(asset => {
@@ -213,17 +213,17 @@ const TaxSimulator: React.FC = () => {
           assetSellTotal += amount - fee;
           assetQuantitySold += parseFloat(tx.quantity);
         } else if (["mining", "staking", "airdrop", "gift"].includes(tx.type)) {
-          // Estos son considerados ingresos en muchas jurisdicciones
+          // These are considered income in many jurisdictions
           taxableIncome += amount;
           assetQuantityBought += parseFloat(tx.quantity);
         }
       });
       
-      // Cálculo simplificado (en un escenario real se usaría FIFO, LIFO o costo promedio)
+      // Simplified calculation (in a real scenario, FIFO, LIFO, or average cost would be used)
       const averageCostBasis = assetQuantityBought > 0 ? assetBuyTotal / assetQuantityBought : 0;
       const realizedGainLoss = assetSellTotal - (averageCostBasis * assetQuantitySold);
       
-      // Para simplificación, asumimos que las transacciones > 1 año son a largo plazo
+      // For simplification, we assume transactions > 1 year are long-term
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
       
@@ -266,10 +266,10 @@ const TaxSimulator: React.FC = () => {
       };
     });
     
-    // Calcular impuestos
+    // Calculate taxes
     const taxRate = parseFloat(taxData.taxBracket);
     
-    // En muchos países, las ganancias a largo plazo tienen mejor tratamiento fiscal
+    // In many countries, long-term gains receive better tax treatment
     const shortTermTaxRate = taxRate;
     const longTermTaxRate = taxData.country === "us" ? Math.max(0, taxRate - 0.10) : taxRate;
     
@@ -294,17 +294,17 @@ const TaxSimulator: React.FC = () => {
     });
   };
 
-  // Exportar informe (simulado)
+  // Export report (simulated)
   const exportReport = () => {
     toast({
-      title: "Exportando informe",
-      description: "Tu informe fiscal se está descargando.",
+      title: "Exporting report",
+      description: "Your tax report is being downloaded.",
     });
     
     setTimeout(() => {
       toast({
-        title: "Informe exportado",
-        description: "El informe ha sido generado y descargado como PDF.",
+        title: "Report exported",
+        description: "The report has been generated and downloaded as PDF.",
       });
     }, 1500);
   };

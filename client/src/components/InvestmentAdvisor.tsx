@@ -359,7 +359,7 @@ const InvestmentAdvisor: React.FC = () => {
     
     return (
       <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
+        <RechartsPieChart>
           <Tooltip formatter={(value) => [`${value}%`, 'Allocation']} />
           <Legend />
           <Pie
@@ -376,7 +376,7 @@ const InvestmentAdvisor: React.FC = () => {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-        </PieChart>
+        </RechartsPieChart>
       </ResponsiveContainer>
     );
   };
