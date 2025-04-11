@@ -314,10 +314,10 @@ const TaxSimulator: React.FC = () => {
       <div className="bg-background border-b border-border px-4 py-3">
         <h1 className="text-xl font-semibold flex items-center gap-2">
           <Calculator className="h-5 w-5" />
-          {t("taxSimulator.title", "Simulador de Impuestos para Criptomonedas")}
+          {t("taxSimulator.title", "Crypto Tax Simulator")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {t("taxSimulator.subtitle", "Calcula tus obligaciones fiscales potenciales por operaciones con criptoactivos")}
+          {t("taxSimulator.subtitle", "Calculate your potential tax obligations for cryptocurrency operations")}
         </p>
       </div>
       
