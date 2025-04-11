@@ -19,7 +19,8 @@ import {
   ShieldAlert,
   Briefcase,
   Sparkles,
-  MessageCircle
+  MessageCircle,
+  Calculator
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
