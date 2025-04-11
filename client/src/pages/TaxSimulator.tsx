@@ -15,22 +15,22 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Calculator, Plus, Trash2, Download, FilePieChart, FileText } from "lucide-react";
 
-// Schema para el formulario de transacciones
+// Schema for the transactions form
 const transactionSchema = z.object({
   type: z.enum(["buy", "sell", "swap", "mining", "staking", "gift", "airdrop"]),
-  asset: z.string().min(1, { message: "Por favor seleccione un activo" }),
-  quantity: z.string().min(1, { message: "Cantidad requerida" }).refine(
+  asset: z.string().min(1, { message: "Please select an asset" }),
+  quantity: z.string().min(1, { message: "Quantity required" }).refine(
     (val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, 
-    { message: "Por favor ingrese un número válido mayor a 0" }
+    { message: "Please enter a valid number greater than 0" }
   ),
-  price: z.string().min(1, { message: "Precio requerido" }).refine(
+  price: z.string().min(1, { message: "Price required" }).refine(
     (val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, 
-    { message: "Por favor ingrese un número válido" }
+    { message: "Please enter a valid number" }
   ),
-  date: z.string().min(1, { message: "Fecha requerida" }),
+  date: z.string().min(1, { message: "Date required" }),
   fee: z.string().default("0").refine(
     (val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, 
-    { message: "Por favor ingrese un número válido" }
+    { message: "Please enter a valid number" }
   ),
 });
 

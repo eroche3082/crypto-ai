@@ -30,13 +30,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { 
-  LineChart, Line, AreaChart, Area, BarChart, Bar, 
+  LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from "recharts";
 import { 
   Brain, Coins, TrendingUp, Clock, BarChart4, 
   Shield, CircleDollarSign, ArrowRight, Briefcase, 
-  PieChart, Lock, Leaf, Sparkles, InfoIcon, RefreshCw
+  PieChart as PieChartIcon, Lock, Leaf, Sparkles, InfoIcon, RefreshCw
 } from "lucide-react";
 import { useGemini } from "@/contexts/GeminiContext";
 import { useToast } from "@/hooks/use-toast";
@@ -362,7 +362,20 @@ const InvestmentAdvisor: React.FC = () => {
         <PieChart>
           <Tooltip formatter={(value) => [`${value}%`, 'Allocation']} />
           <Legend />
-          <Line type="monotone" dataKey="value" stroke="#8884d8" />
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={true}
+            outerRadius={100}
+            fill="#8884d8"
+            dataKey="value"
+            nameKey="name"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
         </PieChart>
       </ResponsiveContainer>
     );
