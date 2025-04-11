@@ -7,7 +7,7 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  language: "es",
+  language: "en",
   setLanguage: () => {},
 });
 
@@ -18,7 +18,7 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
-  const [language, setLanguageState] = useState("es");
+  const [language, setLanguageState] = useState("en");
   
   useEffect(() => {
     // Check if user has a language preference in localStorage
