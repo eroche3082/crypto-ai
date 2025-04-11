@@ -864,8 +864,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/favorites/:symbol", async (req, res) => {
     try {
       // In a real app, we would get the user ID from the session
-      const userId = 1;
+      let userId = 1;
       const symbol = req.params.symbol.toLowerCase();
+      
+      // Make sure user exists in the database
+      let user = await storage.getUser(userId);
+      if (!user) {
+        // Create a default user if it doesn't exist
+        user = await storage.createUser({
+          username: "default_user",
+          email: "user@example.com",
+          password: "not_a_real_password",
+        });
+        userId = user.id;
+      }
       
       // Check if already a favorite
       const exists = await storage.checkFavorite(userId, symbol);
@@ -889,8 +901,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/favorites/:symbol", async (req, res) => {
     try {
       // In a real app, we would get the user ID from the session
-      const userId = 1;
+      let userId = 1;
       const symbol = req.params.symbol.toLowerCase();
+      
+      // Make sure user exists in the database
+      let user = await storage.getUser(userId);
+      if (!user) {
+        // Return an error since we shouldn't be deleting a favorite for a non-existent user
+        return res.status(404).json({ error: "User not found" });
+      }
       
       // Get the favorite first
       const favorites = await storage.getFavorites(userId);
