@@ -2,7 +2,10 @@
 export * from './vertex/marketAnalysis';
 
 // Vision Services
-export * from './vision/chartAnalysis';
+export { 
+  analyzeChartImage,
+  chartImageMiddleware
+} from './vision/chartAnalysis';
 
 // Translation Services
 export * from './translation/languageService';
@@ -14,7 +17,11 @@ export * from './maps/cryptoEvents';
 export * from './youtube/videoService';
 
 // Storage Services
-export * from './storage/cloudStorage';
+export {
+  uploadFile,
+  listUserFiles,
+  deleteFile
+} from './storage/cloudStorage';
 
 // Secret Manager Services
 export * from './secrets/secretManager';

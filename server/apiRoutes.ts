@@ -30,8 +30,7 @@ apiRouter.get('/youtube/videos', services.getCryptoVideos);
 apiRouter.get('/youtube/video/:videoId', services.getVideoDetails);
 apiRouter.get('/youtube/education', services.getCryptoEducation);
 
-// Cloud Storage routes - use correct upload middleware from cloudStorage
-import { upload as storageUpload } from './services/storage/cloudStorage';
+// Cloud Storage routes - use the upload middleware imported at the top
 
 apiRouter.post('/storage/upload', storageUpload.single('file'), services.uploadFile);
 apiRouter.get('/storage/files', services.listUserFiles);

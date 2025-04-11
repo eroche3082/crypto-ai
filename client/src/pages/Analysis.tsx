@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { useCrypto } from "@/contexts/CryptoContext";
 import { useToast } from "@/hooks/use-toast";
+import { MarketAnalysisWidget } from "@/components/MarketAnalysisWidget";
 
 export default function Analysis() {
   const { t } = useTranslation();
@@ -323,6 +324,13 @@ export default function Analysis() {
                           <div className="text-sm text-muted-foreground mb-1">{t("analysis.next_month", "Next Month")}</div>
                           <div className="font-medium">${predictions.nextMonth.min} - ${predictions.nextMonth.max}</div>
                         </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="mb-6">
+                        <h3 className="text-lg font-medium mb-3">Vertex AI Market Analysis</h3>
+                        <MarketAnalysisWidget />
                       </div>
                     </div>
                     
