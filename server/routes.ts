@@ -114,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Crypto data proxy to avoid exposing API keys on frontend
-  app.get("/api/crypto/market-data", async (req, res) => {
+  app.get("/api/crypto/coins/markets", async (req, res) => {
     try {
       const { vs_currency, ids, category, order, per_page, page, sparkline, price_change_percentage } = req.query;
       
@@ -145,6 +145,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!response.ok) {
         throw new Error(`Error fetching market data: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+  
+  // Individual coin data proxy
+  app.get("/api/crypto/coins/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const queryParams = new URLSearchParams(req.query as any);
+      
+      // Construct the URL with query parameters
+      const url = `https://api.coingecko.com/api/v3/coins/${id}?${queryParams.toString()}`;
+      
+      // Add API key if available
+      const apiKey = process.env.COINGECKO_API_KEY;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      
+      if (apiKey) {
+        headers["x-cg-pro-api-key"] = apiKey;
+      }
+      
+      // Make the request to CoinGecko
+      const response = await fetch(url, { headers });
+      
+      if (!response.ok) {
+        throw new Error(`Error fetching coin data: ${response.statusText}`);
       }
       
       const data = await response.json();

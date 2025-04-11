@@ -1,8 +1,6 @@
-// API client for CoinGecko
-const BASE_URL = "https://api.coingecko.com/api/v3";
-
-// Optionally use API key from env if available
-const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY || "";
+// API client for CoinGecko via our proxy endpoint
+// This ensures API key security and better error handling
+const BASE_URL = "/api/crypto";
 
 export interface CryptoData {
   id: string;
@@ -60,11 +58,6 @@ export const cryptoApi = {
         "Content-Type": "application/json",
       };
       
-      // Add API key if available
-      if (API_KEY) {
-        headers["x-cg-pro-api-key"] = API_KEY;
-      }
-      
       const response = await fetch(url, { headers });
       
       if (!response.ok) {
@@ -91,10 +84,6 @@ export const cryptoApi = {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
-      
-      if (API_KEY) {
-        headers["x-cg-pro-api-key"] = API_KEY;
-      }
       
       const response = await fetch(url, { headers });
       
