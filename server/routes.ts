@@ -12,6 +12,8 @@ import { analyzeSentiment } from "./sentiment";
 import { generateAIResponse } from "./gemini";
 import { generateVertexAIResponse } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
+import { initializeAppSecrets } from "./services/secrets/secretManager";
+import apiRouter from "./apiRoutes";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -210,6 +212,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup WebSocket server with our custom implementation
   setupWebSocketServer(httpServer);
+  
+  // Initialize app secrets from Secret Manager
+  try {
+    await initializeAppSecrets();
+    console.log('Application secrets initialized from Secret Manager');
+  } catch (error) {
+    console.warn('Failed to initialize secrets from Secret Manager:', error);
+  }
+  
+  // Register expanded API routes
+  app.use('/api/v2', apiRouter);
   
   // API Routes
   
