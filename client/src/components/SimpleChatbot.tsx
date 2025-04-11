@@ -1,13 +1,9 @@
-import React, { useState, useRef } from "react";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Send, Mic, Camera, QrCode
-} from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { Send, Mic, Camera, QrCode, Box } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAdvancedChat } from "@/contexts/AdvancedChatContext";
-
 import AudioRecorder from "./AudioRecorder";
 import CameraCapture from "./CameraCapture";
 import QrScanner from "./QrScanner";
@@ -24,8 +20,7 @@ const TypingIndicator: React.FC = () => {
   );
 };
 
-// Main component - Simplified for FloatingChatbot integration
-export default function AdvancedChatbot() {
+export default function SimpleChatbot() {
   const { 
     messages, 
     addMessage, 
@@ -43,7 +38,16 @@ export default function AdvancedChatbot() {
   
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
+  
+  // Scroll to bottom of chat when new messages arrive
+  useEffect(() => {
+    if (chatRef.current) {
+      const scrollElement = chatRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollElement) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
+    }
+  }, [messages]);
   
   // Handle sending a new message
   const handleSendMessage = async (text: string = inputValue) => {
@@ -64,14 +68,9 @@ export default function AdvancedChatbot() {
       
       // Add bot message to chat
       addMessage(response, "bot");
+      
     } catch (error) {
       console.error("Error generating response:", error);
-      
-      toast({
-        title: "AI Error",
-        description: "Failed to generate a response. Please try again.",
-        variant: "destructive",
-      });
       
       addMessage(
         "Sorry, I encountered an error processing your request. Please try again.", 
@@ -122,11 +121,6 @@ export default function AdvancedChatbot() {
       const transcribedText = await processSpeechInput(audioBlob);
       
       if (!transcribedText) {
-        toast({
-          title: "Transcription Error",
-          description: "Could not transcribe your audio. Please try again.",
-          variant: "destructive",
-        });
         return;
       }
       
@@ -142,11 +136,6 @@ export default function AdvancedChatbot() {
       }
     } catch (error) {
       console.error("Error processing audio:", error);
-      toast({
-        title: "Audio Processing Error",
-        description: "An error occurred while processing your audio.",
-        variant: "destructive",
-      });
       setActiveToolType(null);
     }
   };
@@ -169,11 +158,6 @@ export default function AdvancedChatbot() {
       addMessage(analysisResult, "bot");
     } catch (error) {
       console.error("Error processing image:", error);
-      toast({
-        title: "Image Processing Error",
-        description: "An error occurred while analyzing your image.",
-        variant: "destructive",
-      });
     }
   };
   
@@ -192,11 +176,6 @@ export default function AdvancedChatbot() {
       addMessage(analysisResult, "bot");
     } catch (error) {
       console.error("Error processing QR code:", error);
-      toast({
-        title: "QR Code Processing Error",
-        description: "An error occurred while analyzing the QR code.",
-        variant: "destructive",
-      });
     }
   };
   
@@ -231,10 +210,7 @@ export default function AdvancedChatbot() {
       {!activeToolType && (
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Messages */}
-          <ScrollArea 
-            ref={chatRef}
-            className="flex-1 p-4"
-          >
+          <ScrollArea ref={chatRef} className="flex-1 p-4">
             <div className="space-y-6">
               {messages.map((message, index) => (
                 <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
