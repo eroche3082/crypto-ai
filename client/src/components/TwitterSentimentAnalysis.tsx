@@ -227,12 +227,12 @@ const TwitterSentimentAnalysis: React.FC = () => {
             </div>
 
           <Tabs value={chartTab} onValueChange={(value) => setChartTab(value as 'pie' | 'bar')} className="w-full">
-      <TabsList>
-        <TabsTrigger value="pie" className="flex items-center gap-1"><PieChart className="h-4 w-4" />Sentiment</TabsTrigger>
-        <TabsTrigger value="bar" className="flex items-center gap-1"><BarChart2 className="h-4 w-4" />Comparison</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="pie" className="mt-0">
+            <TabsList>
+              <TabsTrigger value="pie" className="flex items-center gap-1"><PieChart className="h-4 w-4" />Sentiment</TabsTrigger>
+              <TabsTrigger value="bar" className="flex items-center gap-1"><BarChart2 className="h-4 w-4" />Comparison</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="pie" className="mt-0">
               {loading ? (
                 <div className="space-y-4">
                   <Skeleton className="h-12 w-full" />

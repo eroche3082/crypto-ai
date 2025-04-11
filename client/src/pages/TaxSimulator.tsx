@@ -324,18 +324,18 @@ const TaxSimulator: React.FC = () => {
       <div className="flex-1 overflow-auto p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="transactions">1. Transacciones</TabsTrigger>
-            <TabsTrigger value="taxinfo">2. Información Fiscal</TabsTrigger>
-            <TabsTrigger value="results">3. Resultados</TabsTrigger>
+            <TabsTrigger value="transactions">1. Transactions</TabsTrigger>
+            <TabsTrigger value="taxinfo">2. Tax Information</TabsTrigger>
+            <TabsTrigger value="results">3. Results</TabsTrigger>
           </TabsList>
           
           {/* Sección de Transacciones */}
           <TabsContent value="transactions" className="space-y-4 pt-4">
             <Card>
               <CardHeader>
-                <CardTitle>{t("taxSimulator.addTransaction", "Añadir Transacción")}</CardTitle>
+                <CardTitle>{t("taxSimulator.addTransaction", "Add Transaction")}</CardTitle>
                 <CardDescription>
-                  {t("taxSimulator.addTransactionDesc", "Ingresa los detalles de tus transacciones de criptomonedas")}
+                  {t("taxSimulator.addTransactionDesc", "Enter the details of your cryptocurrency transactions")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
