@@ -1,0 +1,106 @@
+INSTRUCCIONES PARA EL SISTEMA
+Realiza una verificación completa de todos los endpoints, módulos y componentes.
+
+Devuelve una tabla con 3 columnas:
+
+✅ Implementado
+
+⚠️ Parcial
+
+❌ Pendiente Con cada módulo clasificado y vinculado al archivo responsable.
+
+Verifica la conexión de todas las API keys en tiempo real y asegúrate de que cada una esté activa y operativa.
+
+Añade una tabla con las claves API detectadas, su estado de activación y su archivo origen.
+
+Comprueba cada ruta y endpoint activo en /server/routes.ts y responde con el estado real de conexión y datos.
+
+Valida que cada módulo esté conectado al backend y/o base de datos, incluyendo /api/favorites, /api/alerts, /api/crypto, /api/news, etc.
+
+Verifica que el chatbot AI esté conectado a Vertex AI (Gemini) y responda con análisis cripto, sentimiento de mercado, predicciones y funciones interactivas.
+
+Detecta si la base de datos (PostgreSQL NeonDB) está sincronizada correctamente.
+
+Audita visualmente cada página (Dashboard, Favorites, Alerts, Converter, Education, Analysis) y corrige rutas faltantes.
+
+Devuelve una lista completa de los botones visibles en el frontend y sus funciones, y verifica que todos respondan correctamente.
+
+🚀 EXPANSIÓN Y FUNCIONALIDADES A IMPLEMENTAR (PRIORIDAD)
+✅ Twitter/X Sentiment Analysis: analiza sentimiento por token en tiempo real desde X.
+
+✅ Risk Analysis AI: identifica tokens de alto riesgo o posible rug pull con Gemini.
+
+✅ Resume Whitepapers AI: resumidor automático de documentos técnicos con highlights.
+
+✅ Portfolio AI Assistant: sugiere cambios al portafolio según tu perfil de riesgo.
+
+✅ DCA Planner: planificador automatizado de inversión gradual.
+
+✅ Simulador de Trading Avanzado: crea y simula operaciones en tiempo real con resultados virtuales.
+
+✅ Crypto Tax Simulator: calculadora fiscal por país con reglas actualizadas.
+
+✅ Exchange API Integration: conectar con cuentas de Binance, Coinbase, KuCoin.
+
+✅ 2FA y Encriptación Militar: para máxima seguridad de cuentas y claves privadas.
+
+✅ Crypto News Feed Real: implementar integración activa con NewsAPI o CoinTelegraph.
+
+✅ Google Vision para tokens: subir imágenes y analizar proyectos usando OCR.
+
+✅ Telegram Bot para alertas: integración con notificaciones personalizadas.
+
+✅ Firebase Auth completo: login, registro, recuperación de cuenta y perfil.
+
+✅ Stripe full flow: suscripciones, planes, historial de pagos y panel de billing.
+
+✅ Dashboard Personalizable: widgets dinámicos (RSI, MACD, noticias, alertas, favoritos).
+
+✅ Gamification AI Layer: logros, badges, puntos y retos diarios.
+
+✅ AI Explainer Bot: traducción y explicación de conceptos técnicos.
+
+✅ Modal de Pérdidas y Ganancias: track automático del P&L por token.
+
+✅ Multilenguaje completado (EN/ES/PT/FR): con detección y cambio dinámico.
+
+✅ Optimización móvil y PWA: visualización adaptativa + acceso offline opcional.
+
+🧠 PERSONALIDAD DEL ASSISTANT (A ACTUALIZAR EN GEMINICONTEXT)
+ts
+Copiar
+Editar
+Persona: Crypto Intelligence Analyst
+Rol: Asistente experto en criptomonedas, predicción de mercado, gestión de portafolios, alerta de estafas y educación financiera.
+
+Capacidades Activas:
+- Análisis de sentimiento (Twitter, noticias, tokens)
+- Resumir whitepapers y noticias
+- Recomendaciones según perfil
+- Explicación técnica de términos
+- Respuesta contextual por idioma
+- Modo didáctico (enseñar paso a paso)
+🔧 BACKEND TASKS INCLUIDAS
+Verificar y corregir todos los endpoints en server/routes.ts
+
+Conectar fallback + primary mode para CoinGecko
+
+Asegurar uso de backup data cuando la API falle (ya implementado)
+
+Conectar base de datos correctamente para favorites, alerts, chat_history, portfolio_assets
+
+🧩 RESPUESTA ESPERADA
+ Tabla de auditoría de componentes
+
+ Tabla de APIs conectadas
+
+ Estado de conexión del chatbot AI
+
+ Estado de todos los botones en frontend
+
+ Lista de errores detectados
+
+ 20 sugerencias implementables (priorizadas)
+
+ Confirmación de sincronización entre frontend + backend
+

@@ -16,7 +16,9 @@ import {
   MapPin, 
   Globe,
   MessageSquare,
-  ShieldAlert
+  ShieldAlert,
+  Briefcase,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
