@@ -10,6 +10,54 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import RealCourses from "./RealCourses";
 
+// Define the course data
+const initialCourses = [
+  {
+    id: "blockchain-101",
+    title: "Blockchain 101",
+    level: "Beginner",
+    duration: "4 hours",
+    description: "Introduction to blockchain technology, cryptocurrencies, and their applications.",
+    lessons: 12,
+    progress: 75,
+    tags: ["Blockchain", "Basics", "Crypto"],
+    image: "school"
+  },
+  {
+    id: "defi-masterclass",
+    title: "DeFi Masterclass",
+    level: "Intermediate",
+    duration: "8 hours",
+    description: "Deep dive into decentralized finance protocols, lending, borrowing, and yield farming.",
+    lessons: 24,
+    progress: 30,
+    tags: ["DeFi", "Ethereum", "Finance"],
+    image: "account_balance"
+  },
+  {
+    id: "trading-fundamentals",
+    title: "Trading Fundamentals",
+    level: "All Levels",
+    duration: "6 hours",
+    description: "Learn the basics of cryptocurrency trading, chart analysis, and risk management.",
+    lessons: 18,
+    progress: 0,
+    tags: ["Trading", "Analysis", "Strategy"],
+    image: "candlestick_chart"
+  },
+  {
+    id: "nft-creation",
+    title: "NFT Creation & Marketing",
+    level: "Advanced",
+    duration: "5 hours",
+    description: "Create, mint, and market your own NFT collections on various marketplaces.",
+    lessons: 15,
+    progress: 0,
+    tags: ["NFT", "Art", "Marketing"],
+    image: "filter_none"
+  }
+];
+
 const EducationHub = () => {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -21,7 +69,7 @@ const EducationHub = () => {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
   const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const [selectedCourseForEnroll, setSelectedCourseForEnroll] = useState("");
-  const [updatedCourses, setUpdatedCourses] = useState(courses);
+  const [updatedCourses, setUpdatedCourses] = useState(initialCourses);
   
   // Load saved progress and bookmarks on mount
   useEffect(() => {
@@ -30,7 +78,7 @@ const EducationHub = () => {
       const savedProgress = localStorage.getItem('coursesProgress');
       if (savedProgress) {
         const progressData = JSON.parse(savedProgress);
-        const updatedCoursesList = courses.map(course => ({
+        const updatedCoursesList = initialCourses.map(course => ({
           ...course,
           progress: progressData[course.id] !== undefined ? progressData[course.id] : course.progress
         }));
@@ -310,11 +358,11 @@ const EducationHub = () => {
   // Complete enrollment process
   const completeEnrollment = () => {
     // Find the selected course
-    const courseToUpdate = courses.find(course => course.id === selectedCourseForEnroll);
+    const courseToUpdate = updatedCourses.find(course => course.id === selectedCourseForEnroll);
     
     // Update courses with the new progress status (set to 1% to show it's started)
     if (courseToUpdate) {
-      const updatedCourses = courses.map(course => 
+      const newUpdatedCourses = updatedCourses.map(course => 
         course.id === selectedCourseForEnroll 
           ? { ...course, progress: course.progress > 0 ? course.progress : 1 } 
           : course
@@ -330,10 +378,13 @@ const EducationHub = () => {
         duration: 3000
       });
       
+      // Update the course state with the new progress
+      setUpdatedCourses(newUpdatedCourses);
+      
       // Store in local storage to persist across refreshes
       try {
         localStorage.setItem('coursesProgress', JSON.stringify(
-          updatedCourses.reduce((acc, course) => ({ ...acc, [course.id]: course.progress }), {})
+          newUpdatedCourses.reduce((acc, course) => ({ ...acc, [course.id]: course.progress }), {})
         ));
       } catch (e) {
         console.error("Could not save course progress to local storage", e);
@@ -500,7 +551,7 @@ const EducationHub = () => {
       
       {view === "courses" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
+          {updatedCourses.map((course) => (
             <Card key={course.id} className="bg-secondary border-gray-800">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
