@@ -15,7 +15,7 @@ export function MarketAnalysisWidget() {
   const handleAnalyzeMarket = async () => {
     setLoading(true);
     try {
-      const response = await apiRequest('POST', '/api/v2/vertex/market/analyze', {
+      const response = await apiRequest('POST', '/api/vertex/market/analyze', {
         coins,
         timeframe: '7d',
         language: 'en'

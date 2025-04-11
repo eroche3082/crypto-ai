@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { useCrypto } from "@/contexts/CryptoContext";
 import { useToast } from "@/hooks/use-toast";
 import { MarketAnalysisWidget } from "@/components/MarketAnalysisWidget";
+import { PricePredictionWidget } from "@/components/PricePredictionWidget";
 
 export default function Analysis() {
   const { t } = useTranslation();

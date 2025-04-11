@@ -131,44 +131,98 @@ export async function predictPrices(req: Request, res: Response) {
       });
     }
 
-    // Fetch current price from external API (would be CoinGecko in production)
+    // Fetch current price and historical data
     const currentPrice = await fetchCurrentPrice(symbol);
-
-    // Generate predictions - in production this would use Vertex AI
-    const predictions = timeframes.map(timeframe => {
-      let volatility;
-      
-      switch(timeframe) {
-        case '24h':
-          volatility = 0.03; // 3% volatility for 24h
-          break;
-        case '7d':
-          volatility = 0.08; // 8% for 7 days
-          break;
-        case '30d':
-        default:
-          volatility = 0.15; // 15% for 30 days
-          break;
+    const historicalData = await fetchHistoricalData(symbol);
+    
+    try {
+      // Use Vertex AI if available
+      if (vertexAi && process.env.GOOGLE_API_KEY) {
+        const generativeModel = vertexAi.getGenerativeModel({
+          model: 'gemini-1.5-flash',
+          apiKey: process.env.GOOGLE_API_KEY,
+        });
+        
+        // Create prompt with historical data
+        const prompt = generatePredictionPrompt(symbol, timeframes, currentPrice, historicalData);
+        
+        // Get AI prediction
+        const result = await generativeModel.generateContent({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 2048,
+            responseMimeType: 'application/json'
+          }
+        });
+        
+        const response = await result.response;
+        const aiText = response.text();
+        
+        try {
+          // Try to parse AI response as JSON
+          const aiPredictions = JSON.parse(aiText);
+          
+          // Validate AI predictions
+          if (Array.isArray(aiPredictions) && aiPredictions.length > 0) {
+            return res.json({
+              success: true,
+              symbol: symbol.toUpperCase(),
+              currentPrice,
+              predictions: aiPredictions,
+              timestamp: new Date().toISOString(),
+              predictionEngine: 'Vertex AI Gemini 1.5',
+            });
+          } else {
+            throw new Error('Invalid AI prediction format');
+          }
+        } catch (jsonError) {
+          console.error('Error parsing AI prediction as JSON:', jsonError);
+          // Fall back to template-based predictions when JSON parsing fails
+          throw new Error('Could not parse AI prediction');
+        }
+      } else {
+        throw new Error('Vertex AI not available');
       }
+    } catch (aiError) {
+      console.warn('Using template-based prediction fallback:', aiError);
       
-      return {
-        timeframe,
-        min: (currentPrice * (1 - volatility)).toFixed(2),
-        max: (currentPrice * (1 + volatility)).toFixed(2),
-        ...(confidence && { 
-          confidence: confidenceForTimeframe(timeframe) 
-        })
-      };
-    });
+      // Generate simple template-based predictions as fallback
+      const predictions = timeframes.map(timeframe => {
+        let volatility;
+        
+        switch(timeframe) {
+          case '24h':
+            volatility = 0.03; // 3% volatility for 24h
+            break;
+          case '7d':
+            volatility = 0.08; // 8% for 7 days
+            break;
+          case '30d':
+          default:
+            volatility = 0.15; // 15% for 30 days
+            break;
+        }
+        
+        return {
+          timeframe,
+          min: (currentPrice * (1 - volatility)).toFixed(2),
+          max: (currentPrice * (1 + volatility)).toFixed(2),
+          ...(confidence && { 
+            confidence: confidenceForTimeframe(timeframe) 
+          })
+        };
+      });
 
-    res.json({
-      success: true,
-      symbol: symbol.toUpperCase(),
-      currentPrice,
-      predictions,
-      timestamp: new Date().toISOString(),
-      predictionEngine: 'Vertex AI Prediction Service',
-    });
+      res.json({
+        success: true,
+        symbol: symbol.toUpperCase(),
+        currentPrice,
+        predictions,
+        timestamp: new Date().toISOString(),
+        predictionEngine: 'Template-based Prediction (Fallback)',
+      });
+    }
     
   } catch (error) {
     console.error('Error in price prediction:', error);
@@ -209,6 +263,137 @@ async function fetchCurrentPrice(symbol: string): Promise<number> {
 }
 
 /**
+ * Helper function to fetch historical data
+ */
+async function fetchHistoricalData(symbol: string): Promise<{ date: string; price: number }[]> {
+  try {
+    // In a production environment, this would fetch real data from CoinGecko
+    // For demo purposes, we'll generate some realistic looking historical data
+    const currentPrice = await fetchCurrentPrice(symbol);
+    const daysBack = 30;
+    const volatility = 0.02; // 2% daily volatility
+    
+    const data: { date: string; price: number }[] = [];
+    const today = new Date();
+    
+    let price = currentPrice;
+    for (let i = 0; i < daysBack; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      
+      // Add some random movement to simulate real price movements
+      const change = (Math.random() * 2 - 1) * volatility;
+      if (i > 0) {
+        price = price * (1 + change);
+      }
+      
+      data.unshift({
+        date: date.toISOString().split('T')[0],
+        price: parseFloat(price.toFixed(2))
+      });
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching historical data:', error);
+    return [];
+  }
+}
+
+/**
+ * Generate prompt for Vertex AI analysis
+ */
+function generateAnalysisPrompt(
+  coins: string[], 
+  timeframe: string, 
+  marketData: any = null,
+  language: string = 'en'
+): string {
+  const coinsList = coins.map(c => c.toUpperCase()).join(', ');
+  
+  const timeframeMap: Record<string, string> = {
+    '24h': 'next 24 hours',
+    '7d': 'coming week',
+    '30d': 'next month',
+    '90d': 'next quarter'
+  };
+  
+  const timeframeText = timeframeMap[timeframe] || timeframe;
+  
+  // Base prompt with market information
+  const prompt = `
+You are a professional cryptocurrency market analyst. Generate a comprehensive market analysis for the following cryptocurrencies: ${coinsList}. 
+
+Your analysis should cover the ${timeframeText} and be organized into these sections:
+1. Overview
+2. Key Insights (specific to each requested cryptocurrency)
+3. Market Sentiment
+4. Technical Analysis
+5. Recommendations
+
+Focus on providing factual, data-driven insights about price trends, momentum indicators, support/resistance levels, and trading volumes. Use Markdown formatting for the output.
+
+Provide a balanced perspective that acknowledges both bullish and bearish indicators where appropriate. Be specific about price levels and technical indicators.
+`;
+
+  // Add market data context if available
+  const dataContext = marketData ? `\n\nHere is current market data to inform your analysis:\n${JSON.stringify(marketData, null, 2)}` : '';
+  
+  // Add language instruction if not English
+  const languageInstruction = language !== 'en' ? `\n\nPlease provide your response in ${language}.` : '';
+  
+  return prompt + dataContext + languageInstruction;
+}
+
+/**
+ * Generate prompt for price prediction
+ */
+function generatePredictionPrompt(
+  symbol: string,
+  timeframes: string[],
+  currentPrice: number,
+  historicalData: { date: string; price: number }[]
+): string {
+  const timeframeDescriptions: Record<string, string> = {
+    '24h': 'next 24 hours',
+    '7d': 'next 7 days',
+    '30d': 'next 30 days'
+  };
+  
+  const timeframeText = timeframes.map(tf => timeframeDescriptions[tf] || tf).join(', ');
+  
+  return `
+You are a cryptocurrency price prediction AI. Analyze the historical price data for ${symbol.toUpperCase()} and predict price ranges for the ${timeframeText}.
+
+Current price: $${currentPrice}
+
+Historical price data (last ${historicalData.length} days):
+${JSON.stringify(historicalData, null, 2)}
+
+For each timeframe, predict the minimum and maximum price, and provide a confidence level between 0 and 1.
+
+Your response should be a JSON array with the following structure:
+[
+  {
+    "timeframe": "24h",
+    "min": 67200,
+    "max": 68500,
+    "confidence": 0.85
+  },
+  ...
+]
+
+Make your predictions based on:
+1. Technical analysis of the historical data
+2. Current price momentum
+3. Typical volatility for this asset
+4. Past patterns of price movement
+
+Only return a valid JSON array. Do not include any other text.
+`;
+}
+
+/**
  * Helper to generate confidence levels
  */
 function confidenceForTimeframe(timeframe: string): number {
@@ -224,7 +409,7 @@ function confidenceForTimeframe(timeframe: string): number {
 }
 
 /**
- * Helper to generate market analysis text - in production this would call Vertex AI
+ * Helper to generate market analysis text - as fallback when Vertex AI is unavailable
  */
 function generateMarketAnalysis(coins: string[], timeframe: string, language: string): string {
   const coinNames = coins.map(c => c.toUpperCase()).join(', ');
@@ -238,8 +423,7 @@ function generateMarketAnalysis(coins: string[], timeframe: string, language: st
   
   const timeText = timeframeTexts[timeframe] || timeframe;
   
-  // In a production app, this would be a call to Vertex AI
-  // For demo purposes, we'll generate a mock analysis
+  // For fallback when Vertex AI is not available
   
   return `
 # Market Analysis for ${coinNames}
