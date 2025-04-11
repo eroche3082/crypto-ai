@@ -284,6 +284,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Crypto data proxy to avoid exposing API keys on frontend
+  // Twitter sentiment analysis API routes
+  app.get("/api/sentiment/twitter/:symbol", getTwitterSentiment);
+  app.get("/api/sentiment/market", getMarketSentiment);
+
   app.get("/api/crypto/coins/markets", async (req, res) => {
     try {
       const { vs_currency, ids, category, order, per_page, page, sparkline, price_change_percentage } = req.query;
