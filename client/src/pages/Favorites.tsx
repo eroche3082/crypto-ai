@@ -150,11 +150,14 @@ export default function Favorites() {
             <Button asChild>
               <a href="/">{t("favorites.browse", "Browse Cryptocurrencies")}</a>
             </Button>
-            <TodoFavorites 
-              favorites={favorites}
-              onAddFavorite={(symbol) => toggleFavorite(symbol)}
-              onRemoveFavorite={(symbol) => toggleFavorite(symbol)}
-            />
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => setManageFavoritesOpen(true)}
+            >
+              <Star size={16} className="text-yellow-500" />
+              {t("favorites.manage", "Manage Favorites")}
+            </Button>
           </div>
         </div>
       ) : (
