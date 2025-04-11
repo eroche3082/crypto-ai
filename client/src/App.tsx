@@ -150,33 +150,25 @@ function App() {
   
   // Main application
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <GeminiProvider>
-          <CryptoProvider>
-            <div className="flex h-screen overflow-hidden bg-background text-foreground">
-              <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <Switch>
-                  <Route path="/" component={Dashboard} />
-                  <Route path="/portfolio" component={Portfolio} />
-                  <Route path="/favorites" component={Favorites} />
-                  <Route path="/alerts" component={Alerts} />
-                  <Route path="/converter" component={Converter} />
-                  <Route path="/education" component={Education} />
-                  <Route path="/news" component={News} />
-                  <Route path="/locations" component={Locations} />
-                  <Route path="/analysis" component={Analysis} />
-                  <Route path="/watchlist" component={Watchlist} />
-                  <Route component={NotFound} />
-                </Switch>
-              </div>
-              <FloatingChatbot />
-            </div>
-          </CryptoProvider>
-        </GeminiProvider>
-      </LanguageProvider>
-    </QueryClientProvider>
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Switch>
+          <Route path="/" component={Dashboard} />
+          <Route path="/portfolio" component={Portfolio} />
+          <Route path="/favorites" component={Favorites} />
+          <Route path="/alerts" component={Alerts} />
+          <Route path="/converter" component={Converter} />
+          <Route path="/education" component={Education} />
+          <Route path="/news" component={News} />
+          <Route path="/locations" component={Locations} />
+          <Route path="/analysis" component={Analysis} />
+          <Route path="/watchlist" component={Watchlist} />
+          <Route component={NotFound} />
+        </Switch>
+      </div>
+      <FloatingChatbot />
+    </div>
   );
 }
 
