@@ -49,8 +49,8 @@ const AddAlertDialog = ({ onAdd, availableCryptos }: AddAlertDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="mb-4">
-          <span className="material-icons text-sm mr-1">add_alert</span>
+        <Button size="default" className="bg-indigo-600 hover:bg-indigo-700">
+          <span className="material-icons text-sm mr-2">add_alert</span>
           {t("alerts.createAlert", "Create Alert")}
         </Button>
       </DialogTrigger>
@@ -238,19 +238,6 @@ const AlertSystem = () => {
   const { t } = useTranslation();
   const { data: cryptoData } = useCryptoData({});
   const { alerts, addAlert, removeAlert, toggleAlert } = useAlerts();
-  const [filterType, setFilterType] = useState<"all" | "active" | "triggered">("all");
-  
-  // Filter alerts based on selected type
-  const filteredAlerts = alerts.filter(alert => {
-    if (filterType === "all") return true;
-    if (filterType === "active") return alert.active;
-    if (filterType === "triggered") return alert.triggered;
-    return true;
-  });
-  
-  // Get stats
-  const activeAlerts = alerts.filter(alert => alert.active).length;
-  const triggeredAlerts = alerts.filter(alert => alert.triggered).length;
   
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -259,91 +246,31 @@ const AlertSystem = () => {
         <p className="text-sm text-gray-400">{t("alerts.subtitle", "Set up alerts to track price movements")}</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card className="bg-secondary/50 border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-start">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
-                <span className="material-icons text-primary">notifications_active</span>
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">{t("alerts.totalAlerts", "Total Alerts")}</p>
-                <p className="text-2xl font-bold">{alerts.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-secondary/50 border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-start">
-              <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center mr-3">
-                <span className="material-icons text-emerald-500">check_circle</span>
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">{t("alerts.activeAlerts", "Active Alerts")}</p>
-                <p className="text-2xl font-bold">{activeAlerts}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-secondary/50 border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-start">
-              <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center mr-3">
-                <span className="material-icons text-orange-500">notifications</span>
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">{t("alerts.triggeredAlerts", "Triggered Alerts")}</p>
-                <p className="text-2xl font-bold">{triggeredAlerts}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="flex items-center justify-between mb-6">
-        <Tabs defaultValue="all" onValueChange={(value) => setFilterType(value as any)}>
-          <TabsList>
-            <TabsTrigger value="all">{t("alerts.allAlerts", "All Alerts")}</TabsTrigger>
-            <TabsTrigger value="active">{t("alerts.onlyActive", "Active")}</TabsTrigger>
-            <TabsTrigger value="triggered">{t("alerts.onlyTriggered", "Triggered")}</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        
+      <div className="flex justify-end mb-6">
         <AddAlertDialog 
           onAdd={addAlert}
           availableCryptos={cryptoData || []}
         />
       </div>
       
-      {filteredAlerts.length === 0 ? (
-        <div className="bg-secondary rounded-lg p-8 text-center">
-          <span className="material-icons text-4xl text-gray-500 mb-2">notifications_off</span>
-          <h3 className="text-lg font-medium mb-2">{t("alerts.noAlerts", "You have no alerts set up")}</h3>
-          <p className="text-sm text-gray-400 mb-4">
-            {filterType === "all" 
-              ? t("alerts.noAlertsDesc", "Set up alerts to receive notifications about price movements")
-              : t("alerts.noAlertsFiltered", "No alerts match the current filter")}
+      {alerts.length === 0 ? (
+        <div className="bg-secondary rounded-lg p-16 text-center flex flex-col items-center">
+          <span className="material-icons text-6xl text-gray-500 mb-4">notifications_off</span>
+          <h3 className="text-xl font-medium mb-2">{t("alerts.noAlerts", "You have no alerts set up")}</h3>
+          <p className="text-sm text-gray-400 mb-4 max-w-md">
+            {t("alerts.noAlertsDesc", "Set up alerts to receive notifications about price movements")}
           </p>
-          
-          {filterType !== "all" && (
-            <Button variant="outline" onClick={() => setFilterType("all")}>
-              {t("alerts.viewAllAlerts", "View All Alerts")}
-            </Button>
-          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredAlerts.map((alert, index) => {
+          {alerts.map((alert, index) => {
             const crypto = cryptoData?.find(c => c.symbol === alert.symbol);
             
             return (
               <AlertCard
                 key={index}
                 alert={alert}
-                index={alerts.indexOf(alert)} // Use the original index in the full alerts array
+                index={index}
                 crypto={crypto}
                 onDelete={removeAlert}
                 onToggle={toggleAlert}

@@ -1,0 +1,75 @@
+You are now entering a full system API and functionality audit phase for the CryptoBot AI platform.
+
+---
+
+### 🔐 PHASE 1: API KEY VERIFICATION
+
+Please do the following:
+
+1. **List all active API keys** currently implemented in the platform, and for each, provide:
+   - ✅ Key Name
+   - 🧠 Purpose
+   - 🔄 Where it's being used (which route, component, or page)
+   - 📡 Whether it’s functional or failing
+   - 🔐 Source (env variable name)
+
+2. Verify all integrations are working correctly:
+   - CoinGecko (crypto market data)
+   - Gemini AI / Vertex AI (chatbot)
+   - Stripe (payment and subscriptions)
+   - News API (crypto news feed)
+   - Google Cloud (TTS, STT, Translation, Vision, Vertex)
+   - HubSpot (CRM integration)
+   - ElevenLabs (text-to-speech)
+   - Discord (bot/token integration)
+   - Pixabay (media/images)
+   - YouTube (video content)
+   - Custom Search (Google indexing)
+   - PostgreSQL / NeonDB (database access)
+
+---
+
+### 🧪 PHASE 2: FULL CONNECTION TESTING
+
+3. Confirm the following endpoints and modules are functional:
+   - `/api/crypto/coins/markets`
+   - `/api/crypto/coins/:id`
+   - `/api/news`
+   - `/api/alerts`
+   - Chatbot AI endpoints
+   - Stripe webhook listener
+   - TTS / STT conversion via Google
+   - Language translation with dynamic language selection
+   - Avatar voice (via ElevenLabs) — if enabled
+   - Backup data when external APIs fail
+
+---
+
+### 🚀 PHASE 3: STRATEGIC SUGGESTIONS (20 FEATURE IDEAS)
+
+4. Provide **20 high-impact suggestions** to enhance CryptoBot’s platform. These should include:
+
+- 🧠 AI-driven features
+- 💹 Financial tools
+- 🔐 Security enhancements
+- 💬 User interaction upgrades
+- 🗂️ API-based new tabs or pages
+- 🧩 Third-party integrations
+- 🎓 Education gamification
+- 💵 Monetization models
+- 🌍 Globalization/localization
+- 🔄 Automation and smart alerts
+
+These should be formatted as:
+> 🔧 Feature Name: Description of how it works and how it can be added.
+
+---
+
+Once done, summarize:
+→ All verified API keys  
+→ Broken or missing connections  
+→ High-priority enhancements  
+→ Dependencies missing or to be improved  
+→ Warnings or unstable integrations
+
+Do not ask for confirmation. Execute and provide the structured report.
