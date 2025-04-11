@@ -298,7 +298,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (ids) url.searchParams.append("ids", ids as string);
       if (category) url.searchParams.append("category", category as string);
       if (order) url.searchParams.append("order", order as string);
-      if (per_page) url.searchParams.append("per_page", per_page as string);
+      
+      // Handle per_page parameter differently for the watchlist which needs more data
+      // CoinGecko free API limits this to 250 as maximum
+      if (per_page) {
+        const perPageValue = parseInt(per_page as string, 10);
+        const finalPerPage = Math.min(perPageValue, 250).toString();
+        url.searchParams.append("per_page", finalPerPage);
+      } else {
+        url.searchParams.append("per_page", "20");
+      }
+      
       if (page) url.searchParams.append("page", page as string);
       if (sparkline) url.searchParams.append("sparkline", sparkline as string);
       if (price_change_percentage) url.searchParams.append("price_change_percentage", price_change_percentage as string);
