@@ -297,8 +297,8 @@ export default function FloatingChatbot() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="tools" className="p-4">
-                  <div className="grid grid-cols-2 gap-2">
+                <TabsContent value="tools" className="p-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <Button variant="outline" size="sm" className="flex flex-col h-auto py-3">
                       <Mic className="h-5 w-5 mb-1" />
                       <span className="text-xs">Audio</span>
@@ -315,6 +315,24 @@ export default function FloatingChatbot() {
                       <Smile className="h-5 w-5 mb-1" />
                       <span className="text-xs">AR</span>
                     </Button>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium mb-2">Tool Information</h3>
+                    <div className="text-sm text-muted-foreground space-y-2">
+                      <p>
+                        <strong>Audio:</strong> Record voice messages or analyze audio files.
+                      </p>
+                      <p>
+                        <strong>Camera:</strong> Take pictures or analyze images with AI.
+                      </p>
+                      <p>
+                        <strong>QR:</strong> Scan QR codes to quickly access crypto addresses.
+                      </p>
+                      <p>
+                        <strong>AR:</strong> View crypto assets in augmented reality.
+                      </p>
+                    </div>
                   </div>
                 </TabsContent>
 

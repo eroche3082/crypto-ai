@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { Mic, Send } from "lucide-react";
 
 interface MessageInputProps {
   onSendMessage: (text: string) => void;
@@ -53,41 +54,41 @@ const MessageInput = ({ onSendMessage, disabled = false }: MessageInputProps) =>
       
       recognition.start();
     } else {
-      alert(t("messageInput.speechRecognitionNotSupported"));
+      alert(t("messageInput.speechRecognitionNotSupported", "Speech recognition is not supported in your browser"));
     }
   };
   
   return (
-    <div className="border-t border-gray-800 p-4">
-      <div className="relative">
+    <div className="p-2">
+      <div className="relative flex items-center">
         <input
           ref={inputRef}
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={t("messageInput.placeholder")}
-          className="w-full bg-secondary border border-gray-700 rounded-full py-3 px-4 pr-24 text-sm focus:outline-none focus:border-primary"
+          placeholder={t("messageInput.placeholder", "Ask about crypto, trends, prices, etc.")}
+          className="w-full bg-background border border-input rounded-full py-3 pl-4 pr-24 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           disabled={disabled}
         />
         
-        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+        <div className="absolute right-2 flex items-center space-x-1">
           <button
-            className={`mr-2 text-gray-400 ${isRecording ? 'text-primary animate-pulse' : ''}`}
+            className={`text-muted-foreground p-1.5 rounded-full hover:bg-accent hover:text-accent-foreground ${isRecording ? 'text-primary animate-pulse' : ''}`}
             onClick={activateVoiceInput}
             disabled={disabled}
-            title={t("messageInput.voice")}
+            title={t("messageInput.voice", "Voice input")}
           >
-            <span className="material-icons">mic</span>
+            <Mic size={18} />
           </button>
           
           <button
-            className="bg-primary rounded-full w-8 h-8 flex items-center justify-center text-white disabled:opacity-50"
+            className="bg-primary text-primary-foreground rounded-full p-1.5 disabled:opacity-50"
             onClick={handleSend}
             disabled={!inputValue.trim() || disabled}
-            title={t("messageInput.send")}
+            title={t("messageInput.send", "Send message")}
           >
-            <span className="material-icons text-sm">send</span>
+            <Send size={18} />
           </button>
         </div>
       </div>

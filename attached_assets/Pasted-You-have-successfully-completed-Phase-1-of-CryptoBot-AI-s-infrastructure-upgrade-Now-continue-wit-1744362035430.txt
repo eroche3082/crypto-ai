@@ -1,0 +1,112 @@
+You have successfully completed Phase 1 of CryptoBot AI’s infrastructure upgrade.
+
+Now, continue with **Phase 2**, activating all advanced AI and cloud-powered features across the platform. Follow the instructions below step by step:
+
+---
+
+### 🎤 PHASE 2.1: Activate Voice with Google TTS and ElevenLabs
+
+1. **Google Cloud Text-to-Speech (TTS)**
+   - Use the `GOOGLE_TTS_KEY_ID` or Google credentials from `google-credentials-global.json`
+   - Implement TTS support in the chatbot to read responses aloud
+   - Add a "🔊 Play Response" button under each AI response
+   - Language should match the current app language
+
+2. **ElevenLabs Integration**
+   - Use `ELEVEN_LABS_API_KEY`
+   - Provide an option for premium voice synthesis
+   - Use for user alerts, AI analysis summaries, and education audio
+
+---
+
+### 🎙️ PHASE 2.2: Enable Voice Input with Google Speech-to-Text (STT)
+
+3. **Google Cloud STT**
+   - Use `GOOGLE_STT_KEY_ID`
+   - Add a microphone icon in the chatbot input
+   - On tap, allow the user to speak a question
+   - Transcribe it into text, send it to Gemini AI
+
+---
+
+### 🌐 PHASE 2.3: Translate and Detect Language with Google Translate
+
+4. **Google Translation API**
+   - Use `GOOGLE_LANGUAGE_KEY_ID`
+   - Detect language from user input
+   - Optionally auto-translate non-English input to English for Gemini
+   - Display both original and translated message in the UI
+
+---
+
+### 👁️ PHASE 2.4: Activate Vision with Google Vision API
+
+5. **Google Vision API**
+   - Use `GOOGLE_VISION_KEY_ID`
+   - Enable image upload in chatbot or Locations page
+   - Detect logos, text, currency, or QR codes from uploaded images
+   - Show extracted content in Gemini chat or overlay panel
+
+---
+
+### 💸 PHASE 2.5: Finalize Stripe Subscriptions & Webhooks
+
+6. **Stripe Full Integration**
+   - Use `STRIPE_SECRET_KEY` and `VITE_STRIPE_PUBLIC_KEY`
+   - Implement:
+     - Customer creation
+     - Plan creation (Free, Pro, Elite)
+     - Payment method UI
+     - Subscription flow
+   - Add webhook listener at `/api/stripe/webhooks` to:
+     - Update user status
+     - Cancel/reactivate subscriptions
+     - Log failed payments
+
+---
+
+### 🔐 PHASE 2.6: Complete Firebase Auth Flow
+
+7. **Firebase Auth with Firestore**
+   - Use `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`
+   - Implement:
+     - Login/signup (email + Google)
+     - Save user profile and preferences
+     - Protect pages: `/favorites`, `/alerts`, `/profile`, `/premium`
+     - Connect to Firestore for settings and analytics
+
+---
+
+### 📺 PHASE 2.7: Activate YouTube API
+
+8. **YouTube Integration**
+   - Use `YOUTUBE_API_KEY`
+   - Add a content feed in `/education` tab
+   - Filter videos by crypto category (BTC, ETH, AI, NFTs)
+   - Optional: autoplay embedded playlist with “Learn Crypto with AI” theme
+
+---
+
+### 🎮 PHASE 2.8: Discord Bot Integration
+
+9. **Discord Bot**
+   - Use `DISCORD_TOKEN`
+   - Create a bot that:
+     - Sends price alerts to a channel
+     - Relays Gemini responses to commands like `/askbtc`
+     - Listens to selected channels
+
+---
+
+Once all of the above are completed, return the following:
+
+→ TTS and STT status  
+→ Gemini chat voice input/output active  
+→ Stripe subscription status  
+→ Firebase Auth login + protected routes  
+→ YouTube and video content in `/education`  
+→ Vision upload working  
+→ Translation functioning  
+→ Discord bot status
+
+Do not ask for confirmation. Execute each task in order and return system status once done.

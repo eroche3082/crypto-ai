@@ -1,0 +1,71 @@
+ PHASE 2.4: Activate Vision with Google Vision API
+
+5. **Google Vision API**
+   - Use `GOOGLE_VISION_KEY_ID`
+   - Enable image upload in chatbot or Locations page
+   - Detect logos, text, currency, or QR codes from uploaded images
+   - Show extracted content in Gemini chat or overlay panel
+
+---
+
+### 💸 PHASE 2.5: Finalize Stripe Subscriptions & Webhooks
+
+6. **Stripe Full Integration**
+   - Use `STRIPE_SECRET_KEY` and `VITE_STRIPE_PUBLIC_KEY`
+   - Implement:
+     - Customer creation
+     - Plan creation (Free, Pro, Elite)
+     - Payment method UI
+     - Subscription flow
+   - Add webhook listener at `/api/stripe/webhooks` to:
+     - Update user status
+     - Cancel/reactivate subscriptions
+     - Log failed payments
+
+---
+
+### 🔐 PHASE 2.6: Complete Firebase Auth Flow
+
+7. **Firebase Auth with Firestore**
+   - Use `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`
+   - Implement:
+     - Login/signup (email + Google)
+     - Save user profile and preferences
+     - Protect pages: `/favorites`, `/alerts`, `/profile`, `/premium`
+     - Connect to Firestore for settings and analytics
+
+---
+
+### 📺 PHASE 2.7: Activate YouTube API
+
+8. **YouTube Integration**
+   - Use `YOUTUBE_API_KEY`
+   - Add a content feed in `/education` tab
+   - Filter videos by crypto category (BTC, ETH, AI, NFTs)
+   - Optional: autoplay embedded playlist with “Learn Crypto with AI” theme
+
+---
+
+### 🎮 PHASE 2.8: Discord Bot Integration
+
+9. **Discord Bot**
+   - Use `DISCORD_TOKEN`
+   - Create a bot that:
+     - Sends price alerts to a channel
+     - Relays Gemini responses to commands like `/askbtc`
+     - Listens to selected channels
+
+---
+
+Once all of the above are completed, return the following:
+
+→ TTS and STT status  
+→ Gemini chat voice input/output active  
+→ Stripe subscription status  
+→ Firebase Auth login + protected routes  
+→ YouTube and video content in `/education`  
+→ Vision upload working  
+→ Translation functioning  
+→ Discord bot status
+
+Do not ask for confirmation. Execute each task in order and return system status once done.
