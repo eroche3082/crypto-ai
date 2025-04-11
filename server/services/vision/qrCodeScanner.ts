@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { ImageAnnotatorClient } from '@google-cloud/vision';
-import Jimp from 'jimp';
+import * as Jimp from 'jimp';
 import jsQR from 'jsqr';
 
 // Configure multer for memory storage

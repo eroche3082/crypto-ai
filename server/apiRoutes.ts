@@ -3,16 +3,28 @@ import * as services from './services';
 import { uploadMiddleware } from './vision';
 import { audioMiddleware } from './speech';
 import { upload as storageUpload } from './services/storage/cloudStorage';
+import { qrImageMiddleware, scanQRCode } from './services/vision/qrCodeScanner';
+import { audioUpload, transcribeAudio } from './services/speech/audioTranscription';
+import { generateClaudeResponse, analyzeImageWithClaude } from './anthropic';
 
 // Create router
 const apiRouter = Router();
+
+// AI Models routes
+apiRouter.post('/ai/claude', generateClaudeResponse);
+apiRouter.post('/ai/claude/vision', uploadMiddleware, analyzeImageWithClaude);
 
 // Vertex AI Market Analysis routes
 apiRouter.post('/vertex/market/analyze', services.analyzeMarketTrends);
 apiRouter.post('/vertex/market/predict', services.predictPrices);
 
-// Cloud Vision Chart Analysis routes
+// Vision and Image Analysis routes
 apiRouter.post('/vision/analyze-chart', services.chartImageMiddleware, services.analyzeChartImage);
+apiRouter.post('/vision/analyze-image', uploadMiddleware, services.analyzeImage || analyzeImageWithClaude);
+apiRouter.post('/vision/scan-qr', qrImageMiddleware, scanQRCode);
+
+// Speech and Audio routes
+apiRouter.post('/speech/transcribe', audioUpload.single('audio'), transcribeAudio);
 
 // Translation and Language routes
 apiRouter.post('/translate/detect', services.detectLanguage);
@@ -30,8 +42,7 @@ apiRouter.get('/youtube/videos', services.getCryptoVideos);
 apiRouter.get('/youtube/video/:videoId', services.getVideoDetails);
 apiRouter.get('/youtube/education', services.getCryptoEducation);
 
-// Cloud Storage routes - use the upload middleware imported at the top
-
+// Cloud Storage routes
 apiRouter.post('/storage/upload', storageUpload.single('file'), services.uploadFile);
 apiRouter.get('/storage/files', services.listUserFiles);
 apiRouter.delete('/storage/files/:filePath', services.deleteFile);

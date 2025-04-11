@@ -7,6 +7,20 @@ export {
   chartImageMiddleware
 } from './vision/chartAnalysis';
 
+export {
+  scanQRCode,
+  qrImageMiddleware,
+  scanQRCodeWithVision,
+  scanQRCodeWithJsQR
+} from './vision/qrCodeScanner';
+
+// Speech Services
+export {
+  transcribeAudio,
+  audioMiddleware,
+  audioUpload
+} from './speech/audioTranscription';
+
 // Translation Services
 export * from './translation/languageService';
 
