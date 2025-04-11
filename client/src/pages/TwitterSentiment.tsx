@@ -1,5 +1,4 @@
 import React from 'react';
-import Header from '@/components/Header';
 import TwitterSentimentAnalysis from '@/components/TwitterSentimentAnalysis';
 import { useTranslation } from "react-i18next";
 
@@ -8,8 +7,10 @@ const TwitterSentiment: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title={t("twitterSentiment.title", "Twitter/X Sentiment")} 
-              subtitle={t("twitterSentiment.subtitle", "Análisis en tiempo real del sentimiento en redes sociales para criptomonedas")} />
+      <div className="bg-background border-b border-border px-4 py-3">
+        <h1 className="text-xl font-semibold">{t("twitterSentiment.title", "Twitter/X Sentiment")}</h1>
+        <p className="text-sm text-muted-foreground">{t("twitterSentiment.subtitle", "Análisis en tiempo real del sentimiento en redes sociales para criptomonedas")}</p>
+      </div>
       <div className="flex-1 overflow-auto p-4">
         <TwitterSentimentAnalysis />
       </div>

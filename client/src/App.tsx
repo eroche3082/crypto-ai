@@ -168,6 +168,7 @@ function App() {
                 <Route path="/analysis" component={Analysis} />
                 <Route path="/watchlist" component={Watchlist} />
                 <Route path="/investment-advisor" component={InvestmentAdvisor} />
+                <Route path="/twitter-sentiment" component={TwitterSentiment} />
                 <Route component={NotFound} />
               </Switch>
             </div>

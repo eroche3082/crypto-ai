@@ -7,70 +7,86 @@ import { Input } from "@/components/ui/input";
 import { loginWithGoogle, logoutUser } from "../firebase";
 import { Search, Bell, Settings, UserCircle, Globe } from "lucide-react";
 
-const Header = () => {
+interface HeaderProps {
+  title?: string;
+  subtitle?: string;
+}
+
+const Header = ({ title, subtitle }: HeaderProps) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
-    <header className="bg-background border-b border-border h-16 px-4 flex justify-between items-center">
-      <div className="relative w-full max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-        <Input 
-          type="search" 
-          placeholder={t("header.search", "Search for cryptocurrencies (BTC, ETH, ADA...)")}
-          className="pl-10 bg-background border-border" 
-        />
-      </div>
+    <header className="bg-background border-b border-border px-4 flex flex-col w-full">
+      {/* Title section when provided */}
+      {(title || subtitle) && (
+        <div className="py-3 w-full">
+          {title && <h1 className="text-xl font-semibold">{title}</h1>}
+          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+        </div>
+      )}
       
-      <div className="flex items-center gap-4">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-muted-foreground"
-        >
-          <Globe size={20} />
-        </Button>
+      {/* Original header content */}
+      <div className={`${title || subtitle ? 'py-2' : 'py-4'} flex justify-between items-center w-full`}>
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+          <Input 
+            type="search" 
+            placeholder={t("header.search", "Search for cryptocurrencies (BTC, ETH, ADA...)")}
+            className="pl-10 bg-background border-border" 
+          />
+        </div>
         
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-muted-foreground"
-        >
-          <Bell size={20} />
-        </Button>
-        
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-muted-foreground"
-          onClick={() => setSettingsOpen(true)}
-        >
-          <Settings size={20} />
-        </Button>
-        
-        {user ? (
-          <div className="flex items-center gap-2">
-            <span className="text-sm">{user.displayName}</span>
-            {user.photoURL ? (
-              <img 
-                src={user.photoURL} 
-                alt={user.displayName || "User"} 
-                className="w-8 h-8 rounded-full border border-border"
-              />
-            ) : (
-              <UserCircle size={32} className="text-muted-foreground" />
-            )}
-          </div>
-        ) : (
+        <div className="flex items-center gap-4">
           <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={() => loginWithGoogle()}
+            variant="ghost" 
+            size="icon" 
+            className="text-muted-foreground"
           >
-            {t("header.login", "demo")}
+            <Globe size={20} />
           </Button>
-        )}
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-muted-foreground"
+          >
+            <Bell size={20} />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-muted-foreground"
+            onClick={() => setSettingsOpen(true)}
+          >
+            <Settings size={20} />
+          </Button>
+          
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm">{user.displayName}</span>
+              {user.photoURL ? (
+                <img 
+                  src={user.photoURL} 
+                  alt={user.displayName || "User"} 
+                  className="w-8 h-8 rounded-full border border-border"
+                />
+              ) : (
+                <UserCircle size={32} className="text-muted-foreground" />
+              )}
+            </div>
+          ) : (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => loginWithGoogle()}
+            >
+              {t("header.login", "demo")}
+            </Button>
+          )}
+        </div>
       </div>
       
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
