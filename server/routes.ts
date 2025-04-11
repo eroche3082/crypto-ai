@@ -10,6 +10,7 @@ import { analyzeImage, uploadMiddleware } from "./vision";
 import { getTwitterSentiment, getMarketSentiment } from "./twitter";
 import { analyzeSentiment } from "./sentiment";
 import { generateAIResponse } from "./gemini";
+import { transcribeAudio, audioMiddleware } from "./speech";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
