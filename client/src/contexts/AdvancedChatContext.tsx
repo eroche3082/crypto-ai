@@ -40,7 +40,7 @@ interface AdvancedChatContextType {
 const defaultPreferences: UserPreferences = {
   language: "en",
   voiceEnabled: true,
-  model: "gemini-1.5-flash"
+  model: "gemini-1.5-flash-latest"
 };
 
 const AdvancedChatContext = createContext<AdvancedChatContextType | undefined>(undefined);
@@ -48,7 +48,7 @@ const AdvancedChatContext = createContext<AdvancedChatContextType | undefined>(u
 export const AdvancedChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentModel, setCurrentModel] = useState("gemini-1.5-flash");
+  const [currentModel, setCurrentModel] = useState("gemini-1.5-flash-latest");
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(
     () => {
       // Load preferences from localStorage if available

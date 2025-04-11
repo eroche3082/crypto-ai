@@ -51,6 +51,7 @@ function selectGeminiModel(requestedModel: string): string {
   // Model mapping - default to gemini-1.5-flash if unknown model requested
   const modelMap: Record<string, string> = {
     'gemini-1.5-flash': 'gemini-1.5-flash',
+    'gemini-1.5-flash-latest': 'gemini-1.5-flash-latest',
     'gemini-1.5-pro': 'gemini-1.5-pro',
     'gemini-pro': 'gemini-pro',
     'gpt-4o': 'gemini-1.5-pro', // Use Gemini Pro as fallback for GPT requests
@@ -95,11 +96,10 @@ async function callGeminiAPI(
           {
             role: 'user',
             parts: [
-              { text: prompt }
+              { text: systemInstruction + "\n\n" + prompt }
             ]
           }
         ],
-        system: systemInstruction,
         generationConfig: {
           temperature: 0.7,
           topK: 40,
