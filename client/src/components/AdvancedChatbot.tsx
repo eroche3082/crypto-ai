@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Send, Mic, Camera, QrCode
@@ -44,6 +44,28 @@ export default function AdvancedChatbot() {
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  
+  // Listen for custom events from the parent (sidebar)
+  useEffect(() => {
+    const handleAudioEvent = () => handleOpenAudioRecorder();
+    const handleCameraEvent = () => handleOpenCamera();
+    const handleQrEvent = () => handleOpenQrScanner();
+    const handleArEvent = () => handleOpenArViewer();
+    
+    // Register event listeners
+    document.addEventListener('chatbot:audio', handleAudioEvent);
+    document.addEventListener('chatbot:camera', handleCameraEvent);
+    document.addEventListener('chatbot:qr', handleQrEvent);
+    document.addEventListener('chatbot:ar', handleArEvent);
+    
+    // Cleanup function
+    return () => {
+      document.removeEventListener('chatbot:audio', handleAudioEvent);
+      document.removeEventListener('chatbot:camera', handleCameraEvent);
+      document.removeEventListener('chatbot:qr', handleQrEvent);
+      document.removeEventListener('chatbot:ar', handleArEvent);
+    };
+  }, []);
   
   // Handle sending a new message
   const handleSendMessage = async (text: string = inputValue) => {
@@ -98,22 +120,47 @@ export default function AdvancedChatbot() {
   // Tool handlers
   const handleOpenAudioRecorder = () => {
     setActiveToolType('audio');
+    // Notify parent component about tool change
+    const event = new CustomEvent('chatbot:toolchange', { 
+      detail: { tool: 'audio' } 
+    });
+    document.dispatchEvent(event);
   };
   
   const handleOpenCamera = () => {
     setActiveToolType('camera');
+    // Notify parent component about tool change
+    const event = new CustomEvent('chatbot:toolchange', { 
+      detail: { tool: 'camera' } 
+    });
+    document.dispatchEvent(event);
   };
   
   const handleOpenQrScanner = () => {
     setActiveToolType('qr');
+    // Notify parent component about tool change
+    const event = new CustomEvent('chatbot:toolchange', { 
+      detail: { tool: 'qr' } 
+    });
+    document.dispatchEvent(event);
   };
   
   const handleOpenArViewer = () => {
     setActiveToolType('ar');
+    // Notify parent component about tool change
+    const event = new CustomEvent('chatbot:toolchange', { 
+      detail: { tool: 'ar' } 
+    });
+    document.dispatchEvent(event);
   };
   
   const handleCancelTool = () => {
     setActiveToolType(null);
+    // Notify parent component about tool change
+    const event = new CustomEvent('chatbot:toolchange', { 
+      detail: { tool: null } 
+    });
+    document.dispatchEvent(event);
   };
   
   const handleAudioCaptured = async (audioBlob: Blob) => {

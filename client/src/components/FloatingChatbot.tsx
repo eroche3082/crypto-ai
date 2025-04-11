@@ -12,6 +12,7 @@ interface FloatingChatbotProps {
 
 const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ defaultOpen = false }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [activeTool, setActiveTool] = useState<string | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   
   // Handle ESC key to close
@@ -35,6 +36,48 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ defaultOpen = false }
       document.body.style.overflow = '';
     };
   }, [isOpen]);
+
+  // Listen for tool events from child components
+  const handleAudioClick = () => {
+    // Set active tool in AdvancedChatbot
+    setActiveTool('audio');
+    const audioEvent = new CustomEvent('chatbot:audio');
+    document.dispatchEvent(audioEvent);
+  };
+  
+  const handleCameraClick = () => {
+    setActiveTool('camera');
+    const cameraEvent = new CustomEvent('chatbot:camera');
+    document.dispatchEvent(cameraEvent);
+  };
+  
+  const handleQrClick = () => {
+    setActiveTool('qr');
+    const qrEvent = new CustomEvent('chatbot:qr');
+    document.dispatchEvent(qrEvent);
+  };
+  
+  const handleArClick = () => {
+    setActiveTool('ar');
+    const arEvent = new CustomEvent('chatbot:ar');
+    document.dispatchEvent(arEvent);
+  };
+  
+  // For direct commands to the chatbot
+  useEffect(() => {
+    // Listen for event notifications from the AdvancedChatbot component
+    const toolHandler = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setActiveTool(e.detail?.tool || null);
+      }
+    };
+    
+    document.addEventListener('chatbot:toolchange', toolHandler);
+    
+    return () => {
+      document.removeEventListener('chatbot:toolchange', toolHandler);
+    };
+  }, []);
 
   return (
     <AdvancedChatProvider>
@@ -94,23 +137,52 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ defaultOpen = false }
                   {/* Left sidebar with buttons */}
                   <div className="w-16 border-r flex flex-col items-center py-4 bg-muted/20">
                     <div className="flex flex-col items-center space-y-7 mt-1">
-                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="Language Settings">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-10 w-10" 
+                        title="Language Settings"
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m12 2a15 15 0 0 0 0 20"/><path d="M2 12h20"/></svg>
                       </Button>
                       
-                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="Audio Input">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-10 w-10" 
+                        title="Audio Input"
+                        onClick={handleAudioClick}
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
                       </Button>
                       
-                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="Camera Input">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-10 w-10" 
+                        title="Camera Input"
+                        onClick={handleCameraClick}
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
                       </Button>
                       
-                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="QR Scanner">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-10 w-10" 
+                        title="QR Scanner"
+                        onClick={handleQrClick}
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
                       </Button>
                       
-                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="AR View">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-10 w-10" 
+                        title="AR View"
+                        onClick={handleArClick}
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 9V6a2 2 0 0 0-2-2H9"/><path d="M3 16v3a2 2 0 0 0 2 2h10"/><path d="M12 8l5 3-5 3Z"/></svg>
                       </Button>
                       
