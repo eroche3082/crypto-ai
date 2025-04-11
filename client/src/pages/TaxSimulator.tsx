@@ -374,11 +374,11 @@ const TaxSimulator: React.FC = () => {
                         name="asset"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.asset", "Activo")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.asset", "Asset")}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder={t("taxSimulator.selectAsset", "Seleccionar activo")} />
+                                  <SelectValue placeholder={t("taxSimulator.selectAsset", "Select asset")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -404,7 +404,7 @@ const TaxSimulator: React.FC = () => {
                         name="quantity"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.quantity", "Cantidad")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.quantity", "Quantity")}</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" step="any" min="0" />
                             </FormControl>
@@ -418,7 +418,7 @@ const TaxSimulator: React.FC = () => {
                         name="price"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.price", "Precio por unidad (USD)")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.price", "Price per unit (USD)")}</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" step="any" min="0" />
                             </FormControl>
@@ -432,7 +432,7 @@ const TaxSimulator: React.FC = () => {
                         name="date"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.date", "Fecha")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.date", "Date")}</FormLabel>
                             <FormControl>
                               <Input {...field} type="date" />
                             </FormControl>
@@ -446,7 +446,7 @@ const TaxSimulator: React.FC = () => {
                         name="fee"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.fee", "Comisión (USD)")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.fee", "Fee (USD)")}</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" step="any" min="0" />
                             </FormControl>
@@ -458,7 +458,7 @@ const TaxSimulator: React.FC = () => {
                     
                     <Button type="submit" className="w-full">
                       <Plus className="mr-2 h-4 w-4" />
-                      {t("taxSimulator.addTransaction", "Añadir Transacción")}
+                      {t("taxSimulator.addTransaction", "Add Transaction")}
                     </Button>
                   </form>
                 </Form>
@@ -483,12 +483,12 @@ const TaxSimulator: React.FC = () => {
                             <div className="flex items-center gap-2">
                               <span className="font-medium">{transaction.asset}</span>
                               <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                                {transaction.type === "buy" ? t("taxSimulator.buy", "Compra") :
-                                 transaction.type === "sell" ? t("taxSimulator.sell", "Venta") :
-                                 transaction.type === "swap" ? t("taxSimulator.swap", "Intercambio") :
-                                 transaction.type === "mining" ? t("taxSimulator.mining", "Minería") :
+                                {transaction.type === "buy" ? t("taxSimulator.buy", "Buy") :
+                                 transaction.type === "sell" ? t("taxSimulator.sell", "Sell") :
+                                 transaction.type === "swap" ? t("taxSimulator.swap", "Swap") :
+                                 transaction.type === "mining" ? t("taxSimulator.mining", "Mining") :
                                  transaction.type === "staking" ? t("taxSimulator.staking", "Staking") :
-                                 transaction.type === "gift" ? t("taxSimulator.gift", "Regalo") :
+                                 transaction.type === "gift" ? t("taxSimulator.gift", "Gift") :
                                  t("taxSimulator.airdrop", "Airdrop")}
                               </span>
                             </div>
@@ -497,7 +497,7 @@ const TaxSimulator: React.FC = () => {
                             </div>
                             <div className="text-xs text-muted-foreground">
                               {new Date(transaction.date).toLocaleDateString()} 
-                              {parseFloat(transaction.fee) > 0 && ` • Comisión: $${parseFloat(transaction.fee).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
+                              {parseFloat(transaction.fee) > 0 && ` • Fee: $${parseFloat(transaction.fee).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
                             </div>
                           </div>
                           <Button 
@@ -514,14 +514,14 @@ const TaxSimulator: React.FC = () => {
                 </CardContent>
                 <CardFooter className="flex justify-between">
                   <div className="text-sm text-muted-foreground">
-                    {t("taxSimulator.transactionsTotal", `Total: ${transactions.length} transacciones`)}
+                    {t("taxSimulator.transactionsTotal", `Total: ${transactions.length} transactions`)}
                   </div>
                   <Button 
                     variant="outline" 
                     onClick={() => setActiveTab("taxinfo")}
                     disabled={transactions.length === 0}
                   >
-                    {t("taxSimulator.continue", "Continuar")}
+                    {t("taxSimulator.continue", "Continue")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -546,11 +546,11 @@ const TaxSimulator: React.FC = () => {
                         name="country"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.country", "País de residencia fiscal")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.country", "Tax Residence Country")}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder={t("taxSimulator.selectCountry", "Seleccionar país")} />
+                                  <SelectValue placeholder={t("taxSimulator.selectCountry", "Select country")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -560,7 +560,7 @@ const TaxSimulator: React.FC = () => {
                               </SelectContent>
                             </Select>
                             <FormDescription>
-                              {t("taxSimulator.countryDesc", "Este es un simulador. Para casos reales, consulta con un asesor fiscal.")}
+                              {t("taxSimulator.countryDesc", "This is a simulator. For actual tax advice, consult a tax professional.")}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
