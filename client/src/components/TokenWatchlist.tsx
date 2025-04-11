@@ -1,23 +1,14 @@
 import { useState, useEffect } from "react";
-import { 
-  PlusCircle, 
-  AlertTriangle, 
-  BarChart3, 
-  ArrowUpDown, 
-  Trash2,
-  Info,
-  DollarSign
-} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertCircle, TrendingUp, TrendingDown, AlertTriangle, Shield, Eye, Star, StarOff, Info } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,561 +18,629 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
+import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger 
 } from "@/components/ui/tooltip";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
 
-// Interface for a token in the watchlist
-interface WatchlistToken {
+// Interface for crypto token data
+interface Token {
   id: string;
   symbol: string;
   name: string;
-  currentPrice: number;
-  priceChange24h: number;
-  marketCap: number;
-  riskScore: number;
-  riskLevel: 'low' | 'medium' | 'high' | 'extreme';
-  tags: string[];
+  image?: string;
+  current_price: number;
+  price_change_percentage_24h: number;
+  market_cap: number;
+  market_cap_rank: number;
+  total_volume: number;
+  high_24h?: number;
+  low_24h?: number;
+  circulating_supply?: number;
+  total_supply?: number;
+  ath?: number;
+  ath_change_percentage?: number;
+  risk_index?: number; // Risk score from 0-100
+  risk_factors?: {
+    volatility: number;
+    liquidity: number;
+    marketCap: number;
+    developer_activity?: number;
+    community_growth?: number;
+  };
+  on_watchlist: boolean;
 }
 
-// Helper function to generate risk score based on market cap, volatility, and volume
-const calculateRiskScore = (
-  marketCap: number, 
-  priceChange24h: number,
-): number => {
-  // Convert market cap to billions for easier calculation
-  const marketCapBillions = marketCap / 1_000_000_000;
+// Calculate a risk index from 0-100 based on various factors
+const calculateRiskIndex = (token: Partial<Token>): number => {
+  // Initialize base factors - all tokens start somewhat risky
+  const volatilityFactor = Math.abs(token.price_change_percentage_24h || 0) / 2; // Higher volatility = higher risk
   
-  // Calculate risk score based on market cap (higher market cap = lower risk)
-  let riskScore = 100 - Math.min(Math.log10(marketCapBillions + 1) * 20, 60);
+  // Market cap factor - lower market cap = higher risk (1-10 scale)
+  let marketCapFactor = 10;
+  if (token.market_cap) {
+    if (token.market_cap > 100000000000) { // >$100B
+      marketCapFactor = 1;
+    } else if (token.market_cap > 50000000000) { // >$50B
+      marketCapFactor = 2;
+    } else if (token.market_cap > 10000000000) { // >$10B
+      marketCapFactor = 3;
+    } else if (token.market_cap > 5000000000) { // >$5B
+      marketCapFactor = 4;
+    } else if (token.market_cap > 1000000000) { // >$1B
+      marketCapFactor = 5;
+    } else if (token.market_cap > 500000000) { // >$500M
+      marketCapFactor = 6;
+    } else if (token.market_cap > 100000000) { // >$100M
+      marketCapFactor = 7;
+    } else if (token.market_cap > 50000000) { // >$50M
+      marketCapFactor = 8;
+    } else if (token.market_cap > 10000000) { // >$10M
+      marketCapFactor = 9;
+    }
+  }
   
-  // Adjust for price volatility
-  const volatilityFactor = Math.abs(priceChange24h) * 2;
-  riskScore += volatilityFactor;
+  // Liquidity factor (based on total volume relative to market cap)
+  let liquidityFactor = 5;
+  if (token.market_cap && token.total_volume) {
+    const volumeToMarketCapRatio = token.total_volume / token.market_cap;
+    if (volumeToMarketCapRatio < 0.01) {
+      liquidityFactor = 10; // Very low liquidity = high risk
+    } else if (volumeToMarketCapRatio < 0.05) {
+      liquidityFactor = 8;
+    } else if (volumeToMarketCapRatio < 0.1) {
+      liquidityFactor = 6;
+    } else if (volumeToMarketCapRatio < 0.2) {
+      liquidityFactor = 4;
+    } else if (volumeToMarketCapRatio < 0.3) {
+      liquidityFactor = 2;
+    } else {
+      liquidityFactor = 1; // High liquidity = low risk
+    }
+  }
   
-  // Ensure score is between 0 and 100
-  return Math.max(0, Math.min(100, Math.round(riskScore)));
+  // Market cap rank factor
+  const rankFactor = (token.market_cap_rank || 100) / 10;
+  
+  // Age factor (not available from the API, would need additional data)
+  const ageFactor = 5; // Default middle value
+  
+  // Calculate weighted average for overall risk score (0-100)
+  const riskScore = (
+    (volatilityFactor * 20) + 
+    (marketCapFactor * 30) + 
+    (liquidityFactor * 25) + 
+    (rankFactor * 15) + 
+    (ageFactor * 10)
+  ) / 10;
+  
+  // Ensure risk score is between 0-100
+  return Math.min(100, Math.max(0, riskScore));
 };
 
-// Helper function to determine risk level based on score
-const getRiskLevel = (score: number): 'low' | 'medium' | 'high' | 'extreme' => {
-  if (score < 25) return 'low';
-  if (score < 50) return 'medium';
-  if (score < 75) return 'high';
-  return 'extreme';
-};
-
-// Helper function to get color based on risk level
-const getRiskColor = (level: 'low' | 'medium' | 'high' | 'extreme'): string => {
-  switch (level) {
-    case 'low': return 'bg-green-500';
-    case 'medium': return 'bg-yellow-500';
-    case 'high': return 'bg-orange-500';
-    case 'extreme': return 'bg-red-500';
-    default: return 'bg-gray-500';
+// Get risk category label and color based on risk index
+const getRiskCategory = (riskIndex: number): { label: string; color: string } => {
+  if (riskIndex < 20) {
+    return { label: "Very Low", color: "bg-emerald-500" };
+  } else if (riskIndex < 40) {
+    return { label: "Low", color: "bg-green-500" };
+  } else if (riskIndex < 60) {
+    return { label: "Medium", color: "bg-yellow-500" };
+  } else if (riskIndex < 80) {
+    return { label: "High", color: "bg-orange-500" };
+  } else {
+    return { label: "Very High", color: "bg-red-500" };
   }
 };
 
-// Component for the token watchlist
-const TokenWatchlist = () => {
-  const [watchlist, setWatchlist] = useState<WatchlistToken[]>([]);
-  const [availableTokens, setAvailableTokens] = useState<any[]>([]);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<'name' | 'price' | 'change' | 'risk'>('risk');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [selectedToken, setSelectedToken] = useState<string>("");
-  const { toast } = useToast();
+// Helper to format currency
+const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: value < 1 ? 4 : 2,
+    maximumFractionDigits: value < 1 ? 6 : 2,
+  }).format(value);
+};
 
-  // Fetch available tokens from CoinGecko
+// Helper to format large numbers
+const formatNumber = (value: number): string => {
+  if (value >= 1000000000) {
+    return (value / 1000000000).toFixed(2) + 'B';
+  } else if (value >= 1000000) {
+    return (value / 1000000).toFixed(2) + 'M';
+  } else if (value >= 1000) {
+    return (value / 1000).toFixed(2) + 'K';
+  } else {
+    return value.toString();
+  }
+};
+
+const TokenWatchlist: React.FC = () => {
+  const { t } = useTranslation();
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
+  const [watchlistTokens, setWatchlistTokens] = useState<Token[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
+  const [showRiskDialog, setShowRiskDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+  const [riskSortOrder, setRiskSortOrder] = useState<'asc' | 'desc' | null>(null);
+  const [sortField, setSortField] = useState<keyof Token | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("desc");
+
+  // Fetch data on mount
   useEffect(() => {
     const fetchTokens = async () => {
       try {
-        setIsLoading(true);
-        const response = await fetch('/api/crypto/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&sparkline=false');
-        if (!response.ok) throw new Error('Failed to fetch tokens');
+        setLoading(true);
+        const response = await fetch('/api/crypto/coins/markets');
         const data = await response.json();
-        setAvailableTokens(data);
+        
+        // Get watchlist from localStorage
+        const storedWatchlist = localStorage.getItem('tokenWatchlist');
+        const watchlistIds = storedWatchlist ? JSON.parse(storedWatchlist) : [];
+        
+        // Process tokens with risk calculation
+        const processedTokens = data.map((token: any) => ({
+          ...token,
+          on_watchlist: watchlistIds.includes(token.id),
+          risk_index: calculateRiskIndex(token),
+          risk_factors: {
+            volatility: Math.abs(token.price_change_percentage_24h || 0) / 2,
+            liquidity: token.total_volume / token.market_cap,
+            marketCap: token.market_cap,
+          }
+        }));
+        
+        setTokens(processedTokens);
+        setFilteredTokens(processedTokens);
+        setWatchlistTokens(processedTokens.filter(t => t.on_watchlist));
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching tokens:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load available tokens",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
+        console.error("Error fetching token data:", error);
+        setLoading(false);
       }
     };
-
+    
     fetchTokens();
-  }, [toast]);
-
-  // Load watchlist from localStorage
-  useEffect(() => {
-    const savedWatchlist = localStorage.getItem('tokenWatchlist');
-    if (savedWatchlist) {
-      try {
-        setWatchlist(JSON.parse(savedWatchlist));
-      } catch (error) {
-        console.error('Error parsing saved watchlist:', error);
-      }
-    }
+    
+    // Refresh token data every 2 minutes
+    const intervalId = setInterval(fetchTokens, 120000);
+    
+    return () => clearInterval(intervalId);
   }, []);
 
-  // Save watchlist to localStorage when it changes
+  // Filter tokens when search query changes
   useEffect(() => {
-    localStorage.setItem('tokenWatchlist', JSON.stringify(watchlist));
-  }, [watchlist]);
-
-  // Add token to watchlist
-  const addToWatchlist = () => {
-    if (!selectedToken) return;
-
-    // Check if token is already in watchlist
-    if (watchlist.some(token => token.id === selectedToken)) {
-      toast({
-        title: "Already Added",
-        description: "This token is already in your watchlist",
-        variant: "default"
-      });
-      return;
+    if (searchQuery.trim() === '') {
+      setFilteredTokens(tokens);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = tokens.filter(token => 
+        token.name.toLowerCase().includes(query) || 
+        token.symbol.toLowerCase().includes(query)
+      );
+      setFilteredTokens(filtered);
     }
+  }, [searchQuery, tokens]);
 
-    // Find token details from available tokens
-    const tokenDetails = availableTokens.find(token => token.id === selectedToken);
-    if (!tokenDetails) return;
-
-    // Calculate risk score
-    const riskScore = calculateRiskScore(
-      tokenDetails.market_cap,
-      tokenDetails.price_change_percentage_24h
+  // Update filtered list when tab changes
+  useEffect(() => {
+    if (activeTab === "watchlist") {
+      setFilteredTokens(watchlistTokens);
+    } else {
+      // Reset to all tokens or apply current search
+      if (searchQuery.trim() === '') {
+        setFilteredTokens(tokens);
+      } else {
+        const query = searchQuery.toLowerCase();
+        const filtered = tokens.filter(token => 
+          token.name.toLowerCase().includes(query) || 
+          token.symbol.toLowerCase().includes(query)
+        );
+        setFilteredTokens(filtered);
+      }
+    }
+  }, [activeTab, tokens, watchlistTokens, searchQuery]);
+  
+  // Toggle token watchlist status
+  const toggleWatchlist = (tokenId: string) => {
+    // Update tokens state
+    const updatedTokens = tokens.map(token => 
+      token.id === tokenId 
+        ? { ...token, on_watchlist: !token.on_watchlist } 
+        : token
     );
-    const riskLevel = getRiskLevel(riskScore);
-
-    // Generate tags based on token properties
-    const tags: string[] = [];
-    if (tokenDetails.market_cap > 10_000_000_000) tags.push('large-cap');
-    else if (tokenDetails.market_cap < 1_000_000_000) tags.push('small-cap');
-    else tags.push('mid-cap');
-
-    if (Math.abs(tokenDetails.price_change_percentage_24h) > 10) tags.push('volatile');
-    if (tokenDetails.price_change_percentage_24h > 0) tags.push('gaining');
-    else tags.push('declining');
-
-    // Create new token object
-    const newToken: WatchlistToken = {
-      id: tokenDetails.id,
-      symbol: tokenDetails.symbol.toUpperCase(),
-      name: tokenDetails.name,
-      currentPrice: tokenDetails.current_price,
-      priceChange24h: tokenDetails.price_change_percentage_24h,
-      marketCap: tokenDetails.market_cap,
-      riskScore,
-      riskLevel,
-      tags
-    };
-
-    // Add to watchlist
-    setWatchlist(prev => [...prev, newToken]);
     
-    // Close dialog and reset selected token
-    setIsAddDialogOpen(false);
-    setSelectedToken("");
-
-    toast({
-      title: "Token Added",
-      description: `${newToken.name} has been added to your watchlist`,
-      variant: "default"
-    });
+    setTokens(updatedTokens);
+    
+    // Update filtered tokens
+    const updatedFilteredTokens = filteredTokens.map(token => 
+      token.id === tokenId 
+        ? { ...token, on_watchlist: !token.on_watchlist } 
+        : token
+    );
+    
+    setFilteredTokens(updatedFilteredTokens);
+    
+    // Update watchlist tokens
+    const updatedWatchlistTokens = updatedTokens.filter(t => t.on_watchlist);
+    setWatchlistTokens(updatedWatchlistTokens);
+    
+    // Save to localStorage
+    const watchlistIds = updatedTokens
+      .filter(token => token.on_watchlist)
+      .map(token => token.id);
+    
+    localStorage.setItem('tokenWatchlist', JSON.stringify(watchlistIds));
   };
-
-  // Remove token from watchlist
-  const removeFromWatchlist = (id: string) => {
-    setWatchlist(prev => prev.filter(token => token.id !== id));
-    toast({
-      title: "Token Removed",
-      description: "Token has been removed from your watchlist",
-      variant: "default"
-    });
-  };
-
-  // Sort watchlist tokens
-  const sortedWatchlist = [...watchlist].sort((a, b) => {
-    let comparison = 0;
+  
+  // Sort tokens by field
+  const sortTokens = (field: keyof Token) => {
+    // If clicking the same field, toggle order
+    const newSortOrder = 
+      field === sortField && sortOrder === 'desc' ? 'asc' : 'desc';
     
-    switch (sortBy) {
-      case 'name':
-        comparison = a.name.localeCompare(b.name);
-        break;
-      case 'price':
-        comparison = a.currentPrice - b.currentPrice;
-        break;
-      case 'change':
-        comparison = a.priceChange24h - b.priceChange24h;
-        break;
-      case 'risk':
-        comparison = a.riskScore - b.riskScore;
-        break;
-    }
-    
-    return sortDirection === 'asc' ? comparison : -comparison;
-  });
-
-  // Toggle sort direction
-  const toggleSort = (field: 'name' | 'price' | 'change' | 'risk') => {
-    if (sortBy === field) {
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    // Special handling for risk sorting
+    if (field === 'risk_index') {
+      const sorted = [...filteredTokens].sort((a, b) => {
+        const aVal = a.risk_index || 0;
+        const bVal = b.risk_index || 0;
+        return newSortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      });
+      setFilteredTokens(sorted);
+      setRiskSortOrder(newSortOrder);
     } else {
-      setSortBy(field);
-      setSortDirection('desc');
+      // General sorting for other fields
+      const sorted = [...filteredTokens].sort((a, b) => {
+        const aVal = a[field];
+        const bVal = b[field];
+        
+        // Handle string comparison
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          return newSortOrder === 'asc' 
+            ? aVal.localeCompare(bVal) 
+            : bVal.localeCompare(aVal);
+        }
+        
+        // Handle number comparison
+        return newSortOrder === 'asc' 
+          ? (aVal as number) - (bVal as number) 
+          : (bVal as number) - (aVal as number);
+      });
+      
+      setFilteredTokens(sorted);
+      setRiskSortOrder(null); // Reset risk sort indicator
     }
+    
+    setSortField(field);
+    setSortOrder(newSortOrder);
   };
-
-  // Format currency
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: value < 1 ? 4 : 2,
-      maximumFractionDigits: value < 1 ? 6 : 2
-    }).format(value);
+  
+  // Open token risk details dialog
+  const openRiskDetails = (token: Token) => {
+    setSelectedToken(token);
+    setShowRiskDialog(true);
   };
-
-  // Format market cap
-  const formatMarketCap = (value: number) => {
-    if (value >= 1_000_000_000) {
-      return `$${(value / 1_000_000_000).toFixed(2)}B`;
-    } else if (value >= 1_000_000) {
-      return `$${(value / 1_000_000).toFixed(2)}M`;
-    } else {
-      return `$${value.toLocaleString()}`;
-    }
+  
+  // Render risk indicator badge
+  const renderRiskBadge = (riskIndex: number) => {
+    const { label, color } = getRiskCategory(riskIndex);
+    
+    return (
+      <div className="flex items-center">
+        <div className={`h-3 w-3 rounded-full ${color} mr-2`}></div>
+        <span>{label}</span>
+      </div>
+    );
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Token Watchlist with Risk Index</h1>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Token
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Token to Watchlist</DialogTitle>
-              <DialogDescription>
-                Select a token to add to your watchlist. Risk scores are calculated based on market capitalization and price volatility.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="my-4">
-              <Select value={selectedToken} onValueChange={setSelectedToken}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a token" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTokens.map(token => (
-                    <SelectItem key={token.id} value={token.id}>
-                      {token.name} ({token.symbol.toUpperCase()})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <CardTitle>{t("tokenWatchlist.title", "Token Watchlist with Risk Index")}</CardTitle>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="h-5 w-5 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">{t("tokenWatchlist.tooltip", "The Risk Index (0-100) is calculated based on volatility, market cap, liquidity, and other factors. Lower score = lower risk.")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <CardDescription>{t("tokenWatchlist.description", "Track your favorite tokens and assess their risk profiles")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center flex-wrap gap-4">
+              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
+                <TabsList>
+                  <TabsTrigger value="all">{t("tokenWatchlist.allTokens", "All Tokens")}</TabsTrigger>
+                  <TabsTrigger value="watchlist">
+                    {t("tokenWatchlist.watchlist", "Watchlist")} 
+                    {watchlistTokens.length > 0 && <Badge className="ml-2">{watchlistTokens.length}</Badge>}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              
+              <Input
+                className="w-full sm:w-64"
+                placeholder={t("tokenWatchlist.search", "Search by name or symbol")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={addToWatchlist} disabled={!selectedToken}>
-                Add to Watchlist
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Risk Level Key */}
-      <div className="mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Risk Level Key</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                <span>Low Risk (0-24)</span>
+            
+            {loading ? (
+              <div className="w-full flex justify-center py-8">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
               </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-                <span>Medium Risk (25-49)</span>
+            ) : filteredTokens.length > 0 ? (
+              <div className="overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-10"></TableHead>
+                      <TableHead 
+                        className="cursor-pointer"
+                        onClick={() => sortTokens('market_cap_rank')}
+                      >
+                        # {sortField === 'market_cap_rank' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </TableHead>
+                      <TableHead 
+                        className="cursor-pointer"
+                        onClick={() => sortTokens('name')}
+                      >
+                        {t("tokenWatchlist.token", "Token")} {sortField === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </TableHead>
+                      <TableHead 
+                        className="text-right cursor-pointer"
+                        onClick={() => sortTokens('current_price')}
+                      >
+                        {t("tokenWatchlist.price", "Price")} {sortField === 'current_price' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </TableHead>
+                      <TableHead 
+                        className="text-right cursor-pointer"
+                        onClick={() => sortTokens('price_change_percentage_24h')}
+                      >
+                        {t("tokenWatchlist.24h", "24h")} {sortField === 'price_change_percentage_24h' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </TableHead>
+                      <TableHead 
+                        className="text-right cursor-pointer"
+                        onClick={() => sortTokens('market_cap')}
+                      >
+                        {t("tokenWatchlist.marketCap", "Market Cap")} {sortField === 'market_cap' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </TableHead>
+                      <TableHead 
+                        className="text-right cursor-pointer"
+                        onClick={() => sortTokens('risk_index')}
+                      >
+                        {t("tokenWatchlist.riskIndex", "Risk Index")} {riskSortOrder && (riskSortOrder === 'asc' ? '↑' : '↓')}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTokens.map((token) => (
+                      <TableRow key={token.id}>
+                        <TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => toggleWatchlist(token.id)}
+                            className="h-8 w-8"
+                          >
+                            {token.on_watchlist ? (
+                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                            ) : (
+                              <StarOff className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </TableCell>
+                        <TableCell>{token.market_cap_rank}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            {token.image && (
+                              <img 
+                                src={token.image} 
+                                alt={token.name} 
+                                className="w-6 h-6 mr-2 rounded-full"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                }} 
+                              />
+                            )}
+                            <div>
+                              <div className="font-medium">{token.name}</div>
+                              <div className="text-xs text-muted-foreground">{token.symbol.toUpperCase()}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">{formatCurrency(token.current_price)}</TableCell>
+                        <TableCell className="text-right">
+                          <span className={token.price_change_percentage_24h >= 0 ? "text-green-500" : "text-red-500"}>
+                            {token.price_change_percentage_24h >= 0 ? "+" : ""}
+                            {token.price_change_percentage_24h.toFixed(2)}%
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">{formatCurrency(token.market_cap)}</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="ghost" 
+                            className="p-0" 
+                            onClick={() => openRiskDetails(token)}
+                          >
+                            <div className="w-full flex items-center gap-2">
+                              <Progress 
+                                value={token.risk_index} 
+                                className="h-2 flex-grow" 
+                                indicatorClassName={getRiskCategory(token.risk_index || 0).color} 
+                              />
+                              <span className="text-xs">{Math.round(token.risk_index || 0)}</span>
+                            </div>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-orange-500 mr-2"></div>
-                <span>High Risk (50-74)</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                <span>Extreme Risk (75-100)</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Token Watchlist Table */}
-      <div className="overflow-x-auto shadow-lg rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => toggleSort('name')}
-                  className="flex items-center"
-                >
-                  Token
-                  {sortBy === 'name' && (
-                    <ArrowUpDown className={`ml-2 h-4 w-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
-                  )}
-                </Button>
-              </TableHead>
-              <TableHead className="w-[150px]">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => toggleSort('price')}
-                  className="flex items-center"
-                >
-                  Price
-                  {sortBy === 'price' && (
-                    <ArrowUpDown className={`ml-2 h-4 w-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
-                  )}
-                </Button>
-              </TableHead>
-              <TableHead className="w-[150px]">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => toggleSort('change')}
-                  className="flex items-center"
-                >
-                  24h Change
-                  {sortBy === 'change' && (
-                    <ArrowUpDown className={`ml-2 h-4 w-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
-                  )}
-                </Button>
-              </TableHead>
-              <TableHead>Market Cap</TableHead>
-              <TableHead className="w-[250px]">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => toggleSort('risk')}
-                  className="flex items-center"
-                >
-                  Risk Score
-                  {sortBy === 'risk' && (
-                    <ArrowUpDown className={`ml-2 h-4 w-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
-                  )}
-                </Button>
-              </TableHead>
-              <TableHead>Tags</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedWatchlist.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  Your watchlist is empty. Add tokens to track their risk and performance.
-                </TableCell>
-              </TableRow>
             ) : (
-              sortedWatchlist.map(token => (
-                <TableRow key={token.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex flex-col">
-                      <span>{token.name}</span>
-                      <span className="text-muted-foreground text-sm">{token.symbol}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{formatCurrency(token.currentPrice)}</TableCell>
-                  <TableCell>
-                    <span className={token.priceChange24h >= 0 ? 'text-green-500' : 'text-red-500'}>
-                      {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
-                    </span>
-                  </TableCell>
-                  <TableCell>{formatMarketCap(token.marketCap)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <div className={`w-4 h-4 rounded-full ${getRiskColor(token.riskLevel)}`}></div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{token.riskLevel.charAt(0).toUpperCase() + token.riskLevel.slice(1)} Risk</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      <Progress 
-                        value={token.riskScore} 
-                        className="h-2" 
-                        indicatorClassName={getRiskColor(token.riskLevel)}
-                      />
-                      <span>{token.riskScore}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {token.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => removeFromWatchlist(token.id)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              <div className="w-full text-center py-8 text-muted-foreground">
+                {activeTab === "watchlist" && watchlistTokens.length === 0 ? (
+                  <div className="space-y-2">
+                    <Star className="h-8 w-8 mx-auto text-muted-foreground" />
+                    <p>{t("tokenWatchlist.emptyWatchlist", "Your watchlist is empty. Add tokens to track them here.")}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <AlertCircle className="h-8 w-8 mx-auto text-muted-foreground" />
+                    <p>{t("tokenWatchlist.noResults", "No tokens found matching your search.")}</p>
+                  </div>
+                )}
+              </div>
             )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Risk Analysis Summary Card */}
-      {watchlist.length > 0 && (
-        <div className="mt-8">
-          <Card className="bg-secondary/50">
-            <CardHeader>
-              <CardTitle>Portfolio Risk Analysis</CardTitle>
-              <CardDescription>
-                Summary of risk across your watchlist tokens
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="rounded-lg bg-background p-4">
-                  <h3 className="text-lg font-medium mb-2 flex items-center">
-                    <AlertTriangle className="mr-2 h-5 w-5 text-red-500" />
-                    Highest Risk
-                  </h3>
-                  {watchlist.length > 0 ? (
-                    <div>
-                      {[...watchlist].sort((a, b) => b.riskScore - a.riskScore)[0].name}
-                      <p className="text-muted-foreground text-sm">
-                        Risk Score: {[...watchlist].sort((a, b) => b.riskScore - a.riskScore)[0].riskScore}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">No tokens in watchlist</p>
-                  )}
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Risk Details Dialog */}
+      <Dialog open={showRiskDialog} onOpenChange={setShowRiskDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedToken?.image && (
+                <img 
+                  src={selectedToken.image} 
+                  alt={selectedToken?.name} 
+                  className="w-6 h-6 rounded-full"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }} 
+                />
+              )}
+              {selectedToken?.name} ({selectedToken?.symbol.toUpperCase()}) {t("tokenWatchlist.riskAnalysis", "Risk Analysis")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("tokenWatchlist.riskDescription", "Detailed risk assessment based on market data and token characteristics")}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedToken && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="text-sm text-muted-foreground">{t("tokenWatchlist.overallRisk", "Overall Risk")}</div>
+                  <div className="text-xl font-bold flex items-center gap-2">
+                    {renderRiskBadge(selectedToken.risk_index || 0)}
+                  </div>
                 </div>
-                <div className="rounded-lg bg-background p-4">
-                  <h3 className="text-lg font-medium mb-2 flex items-center">
-                    <BarChart3 className="mr-2 h-5 w-5 text-blue-500" />
-                    Average Risk
-                  </h3>
-                  {watchlist.length > 0 ? (
-                    <div>
-                      <p className="font-medium">
-                        {Math.round(watchlist.reduce((acc, token) => acc + token.riskScore, 0) / watchlist.length)}
-                      </p>
-                      <p className="text-muted-foreground text-sm">
-                        {getRiskLevel(Math.round(watchlist.reduce((acc, token) => acc + token.riskScore, 0) / watchlist.length))} risk level
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">No tokens in watchlist</p>
-                  )}
-                </div>
-                <div className="rounded-lg bg-background p-4">
-                  <h3 className="text-lg font-medium mb-2 flex items-center">
-                    <DollarSign className="mr-2 h-5 w-5 text-green-500" />
-                    Risk Distribution
-                  </h3>
-                  {watchlist.length > 0 ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="h-4 flex-1 rounded-full overflow-hidden flex">
-                        <div 
-                          className="bg-green-500 h-full" 
-                          style={{ 
-                            width: `${(watchlist.filter(t => t.riskLevel === 'low').length / watchlist.length) * 100}%` 
-                          }}
-                        ></div>
-                        <div 
-                          className="bg-yellow-500 h-full" 
-                          style={{ 
-                            width: `${(watchlist.filter(t => t.riskLevel === 'medium').length / watchlist.length) * 100}%` 
-                          }}
-                        ></div>
-                        <div 
-                          className="bg-orange-500 h-full" 
-                          style={{ 
-                            width: `${(watchlist.filter(t => t.riskLevel === 'high').length / watchlist.length) * 100}%` 
-                          }}
-                        ></div>
-                        <div 
-                          className="bg-red-500 h-full" 
-                          style={{ 
-                            width: `${(watchlist.filter(t => t.riskLevel === 'extreme').length / watchlist.length) * 100}%` 
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">No tokens in watchlist</p>
-                  )}
+                <div className="text-right">
+                  <div className="text-sm text-muted-foreground">{t("tokenWatchlist.riskScore", "Risk Score")}</div>
+                  <div className="text-xl font-bold">{Math.round(selectedToken.risk_index || 0)}/100</div>
                 </div>
               </div>
-            </CardContent>
-            <CardFooter className="border-t pt-6">
-              <div className="flex items-start space-x-2 text-sm text-muted-foreground">
-                <Info className="h-4 w-4 mt-0.5" />
-                <p>
-                  Risk scores are calculated based on market capitalization and price volatility.
-                  Lower market cap and higher volatility increase risk. This is not financial advice.
-                </p>
+              
+              <Progress 
+                value={selectedToken.risk_index} 
+                className="h-2" 
+                indicatorClassName={getRiskCategory(selectedToken.risk_index || 0).color} 
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <h4 className="font-medium mb-2">{t("tokenWatchlist.riskFactors", "Risk Factors")}</h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">{t("tokenWatchlist.volatility", "Volatility")}:</span>
+                      <span className="font-medium">{selectedToken.risk_factors?.volatility.toFixed(2)}%</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">{t("tokenWatchlist.liquidity", "Liquidity")}:</span>
+                      <span className="font-medium">{(selectedToken.risk_factors?.liquidity || 0).toFixed(3)}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">{t("tokenWatchlist.marketCap", "Market Cap")}:</span>
+                      <span className="font-medium">{formatCurrency(selectedToken.market_cap)}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">{t("tokenWatchlist.marketCapRank", "Market Cap Rank")}:</span>
+                      <span className="font-medium">#{selectedToken.market_cap_rank}</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium mb-2">{t("tokenWatchlist.marketData", "Market Data")}</h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">{t("tokenWatchlist.price", "Price")}:</span>
+                      <span className="font-medium">{formatCurrency(selectedToken.current_price)}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">{t("tokenWatchlist.24hChange", "24h Change")}:</span>
+                      <span className={selectedToken.price_change_percentage_24h >= 0 ? "text-green-500 font-medium" : "text-red-500 font-medium"}>
+                        {selectedToken.price_change_percentage_24h >= 0 ? "+" : ""}
+                        {selectedToken.price_change_percentage_24h.toFixed(2)}%
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">{t("tokenWatchlist.volume24h", "24h Volume")}:</span>
+                      <span className="font-medium">{formatCurrency(selectedToken.total_volume)}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">{t("tokenWatchlist.circulatingSupply", "Circulating Supply")}:</span>
+                      <span className="font-medium">{formatNumber(selectedToken.circulating_supply || 0)}</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </CardFooter>
-          </Card>
-        </div>
-      )}
+              
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>{t("tokenWatchlist.disclaimer", "Disclaimer")}</AlertTitle>
+                <AlertDescription>
+                  {t("tokenWatchlist.disclaimerText", "Risk assessment is for informational purposes only and should not be considered financial advice. Always do your own research before investing.")}
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+          
+          <DialogFooter className="flex gap-2">
+            {selectedToken && (
+              <Button 
+                variant={selectedToken.on_watchlist ? "default" : "outline"}
+                onClick={() => toggleWatchlist(selectedToken.id)}
+                className="flex items-center gap-2"
+              >
+                {selectedToken.on_watchlist ? (
+                  <>
+                    <StarOff className="h-4 w-4" />
+                    {t("tokenWatchlist.removeFromWatchlist", "Remove from Watchlist")}
+                  </>
+                ) : (
+                  <>
+                    <Star className="h-4 w-4" />
+                    {t("tokenWatchlist.addToWatchlist", "Add to Watchlist")}
+                  </>
+                )}
+              </Button>
+            )}
+            <Button variant="ghost" onClick={() => setShowRiskDialog(false)}>
+              {t("common.close", "Close")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

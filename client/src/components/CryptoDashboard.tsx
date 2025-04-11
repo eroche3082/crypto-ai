@@ -3,11 +3,14 @@ import { useTranslation } from "react-i18next";
 import CryptoCard from "./CryptoCard";
 import TodoFavorites from "./TodoFavorites";
 import ManageFavoritesDialog from "./ManageFavoritesDialog";
+import TokenWatchlist from "./TokenWatchlist";
+import ConnectWalletButton from "./ConnectWalletButton";
 import { useCryptoData } from "../hooks/useCryptoData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { Star, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const CryptoDashboard = () => {
   const { t } = useTranslation();
@@ -15,6 +18,7 @@ const CryptoDashboard = () => {
   const [timeFilter, setTimeFilter] = useState("24h");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [manageFavoritesOpen, setManageFavoritesOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'market' | 'watchlist'>('market');
   const { data, isLoading, error } = useCryptoData({ timeFilter });
   
   // Fetch favorites from the server
@@ -89,13 +93,27 @@ const CryptoDashboard = () => {
   
   return (
     <div className="p-4 flex flex-col gap-4 overflow-auto scrollbar-hide">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">{t("dashboard.title")}</h2>
+      <div className="flex justify-between items-center flex-wrap gap-4">
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl font-semibold">{t("dashboard.title")}</h2>
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'market' | 'watchlist')}>
+            <TabsList>
+              <TabsTrigger value="market">{t("dashboard.marketOverview", "Market Overview")}</TabsTrigger>
+              <TabsTrigger value="watchlist">{t("dashboard.riskWatchlist", "Risk Watchlist")}</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         <div className="flex items-center gap-2">
+          <ConnectWalletButton 
+            variant="outline"
+            size="sm"
+          />
+          
           <Button 
             variant="outline" 
             className="flex items-center gap-2"
             onClick={() => setManageFavoritesOpen(true)}
+            size="sm"
           >
             <Star size={16} className="text-yellow-500" />
             {t("favorites.manage", "Manage Favorites")}
@@ -109,34 +127,40 @@ const CryptoDashboard = () => {
             onRemoveFavorite={(symbol) => toggleFavorite(symbol)}
           />
           
-          <Select value={timeFilter} onValueChange={setTimeFilter}>
-            <SelectTrigger className="w-28">
-              <SelectValue placeholder={t("dashboard.timeFilter")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="24h">24h</SelectItem>
-              <SelectItem value="7d">7d</SelectItem>
-              <SelectItem value="14d">14d</SelectItem>
-              <SelectItem value="30d">30d</SelectItem>
-            </SelectContent>
-          </Select>
+          {activeTab === 'market' && (
+            <Select value={timeFilter} onValueChange={setTimeFilter}>
+              <SelectTrigger className="w-28">
+                <SelectValue placeholder={t("dashboard.timeFilter")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="24h">24h</SelectItem>
+                <SelectItem value="7d">7d</SelectItem>
+                <SelectItem value="14d">14d</SelectItem>
+                <SelectItem value="30d">30d</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {data?.map((crypto) => {
-          const isFavorite = favorites.includes(crypto.symbol.toLowerCase());
-          return (
-            <CryptoCard 
-              key={crypto.id} 
-              crypto={crypto} 
-              timeFilter={timeFilter}
-              active={isFavorite}
-              onClick={() => toggleFavorite(crypto.symbol)}
-            />
-          );
-        })}
-      </div>
+      {activeTab === 'market' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {data?.map((crypto) => {
+            const isFavorite = favorites.includes(crypto.symbol.toLowerCase());
+            return (
+              <CryptoCard 
+                key={crypto.id} 
+                crypto={crypto} 
+                timeFilter={timeFilter}
+                active={isFavorite}
+                onClick={() => toggleFavorite(crypto.symbol)}
+              />
+            );
+          })}
+        </div>
+      )}
+      
+      {activeTab === 'watchlist' && <TokenWatchlist />}
     </div>
   );
 };

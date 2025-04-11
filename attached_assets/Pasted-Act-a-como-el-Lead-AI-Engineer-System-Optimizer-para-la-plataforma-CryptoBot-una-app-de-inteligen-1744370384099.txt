@@ -1,0 +1,153 @@
+Actúa como el Lead AI Engineer & System Optimizer para la plataforma CryptoBot, una app de inteligencia artificial para análisis y gestión de criptomonedas en tiempo real.
+
+Tu misión es ejecutar una auditoría completa del sistema y luego mejorar el proyecto con lo siguiente:
+
+✅ 1. CRYPTOBOT STATUS CHECK
+Devuélveme una tabla con los siguientes campos para cada módulo del sistema:
+
+✅ Implementado
+
+⚠️ Parcialmente Implementado
+
+❌ No Implementado
+
+Cada fila debe contener:
+
+🔹 Nombre del módulo o API
+
+🧠 Propósito o función (ej: obtener precios, manejar favoritos, ejecutar alertas)
+
+🔌 Archivo donde está conectado
+
+📡 Estado actual (funcional, error, desconectado, fallback)
+
+🛠️ Comentario técnico
+
+Ejemplos esperados:
+
+bash
+Copiar
+Editar
+GeminiContext (AI Chat) – GPT/Vertex AI – client/src/contexts/GeminiContext.tsx – ✅ Funcional  
+CoinGecko API – Precios cripto – server/routes.ts – ⚠️ Fallback activo  
+Favorites – Guarda tokens favoritos – server/routes.ts – ✅ Conectado a DB  
+🧪 2. API INTEGRATION VERIFICATION
+Valida que las siguientes claves estén activas y funcionando correctamente:
+
+API Key	Función	Estado Esperado
+VITE_GEMINI_API_KEY	Chat con IA	✅ Activo
+VITE_COINGECKO_API_KEY	Datos de criptomonedas	⚠️ Fallback o error
+STRIPE_SECRET_KEY	Suscripciones y pagos	⚠️ Parcial
+NEWS_API_KEY	Noticias cripto	✅ Noticias en vivo
+DATABASE_URL	PostgreSQL NeonDB	✅ Funcional
+VITE_FIREBASE_API_KEY	Autenticación	⚠️ Parcial
+Revisa también:
+
+WebSocket funcional
+
+Backup data en caso de error
+
+Mensajes de AI traducidos y coherentes en inglés por defecto
+
+💻 3. VERIFICACIÓN DE PÁGINAS FUNCIONALES
+Confirma que las siguientes secciones cargan correctamente, muestran datos, y tienen botones activos:
+
+🪙 Dashboard (precios + % cambio + gráfica)
+
+🧠 AI Analysis (chat con predicciones)
+
+📰 Crypto News (resumen + AI Summary)
+
+🧾 Favorites (añadir y quitar tokens)
+
+🚨 Alerts (sistema de alertas personalizado)
+
+💱 Converter (conversión BTC, ETH, USDT)
+
+🎓 Education Hub (cursos con progreso)
+
+🔧 4. LISTA DE FUNCIONES FALTANTES O INCOMPLETAS
+Devuélveme una lista clara tipo checklist con:
+
+ Función
+
+ Nivel de urgencia (Alta / Media / Baja)
+
+ Descripción técnica
+
+ Sugerencia de cómo implementarlo
+
+Ejemplo:
+
+pgsql
+Copiar
+Editar
+[ ] Stripe Webhooks – Alta – No están configurados para suscripciones – Usar `stripe.webhooks.on('checkout.session.completed')`
+💡 5. GENERA 20 SUGERENCIAS PARA ELEVAR CRYPTOBOT AL MÁXIMO NIVEL
+Inventa mejoras en 4 áreas:
+
+A. Funciones con IA
+Sentiment analysis en tiempo real usando Twitter API
+
+Alertas personalizadas por riesgo o volatilidad
+
+Recomendaciones de portafolio por perfil de usuario
+
+B. Herramientas financieras
+Simulador de impuestos por país
+
+Calculadora de ganancias y pérdidas (realizadas / no realizadas)
+
+Indicadores técnicos integrados (MACD, RSI)
+
+C. Seguridad y usuarios
+Autenticación 2FA
+
+Historial de actividad sospechosa
+
+Score de seguridad por token (basado en rug probability)
+
+D. Experiencia del usuario
+Chatbot con voz (TTS + STT)
+
+Dashboards personalizados por usuario
+
+TradingView embebido para análisis
+
+Botones rápidos de acción en el chat
+
+Temas oscuros / claros personalizados
+
+Integración con carteras (MetaMask, WalletConnect)
+
+Recomendador de tokens emergentes
+
+Feed de tendencias del mercado
+
+Integración con YouTube para videos en el dashboard
+
+Compartir portafolio público como link
+
+Crear ligas privadas de inversión entre amigos (modo competición)
+
+📍 6. CHECKLIST VISUAL FINAL
+Devuélveme un resumen tipo tablero como este:
+
+diff
+Copiar
+Editar
+✅ LO QUE YA FUNCIONA
+- Dashboard
+- Gemini AI Chat
+- Favorites
+- Alerts
+
+🧩 EN PROGRESO
+- Cursos educativos
+- News API (en vivo)
+- Stripe integration
+
+❌ LO QUE FALTA
+- Real Trading API connection
+- NFT Price Tracker
+- Personalized Onboarding

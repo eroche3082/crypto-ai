@@ -1,0 +1,100 @@
+1. GENERATE A LIVE STATUS REPORT
+Return a structured table with 3 sections:
+
+🔐 Implemented – all features and API keys that are already live and working
+
+⚠️ Partially Implemented or Failing – features/API keys that exist but are not stable or complete
+
+❌ Missing or Not Yet Started – modules, APIs or flows not yet implemented
+
+For each item include:
+
+Name
+
+Function
+
+Where it is used
+
+Status (working, partial, broken, missing)
+
+🛠️ 2. VALIDATE CONNECTIVITY OF THE FOLLOWING MODULES AND KEYS
+Confirm and report the real-time status of these integrations:
+
+Service	Required	Notes
+Gemini AI (Vertex AI)	✅	Should support chat + sentiment
+CoinGecko API	✅	Confirm fallback works
+News API (Real)	✅	Using key: NEWS_API_KEY
+Stripe (Billing)	✅	Public and private keys should work
+Firebase Auth	✅	Login system basic flow
+PostgreSQL (NeonDB)	✅	Courses, favorites, alerts stored
+ElevenLabs	✅	For voice generation in chat
+Speech-to-Text	✅	Voice command input
+Text-to-Speech	✅	AI speaks back
+Translation API	✅	Auto-switch between EN, ES, FR
+Google Vision	✅	For destination photo analysis
+Discord / Webhooks	✅	Notifications and sharing
+YouTube / Search API	✅	For travel content
+Hubspot Integration	✅	CRM, leads, follow-up automation
+QR Tools	✅	QR boarding pass / scanner UI
+📊 3. SHOW PROGRESS ON EDUCATION MODULE
+Confirm:
+
+RealCourses component works with enrollment
+
+Enrollment triggers updates in localStorage or DB
+
+Pro Courses are tracked separately from Free ones
+
+Buttons such as “Enroll”, “Continue”, “Complete Course” are functional
+
+Fix any broken state flows or imports.
+
+🚀 4. RETURN A PRIORITIZED LIST OF WHAT IS STILL MISSING
+Return a second structured table:
+
+Feature / API
+
+Importance (High, Medium, Low)
+
+Reason it's Needed
+
+Suggested Implementation Plan
+
+💡 5. GENERATE 20 INNOVATIVE SUGGESTIONS TO ELEVATE THE PLATFORM
+Suggestions should span across:
+
+AI enhancements (personalized planning, emotion detection, recommendations)
+
+Travel utilities (DCA for tickets, real-time alerts, travel packs)
+
+Community/social features (shared boards, comment sections, creator economy)
+
+Monetization ideas (course marketplace, itinerary bundles, subscriptions)
+
+Security + trust layers (AI validation of destination safety)
+
+Gamification (badges, travel streaks, jet points)
+
+🔄 6. OUTPUT FINAL ACTION PLAN
+End with a visual summary checklist:
+
+✅ Items completed this session
+
+🔧 Items currently being implemented
+
+🧩 Suggested next step for Phase 3 (e.g. AI personality memory, dashboard login, itinerary builder, or membership portal)
+
+Make sure this is readable and aligned with agile implementation.
+
+Constraints:
+
+Do not break or replace existing working components.
+
+Use fallback data where APIs fail.
+
+Default language: English (multilingual options active).
+
+Must be mobile friendly.
+
+Keep the chatbot always accessible, with context persistence enabled.
+
