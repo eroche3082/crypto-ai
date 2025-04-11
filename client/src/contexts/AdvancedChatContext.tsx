@@ -46,7 +46,14 @@ const defaultPreferences: UserPreferences = {
 const AdvancedChatContext = createContext<AdvancedChatContextType | undefined>(undefined);
 
 export const AdvancedChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    // Add a welcome message from the bot
+    {
+      role: "bot",
+      content: "Hi there! Ready to dive into the crypto world? What's on your mind today? Perhaps you'd like to check the current price of a specific coin, explore recent market trends, or learn more about a particular blockchain technology? Let me know how I can help.",
+      timestamp: Date.now()
+    }
+  ]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentModel, setCurrentModel] = useState("gemini-1.5-flash-latest");
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(
@@ -105,21 +112,35 @@ export const AdvancedChatProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setIsLoading(true);
     
     try {
-      // In a production app, this would call Vertex AI (gemini-1.5-flash) or OpenAI's GPT-4o
-      // For this demo, we'll use a simulated endpoint
-      const response = await apiRequest("POST", "/api/generate-ai-response", {
-        prompt,
-        model: currentModel,
-        language: userPreferences.language
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+      // First try with the new VertexAI endpoint
+      try {
+        const response = await apiRequest("POST", "/api/vertex-ai-response", {
+          prompt,
+          modelName: currentModel,
+          language: userPreferences.language
+        });
+        
+        const data = await response.json();
+        setIsLoading(false);
+        return data.response;
+      } catch (vertexError) {
+        console.warn("VertexAI endpoint failed, falling back to Gemini API:", vertexError);
+        
+        // Fall back to the regular Gemini API if VertexAI fails
+        const response = await apiRequest("POST", "/api/generate-ai-response", {
+          prompt,
+          model: currentModel,
+          language: userPreferences.language
+        });
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setIsLoading(false);
+        return data.response;
       }
-      
-      const data = await response.json();
-      setIsLoading(false);
-      return data.response;
     } catch (error) {
       setIsLoading(false);
       console.error("Error generating AI response:", error);

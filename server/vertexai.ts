@@ -67,17 +67,28 @@ export async function generateVertexAIResponse(req: Request, res: Response) {
     let responseText = "No response generated";
     
     try {
-      // Try different response structures based on API versions
-      responseText = result.response.text();
-    } catch (e) {
-      console.log("Could not get response via text() method, trying alternative");
-      try {
-        // Fallback to accessing candidates directly
-        responseText = result.response?.candidates?.[0]?.content?.parts?.[0]?.text || responseText;
-      } catch (e2) {
-        console.log("Failed to extract text from response", e2);
+      // Attempt various ways to extract the text based on the API version
+      if (typeof result.response.text === 'function') {
+        // If text() is a function, call it
+        responseText = result.response.text();
+      } else if (result.response.candidates && result.response.candidates.length > 0) {
+        // Try to get text from candidates array
+        if (result.response.candidates[0].content?.parts?.[0]?.text) {
+          responseText = result.response.candidates[0].content.parts[0].text;
+        }
+      } else {
+        // Last resort - try to convert the entire response to a string
+        console.log("Attempting to stringify the entire response");
+        const stringifiedResponse = JSON.stringify(result.response);
+        if (stringifiedResponse && stringifiedResponse.length > 0) {
+          responseText = `Raw response: ${stringifiedResponse.substring(0, 500)}...`;
+        }
       }
+    } catch (e) {
+      console.error("Error extracting text from response:", e);
     }
+    
+    console.log("VertexAI generated response:", responseText.substring(0, 100) + "...");
     
     // Return response to client
     res.json({ 
