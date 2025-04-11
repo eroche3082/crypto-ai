@@ -212,52 +212,7 @@ const EducationHub = () => {
     },
   ];
   
-  const courses = [
-    {
-      id: "blockchain-101",
-      title: "Blockchain 101",
-      level: "Beginner",
-      duration: "4 hours",
-      description: "Introduction to blockchain technology, cryptocurrencies, and their applications.",
-      lessons: 12,
-      progress: 75,
-      tags: ["Blockchain", "Basics", "Crypto"],
-      image: "school"
-    },
-    {
-      id: "defi-masterclass",
-      title: "DeFi Masterclass",
-      level: "Intermediate",
-      duration: "8 hours",
-      description: "Deep dive into decentralized finance protocols, lending, borrowing, and yield farming.",
-      lessons: 24,
-      progress: 30,
-      tags: ["DeFi", "Ethereum", "Finance"],
-      image: "account_balance"
-    },
-    {
-      id: "trading-fundamentals",
-      title: "Trading Fundamentals",
-      level: "All Levels",
-      duration: "6 hours",
-      description: "Learn the basics of cryptocurrency trading, chart analysis, and risk management.",
-      lessons: 18,
-      progress: 0,
-      tags: ["Trading", "Analysis", "Strategy"],
-      image: "candlestick_chart"
-    },
-    {
-      id: "nft-creation",
-      title: "NFT Creation & Marketing",
-      level: "Advanced",
-      duration: "5 hours",
-      description: "Create, mint, and market your own NFT collections on various marketplaces.",
-      lessons: 15,
-      progress: 0,
-      tags: ["NFT", "Art", "Marketing"],
-      image: "filter_none"
-    }
-  ];
+  // Using initialCourses defined at the top of the file
   
   const featuredResources = [
     {
