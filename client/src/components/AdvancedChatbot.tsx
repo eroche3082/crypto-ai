@@ -163,10 +163,12 @@ export default function AdvancedChatbot() {
       
       // Text-to-speech if enabled
       if (isVoiceActive && userPreferences.voiceEnabled) {
-        const speechButton = document.querySelector('[data-speech-id="latest"]') as HTMLButtonElement;
-        if (speechButton) {
-          speechButton.click();
-        }
+        setTimeout(() => {
+          const speechButton = document.getElementById('latest-speech') as HTMLButtonElement;
+          if (speechButton) {
+            speechButton.click();
+          }
+        }, 300); // Small delay to ensure the component is fully rendered
       }
     } catch (error) {
       console.error("Error generating response:", error);
@@ -677,7 +679,7 @@ export default function AdvancedChatbot() {
                                       text={message.content.replace(/<[^>]*>?/gm, '')} 
                                       language={userPreferences.language === 'en' ? 'en-US' : userPreferences.language === 'es' ? 'es-ES' : userPreferences.language === 'fr' ? 'fr-FR' : 'pt-BR'} 
                                       compact
-                                      dataSpeechId={index === messages.length - 1 && message.role === 'bot' ? "latest" : undefined}
+                                      id={index === messages.length - 1 && message.role === 'bot' ? "latest-speech" : undefined}
                                     />
                                   </div>
                                 </div>

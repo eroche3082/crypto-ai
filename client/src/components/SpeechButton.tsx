@@ -10,6 +10,7 @@ interface SpeechButtonProps {
   provider?: 'google' | 'elevenlabs';
   compact?: boolean;
   className?: string;
+  id?: string;
 }
 
 export function SpeechButton({ 
@@ -17,7 +18,8 @@ export function SpeechButton({
   language = 'en-US', 
   provider = 'google',
   compact = false,
-  className = ''
+  className = '',
+  id
 }: SpeechButtonProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -102,6 +104,7 @@ export function SpeechButton({
         disabled={isLoading}
         className={`p-2 h-8 w-8 rounded-full ${className}`}
         title={isPlaying ? "Stop speech" : "Play text as speech"}
+        id={id}
       >
         {isPlaying ? (
           <Square className="h-4 w-4" />
@@ -119,6 +122,7 @@ export function SpeechButton({
       onClick={handlePlay}
       disabled={isLoading}
       className={`gap-2 ${className}`}
+      id={id}
     >
       {isPlaying ? (
         <>
