@@ -3,7 +3,7 @@ import { AdvancedChatProvider } from "../contexts/AdvancedChatContext";
 import AdvancedChatbot from "./AdvancedChatbot";
 import ChatbotAvatar from "./ChatbotAvatar";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, X } from "lucide-react";
+import { MessageSquare, X, Settings } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface FloatingChatbotProps {
@@ -14,20 +14,25 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ defaultOpen = false }
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   
-  // Close chat when clicking outside
+  // Handle ESC key to close
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (chatContainerRef.current && !chatContainerRef.current.contains(event.target as Node)) {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
         setIsOpen(false);
       }
     };
     
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscKey);
+      // Prevent scrolling on body when chat is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
     
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscKey);
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
@@ -38,45 +43,110 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ defaultOpen = false }
           {isOpen && (
             <motion.div
               ref={chatContainerRef}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="mb-4 bg-background border rounded-lg shadow-lg w-full max-w-[90vw] md:max-w-[450px] lg:max-w-[500px] h-[600px] max-h-[80vh] flex flex-col"
+              className="fixed inset-0 z-50 bg-background flex"
             >
-              <div className="flex items-center justify-between p-3 border-b">
-                <div className="flex items-center space-x-3">
-                  <ChatbotAvatar size="md" />
-                  <div>
-                    <h3 className="font-medium">CryptoBot AI</h3>
-                    <p className="text-xs text-muted-foreground">Powered by Gemini</p>
+              <div className="w-full h-full flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between p-3 border-b bg-background">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                      <ChatbotAvatar size="sm" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">CryptoBot Assistant</h3>
+                      <div className="text-xs text-emerald-500 flex items-center">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block mr-1"></span>
+                        Gemini AI
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Button variant="ghost" size="icon" className="text-muted-foreground">
+                      <Settings className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <AdvancedChatbot />
+                
+                {/* AI Configuration Info */}
+                <div className="px-3 py-2 border-b bg-muted/20">
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <div className="text-muted-foreground">Configuración actual del AI:</div>
+                    <div className="flex flex-wrap items-center gap-2 flex-1">
+                      <span className="whitespace-nowrap">Modelo: <span className="font-mono text-xs">gemini-1.5-pro</span></span>
+                      <span className="whitespace-nowrap">Idioma: <span className="font-mono text-xs">Español</span></span>
+                      <Button size="sm" variant="outline" className="h-6 text-xs ml-auto">
+                        Cambiar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Sidebar with Tools + Chat */}
+                <div className="flex-1 flex overflow-hidden">
+                  {/* Left sidebar with buttons */}
+                  <div className="w-16 border-r flex flex-col items-center py-4 bg-muted/20">
+                    <div className="flex flex-col items-center space-y-7 mt-1">
+                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="Language Settings">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m12 2a15 15 0 0 0 0 20"/><path d="M2 12h20"/></svg>
+                      </Button>
+                      
+                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="Audio Input">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                      </Button>
+                      
+                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="Camera Input">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                      </Button>
+                      
+                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="QR Scanner">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+                      </Button>
+                      
+                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" title="AR View">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 9V6a2 2 0 0 0-2-2H9"/><path d="M3 16v3a2 2 0 0 0 2 2h10"/><path d="M12 8l5 3-5 3Z"/></svg>
+                      </Button>
+                      
+                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 mt-auto" title="Portfolio">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Main chat content */}
+                  <div className="flex-1 overflow-hidden">
+                    <AdvancedChatbot />
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
         
-        <Button
-          onClick={() => setIsOpen(!isOpen)}
-          className={`rounded-full w-14 h-14 shadow-lg transition-all ${isOpen ? 'bg-primary-foreground text-primary' : 'bg-primary text-primary-foreground'}`}
-          aria-label="Toggle chatbot"
-        >
-          {isOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <>
+        {!isOpen && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Button
+              onClick={() => setIsOpen(true)}
+              className="rounded-full w-14 h-14 shadow-lg bg-primary text-primary-foreground"
+              aria-label="Open chatbot"
+            >
               <MessageSquare className="h-6 w-6" />
               <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
-            </>
-          )}
-        </Button>
+            </Button>
+          </motion.div>
+        )}
       </div>
     </AdvancedChatProvider>
   );
