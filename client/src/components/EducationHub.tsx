@@ -21,6 +21,43 @@ const EducationHub = () => {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
   const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const [selectedCourseForEnroll, setSelectedCourseForEnroll] = useState("");
+  const [updatedCourses, setUpdatedCourses] = useState(courses);
+  
+  // Load saved progress and bookmarks on mount
+  useEffect(() => {
+    try {
+      // Load course progress
+      const savedProgress = localStorage.getItem('coursesProgress');
+      if (savedProgress) {
+        const progressData = JSON.parse(savedProgress);
+        const updatedCoursesList = courses.map(course => ({
+          ...course,
+          progress: progressData[course.id] !== undefined ? progressData[course.id] : course.progress
+        }));
+        setUpdatedCourses(updatedCoursesList);
+      }
+      
+      // Load bookmarked resources
+      const savedBookmarks = localStorage.getItem('bookmarkedResources');
+      if (savedBookmarks) {
+        setBookmarkedResources(JSON.parse(savedBookmarks));
+      }
+      
+      // Load completed topics
+      const savedCompletedTopics = localStorage.getItem('completedTopics');
+      if (savedCompletedTopics) {
+        setCompletedTopics(JSON.parse(savedCompletedTopics));
+      }
+      
+      // Load bookmarked courses
+      const savedBookmarkedCourses = localStorage.getItem('bookmarkedCourses');
+      if (savedBookmarkedCourses) {
+        setBookmarkedCourses(JSON.parse(savedBookmarkedCourses));
+      }
+    } catch (e) {
+      console.error("Error loading saved data from localStorage", e);
+    }
+  }, []);
   
   const educationCategories = [
     {
@@ -272,11 +309,37 @@ const EducationHub = () => {
   
   // Complete enrollment process
   const completeEnrollment = () => {
-    toast({
-      title: t("education.enrollmentSuccessful", "Enrollment Successful"),
-      description: t("education.enrollmentSuccessfulDesc", "You have successfully enrolled in the course"),
-      duration: 3000
-    });
+    // Find the selected course
+    const courseToUpdate = courses.find(course => course.id === selectedCourseForEnroll);
+    
+    // Update courses with the new progress status (set to 1% to show it's started)
+    if (courseToUpdate) {
+      const updatedCourses = courses.map(course => 
+        course.id === selectedCourseForEnroll 
+          ? { ...course, progress: course.progress > 0 ? course.progress : 1 } 
+          : course
+      );
+      
+      // In a real app, we would save this to a database
+      // For now, we'll just update the UI to show progress
+      
+      // Simulating a successful enrollment
+      toast({
+        title: t("education.enrollmentSuccessful", "Enrollment Successful"),
+        description: t("education.enrollmentSuccessfulDesc", "You have successfully enrolled in the course"),
+        duration: 3000
+      });
+      
+      // Store in local storage to persist across refreshes
+      try {
+        localStorage.setItem('coursesProgress', JSON.stringify(
+          updatedCourses.reduce((acc, course) => ({ ...acc, [course.id]: course.progress }), {})
+        ));
+      } catch (e) {
+        console.error("Could not save course progress to local storage", e);
+      }
+    }
+    
     setEnrollDialogOpen(false);
   };
   
