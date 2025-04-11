@@ -33,13 +33,24 @@ export default function FloatingChatbot() {
   // Add welcome message on first open
   useEffect(() => {
     if (isChatOpen && messages.length === 0) {
+      // Get welcome message based on language
+      let welcomeText = "Hi! I'm CryptoBot, your AI crypto assistant. How can I help you today?";
+      
+      if (language === "es") {
+        welcomeText = "¡Hola! Soy CryptoBot, tu asistente de criptomonedas con IA. ¿En qué puedo ayudarte hoy?";
+      } else if (language === "fr") {
+        welcomeText = "Bonjour! Je suis CryptoBot, votre assistant crypto IA. Comment puis-je vous aider aujourd'hui?";
+      } else if (language === "pt") {
+        welcomeText = "Olá! Eu sou CryptoBot, seu assistente de criptomoedas com IA. Como posso ajudá-lo hoje?";
+      }
+      
       const welcomeMessage = {
         role: "bot" as const,
-        content: "Hi! I'm CryptoBot, your AI crypto assistant. How can I help you today?"
+        content: welcomeText
       };
       setMessages([welcomeMessage]);
     }
-  }, [isChatOpen, messages.length]);
+  }, [isChatOpen, messages.length, language]);
 
   // Handle sending a new message
   const handleSendMessage = async (text: string) => {
@@ -85,10 +96,22 @@ export default function FloatingChatbot() {
   // Clear chat history
   const clearChat = () => {
     setMessages([]);
+    
+    // Get welcome message based on language
+    let clearText = "Chat history cleared. How can I help you today?";
+    
+    if (language === "es") {
+      clearText = "Historial de chat borrado. ¿En qué puedo ayudarte hoy?";
+    } else if (language === "fr") {
+      clearText = "Historique de chat effacé. Comment puis-je vous aider aujourd'hui?";
+    } else if (language === "pt") {
+      clearText = "Histórico de chat apagado. Como posso ajudá-lo hoje?";
+    }
+    
     // Add welcome message
     const welcomeMessage = {
       role: "bot" as const,
-      content: "Chat history cleared. How can I help you today?"
+      content: clearText
     };
     setMessages([welcomeMessage]);
   };
