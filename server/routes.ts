@@ -118,7 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { vs_currency, ids, category, order, per_page, page, sparkline, price_change_percentage } = req.query;
       
-      // Construct the URL with query parameters
+      // Construct the URL with query parameters - use free API endpoint
       const url = new URL("https://api.coingecko.com/api/v3/coins/markets");
       url.searchParams.append("vs_currency", (vs_currency as string) || "usd");
       
@@ -164,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const url = `https://api.coingecko.com/api/v3/coins/${id}?${queryParams.toString()}`;
       
       // Add API key if available
-      const apiKey = process.env.COINGECKO_API_KEY;
+      const apiKey = process.env.VITE_COINGECKO_API_KEY;
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
