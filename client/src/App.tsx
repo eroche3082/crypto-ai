@@ -10,6 +10,7 @@ import News from "./pages/News";
 import Favorites from "./pages/Favorites";
 import Locations from "./pages/Locations";
 import Analysis from "./pages/Analysis";
+import Watchlist from "./pages/Watchlist";
 import NotFound from "@/pages/not-found";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
@@ -166,6 +167,7 @@ function App() {
                   <Route path="/news" component={News} />
                   <Route path="/locations" component={Locations} />
                   <Route path="/analysis" component={Analysis} />
+                  <Route path="/watchlist" component={Watchlist} />
                   <Route component={NotFound} />
                 </Switch>
               </div>
