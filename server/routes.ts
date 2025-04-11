@@ -832,6 +832,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/tts/google', googleTTSHandler);
   app.post('/api/tts/elevenlabs', elevenLabsTTSHandler);
   
+  // Speech-to-text API for audio transcription
+  app.post('/api/speech/transcribe', audioMiddleware, transcribeAudio);
+  
   // Image analysis with Google Vision API
   app.post('/api/vision/analyze', uploadMiddleware, analyzeImage);
   

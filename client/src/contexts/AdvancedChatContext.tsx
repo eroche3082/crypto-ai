@@ -127,16 +127,29 @@ export const AdvancedChatProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
-  // Process speech input (audio to text)
+  // Process speech input (audio to text) using real transcription API
   const processSpeechInput = async (audioBlob: Blob): Promise<string> => {
     try {
-      // In a production app, this would call Whisper API or a similar speech-to-text service
-      // For this demo, we'll return a placeholder response
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing time
-      return "This is a simulated transcription of speech input. In a real app, this would be the actual transcribed text.";
+      // Create form data with the audio file
+      const formData = new FormData();
+      formData.append('audio', audioBlob);
+      formData.append('language', userPreferences.language);
+      
+      // Send to server for transcription
+      const response = await fetch('/api/speech/transcribe', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Speech transcription failed: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return data.transcription || "I couldn't transcribe this audio. Please try speaking more clearly.";
     } catch (error) {
       console.error("Error processing speech:", error);
-      throw error;
+      return "Sorry, I encountered an error while transcribing your audio. Please try again.";
     }
   };
 
