@@ -104,9 +104,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       res.json({ 
-        response: mockResponses[language as keyof typeof mockResponses] || mockResponses.es,
+        response: mockResponses[language as keyof typeof mockResponses] || mockResponses.en,
         model: model || "gemini-1.5-pro",
-        language: language || "es"
+        language: language || "en"
       });
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
@@ -131,7 +131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (price_change_percentage) url.searchParams.append("price_change_percentage", price_change_percentage as string);
       
       // Add API key if available
-      const apiKey = process.env.COINGECKO_API_KEY;
+      const apiKey = process.env.VITE_COINGECKO_API_KEY;
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };

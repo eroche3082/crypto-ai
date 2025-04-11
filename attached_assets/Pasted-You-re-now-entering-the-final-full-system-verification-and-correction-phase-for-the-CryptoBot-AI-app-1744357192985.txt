@@ -1,0 +1,104 @@
+You're now entering the final full-system verification and correction phase for the CryptoBot AI application. Please go through this checklist and correct any inconsistencies.
+
+---
+
+### ✅ PHASE 1: Language Unification
+
+1. Set **English as the only default visible language** in the entire app.
+   - All pages, UI labels, sidebar, chat messages, input placeholders, and buttons must be in English only.
+   - Remove any Spanish text remaining in the UI, including:
+     - "Configuración actual del AI"
+     - "Idioma"
+     - Any fallback text or hardcoded labels in Spanish
+
+2. The **language switcher** must exist but default to English and only switch the app language if a user manually selects another language.
+
+3. Chatbot must display all default messages in English:
+   - Welcome: "Hello! I'm your CryptoBot assistant. I can help you with cryptocurrency insights, analysis, predictions, and more."
+   - Button: "Clear chat"
+   - Input Placeholder: "Ask about crypto, trends, prices, etc."
+
+---
+
+### ✅ PHASE 2: Navigation Consistency
+
+4. Update the **main menu (sidebar)** to include the following in proper English, with correct routing:
+   - Cryptocurrency Dashboard
+   - Favorites
+   - Portfolio Simulator
+   - Crypto News
+   - Alert System
+   - Cryptocurrency Converter
+   - **AI Analysis**
+   - Education Hub
+   - Locations
+   - Language Settings
+
+Ensure the labels are all in English and match the original app's UX. Icons must match the `lucide-react` or custom set as seen in the `CryptoPulse.zip`.
+
+---
+
+### ✅ PHASE 3: Gemini Context + API Integration
+
+5. Validate that all API Keys are connected and functional:
+   - CoinGecko via `/api/crypto/coins/markets`
+   - Gemini via `VITE_GEMINI_API_KEY` or fallback to direct Google API
+   - News API via `/api/news` (using `NEWS_API_KEY`)
+   - Stripe keys and webhooks
+   - Google credentials for Vertex AI are functional using `google-credentials-global.json`
+
+6. Confirm that the `GeminiContext.tsx`:
+   - Has no circular dependencies
+   - Exposes `language` and `setLanguage`
+   - Supports dynamic AI language response based on context, defaulting to **English**
+
+---
+
+### ✅ PHASE 4: Functional Check of All Pages
+
+7. Load and verify these pages **without errors**:
+   - `/dashboard`
+   - `/favorites`
+   - `/portfolio`
+   - `/news`
+   - `/alerts`
+   - `/converter`
+   - `/analysis`
+   - `/education`
+   - `/locations`
+
+Each must display content and interact with its API if required.
+
+---
+
+### ✅ PHASE 5: Floating Chatbot Finalization
+
+8. Make sure the **FloatingChatbot**:
+   - Opens as a full-screen or slide-out overlay
+   - Does NOT block or overlap content when minimized
+   - Displays in English by default
+   - Shows clean error handling for AI unavailability
+   - Allows clearing chat history with a clear button
+
+---
+
+### ✅ PHASE 6: Final Restart and Feedback
+
+9. Restart the server
+10. Load the app and test:
+
+- Sidebar labels are all in English ✅  
+- Pages `/favorites`, `/analysis`, `/locations` are loading ✅  
+- Chatbot opens from floating icon ✅  
+- Gemini responds in English ✅  
+- News and crypto data are retrieved correctly ✅
+
+Once done, report:
+→ Language unified  
+→ Chatbot functional  
+→ Navigation updated  
+→ Pages validated  
+→ APIs tested and working  
+→ UI/UX clean
+
+Do not ask for confirmation. Execute directly and optimize the system.
