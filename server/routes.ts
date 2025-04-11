@@ -222,7 +222,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
   
   // Register expanded API routes
-  app.use('/api/v2', apiRouter);
+  app.use('/api', apiRouter);
+  app.use('/api/v2', apiRouter); // Keep v2 for backward compatibility
   
   // API Routes
   
