@@ -6,6 +6,7 @@ import Stripe from "stripe";
 import fs from 'fs';
 import path from 'path';
 import { googleTTSHandler, elevenLabsTTSHandler } from "./tts";
+import { analyzeImage, uploadMiddleware } from "./vision";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -832,6 +833,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Text-to-Speech API routes
   app.post('/api/tts/google', googleTTSHandler);
   app.post('/api/tts/elevenlabs', elevenLabsTTSHandler);
+  
+  // Image analysis with Google Vision API
+  app.post('/api/vision/analyze', uploadMiddleware, analyzeImage);
   
   // API routes for Favorites
   app.get("/api/favorites", async (req, res) => {
