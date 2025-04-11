@@ -1,0 +1,51 @@
+Replit Agent, I want you to fully rebuild and enhance the CryptoBot (CryptoPulse) app from the uploaded file `CryptoPulse.zip`.
+
+Please follow the same style, structure, and folder setup as in the ZIP. All core APIs and keys are already implemented, so just reuse them as needed.
+
+The app should include the following features:
+
+1. **Real-Time Cryptocurrency Dashboard**  
+   - Display updated prices for BTC, ETH, XRP, DOGE, USDT, BNB, SOL, and others  
+   - Include 24h/7d/1m filters, visual indicators (gain/loss), and dynamic updates  
+
+2. **AI Chat Assistant (Gemini AI)**  
+   - Powered by `gemini-1.5-pro`, default language in **Spanish**  
+   - Should be able to explain market trends, DeFi, predict prices, answer crypto questions  
+   - Includes pre-defined quick prompts like “BTC Price Prediction”, “What’s trending”, “Explain On-chain Analysis”, etc.
+
+3. **Multi-language Support**  
+   - Default: Spanish  
+   - Add: English, Portuguese, French  
+
+4. **Portfolio Simulator**  
+   - Allow users to add, remove, and track simulated crypto investments  
+   - Add portfolio analytics: ROI, risk indicators, and performance summaries  
+
+5. **Alert System**  
+   - Set customizable price alerts for individual cryptocurrencies  
+
+6. **Crypto Converter**  
+   - Convert between coins (e.g. BTC to USDT) with real-time values  
+
+7. **Crypto News + Education Hub**  
+   - Educational resources about blockchain, NFTs, DeFi  
+   - News feed with most recent crypto-related articles  
+
+8. **AR / QR / Camera Buttons**  
+   - Activate interactive AR view and QR scanner interface  
+
+9. **Firebase Integration**  
+   - For login/auth and user session tracking  
+
+10. **Stripe Integration** (optional for premium features or subscriptions)
+
+11. **UI/UX**  
+   - Keep current dark theme from the ZIP  
+   - Responsive and optimized for both desktop and mobile  
+
+12. **Deployment-ready**  
+   - Project must be ready to deploy on Firebase Hosting or another public frontend service  
+
+> After setting everything up, run the app with `npm run dev` and notify me when the full preview is ready.
+
+You do not need to ask for confirmation — just begin building and notify when the process is complete.
