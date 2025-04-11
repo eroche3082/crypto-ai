@@ -1,343 +1,378 @@
-import React, { useState, useRef } from 'react';
-import { Mic, Square, Upload, Play, Pause } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Mic, Square, Upload, Volume2, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Slider } from '@/components/ui/slider';
 
 interface AudioInputProps {
   onTranscription: (text: string) => void;
-  className?: string;
+  language?: string;
 }
 
-export default function AudioInput({ onTranscription, className = '' }: AudioInputProps) {
+export default function AudioInput({ onTranscription, language = 'en' }: AudioInputProps) {
   const [isRecording, setIsRecording] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [audioData, setAudioData] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [recordingDuration, setRecordingDuration] = useState(0);
-  const [currentVolume, setCurrentVolume] = useState<number[]>([80]);
-  const [isListening, setIsListening] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [volume, setVolume] = useState(0);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<BlobPart[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const recordingTimerRef = useRef<number | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   
   const { toast } = useToast();
+  
+  const MAX_RECORDING_TIME = 60; // Maximum recording time in seconds
 
-  // Start recording audio
+  // Setup audio context for visualization
+  const setupAudioContext = (stream: MediaStream) => {
+    // Create audio context
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioContextRef.current = audioContext;
+    
+    // Create analyser
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    analyserRef.current = analyser;
+    
+    // Create data array
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    dataArrayRef.current = dataArray;
+    
+    // Connect source
+    const source = audioContext.createMediaStreamSource(stream);
+    source.connect(analyser);
+    sourceRef.current = source;
+    
+    // Start visualization
+    visualize();
+  };
+
+  // Visualize audio
+  const visualize = () => {
+    if (!analyserRef.current || !dataArrayRef.current) return;
+    
+    analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+    
+    // Calculate volume level
+    const sum = dataArrayRef.current.reduce((a, b) => a + b, 0);
+    const avg = sum / dataArrayRef.current.length || 0;
+    const normalizedVolume = Math.min(100, Math.max(0, avg / 2.55)); // Convert 0-255 to 0-100
+    
+    setVolume(normalizedVolume);
+    
+    // Continue animation
+    animationFrameRef.current = requestAnimationFrame(visualize);
+  };
+
+  // Clean up audio context
+  const cleanupAudioContext = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    
+    if (sourceRef.current) {
+      sourceRef.current.disconnect();
+      sourceRef.current = null;
+    }
+    
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    
+    analyserRef.current = null;
+    dataArrayRef.current = null;
+  };
+
+  // Start recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
       
-      mediaRecorderRef.current = mediaRecorder;
+      // Reset recording state
       audioChunksRef.current = [];
+      setRecordingTime(0);
       
-      mediaRecorder.ondataavailable = (e) => {
-        audioChunksRef.current.push(e.data);
+      // Setup visualization
+      setupAudioContext(stream);
+      
+      // Create media recorder
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      
+      // Setup event handlers
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
       };
       
       mediaRecorder.onstop = () => {
-        // Create audio blob and URL
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        const url = URL.createObjectURL(audioBlob);
-        setAudioUrl(url);
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(audioBlob);
         
-        // Stop recording timer
-        if (recordingTimerRef.current) {
-          clearInterval(recordingTimerRef.current);
-          recordingTimerRef.current = null;
-        }
+        setAudioData(audioBlob);
+        setAudioUrl(audioUrl);
         
-        // Stop all tracks in the stream
-        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Cleanup
+        cleanupAudioContext();
       };
       
       // Start recording
-      mediaRecorder.start(10); // Collect data every 10ms
+      mediaRecorder.start();
       setIsRecording(true);
-      setIsPaused(false);
       
-      // Start recording timer
-      let seconds = 0;
-      recordingTimerRef.current = window.setInterval(() => {
-        seconds++;
-        setRecordingDuration(seconds);
+      // Setup recording time counter
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
+          
+          // Auto-stop if reached max time
+          if (newTime >= MAX_RECORDING_TIME) {
+            stopRecording();
+          }
+          
+          return newTime;
+        });
       }, 1000);
-      
     } catch (error) {
       console.error('Error starting recording:', error);
       toast({
-        title: 'Microphone Error',
-        description: 'Could not access your microphone. Please check permissions.',
-        variant: 'destructive'
+        title: language === 'es' ? 'Error de grabación' : 'Recording Error',
+        description: language === 'es'
+          ? 'No se pudo acceder al micrófono. Por favor, intenta cargar un archivo de audio en su lugar.'
+          : 'Could not access microphone. Please try uploading an audio file instead.',
+        variant: 'destructive',
       });
     }
   };
 
   // Stop recording
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
-
-  // Pause recording
-  const pauseRecording = () => {
-    if (mediaRecorderRef.current && isRecording && !isPaused) {
-      mediaRecorderRef.current.pause();
-      setIsPaused(true);
-      
-      // Pause the timer
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-        recordingTimerRef.current = null;
-      }
-    }
-  };
-
-  // Resume recording
-  const resumeRecording = () => {
-    if (mediaRecorderRef.current && isRecording && isPaused) {
-      mediaRecorderRef.current.resume();
-      setIsPaused(false);
-      
-      // Resume the timer
-      let seconds = recordingDuration;
-      recordingTimerRef.current = window.setInterval(() => {
-        seconds++;
-        setRecordingDuration(seconds);
-      }, 1000);
-    }
-  };
-
-  // Toggle audio playback
-  const togglePlayback = () => {
-    if (!audioRef.current || !audioUrl) return;
-    
-    if (isListening) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
     }
     
-    setIsListening(!isListening);
-  };
-
-  // Handle volume change
-  const handleVolumeChange = (value: number[]) => {
-    setCurrentVolume(value);
-    if (audioRef.current) {
-      audioRef.current.volume = value[0] / 100;
+    setIsRecording(false);
+    
+    // Clear interval
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
     }
   };
 
-  // Format seconds to mm:ss
-  const formatTime = (seconds: number): string => {
+  // Format time
+  const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Handle audio upload from device
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  // Handle file upload
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files && event.target.files[0];
     
-    // Check if file is audio
-    if (!file.type.startsWith('audio/')) {
-      toast({
-        title: 'Invalid File',
-        description: 'Please upload an audio file.',
-        variant: 'destructive'
-      });
-      return;
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setAudioData(file);
+      setAudioUrl(url);
     }
-    
-    // Create URL for the uploaded file
-    const url = URL.createObjectURL(file);
-    setAudioUrl(url);
   };
 
   // Send audio for transcription
-  const sendForTranscription = async () => {
-    if (!audioUrl) {
-      toast({
-        title: 'No Audio',
-        description: 'Please record or upload audio first.',
-        variant: 'destructive'
-      });
-      return;
-    }
+  const transcribeAudio = async () => {
+    if (!audioData) return;
     
-    setIsProcessing(true);
+    setLoading(true);
     
     try {
-      // Get the audio blob
-      const response = await fetch(audioUrl);
-      const blob = await response.blob();
-      
       // Create form data
       const formData = new FormData();
-      formData.append('audio', blob, 'recording.webm');
+      formData.append('audio', audioData);
+      formData.append('language', language);
       
       // Send to API
-      const apiResponse = await fetch('/api/speech/transcribe', {
+      const response = await fetch('/api/speech/transcribe', {
         method: 'POST',
-        body: formData
+        body: formData,
       });
       
-      if (!apiResponse.ok) {
-        throw new Error(`API error: ${apiResponse.status}`);
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
       }
       
-      const data = await apiResponse.json();
+      const data = await response.json();
       
       if (data.transcription) {
         onTranscription(data.transcription);
         
-        // Reset recording state
+        // Reset state
+        setAudioData(null);
         setAudioUrl(null);
-        setRecordingDuration(0);
       } else {
-        throw new Error('No transcription received');
+        throw new Error('No transcription returned');
       }
     } catch (error) {
-      console.error('Transcription error:', error);
+      console.error('Error transcribing audio:', error);
       toast({
-        title: 'Transcription Failed',
-        description: `Error: ${error instanceof Error ? error.message : String(error)}`,
-        variant: 'destructive'
+        title: language === 'es' ? 'Error de transcripción' : 'Transcription Error',
+        description: language === 'es'
+          ? 'No se pudo transcribir el audio. Por favor, intenta de nuevo.'
+          : 'Could not transcribe audio. Please try again.',
+        variant: 'destructive',
       });
     } finally {
-      setIsProcessing(false);
+      setLoading(false);
     }
   };
 
-  return (
-    <div className={`audio-input-container p-4 ${className}`}>
-      {isRecording ? (
-        <div className="recording-controls">
-          <div className="flex justify-center items-center mb-4">
-            <div className="recording-indicator mr-2">
-              <div className={`w-3 h-3 rounded-full bg-red-500 ${isPaused ? '' : 'animate-pulse'}`}></div>
-            </div>
-            <span className="text-sm font-medium">
-              {isPaused ? 'Paused' : 'Recording'} | {formatTime(recordingDuration)}
-            </span>
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+      
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+      
+      cleanupAudioContext();
+    };
+  }, [audioUrl]);
+
+  // Render recording UI
+  if (isRecording) {
+    return (
+      <div className="recording-container p-4 border rounded-md">
+        <div className="text-center mb-4">
+          <Volume2 className={`h-10 w-10 mx-auto ${volume > 0 ? 'text-primary' : 'opacity-50'}`} />
+          <div className="mt-2">
+            <Progress value={volume} className="h-2" />
           </div>
+          <p className="mt-2 text-sm font-medium">
+            {language === 'es' ? 'Grabando...' : 'Recording...'}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {formatTime(recordingTime)} / {formatTime(MAX_RECORDING_TIME)}
+          </p>
+        </div>
+        
+        <div className="flex justify-center">
+          <Button 
+            variant="destructive"
+            size="sm"
+            onClick={stopRecording}
+            className="flex items-center gap-2"
+          >
+            <Square className="h-4 w-4" />
+            {language === 'es' ? 'Detener' : 'Stop'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Render audio preview
+  if (audioUrl) {
+    return (
+      <div className="audio-preview-container p-4 border rounded-md">
+        <div className="mb-4">
+          <audio 
+            src={audioUrl} 
+            controls 
+            className="w-full"
+          />
+        </div>
+        
+        <div className="flex justify-between gap-2">
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setAudioData(null);
+              setAudioUrl(null);
+            }}
+          >
+            <X className="h-4 w-4 mr-1" />
+            {language === 'es' ? 'Cancelar' : 'Cancel'}
+          </Button>
           
-          <div className="flex space-x-2 justify-center">
-            {isPaused ? (
-              <Button 
-                onClick={resumeRecording}
-                variant="outline"
-                size="sm"
-              >
-                <Play className="h-4 w-4 mr-1" />
-                Resume
-              </Button>
+          <Button 
+            size="sm"
+            onClick={transcribeAudio}
+            disabled={loading}
+            className="flex-1"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                {language === 'es' ? 'Transcribiendo...' : 'Transcribing...'}
+              </>
             ) : (
-              <Button 
-                onClick={pauseRecording}
-                variant="outline"
-                size="sm"
-              >
-                <Pause className="h-4 w-4 mr-1" />
-                Pause
-              </Button>
+              <>
+                <Volume2 className="h-4 w-4 mr-2" />
+                {language === 'es' ? 'Transcribir' : 'Transcribe'}
+              </>
             )}
-            
-            <Button 
-              onClick={stopRecording}
-              variant="destructive"
-              size="sm"
-            >
-              <Square className="h-4 w-4 mr-1" />
-              Stop
-            </Button>
-          </div>
+          </Button>
         </div>
-      ) : (
-        <div className="record-controls">
-          {audioUrl ? (
-            <div className="playback-controls flex flex-col space-y-4">
-              <div className="audio-player flex items-center space-x-4">
-                <Button 
-                  onClick={togglePlayback}
-                  variant="outline"
-                  size="icon"
-                >
-                  {isListening ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                </Button>
-                
-                <div className="flex-1">
-                  <Slider
-                    value={currentVolume}
-                    onValueChange={handleVolumeChange}
-                    max={100}
-                    step={1}
-                  />
-                </div>
-              </div>
-              
-              <audio ref={audioRef} src={audioUrl} onEnded={() => setIsListening(false)} className="hidden" />
-              
-              <div className="flex justify-between">
-                <Button 
-                  onClick={() => {
-                    setAudioUrl(null);
-                    setRecordingDuration(0);
-                  }}
-                  variant="outline"
-                  size="sm"
-                >
-                  Discard
-                </Button>
-                
-                <Button 
-                  onClick={sendForTranscription}
-                  disabled={isProcessing}
-                  size="sm"
-                >
-                  {isProcessing ? 'Transcribing...' : 'Transcribe Audio'}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="initial-controls grid grid-cols-2 gap-2">
-              <Button 
-                onClick={startRecording}
-                variant="default"
-                className="w-full"
-              >
-                <Mic className="h-4 w-4 mr-2" />
-                Record Audio
-              </Button>
-              
-              <div className="relative">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => document.getElementById('audioFileInput')?.click()}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Audio
-                </Button>
-                <input 
-                  id="audioFileInput" 
-                  type="file" 
-                  accept="audio/*" 
-                  className="hidden" 
-                  onChange={handleFileUpload}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      </div>
+    );
+  }
+
+  // Render initial UI
+  return (
+    <div className="audio-input-container">
+      <div className="grid grid-cols-2 gap-3">
+        <Card 
+          className="p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50"
+          onClick={startRecording}
+        >
+          <Mic className="h-8 w-8 mb-2 opacity-70" />
+          <p className="text-sm font-medium">
+            {language === 'es' ? 'Grabar audio' : 'Record Audio'}
+          </p>
+        </Card>
+        
+        <Card 
+          className="p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="h-8 w-8 mb-2 opacity-70" />
+          <p className="text-sm font-medium">
+            {language === 'es' ? 'Cargar audio' : 'Upload Audio'}
+          </p>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept="audio/*"
+            onChange={handleFileChange}
+          />
+        </Card>
+      </div>
+      
+      <p className="text-xs text-muted-foreground mt-2 text-center">
+        {language === 'es' 
+          ? 'Graba o carga un archivo de audio para transcribirlo'
+          : 'Record or upload an audio file to transcribe'}
+      </p>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Mic, Camera, QrCode, Bot, X, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Mic, Camera, QrCode, Bot, X, Loader2, ChevronDown, ChevronUp, Image, Globe, LineChart, Volume2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,13 +7,29 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MultimodalInput from './multimodal/MultimodalInput';
+import CameraInput from './multimodal/CameraInput';
+import AudioInput from './multimodal/AudioInput';
 
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
+  contentType?: 'text' | 'image' | 'qr' | 'audio' | 'chart' | 'market_analysis';
+  metadata?: {
+    source?: string;
+    sentiment?: {
+      score: number;
+      sentiment: 'positive' | 'negative' | 'neutral';
+      confidence: number;
+    };
+    imageUrl?: string;
+    audioUrl?: string;
+    [key: string]: any;
+  };
 }
 
 interface AdvancedChatbotProps {
@@ -49,6 +65,7 @@ export default function AdvancedChatbot({
   const [language, setLanguage] = useState(defaultLanguage);
   const [showSettings, setShowSettings] = useState(false);
   const [showMultimodal, setShowMultimodal] = useState(false);
+  const [multimodalTab, setMultimodalTab] = useState('camera');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -319,7 +336,7 @@ export default function AdvancedChatbot({
       
       {showMultimodal && (
         <div className="multimodal-container p-4 border-t">
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-3">
             <h3 className="text-sm font-medium">
               {language === 'es' ? 'Entrada multimodal' : 'Multimodal Input'}
             </h3>
@@ -332,7 +349,82 @@ export default function AdvancedChatbot({
             </Button>
           </div>
           
-          <MultimodalInput onContentCapture={handleMultimodalCapture} />
+          <Tabs value={multimodalTab} onValueChange={setMultimodalTab} className="w-full">
+            <TabsList className="grid grid-cols-4 mb-4">
+              <TabsTrigger value="camera" className="flex flex-col items-center gap-1 py-2">
+                <Camera className="h-4 w-4" />
+                <span className="text-xs">{language === 'es' ? 'Cámara' : 'Camera'}</span>
+              </TabsTrigger>
+              <TabsTrigger value="qr" className="flex flex-col items-center gap-1 py-2">
+                <QrCode className="h-4 w-4" />
+                <span className="text-xs">{language === 'es' ? 'QR' : 'QR Code'}</span>
+              </TabsTrigger>
+              <TabsTrigger value="audio" className="flex flex-col items-center gap-1 py-2">
+                <Mic className="h-4 w-4" />
+                <span className="text-xs">{language === 'es' ? 'Audio' : 'Audio'}</span>
+              </TabsTrigger>
+              <TabsTrigger value="chart" className="flex flex-col items-center gap-1 py-2">
+                <LineChart className="h-4 w-4" />
+                <span className="text-xs">{language === 'es' ? 'Gráfico' : 'Chart'}</span>
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="camera">
+              <CameraInput 
+                onCapture={(imageData) => handleMultimodalCapture(imageData, 'image')} 
+                language={language} 
+              />
+            </TabsContent>
+            
+            <TabsContent value="qr">
+              <div className="text-center p-4 border rounded-md">
+                <QrCode className="h-10 w-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm text-muted-foreground">
+                  {language === 'es' 
+                    ? 'Cargar código QR para escanear' 
+                    : 'Upload QR code to scan'}
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => toast({
+                    title: 'QR Scanner',
+                    description: 'This feature is coming soon',
+                  })}
+                >
+                  {language === 'es' ? 'Cargar imagen' : 'Upload Image'}
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="audio">
+              <AudioInput 
+                onTranscription={(text) => handleMultimodalCapture(text, 'audio')} 
+                language={language} 
+              />
+            </TabsContent>
+            
+            <TabsContent value="chart">
+              <div className="text-center p-4 border rounded-md">
+                <LineChart className="h-10 w-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm text-muted-foreground">
+                  {language === 'es' 
+                    ? 'Cargar imagen de gráfico para análisis' 
+                    : 'Upload chart image for analysis'}
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => toast({
+                    title: 'Chart Analysis',
+                    description: 'This feature is coming soon',
+                  })}
+                >
+                  {language === 'es' ? 'Cargar gráfico' : 'Upload Chart'}
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       )}
       
@@ -355,15 +447,71 @@ export default function AdvancedChatbot({
           
           <div className="flex justify-between">
             <div className="flex gap-1">
-              <Button 
-                type="button"
-                variant="outline" 
-                size="icon"
-                onClick={() => setShowMultimodal(!showMultimodal)}
-                className={showMultimodal ? 'bg-secondary' : ''}
-              >
-                <Camera className="h-4 w-4" />
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        setShowMultimodal(!showMultimodal);
+                        setMultimodalTab('camera');
+                      }}
+                      className={showMultimodal && multimodalTab === 'camera' ? 'bg-secondary' : ''}
+                    >
+                      <Camera className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{language === 'es' ? 'Cámara' : 'Camera'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        setShowMultimodal(!showMultimodal);
+                        setMultimodalTab('audio');
+                      }}
+                      className={showMultimodal && multimodalTab === 'audio' ? 'bg-secondary' : ''}
+                    >
+                      <Mic className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{language === 'es' ? 'Audio' : 'Audio'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        setShowMultimodal(!showMultimodal);
+                        setMultimodalTab('qr');
+                      }}
+                      className={showMultimodal && multimodalTab === 'qr' ? 'bg-secondary' : ''}
+                    >
+                      <QrCode className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{language === 'es' ? 'Código QR' : 'QR Code'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             
             <Button 

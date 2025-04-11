@@ -6,6 +6,8 @@ import { upload as storageUpload } from './services/storage/cloudStorage';
 import { qrImageMiddleware, scanQRCode } from './services/vision/qrCodeScanner';
 import { audioUpload, transcribeAudio } from './services/speech/audioTranscription';
 import { generateClaudeResponse, analyzeImageWithClaude } from './anthropic';
+import { analyzeSentiment } from './sentiment';
+import { getTwitterSentiment, getMarketSentiment } from './twitter';
 
 // Create router
 const apiRouter = Router();
@@ -70,5 +72,10 @@ apiRouter.get('/ethereum/gas', services.getGasPrice);
 
 // Alerts routes
 apiRouter.post('/alerts/register-phone', services.registerPhoneForAlerts);
+
+// Sentiment Analysis routes
+apiRouter.post('/sentiment/analyze', analyzeSentiment);
+apiRouter.get('/sentiment/twitter/:symbol', getTwitterSentiment);
+apiRouter.get('/sentiment/market', getMarketSentiment);
 
 export default apiRouter;

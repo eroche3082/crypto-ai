@@ -1,171 +1,127 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Camera, X, Send, Image, RotateCw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, X, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 interface CameraInputProps {
-  onCapture: (result: string) => void;
-  mode?: 'image' | 'qr';
-  className?: string;
+  onCapture: (imageData: string) => void;
+  language?: string;
 }
 
-export default function CameraInput({ onCapture, mode = 'image', className = '' }: CameraInputProps) {
+export default function CameraInput({ onCapture, language = 'en' }: CameraInputProps) {
+  const [capturing, setCapturing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [isActive, setIsActive] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const { toast } = useToast();
 
-  // Start the camera when the component becomes active
+  // Initialize camera when capturing state changes
   useEffect(() => {
-    if (isActive) {
-      startCamera();
+    let stream: MediaStream | null = null;
+    
+    async function setupCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 } 
+          } 
+        });
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        toast({
+          title: language === 'es' ? 'Error de cámara' : 'Camera Error',
+          description: language === 'es' 
+            ? 'No se pudo acceder a la cámara. Por favor, intenta cargar una imagen en su lugar.' 
+            : 'Could not access camera. Please try uploading an image instead.',
+          variant: 'destructive',
+        });
+        setCapturing(false);
+      }
+    }
+    
+    if (capturing) {
+      setupCamera();
     } else {
-      stopCamera();
+      // Cleanup function to stop camera when component unmounts or capturing state changes
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
     }
     
     return () => {
-      stopCamera();
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
     };
-  }, [isActive, facingMode]);
+  }, [capturing, toast, language]);
 
-  // Start the camera stream
-  const startCamera = async () => {
-    try {
-      const constraints = {
-        video: { 
-          facingMode: facingMode,
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: false
-      };
-      
-      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-      setStream(mediaStream);
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (error) {
-      console.error('Error accessing camera:', error);
-      toast({
-        title: 'Camera Error',
-        description: 'Could not access your camera. Please check permissions.',
-        variant: 'destructive'
-      });
-      setIsActive(false);
-    }
-  };
-
-  // Stop the camera stream
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-  };
-
-  // Toggle camera activation
-  const toggleCamera = () => {
-    setIsActive(!isActive);
-  };
-
-  // Switch between front and back cameras
-  const switchCamera = () => {
-    setFacingMode(facingMode === 'user' ? 'environment' : 'user');
-  };
-
-  // Capture an image from the video stream
-  const captureImage = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
+  // Capture image from camera
+  const captureImage = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
     
-    setIsProcessing(true);
-    
-    try {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
+    if (video && canvas) {
       const context = canvas.getContext('2d');
-      
-      if (!context) {
-        throw new Error('Could not get canvas context');
-      }
-      
-      // Set canvas dimensions to match video
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
-      // Draw video frame to canvas
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
-      // Convert canvas to blob
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(blob => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(new Error('Failed to convert canvas to blob'));
-          }
-        }, 'image/jpeg', 0.9);
-      });
-      
-      // Create form data
-      const formData = new FormData();
-      formData.append(mode === 'qr' ? 'qrImage' : 'image', blob, 'capture.jpg');
-      
-      // Send to appropriate endpoint based on mode
-      const endpoint = mode === 'qr' ? '/api/vision/scan-qr' : '/api/vision/analyze-image';
-      
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+      if (context) {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg');
+        setImagePreview(imageData);
+        setCapturing(false);
       }
-      
-      const data = await response.json();
-      
-      // Pass result to parent component
-      if (mode === 'qr') {
-        onCapture(data.result || 'No QR code detected');
-      } else {
-        onCapture(data.analysis || 'Image analysis failed');
-      }
-      
-      // Close camera after successful capture
-      setIsActive(false);
-    } catch (error) {
-      console.error('Error capturing image:', error);
-      toast({
-        title: 'Capture Error',
-        description: `Failed to ${mode === 'qr' ? 'scan QR code' : 'analyze image'}: ${error instanceof Error ? error.message : String(error)}`,
-        variant: 'destructive'
-      });
-    } finally {
-      setIsProcessing(false);
     }
   };
 
-  // Handle file upload from device
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  // Handle file upload
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files && event.target.files[0];
     
-    setIsProcessing(true);
+    if (file) {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        if (e.target && typeof e.target.result === 'string') {
+          setImagePreview(e.target.result);
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle image analysis
+  const analyzeImage = async () => {
+    if (!imagePreview) return;
+    
+    setLoading(true);
     
     try {
-      const formData = new FormData();
-      formData.append(mode === 'qr' ? 'qrImage' : 'image', file);
-      
-      const endpoint = mode === 'qr' ? '/api/vision/scan-qr' : '/api/vision/analyze-image';
-      
-      const response = await fetch(endpoint, {
+      // Send image to API for analysis
+      const response = await fetch('/api/vision/analyze-image', {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: imagePreview.split(',')[1], // Remove data URL prefix
+          language,
+        }),
       });
       
       if (!response.ok) {
@@ -173,100 +129,142 @@ export default function CameraInput({ onCapture, mode = 'image', className = '' 
       }
       
       const data = await response.json();
+      onCapture(data.description || data.caption || data.text || 'Image analyzed successfully');
       
-      if (mode === 'qr') {
-        onCapture(data.result || 'No QR code detected');
-      } else {
-        onCapture(data.analysis || 'Image analysis failed');
-      }
+      // Reset state after successful analysis
+      setImagePreview(null);
     } catch (error) {
-      console.error('Error processing file:', error);
+      console.error('Error analyzing image:', error);
       toast({
-        title: 'Processing Error',
-        description: `Failed to ${mode === 'qr' ? 'scan QR code' : 'analyze image'}: ${error instanceof Error ? error.message : String(error)}`,
-        variant: 'destructive'
+        title: language === 'es' ? 'Error de análisis' : 'Analysis Error',
+        description: language === 'es'
+          ? 'No se pudo analizar la imagen. Por favor, intenta de nuevo.'
+          : 'Could not analyze the image. Please try again.',
+        variant: 'destructive',
       });
     } finally {
-      setIsProcessing(false);
+      setLoading(false);
     }
   };
 
-  return (
-    <div className={`camera-input-container relative ${className}`}>
-      {isActive ? (
-        <div className="camera-active flex flex-col">
-          <div className="relative">
-            <video 
-              ref={videoRef}
-              autoPlay 
-              playsInline
-              className="w-full h-auto rounded-md"
-            />
-            
-            <div className="absolute top-2 right-2">
-              <Button 
-                variant="destructive" 
-                size="icon" 
-                onClick={() => setIsActive(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+  // Render camera view when capturing
+  if (capturing) {
+    return (
+      <div className="camera-container">
+        <div className="video-container relative rounded-md overflow-hidden">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            className="w-full h-[300px] object-cover"
+          />
           
-          <div className="flex justify-center p-2 space-x-3">
-            <Button 
-              onClick={switchCamera} 
-              variant="outline"
-              disabled={isProcessing}
-            >
-              <RotateCw className="h-4 w-4 mr-2" />
-              Switch Camera
-            </Button>
-            
-            <Button 
-              onClick={captureImage}
-              disabled={isProcessing}
-            >
-              <Send className="h-4 w-4 mr-2" />
-              {isProcessing ? 'Processing...' : mode === 'qr' ? 'Scan QR' : 'Capture'}
-            </Button>
-          </div>
-          
-          {/* Hidden canvas for image processing */}
-          <canvas ref={canvasRef} className="hidden" />
-        </div>
-      ) : (
-        <div className="camera-inactive grid grid-cols-2 gap-2">
-          <Button 
-            onClick={toggleCamera}
-            className="w-full"
-          >
-            <Camera className="h-4 w-4 mr-2" />
-            {mode === 'qr' ? 'Scan QR Code' : 'Use Camera'}
-          </Button>
-          
-          <div className="relative">
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
             <Button 
               variant="outline" 
-              className="w-full"
-              onClick={() => document.getElementById('fileInput')?.click()}
-              disabled={isProcessing}
+              size="icon"
+              className="bg-white/80 text-black"
+              onClick={() => setCapturing(false)}
             >
-              <Image className="h-4 w-4 mr-2" />
-              Upload {mode === 'qr' ? 'QR Code' : 'Image'}
+              <X className="h-5 w-5" />
             </Button>
-            <input 
-              id="fileInput" 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              onChange={handleFileUpload}
-              disabled={isProcessing}
-            />
+            
+            <Button 
+              size="icon"
+              className="bg-white/80 text-black hover:bg-white/60"
+              onClick={captureImage}
+            >
+              <Camera className="h-5 w-5" />
+            </Button>
           </div>
         </div>
-      )}
+        
+        <canvas ref={canvasRef} className="hidden" />
+      </div>
+    );
+  }
+
+  // Render image preview if available
+  if (imagePreview) {
+    return (
+      <div className="image-preview-container">
+        <div className="relative mb-3">
+          <img 
+            src={imagePreview} 
+            alt="Preview" 
+            className="w-full h-[240px] object-contain rounded-md border"
+          />
+          
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="absolute top-2 right-2 bg-white/80 text-black"
+            onClick={() => setImagePreview(null)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex justify-center">
+          <Button 
+            onClick={analyzeImage}
+            disabled={loading}
+            className="w-full"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                {language === 'es' ? 'Analizando...' : 'Analyzing...'}
+              </>
+            ) : (
+              <>
+                <ImageIcon className="h-4 w-4 mr-2" />
+                {language === 'es' ? 'Analizar imagen' : 'Analyze Image'}
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Render input options when not capturing or previewing
+  return (
+    <div className="camera-input-container">
+      <div className="grid grid-cols-2 gap-3">
+        <Card 
+          className="p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50"
+          onClick={() => setCapturing(true)}
+        >
+          <Camera className="h-8 w-8 mb-2 opacity-70" />
+          <p className="text-sm font-medium">
+            {language === 'es' ? 'Usar cámara' : 'Use Camera'}
+          </p>
+        </Card>
+        
+        <Card 
+          className="p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="h-8 w-8 mb-2 opacity-70" />
+          <p className="text-sm font-medium">
+            {language === 'es' ? 'Cargar imagen' : 'Upload Image'}
+          </p>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+        </Card>
+      </div>
+      
+      <p className="text-xs text-muted-foreground mt-2 text-center">
+        {language === 'es' 
+          ? 'Captura o carga una imagen para analizarla con IA'
+          : 'Capture or upload an image to analyze with AI'}
+      </p>
     </div>
   );
 }

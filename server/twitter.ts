@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import fetch from "node-fetch";
+import axios from "axios";
 
 // Interface for the Twitter API response
 interface TwitterAPIResponse {
@@ -21,6 +22,7 @@ interface SentimentResult {
   sentiment: "positive" | "negative" | "neutral";
   score: number;
   confidence: number;
+  source?: string;
 }
 
 // Combined tweet with sentiment
@@ -39,6 +41,7 @@ interface TokenSentiment {
     score: number;
     sentiment: "positive" | "negative" | "neutral";
     confidence: number;
+    source?: string;
   };
   breakdown: {
     positive: number;
@@ -52,9 +55,41 @@ interface TokenSentiment {
   lastUpdated: string;
 }
 
-// Simple sentiment analysis function using a basic lexical approach
-// In production, this would be replaced with a proper NLP model
-function analyzeSentiment(text: string): SentimentResult {
+/**
+ * Analyze sentiment using our enhanced service
+ * This will try multiple AI providers with fallback to local rules
+ */
+async function analyzeTextSentiment(text: string): Promise<SentimentResult> {
+  try {
+    // Call our sentiment analysis service
+    const response = await axios.post('http://localhost:5000/api/sentiment/analyze', {
+      text,
+      // Twitter data tends to be better analyzed with certain models
+      preferred_provider: 'anthropic' // Try Anthropic first, then fall back to others
+    });
+    
+    if (response.status === 200 && response.data) {
+      return {
+        sentiment: response.data.sentiment,
+        score: response.data.score,
+        confidence: response.data.confidence,
+        source: response.data.source || 'service'
+      };
+    } else {
+      throw new Error('Invalid response from sentiment analysis service');
+    }
+  } catch (error) {
+    console.warn('Error calling sentiment service, falling back to local implementation:', error);
+    // Fall back to a simple local implementation if the service fails
+    return analyzeTextSentimentLocal(text);
+  }
+}
+
+/**
+ * Simple rule-based sentiment analyzer for Twitter content
+ * Used as a fallback when API services are not available
+ */
+function analyzeTextSentimentLocal(text: string): SentimentResult {
   // Convert to lowercase for case-insensitive matching
   const lowercaseText = text.toLowerCase();
   
@@ -126,7 +161,8 @@ function analyzeSentiment(text: string): SentimentResult {
   return {
     sentiment,
     score: parseFloat(score.toFixed(2)),
-    confidence: parseFloat(confidence.toFixed(2))
+    confidence: parseFloat(confidence.toFixed(2)),
+    source: 'local-twitter-rules'
   };
 }
 
@@ -184,8 +220,8 @@ function generateSampleTweets(token: string, sentimentBias: number): TweetWithSe
     tweetDate.setHours(tweetDate.getHours() - Math.floor(Math.random() * 24));
     tweetDate.setMinutes(tweetDate.getMinutes() - Math.floor(Math.random() * 60));
     
-    // Analyze sentiment
-    const sentiment = analyzeSentiment(text);
+    // Analyze sentiment (use local version for now, will be replaced with async version later)
+    const sentiment = analyzeTextSentimentLocal(text);
     
     tweets.push({
       id: `${Date.now()}-${i}`,
