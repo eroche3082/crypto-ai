@@ -572,11 +572,11 @@ const TaxSimulator: React.FC = () => {
                         name="taxYear"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.taxYear", "Año fiscal")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.taxYear", "Tax Year")}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder={t("taxSimulator.selectYear", "Seleccionar año")} />
+                                  <SelectValue placeholder={t("taxSimulator.selectYear", "Select year")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -595,11 +595,11 @@ const TaxSimulator: React.FC = () => {
                         name="taxBracket"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.taxBracket", "Tasa impositiva")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.taxBracket", "Tax Rate")}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder={t("taxSimulator.selectRate", "Seleccionar tasa")} />
+                                  <SelectValue placeholder={t("taxSimulator.selectRate", "Select tax rate")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -613,7 +613,7 @@ const TaxSimulator: React.FC = () => {
                               <div className="mt-2">
                                 <Input
                                   type="number"
-                                  placeholder="Tasa personalizada (%)"
+                                  placeholder="Custom rate (%)"
                                   value={customTaxRate}
                                   onChange={(e) => setCustomTaxRate(e.target.value)}
                                   min="0"
@@ -631,20 +631,20 @@ const TaxSimulator: React.FC = () => {
                         name="holdingPeriod"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("taxSimulator.holdingPeriod", "Periodo de tenencia preferente")}</FormLabel>
+                            <FormLabel>{t("taxSimulator.holdingPeriod", "Preferred Holding Period")}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder={t("taxSimulator.selectHolding", "Seleccionar período")} />
+                                  <SelectValue placeholder={t("taxSimulator.selectHolding", "Select period")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="short">{t("taxSimulator.shortTerm", "Corto plazo (<1 año)")}</SelectItem>
-                                <SelectItem value="long">{t("taxSimulator.longTerm", "Largo plazo (>1 año)")}</SelectItem>
+                                <SelectItem value="short">{t("taxSimulator.shortTerm", "Short-term (<1 year)")}</SelectItem>
+                                <SelectItem value="long">{t("taxSimulator.longTerm", "Long-term (>1 year)")}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormDescription>
-                              {t("taxSimulator.holdingDesc", "Muchas jurisdicciones ofrecen tasas preferenciales para activos mantenidos por más de un año.")}
+                              {t("taxSimulator.holdingDesc", "Many jurisdictions offer preferential tax rates for assets held for more than a year.")}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -653,7 +653,7 @@ const TaxSimulator: React.FC = () => {
                     </div>
                     
                     <Button type="submit" className="w-full">
-                      {t("taxSimulator.calculateTaxes", "Calcular Impuestos")}
+                      {t("taxSimulator.calculateTaxes", "Calculate Taxes")}
                     </Button>
                   </form>
                 </Form>
@@ -663,7 +663,7 @@ const TaxSimulator: React.FC = () => {
                   variant="outline" 
                   onClick={() => setActiveTab("transactions")}
                 >
-                  {t("taxSimulator.back", "Regresar")}
+                  {t("taxSimulator.back", "Back")}
                 </Button>
               </CardFooter>
             </Card>
