@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { GoogleAuth } from 'google-auth-library';
 import fetch from 'node-fetch';
-import { getSystemPrompt } from "../client/src/lib/systemPrompts";
+import { getSystemPrompt } from "./lib/systemPrompts";
 
 /**
  * Generates a response from Google's Gemini AI models

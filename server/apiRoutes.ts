@@ -6,6 +6,7 @@ import { upload as storageUpload } from './services/storage/cloudStorage';
 import { qrImageMiddleware, scanQRCode } from './services/vision/qrCodeScanner';
 import { audioUpload, transcribeAudio } from './services/speech/audioTranscription';
 import { generateClaudeResponse, analyzeImageWithClaude } from './anthropic';
+import { generateAIResponse } from './gemini';
 import { analyzeSentiment } from './sentiment';
 import { getTwitterSentiment, getMarketSentiment } from './twitter';
 
@@ -15,6 +16,7 @@ const apiRouter = Router();
 // AI Models routes
 apiRouter.post('/ai/claude', generateClaudeResponse);
 apiRouter.post('/ai/claude/vision', uploadMiddleware, analyzeImageWithClaude);
+apiRouter.post('/ai/gemini', generateAIResponse);
 
 // Vertex AI Market Analysis routes
 apiRouter.post('/vertex/market/analyze', services.analyzeMarketTrends);
