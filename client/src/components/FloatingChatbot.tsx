@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useGemini } from "@/contexts/GeminiContext";
-import { useLanguage } from "@/contexts/LanguageContext";
+// Using language directly from GeminiContext
 import { MessageSquare, X, Settings, Mic, Camera, Languages, QrCode, Smile, Sparkles, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,8 +15,7 @@ interface Message {
 }
 
 export default function FloatingChatbot() {
-  const { generateResponse, isLoading, model, setModel } = useGemini();
-  const { language, setLanguage } = useLanguage();
+  const { generateResponse, isLoading, model, setModel, language, setLanguage } = useGemini();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputDisabled, setInputDisabled] = useState(false);

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-import { useLanguage } from "./LanguageContext";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+// Remove the circular dependency
+// import { useLanguage } from "./LanguageContext";
 
 // Import these as types only to avoid runtime errors
 type VertexAI = any;
@@ -13,6 +14,8 @@ interface Message {
 interface GeminiContextType {
   model: string;
   setModel: (model: string) => void;
+  language: string;
+  setLanguage: (language: string) => void;
   generateResponse: (text: string, messageHistory: Message[]) => Promise<string>;
   isLoading: boolean;
 }
@@ -20,6 +23,8 @@ interface GeminiContextType {
 const GeminiContext = createContext<GeminiContextType>({
   model: "gemini-1.5-pro",
   setModel: () => {},
+  language: "en",
+  setLanguage: () => {},
   generateResponse: async () => "",
   isLoading: false,
 });
@@ -33,7 +38,15 @@ interface GeminiProviderProps {
 export const GeminiProvider = ({ children }: GeminiProviderProps) => {
   const [model, setModel] = useState("gemini-1.5-pro");
   const [isLoading, setIsLoading] = useState(false);
-  const { language } = useLanguage();
+  const [language, setLanguage] = useState("en");
+  
+  // Get language from localStorage instead of context to avoid circular dependency
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("cryptopulse-language");
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
   
   // Initialize Vertex AI client (dynamically import to avoid errors)
   const initializeVertexClient = async () => {
@@ -165,8 +178,22 @@ export const GeminiProvider = ({ children }: GeminiProviderProps) => {
     }
   };
   
+  // Handle language change
+  const handleLanguageChange = (lang: string) => {
+    setLanguage(lang);
+    localStorage.setItem("cryptopulse-language", lang);
+    document.documentElement.lang = lang;
+  };
+
   return (
-    <GeminiContext.Provider value={{ model, setModel, generateResponse, isLoading }}>
+    <GeminiContext.Provider value={{ 
+      model, 
+      setModel, 
+      language, 
+      setLanguage: handleLanguageChange, 
+      generateResponse, 
+      isLoading 
+    }}>
       {children}
     </GeminiContext.Provider>
   );
