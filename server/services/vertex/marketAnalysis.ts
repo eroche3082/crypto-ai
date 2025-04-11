@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import fetch from 'node-fetch';
+import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertexai';
+import { aiplatform } from '@google-cloud/aiplatform';
 
 interface MarketAnalysisRequest {
   coins: string[];
@@ -7,8 +9,24 @@ interface MarketAnalysisRequest {
   language: string;
 }
 
+// Initialize Vertex AI with project and location
+const projectId = process.env.VERTEX_PROJECT_ID || 'your-project-id';
+const location = process.env.VERTEX_LOCATION || 'us-central1';
+let vertexAi: VertexAI;
+
+try {
+  vertexAi = new VertexAI({
+    project: projectId,
+    location: location,
+    apiEndpoint: `${location}-aiplatform.googleapis.com`,
+  });
+  console.log('Vertex AI initialized successfully');
+} catch (error) {
+  console.error('Error initializing Vertex AI:', error);
+}
+
 /**
- * Analyze market trends using Vertex AI
+ * Analyze market trends using Vertex AI Gemini
  */
 export async function analyzeMarketTrends(req: Request, res: Response) {
   try {
@@ -20,20 +38,76 @@ export async function analyzeMarketTrends(req: Request, res: Response) {
       });
     }
 
-    // For demo purposes, generate mock analysis
-    // In production, this would call the Vertex AI API
-    const analysis = generateMarketAnalysis(coins, timeframe, language);
+    // Try to get real market data
+    const marketData = await fetchCryptoMarketData(coins);
+    
+    try {
+      // Use Vertex AI if available
+      if (vertexAi && process.env.GOOGLE_API_KEY) {
+        const generativeModel = vertexAi.getGenerativeModel({
+          model: 'gemini-1.5-flash',
+          apiKey: process.env.GOOGLE_API_KEY,
+          safetySettings: [
+            {
+              category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+              threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+              threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            },
+          ],
+        });
 
-    res.json({
-      success: true,
-      analysis,
-      metadata: {
-        coins,
-        timeframe,
-        timestamp: new Date().toISOString(),
-        analysisEngine: 'Vertex AI Gemini 1.5',
+        const prompt = generateAnalysisPrompt(coins, timeframe, marketData, language);
+        const result = await generativeModel.generateContent(prompt);
+        const response = await result.response;
+        const analysis = response.text();
+
+        return res.json({
+          success: true,
+          analysis,
+          metadata: {
+            coins,
+            timeframe,
+            timestamp: new Date().toISOString(),
+            analysisEngine: 'Vertex AI Gemini 1.5',
+            dataSource: marketData ? 'Real market data' : 'Limited market data available',
+          }
+        });
+      } else {
+        // Fallback to template-based analysis when Vertex AI is not available
+        const analysis = generateMarketAnalysis(coins, timeframe, language);
+        
+        return res.json({
+          success: true,
+          analysis,
+          metadata: {
+            coins,
+            timeframe,
+            timestamp: new Date().toISOString(),
+            analysisEngine: 'Template-based Analysis (Vertex AI not available)',
+          }
+        });
       }
-    });
+    } catch (aiError) {
+      console.error('Error with Vertex AI, falling back to template:', aiError);
+      
+      // Fallback to template-based analysis
+      const analysis = generateMarketAnalysis(coins, timeframe, language);
+      
+      return res.json({
+        success: true,
+        analysis,
+        metadata: {
+          coins,
+          timeframe,
+          timestamp: new Date().toISOString(),
+          analysisEngine: 'Template-based Analysis (Fallback)',
+          error: aiError instanceof Error ? aiError.message : 'Unknown AI error',
+        }
+      });
+    }
     
   } catch (error) {
     console.error('Error in market analysis:', error);
