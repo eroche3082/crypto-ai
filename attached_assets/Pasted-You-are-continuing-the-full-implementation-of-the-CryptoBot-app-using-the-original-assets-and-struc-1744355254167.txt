@@ -1,0 +1,67 @@
+You are continuing the full implementation of the CryptoBot app, using the original assets and structure provided in the `CryptoPulse.zip` file.
+
+The current version is missing critical pages and features that were present in the original design. Please follow these instructions:
+
+---
+
+### PHASE 1 – ROUTER FIXES
+
+1. ✅ Add the following missing pages to the router:
+   - `/favorites`
+   - `/locations`
+   - `/analysis`
+   
+Each route must point to its corresponding component from the original CryptoPulse.zip structure. If components are missing, recreate them based on the original layout and features.
+
+---
+
+### PHASE 2 – RESTORE UI/UX FROM ORIGINAL VERSION
+
+2. ✅ Match the layout and interaction from the original CryptoPulse app:
+   - Move the **Gemini AI chatbot** outside of the page layout.
+     - Place a floating chat icon at the bottom-right.
+     - On click, open a full-screen chat panel (overlay or slide-out).
+     - This should mirror the original UX where chat does not cover content by default.
+   - Restore the **CryptoNews page** as it appeared in the original version:
+     - Show latest articles in card format with shimmer effect on load
+     - Include search bar and popular keyword tags
+     - Support categories like Bitcoin, Ethereum, NFT, Regulation, Blockchain
+   - Match the **dark theme** and sidebar navigation icons exactly as shown in the original app.
+
+---
+
+### PHASE 3 – USE ZIP RESOURCES
+
+3. ✅ Reuse all available components, pages, and styles from the `CryptoPulse.zip` archive.
+   - Reconnect any context, styles, or shared components that were used in the original
+   - Import animations, assets, layout wrappers, icons, or loading skeletons
+
+---
+
+### PHASE 4 – FIX AI CHATBOT
+
+4. ✅ Fix the Gemini AI chatbot which is currently not responding:
+   - Use the model `gemini-1.5-pro` or latest Gemini Flash via direct API
+   - Confirm that chat sends and receives data correctly
+   - Add language detection and dynamic switching (EN/ES)
+   - Ensure AI uses crypto-focused prompts (trends, DeFi, predictions, market insights)
+
+---
+
+### PHASE 5 – FINAL TESTING
+
+5. ✅ After all updates:
+   - Restart the app
+   - Test each route
+   - Confirm chatbot opens from floating icon
+   - Validate that all restored pages work and match original layout
+   - Confirm that Gemini AI responds to: *"What is DeFi?"* and *"Give me a BTC prediction."*
+
+DO NOT delete any components. Reuse existing ones where possible. Execute each task without asking for confirmation and show no logs unless there’s an error.
+
+Once complete, notify me with a summary:
+
+→ Pages Restored  
+→ Chatbot Fixed  
+→ UI Restored  
+→ AI Verified

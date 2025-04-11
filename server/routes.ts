@@ -254,6 +254,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Generic news endpoint
+  app.get("/api/news", async (req, res) => {
+    try {
+      const mockNews = [
+        {
+          id: "1",
+          title: "Bitcoin Price Surges Past $80,000 as Institutional Adoption Continues",
+          summary: "Bitcoin has reached a new all-time high as major financial institutions announce further investments in the cryptocurrency market. Analysts predict continued growth in 2025.",
+          url: "https://example.com/news/bitcoin-surge",
+          source: "CryptoNews",
+          publishedAt: new Date().toISOString(),
+          categories: ["Bitcoin", "Markets"],
+        },
+        {
+          id: "2",
+          title: "Ethereum Completes Significant Protocol Upgrade",
+          summary: "Ethereum has successfully implemented its latest network upgrade, improving scalability and reducing transaction fees by up to 80% for users.",
+          url: "https://example.com/news/ethereum-upgrade",
+          source: "ETH Daily",
+          publishedAt: new Date(Date.now() - 86400000).toISOString(),
+          categories: ["Ethereum", "Technology"],
+        },
+        {
+          id: "3",
+          title: "New DeFi Protocol Launches with $200M Total Value Locked",
+          summary: "A revolutionary decentralized finance platform has attracted massive liquidity within just 24 hours of launch, signaling strong market demand for innovative DeFi solutions.",
+          url: "https://example.com/news/defi-launch",
+          source: "DeFi Daily",
+          publishedAt: new Date(Date.now() - 172800000).toISOString(),
+          categories: ["DeFi", "Ethereum"],
+        },
+        {
+          id: "4",
+          title: "SEC Approves New Cryptocurrency Regulations Framework",
+          summary: "The Securities and Exchange Commission has announced a comprehensive regulatory framework for digital assets, providing clearer guidelines for cryptocurrency companies.",
+          url: "https://example.com/news/sec-regulations",
+          source: "Regulation Today",
+          publishedAt: new Date(Date.now() - 259200000).toISOString(),
+          categories: ["Regulation", "Government"],
+        },
+        {
+          id: "5",
+          title: "Major Bank Launches Institutional Crypto Custody Service",
+          summary: "One of the world's largest banks has announced a new cryptocurrency custody service aimed at institutional investors, further legitimizing digital assets.",
+          url: "https://example.com/news/bank-custody",
+          source: "Banking News",
+          publishedAt: new Date(Date.now() - 345600000).toISOString(),
+          categories: ["Banking", "Custody", "Institutional"],
+        },
+        {
+          id: "6",
+          title: "NFT Market Shows Signs of Recovery with Record-Breaking Sale",
+          summary: "The NFT market is showing strong signs of recovery after a notable digital artwork sold for $12.3 million, setting a new record for 2025.",
+          url: "https://example.com/news/nft-recovery",
+          source: "NFT Insider",
+          publishedAt: new Date(Date.now() - 432000000).toISOString(),
+          categories: ["NFT", "Art", "Markets"],
+        },
+        {
+          id: "7",
+          title: "Blockchain Technology Adoption Soars in Supply Chain Management",
+          summary: "Major corporations are increasingly implementing blockchain solutions for supply chain management, with a 78% increase in adoption compared to last year.",
+          url: "https://example.com/news/blockchain-supply-chain",
+          source: "Blockchain Business",
+          publishedAt: new Date(Date.now() - 518400000).toISOString(),
+          categories: ["Blockchain", "Enterprise", "Supply Chain"],
+        },
+      ];
+      
+      const { category, search } = req.query;
+      let filteredNews = [...mockNews];
+      
+      if (category) {
+        filteredNews = filteredNews.filter(item => 
+          item.categories.some(cat => cat.toLowerCase() === (category as string).toLowerCase())
+        );
+      }
+      
+      if (search) {
+        const searchTerm = (search as string).toLowerCase();
+        filteredNews = filteredNews.filter(item => 
+          item.title.toLowerCase().includes(searchTerm) || 
+          item.summary.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      res.json(filteredNews);
+    } catch (error) {
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+  
   // Stripe payment routes
   if (stripe) {
     // Create payment intent for one-time payments
