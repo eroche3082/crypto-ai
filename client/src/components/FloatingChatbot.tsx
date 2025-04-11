@@ -3,7 +3,9 @@ import { useGemini } from "@/contexts/GeminiContext";
 // Using language directly from GeminiContext
 import { 
   MessageSquare, X, Settings, Mic, Camera, 
-  Languages, QrCode, Box, Sparkles, Send 
+  Languages, QrCode, Box, Sparkles, Send,
+  RotateCcw, FileText, Lightbulb, History, 
+  BrainCircuit, Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +17,10 @@ import AudioRecorder from "@/components/AudioRecorder";
 import CameraCapture from "@/components/CameraCapture";
 import QrScanner from "@/components/QrScanner";
 import ArViewer from "@/components/ArViewer";
+import QuickPromptsDialog from "@/components/QuickPromptsDialog";
+import ChatToolbar from "@/components/ChatToolbar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Define message type
 interface Message {

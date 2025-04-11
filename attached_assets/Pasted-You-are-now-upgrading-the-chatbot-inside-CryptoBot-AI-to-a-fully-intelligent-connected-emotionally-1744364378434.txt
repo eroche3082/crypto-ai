@@ -1,0 +1,106 @@
+You are now upgrading the chatbot inside CryptoBot AI to a fully intelligent, connected, emotionally aware crypto assistant.
+
+This chatbot must go beyond simple Q&A and become an interactive guide with voice, emotion, translation, visuals, and adaptive personality.
+
+---
+
+### 🧠 PHASE 1 – ACTIVATE PERSONALITY & IDENTITY
+
+1. Define the chatbot as:
+   - Name: **CryptoBot AI**
+   - Role: Personal Crypto Strategist, Market Analyst & Educator
+   - Personality Traits:
+     - Friendly but sharp
+     - Intellectually curious
+     - Adaptive to user's tone
+     - Warns users of risks calmly, but celebrates gains with subtle enthusiasm
+   - First Message:
+     > “Hey there! I'm CryptoBot AI, your crypto-savvy assistant. I can help you analyze the market, explore trends, predict prices, and decode the future of crypto — in real time. What would you like to know?”
+
+2. Store this personality context in memory at the start of each session.
+3. Allow dynamic tone switching (e.g., Professional, Casual, Optimistic) based on user preference.
+
+---
+
+### 📊 PHASE 2 – ENABLE SENTIMENT ANALYSIS
+
+4. Use Google Cloud Natural Language API:
+   - Detect sentiment score of each user message (from -1 to +1)
+   - Based on sentiment:
+     - If negative (<= -0.5): show empathy, offer suggestions
+     - If positive (>= 0.5): reinforce excitement, suggest deeper insights
+     - If neutral: maintain informational tone
+   - Visually reflect sentiment:
+     - Add emoji/mood icon
+     - Optional: color pulse indicator or background glow
+
+5. Store sentiment history for session context.
+
+---
+
+### 🧬 PHASE 3 – ENABLE GOOGLE CLOUD FUNCTIONS
+
+6. Enable the following Google Cloud APIs and integrate into chatbot:
+
+   ✅ **Text-to-Speech (TTS)**
+   - Read responses aloud using voice that matches language and tone
+   - Use different voices for moods (calm, excited, alert)
+
+   ✅ **Speech-to-Text (STT)**
+   - Enable voice input to the chat
+   - Add real-time transcription below the mic icon
+
+   ✅ **Translation**
+   - Detect incoming message language
+   - Auto-translate to English for Gemini
+   - Translate response back to user's language
+
+   ✅ **Vision API**
+   - Allow image upload
+   - Extract text, logos, QR codes
+   - Summarize image content in AI response
+
+   ✅ **Custom Search / YouTube API**
+   - If user asks for resources/videos, search and display in carousel
+   - Example: “Show me videos on Bitcoin halving”
+
+---
+
+### 🧰 PHASE 4 – ENABLE ADVANCED CHAT FUNCTIONS
+
+7. Add the following built-in commands and make them accessible from chat UI or quick actions:
+
+   - `/summarize` – Summarize the chat so far
+   - `/mood` – Analyze user’s mood and suggest financial attitude
+   - `/convert` – Convert fiat to crypto using current rates
+   - `/setgoal [amount]` – Set a savings/trading goal
+   - `/analyze [symbol]` – Run Gemini + Sentiment on a coin
+
+---
+
+### 🧩 PHASE 5 – UI + MULTIMODALITY + CONTEXT
+
+8. Interface Enhancements:
+   - Avatar face or waveform that reacts while typing
+   - Mood indicator badge
+   - Dynamic message reactions (AI auto-likes great questions)
+   - Keep chat context until manually cleared
+   - Tabs or collapsible drawers for:
+     - Summary
+     - Analysis
+     - News related to topic
+
+---
+
+### ⚡ PHASE 6 – TEST & FINAL REPORT
+
+After implementing:
+→ Confirm each Google Cloud service is connected  
+→ Chatbot shows personality and dynamic responses  
+→ Sentiment alters AI tone and visuals  
+→ Voice input/output is active  
+→ Visual analysis via image uploads functional  
+→ Translate, summarize, and quick actions work  
+→ Avatar reacts to user input and messages  
+
+Do not ask for confirmation. Execute directly and report each layer’s status.

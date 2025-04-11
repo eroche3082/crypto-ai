@@ -1,0 +1,65 @@
+You’ve resolved the issues with CoinGecko and the Favorites API. Now upgrade the Chatbot UI and functionality to a fully featured intelligent interface.
+
+---
+
+### PHASE 1 – ADD TOOLS TO CHAT PANEL
+
+1. Enable the following **interactive tools** in the right-side panel of the chatbot (`FloatingChatbot.tsx`):
+   - 🎤 Audio Input Toggle (Microphone icon): Trigger Speech-to-Text
+   - 📷 Camera / Upload Button: Upload images for Vision API
+   - 🧠 Prompt Assistant Button: Open `QuickPrompts.tsx` as modal or drawer
+   - 🧭 QR Scanner (if not yet implemented): Open camera and scan QR code
+   - 🕶️ AR Button Placeholder: (Visual only for now, triggers alert "Coming soon")
+
+Ensure that:
+- Icons are shown vertically in a sticky panel to the right or top-right of the chat interface
+- Each tool is functional or gracefully disabled with feedback
+
+---
+
+### PHASE 2 – BOTTOM ACTION BUTTONS
+
+2. Add a **Quick Action Toolbar** below the input box:
+   - 🔄 Clear Chat
+   - 📄 View Summary (Gemini summarizes current chat)
+   - 🗣️ Translate Last Message (via Google Translate API)
+   - 💡 Prompt Ideas (Opens `QuickPrompts`)
+
+Each action must be represented by an icon with a tooltip. Use context-aware functionality:
+- If the chat is empty, disable View Summary and Translate
+- QuickPrompts loads pre-set system prompts (user-defined or default)
+
+---
+
+### PHASE 3 – FUNCTIONALITY VERIFICATION
+
+3. Ensure all tools are connected to working APIs:
+   - Audio → Google STT or ElevenLabs (if STT active)
+   - Image Upload → Google Vision API (extract text/logos and return to Gemini)
+   - Translate → Google Translate API
+   - Summary → Use Gemini with prompt: “Summarize the above conversation in bullet points.”
+
+4. If any of the above APIs are not yet integrated, show alerts like:
+   > "This feature requires [API Name] to be activated."
+
+---
+
+### PHASE 4 – UI POLISH
+
+5. Make sure the chatbot layout:
+   - Is not overlapped by tools or buttons
+   - Is responsive on mobile and desktop
+   - Collapses tools into a menu icon on small screens
+   - Respects theme and language context
+
+---
+
+After implementation:
+→ Confirm tool buttons are visible  
+→ Each action works or shows proper fallback  
+→ Gemini handles new commands properly  
+→ Mobile view is responsive  
+→ No overlap or visual errors  
+→ Chat history supports extended tools
+
+Do not ask for confirmation. Execute directly and report status of each tool.
