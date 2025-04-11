@@ -859,10 +859,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Already a favorite" });
       }
       
+      // Use only the fields defined in the schema
       const favorite = await storage.createFavorite({
         userId,
-        symbol,
-        addedAt: new Date()
+        symbol
       });
       
       res.status(201).json(favorite);
