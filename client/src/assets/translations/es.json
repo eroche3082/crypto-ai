@@ -201,5 +201,22 @@
       "regulation": "Regulación",
       "market": "Mercado"
     }
+  },
+  "watchlist": {
+    "title": "Lista de Vigilancia de Riesgo",
+    "riskLevels": {
+      "low": "Riesgo Bajo",
+      "medium": "Riesgo Medio",
+      "high": "Riesgo Alto",
+      "extreme": "Riesgo Extremo"
+    },
+    "addToken": "Añadir Token",
+    "portfolioRisk": "Análisis de Riesgo de Portafolio",
+    "riskSummary": "Resumen de riesgo a través de tus tokens en vigilancia",
+    "highestRisk": "Mayor Riesgo",
+    "averageRisk": "Riesgo Promedio",
+    "riskDistribution": "Distribución de Riesgo",
+    "riskInfo": "Las puntuaciones de riesgo se calculan en base a la capitalización de mercado y la volatilidad de precios. Una menor capitalización y mayor volatilidad aumentan el riesgo. Esto no es asesoramiento financiero.",
+    "empty": "Tu lista de vigilancia está vacía. Añade tokens para seguir su riesgo y rendimiento."
   }
 }

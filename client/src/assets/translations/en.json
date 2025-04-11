@@ -201,5 +201,22 @@
       "regulation": "Regulation",
       "market": "Market"
     }
+  },
+  "watchlist": {
+    "title": "Risk Watchlist",
+    "riskLevels": {
+      "low": "Low Risk",
+      "medium": "Medium Risk",
+      "high": "High Risk",
+      "extreme": "Extreme Risk"
+    },
+    "addToken": "Add Token",
+    "portfolioRisk": "Portfolio Risk Analysis",
+    "riskSummary": "Summary of risk across your watchlist tokens",
+    "highestRisk": "Highest Risk",
+    "averageRisk": "Average Risk",
+    "riskDistribution": "Risk Distribution",
+    "riskInfo": "Risk scores are calculated based on market capitalization and price volatility. Lower market cap and higher volatility increase risk. This is not financial advice.",
+    "empty": "Your watchlist is empty. Add tokens to track their risk and performance."
   }
 }

@@ -14,7 +14,8 @@ import {
   GraduationCap, 
   MapPin, 
   Globe,
-  MessageSquare
+  MessageSquare,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ const Sidebar = () => {
     { path: "/", icon: <LayoutDashboard size={20} />, label: t("dashboard.title", "Dashboard") },
     { path: "/favorites", icon: <Star size={20} />, label: t("favorites.title", "Favorites") },
     { path: "/portfolio", icon: <BarChart3 size={20} />, label: t("portfolio.title", "Portfolio") },
+    { path: "/watchlist", icon: <ShieldAlert size={20} />, label: t("watchlist.title", "Risk Watchlist") },
     { path: "/news", icon: <Newspaper size={20} />, label: t("news.title", "News") },
     { path: "/alerts", icon: <Bell size={20} />, label: t("alerts.title", "Alerts") },
     { path: "/converter", icon: <ArrowLeftRight size={20} />, label: t("converter.title", "Converter") },
