@@ -161,28 +161,102 @@ export default function FloatingChatbot() {
     setActiveToolType('camera');
   };
   
-  const handleImageCaptured = (imageBlob: Blob, imageUrl: string) => {
-    // In a real implementation, you would process the image by sending to an API
-    // For now, we'll just add a message indicating image was captured
+  const handleImageCaptured = async (imageBlob: Blob, imageUrl: string) => {
+    // Add user message with image preview
     const imageMessage: Message = { 
       role: "user", 
-      content: "📷 [Image captured for analysis]" 
+      content: `📷 [Image captured for analysis]\n\n<img src="${imageUrl}" alt="Image analysis" style="max-width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px;" />` 
     };
     setMessages((prev) => [...prev, imageMessage]);
     
     // Close camera
     setActiveToolType(null);
     
-    // Simulate AI response with delay
+    // Show loading state
     setInputDisabled(true);
-    setTimeout(() => {
+    
+    try {
+      // Create a FormData object to send the image
+      const formData = new FormData();
+      formData.append('image', imageBlob, 'image.jpg');
+      
+      // Send the image to the server for Vision API analysis
+      const response = await fetch('/api/vision/analyze', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status} ${response.statusText}`);
+      }
+      
+      // Get the analysis results
+      const analysisResults = await response.json();
+      
+      // Format the response based on the analysis results
+      let responseMessage = "I've analyzed your image using Google Vision AI. ";
+      
+      // Add text detection results if available
+      if (analysisResults.text) {
+        responseMessage += `\n\n**Text detected:** "${analysisResults.text}"`;
+      }
+      
+      // Add logo detection results if available
+      if (analysisResults.logos && analysisResults.logos.length > 0) {
+        responseMessage += "\n\n**Logos detected:** ";
+        analysisResults.logos.forEach((logo: any, index: number) => {
+          responseMessage += `${logo.description}${index < analysisResults.logos.length - 1 ? ', ' : ''}`;
+        });
+      }
+      
+      // Add label detection results if available
+      if (analysisResults.labels && analysisResults.labels.length > 0) {
+        responseMessage += "\n\n**Content labels:** ";
+        analysisResults.labels.forEach((label: any, index: number) => {
+          responseMessage += `${label.description}${index < analysisResults.labels.length - 1 ? ', ' : ''}`;
+        });
+      }
+      
+      // Add landmark detection results if available
+      if (analysisResults.landmarks && analysisResults.landmarks.length > 0) {
+        responseMessage += "\n\n**Landmarks recognized:** ";
+        analysisResults.landmarks.forEach((landmark: any, index: number) => {
+          responseMessage += `${landmark.description}${index < analysisResults.landmarks.length - 1 ? ', ' : ''}`;
+        });
+      }
+      
+      // Add face detection results if available
+      if (analysisResults.faces) {
+        responseMessage += `\n\n**Faces detected:** ${analysisResults.faces.count} face(s)`;
+      }
+      
+      // Add cryptocurrency-specific analysis if relevant terms are detected
+      const cryptoTerms = ['bitcoin', 'ethereum', 'cryptocurrency', 'chart', 'blockchain', 'token', 'mining'];
+      const detectedCryptoTerms = cryptoTerms.filter(term => 
+        analysisResults.text?.toLowerCase().includes(term) || 
+        analysisResults.labels?.some((label: any) => label.description.toLowerCase().includes(term))
+      );
+      
+      if (detectedCryptoTerms.length > 0) {
+        responseMessage += "\n\n**Crypto relevance:** This image appears to be related to cryptocurrency. I can provide more information about specific cryptocurrencies if you'd like.";
+      }
+      
       const botMessage: Message = { 
         role: "bot", 
-        content: "I've analyzed your image. It appears to be related to cryptocurrency trading. I can see several price charts showing an upward trend in what looks like Bitcoin's price movement." 
+        content: responseMessage 
       };
       setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      
+      const errorMessage: Message = { 
+        role: "bot", 
+        content: "Sorry, I encountered an error while analyzing your image. Please try again or upload a different image." 
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setInputDisabled(false);
-    }, 2000);
+    }
   };
   
   // QR Scanner handlers
@@ -323,7 +397,10 @@ export default function FloatingChatbot() {
                           />
                         </div>
                       )}
-                      <div className="whitespace-pre-line">{message.content}</div>
+                      <div 
+                        className="whitespace-pre-line"
+                        dangerouslySetInnerHTML={{ __html: message.content }}
+                      ></div>
                     </div>
                   </div>
                 ))}

@@ -44,9 +44,14 @@ export function SpeechButton({
 
       setIsLoading(true);
 
+      // Strip HTML tags and convert to plain text for speech
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = text;
+      const plainText = tempDiv.textContent || tempDiv.innerText || text;
+      
       // Configure options based on detected language
       const options: TTSOptions = {
-        text: text.slice(0, provider === 'elevenlabs' ? 2000 : 5000), // Limit text length
+        text: plainText.slice(0, provider === 'elevenlabs' ? 2000 : 5000), // Limit text length
         language,
         provider,
       };
