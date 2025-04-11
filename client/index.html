@@ -6,9 +6,153 @@
     <title>CryptoPulse - Crypto AI Assistant</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    <!-- Add a fallback style to ensure basic display if CSS fails to load -->
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #121212;
+        color: #e1e1e1;
+        margin: 0;
+        padding: 0;
+      }
+      
+      #app-loading-state {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+      }
+      
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        border-top-color: #09f;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 20px;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      #error-container {
+        display: none;
+        max-width: 500px; 
+        margin: 40px auto;
+        padding: 20px;
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      
+      button {
+        background-color: #3861fb;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 20px;
+      }
+      
+      #root {
+        height: 100vh;
+      }
+    </style>
   </head>
   <body>
+    <!-- Fallback loading/error UI that will be hidden when React loads -->
+    <div id="app-loading-state">
+      <div class="spinner"></div>
+      <h2>Loading CryptoPulse...</h2>
+      <p>Please wait while we load the application.</p>
+    </div>
+    
+    <div id="error-container">
+      <h2>Connection Error</h2>
+      <p>There was a problem connecting to the application.</p>
+      <div id="error-message"></div>
+      <button onclick="window.location.reload()">Refresh Page</button>
+    </div>
+    
     <div id="root"></div>
+    
+    <!-- WebSocket error handling script -->
+    <script>
+      // Add global error handling before the main application loads
+      window.addEventListener('error', function(event) {
+        // Log all errors
+        console.error('Error caught:', event.message);
+        
+        // Handle WebSocket errors specifically
+        if (event.message && (
+            event.message.includes('WebSocket') || 
+            event.message.includes('socket') || 
+            event.message.includes('ws error'))) {
+          console.warn('WebSocket connection issue detected and handled at root level.');
+          event.preventDefault();
+          return;
+        }
+        
+        // Handle other critical errors that might prevent the app from loading
+        if (event.message && (
+            event.message.includes('Cannot load script') ||
+            event.message.includes('Failed to fetch') ||
+            event.message.includes('NetworkError'))) {
+          document.getElementById('app-loading-state').style.display = 'none';
+          document.getElementById('error-container').style.display = 'block';
+          document.getElementById('error-message').textContent = event.message;
+          event.preventDefault();
+        }
+      });
+      
+      // Function to check if the app has loaded
+      function checkAppLoaded() {
+        if (document.getElementById('root').children.length > 0) {
+          // App has loaded, hide loading state
+          document.getElementById('app-loading-state').style.display = 'none';
+          return true;
+        }
+        return false;
+      }
+      
+      // Hide the fallback UI when the React app loads
+      window.addEventListener('load', function() {
+        // First check
+        if (checkAppLoaded()) return;
+        
+        // Set up periodic checks
+        let checks = 0;
+        const maxChecks = 5;
+        const checkInterval = setInterval(function() {
+          checks++;
+          if (checkAppLoaded()) {
+            clearInterval(checkInterval);
+            return;
+          }
+          
+          // If app still not loaded after several checks, show link to static version
+          if (checks >= maxChecks) {
+            clearInterval(checkInterval);
+            document.getElementById('app-loading-state').innerHTML += `
+              <div style="margin-top: 20px; padding: 15px; background-color: #2a2a2a; border-radius: 8px; max-width: 500px;">
+                <p style="margin-bottom: 15px;">The application is taking longer than expected to load. You can:</p>
+                <a href="/static" style="display: inline-block; background-color: #3861fb; color: white; padding: 10px 15px; border-radius: 4px; text-decoration: none; font-weight: 600;">
+                  View Static Dashboard
+                </a>
+              </div>
+            `;
+          }
+        }, 1000);
+      });
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>

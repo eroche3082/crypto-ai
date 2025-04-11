@@ -1,6 +1,10 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { useLanguage } from "./LanguageContext";
 
+// Import these as types only to avoid runtime errors
+type VertexAI = any;
+type GoogleAuth = any;
+
 interface Message {
   role: "user" | "bot";
   content: string;
@@ -31,9 +35,32 @@ export const GeminiProvider = ({ children }: GeminiProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { language } = useLanguage();
   
-  const generateResponse = async (text: string, messageHistory: Message[]): Promise<string> => {
-    setIsLoading(true);
-    
+  // Initialize Vertex AI client (dynamically import to avoid errors)
+  const initializeVertexClient = async () => {
+    try {
+      // Check if VertexAI is available
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        console.warn("Gemini API key not found, skipping Vertex AI initialization");
+        return null;
+      }
+      
+      // Try to dynamically import the required modules
+      try {
+        // We'll just use the fallback method for now to avoid import errors
+        return null;
+      } catch (importError) {
+        console.error("Error importing Vertex AI modules:", importError);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error initializing Vertex AI client:", error);
+      return null;
+    }
+  };
+  
+  // Alternative function that uses the direct API approach if VertexAI setup fails
+  const fallbackGenerateResponse = async (text: string, messageHistory: Message[]): Promise<string> => {
     try {
       // Prepare conversation history
       const history = messageHistory
@@ -118,8 +145,21 @@ export const GeminiProvider = ({ children }: GeminiProviderProps) => {
       
       return generatedText;
     } catch (error) {
+      console.error("Error in fallback generation:", error);
+      return "I'm having trouble connecting to my AI services right now. Please try again later.";
+    }
+  };
+  
+  const generateResponse = async (text: string, messageHistory: Message[]): Promise<string> => {
+    setIsLoading(true);
+    
+    try {
+      // Only use the direct API approach now
+      const directApiResponse = await fallbackGenerateResponse(text, messageHistory);
+      return directApiResponse;
+    } catch (error) {
       console.error("Error generating response:", error);
-      throw error;
+      return "I'm having trouble connecting to my AI services right now. Please try again later.";
     } finally {
       setIsLoading(false);
     }

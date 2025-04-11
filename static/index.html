@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryptoPulse - Cryptocurrency Dashboard</title>
+  <style>
+    :root {
+      --background: #09090b;
+      --foreground: #f8f8f2;
+      --primary: #6419e6;
+      --primary-foreground: #ffffff;
+      --secondary: #1e1e2e;
+      --secondary-foreground: #f8f8f2;
+      --accent: #313244;
+      --accent-foreground: #f8f8f2;
+      --success: #52fa7c;
+      --destructive: #ff5555;
+      --border: #27272a;
+      --muted: #313244;
+      --muted-foreground: #a6adc8;
+      --card: #1e1e2e;
+      --card-foreground: #f8f8f2;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: inherit;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 280px;
+      background-color: var(--secondary);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background-color: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: var(--primary-foreground);
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-item {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--muted-foreground);
+      text-decoration: none;
+    }
+
+    .nav-item.active {
+      background-color: var(--accent);
+      color: var(--foreground);
+    }
+
+    .nav-item:hover:not(.active) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--secondary);
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      width: 280px;
+    }
+
+    .search-input {
+      background: transparent;
+      border: none;
+      color: var(--foreground);
+      outline: none;
+      width: 100%;
+      font-size: 0.875rem;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .crypto-card {
+      background-color: var(--card);
+      border-radius: 8px;
+      padding: 1.25rem;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .crypto-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .crypto-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .crypto-name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .crypto-icon {
+      width: 32px;
+      height: 32px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .crypto-details h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .crypto-details p {
+      margin: 0;
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+    }
+
+    .price-container {
+      margin-top: 1rem;
+    }
+
+    .current-price {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .price-change {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .price-up {
+      background-color: rgba(82, 250, 124, 0.1);
+      color: var(--success);
+    }
+
+    .price-down {
+      background-color: rgba(255, 85, 85, 0.1);
+      color: var(--destructive);
+    }
+
+    .chart-placeholder {
+      height: 60px;
+      margin-top: 1rem;
+      background-color: var(--accent);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chart-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.5;
+    }
+
+    .chart-line-up {
+      background: linear-gradient(to top right, transparent 70%, var(--success));
+    }
+
+    .chart-line-down {
+      background: linear-gradient(to top right, transparent 70%, var(--destructive));
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+    }
+
+    .no-connection {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 2rem;
+      background-color: var(--card);
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+    }
+
+    .disclaimer {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    /* Media queries for responsiveness */
+    @media (max-width: 768px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1rem;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .search-bar {
+        width: 100%;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">C</div>
+        <div class="logo-text">CryptoPulse</div>
+      </div>
+      <div class="nav-links">
+        <a class="nav-item active">
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item">
+          <span>Portfolio</span>
+        </a>
+        <a class="nav-item">
+          <span>Alerts</span>
+        </a>
+        <a class="nav-item">
+          <span>Converter</span>
+        </a>
+        <a class="nav-item">
+          <span>Education</span>
+        </a>
+        <a class="nav-item">
+          <span>News</span>
+        </a>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="header">
+        <h1 class="page-title">Cryptocurrency Dashboard</h1>
+        <div class="search-bar">
+          <input type="text" class="search-input" placeholder="Search for cryptos..." />
+        </div>
+      </div>
+
+      <div id="dashboard-content">
+        <div class="no-connection">
+          <h2>Connection Issues</h2>
+          <p>We're having trouble connecting to our servers. This is a static fallback view.</p>
+          <p>Please try refreshing the page or check back later.</p>
+          <button id="reload-btn" style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: var(--primary); color: var(--primary-foreground); border: none; border-radius: 4px; cursor: pointer;">
+            Reload Application
+          </button>
+        </div>
+
+        <h2 class="section-title">Top Cryptocurrencies</h2>
+        <div class="dashboard-grid">
+          <!-- Bitcoin -->
+          <div class="crypto-card">
+            <div class="crypto-header">
+              <div class="crypto-name">
+                <div class="crypto-icon">BTC</div>
+                <div class="crypto-details">
+                  <h3>Bitcoin</h3>
+                  <p>BTC</p>
+                </div>
+              </div>
+            </div>
+            <div class="price-container">
+              <div class="current-price">$38,245.67</div>
+              <div class="price-change price-up">+2.34%</div>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-line chart-line-up"></div>
+            </div>
+          </div>
+          
+          <!-- Ethereum -->
+          <div class="crypto-card">
+            <div class="crypto-header">
+              <div class="crypto-name">
+                <div class="crypto-icon">ETH</div>
+                <div class="crypto-details">
+                  <h3>Ethereum</h3>
+                  <p>ETH</p>
+                </div>
+              </div>
+            </div>
+            <div class="price-container">
+              <div class="current-price">$2,456.78</div>
+              <div class="price-change price-up">+1.87%</div>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-line chart-line-up"></div>
+            </div>
+          </div>
+          
+          <!-- Ripple -->
+          <div class="crypto-card">
+            <div class="crypto-header">
+              <div class="crypto-name">
+                <div class="crypto-icon">XRP</div>
+                <div class="crypto-details">
+                  <h3>Ripple</h3>
+                  <p>XRP</p>
+                </div>
+              </div>
+            </div>
+            <div class="price-container">
+              <div class="current-price">$0.5678</div>
+              <div class="price-change price-down">-0.87%</div>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-line chart-line-down"></div>
+            </div>
+          </div>
+          
+          <!-- Cardano -->
+          <div class="crypto-card">
+            <div class="crypto-header">
+              <div class="crypto-name">
+                <div class="crypto-icon">ADA</div>
+                <div class="crypto-details">
+                  <h3>Cardano</h3>
+                  <p>ADA</p>
+                </div>
+              </div>
+            </div>
+            <div class="price-container">
+              <div class="current-price">$0.3456</div>
+              <div class="price-change price-up">+3.45%</div>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-line chart-line-up"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="disclaimer">
+        This is a static fallback page. Prices shown are not real-time data.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple script to allow page reload
+    document.getElementById('reload-btn').addEventListener('click', function() {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

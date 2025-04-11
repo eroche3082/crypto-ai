@@ -1,8 +1,10 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { WebSocketServer } from "ws";
+import { setupWebSocketServer } from "./websocket";
 import Stripe from "stripe";
+import fs from 'fs';
+import path from 'path';
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -15,42 +17,25 @@ const stripe = process.env.STRIPE_SECRET_KEY
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
-  // Initialize WebSocket server for real-time updates
-  const wss = new WebSocketServer({ server: httpServer });
-  
-  // WebSocket connection handler
-  wss.on("connection", (ws) => {
-    console.log("New client connected");
-    
-    // Send initial welcome message
-    ws.send(JSON.stringify({ type: "connection", message: "Connected to CryptoPulse WebSocket Server" }));
-    
-    // Handle client messages
-    ws.on("message", (message) => {
-      try {
-        const parsedMessage = JSON.parse(message.toString());
-        console.log("Received message:", parsedMessage);
-        
-        // Handle different message types
-        if (parsedMessage.type === "subscribe") {
-          // Subscribe to specific updates (price alerts, portfolio updates, etc.)
-          ws.send(JSON.stringify({ 
-            type: "subscription", 
-            status: "success", 
-            channel: parsedMessage.channel 
-          }));
-        }
-      } catch (error) {
-        console.error("Error processing message:", error);
-        ws.send(JSON.stringify({ type: "error", message: "Invalid message format" }));
+  // Add a route to serve the static HTML fallback page
+  app.get('/static', (req: Request, res: Response) => {
+    try {
+      const staticHtmlPath = path.join(process.cwd(), 'static', 'index.html');
+      
+      if (fs.existsSync(staticHtmlPath)) {
+        res.setHeader('Content-Type', 'text/html');
+        const staticHtml = fs.readFileSync(staticHtmlPath, 'utf8');
+        res.send(staticHtml);
+      } else {
+        res.status(404).send('Static fallback page not found');
       }
-    });
-    
-    // Handle client disconnection
-    ws.on("close", () => {
-      console.log("Client disconnected");
-    });
+    } catch (error) {
+      res.status(500).send(`Error serving static page: ${(error as Error).message}`);
+    }
   });
+  
+  // Setup WebSocket server with our custom implementation
+  setupWebSocketServer(httpServer);
   
   // API Routes
   
