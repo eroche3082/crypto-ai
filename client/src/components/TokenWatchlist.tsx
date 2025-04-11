@@ -198,7 +198,7 @@ const TokenWatchlist: React.FC = () => {
         
         setTokens(processedTokens);
         setFilteredTokens(processedTokens);
-        setWatchlistTokens(processedTokens.filter(t => t.on_watchlist));
+        setWatchlistTokens(processedTokens.filter((token: Token) => token.on_watchlist));
         setLoading(false);
       } catch (error) {
         console.error("Error fetching token data:", error);
@@ -268,7 +268,7 @@ const TokenWatchlist: React.FC = () => {
     setFilteredTokens(updatedFilteredTokens);
     
     // Update watchlist tokens
-    const updatedWatchlistTokens = updatedTokens.filter(t => t.on_watchlist);
+    const updatedWatchlistTokens = updatedTokens.filter((token: Token) => token.on_watchlist);
     setWatchlistTokens(updatedWatchlistTokens);
     
     // Save to localStorage
