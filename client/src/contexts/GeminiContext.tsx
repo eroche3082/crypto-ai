@@ -14,7 +14,7 @@ interface GeminiContextType {
   isLoading: boolean;
 }
 
-const GeminiContext = createContext<GeminiContextType | null>(null);
+export const GeminiContext = createContext<GeminiContextType | null>(null);
 
 export const useGemini = () => {
   const context = useContext(GeminiContext);

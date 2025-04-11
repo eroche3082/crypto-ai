@@ -8,7 +8,7 @@ interface CryptoContextValue {
   refetch: () => void;
 }
 
-const CryptoContext = createContext<CryptoContextValue | null>(null);
+export const CryptoContext = createContext<CryptoContextValue | null>(null);
 
 export const useCrypto = () => {
   const context = useContext(CryptoContext);
