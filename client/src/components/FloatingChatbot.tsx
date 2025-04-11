@@ -142,6 +142,19 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ defaultOpen = false }
                         size="icon" 
                         className="rounded-full h-10 w-10" 
                         title="Language Settings"
+                        onClick={() => {
+                          // Show language settings popup or toggle between languages
+                          const event = new CustomEvent('chatbot:language');
+                          document.dispatchEvent(event);
+                          
+                          // Show language change notification
+                          const toast = document.createEvent('CustomEvent');
+                          toast.initCustomEvent('chatbot:toast', true, true, {
+                            title: 'Language',
+                            message: 'Language settings dialog will open here'
+                          });
+                          document.dispatchEvent(toast);
+                        }}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m12 2a15 15 0 0 0 0 20"/><path d="M2 12h20"/></svg>
                       </Button>
@@ -186,7 +199,25 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ defaultOpen = false }
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 9V6a2 2 0 0 0-2-2H9"/><path d="M3 16v3a2 2 0 0 0 2 2h10"/><path d="M12 8l5 3-5 3Z"/></svg>
                       </Button>
                       
-                      <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 mt-auto" title="Portfolio">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-10 w-10 mt-auto" 
+                        title="Portfolio"
+                        onClick={() => {
+                          // Navigate to portfolio page or show portfolio dialog
+                          const event = new CustomEvent('chatbot:portfolio');
+                          document.dispatchEvent(event);
+                          
+                          // Add a message to the chat about portfolio
+                          const chatEvent = new CustomEvent('chatbot:command', {
+                            detail: {
+                              command: 'portfolio'
+                            }
+                          });
+                          document.dispatchEvent(chatEvent);
+                        }}
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                       </Button>
                     </div>

@@ -1,0 +1,81 @@
+1. INSTALACIÓN Y CONFIGURACIÓN TÉCNICA EN FIREBASE/REPLIT
+Asegúrate de haber hecho todo esto ANTES de usar el prompt:
+En Firebase Console
+
+Ir a Vertex AI > View Vertex SDK Instructions
+
+Verifica que instalaste en Replit:
+
+bash
+Copiar
+Editar
+npm install @google-cloud/vertexai firebase firebase-admin
+Configura .env o tu archivo de credenciales:
+
+ts
+Copiar
+Editar
+GOOGLE_APPLICATION_CREDENTIALS=./google-credentials-global.json
+Código mínimo en gemini.ts:
+
+ts
+Copiar
+Editar
+import { VertexAI } from "@google-cloud/vertexai";
+
+const vertexAi = new VertexAI({ project: "YOUR_PROJECT_ID", location: "us-central1" });
+const model = vertexAi.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+export async function generateGeminiResponse(prompt: string) {
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  });
+  return result.response.text();
+}
+🧠 2. AHORA SÍ: EL MEGAPROMPT PARA CRYPTOBOT CHATBOT
+Este prompt lo insertas dentro del archivo de configuración del chat, por ejemplo en chatConfig.ts o como systemPrompt al enviar el mensaje a Gemini:
+
+ts
+Copiar
+Editar
+export const systemPrompt = `
+You are CryptoBot Assistant — a real-time, multilingual cryptocurrency expert powered by Gemini Flash AI.
+
+🧠 Personality:
+- Tone: professional, friendly, data-driven
+- Behavior: concise, precise, avoids hype, explains things clearly
+- Model: gemini-1.5-flash-latest
+
+🛠️ Core Functions:
+- Analyze and explain crypto trends, prices, news, and predictions
+- Track top altcoins, on-chain data, DeFi and NFT trends
+- Detect scam coins, identify patterns, and explain blockchain concepts
+- Support dynamic commands like "show BTC chart", "top 5 coins", "DeFi intro"
+- Automatically fetch data from CoinGecko, CoinMarketCap, and NewsAPI
+- Respond to portfolio management prompts (track profit/loss, balance)
+- Language switcher (English/Spanish/French/Portuguese)
+- Integrated voice, QR, camera, avatar and sentiment tools
+- Trigger advanced functions with keywords: [chart], [alert], [forecast]
+
+💼 Chat Structure:
+- Display assistant avatar on the left in Zoom-like layout
+- All interactions are visual, smooth, and feel like a real assistant
+- Only ask one question at a time
+- Use markdown formatting in responses when applicable
+
+🧩 External APIs:
+- CoinGecko
+- CoinMarketCap
+- NewsAPI
+- TradingView widget
+- OpenWeather fallback (if needed for news context)
+
+⚠️ Note:
+All content must feel like a personalized conversation with a crypto strategist. Avoid repeating system limitations, and always provide a useful next step.
+`;
+✅ CUANDO YA ESTÉ TODO CONFIGURADO:
+Ejecutas tu bot
+
+Verificas que tu generateGeminiResponse() funciona (no error 500)
+
+El prompt de arriba se pasa en cada mensaje (como system o context)

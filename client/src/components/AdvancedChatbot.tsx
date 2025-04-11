@@ -51,12 +51,32 @@ export default function AdvancedChatbot() {
     const handleCameraEvent = () => handleOpenCamera();
     const handleQrEvent = () => handleOpenQrScanner();
     const handleArEvent = () => handleOpenArViewer();
+    const handleLanguageEvent = () => {
+      // Show language selection dialog or toggle language
+      toast({
+        title: "Language Settings",
+        description: "Language settings will be implemented here",
+      });
+    };
+    
+    // Handle special commands like portfolio
+    const handleCommandEvent = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        const command = e.detail?.command;
+        if (command === 'portfolio') {
+          // Send a message about portfolio to the chatbot
+          handleSendMessage("Show me my portfolio summary");
+        }
+      }
+    };
     
     // Register event listeners
     document.addEventListener('chatbot:audio', handleAudioEvent);
     document.addEventListener('chatbot:camera', handleCameraEvent);
     document.addEventListener('chatbot:qr', handleQrEvent);
     document.addEventListener('chatbot:ar', handleArEvent);
+    document.addEventListener('chatbot:language', handleLanguageEvent);
+    document.addEventListener('chatbot:command', handleCommandEvent);
     
     // Cleanup function
     return () => {
@@ -64,6 +84,8 @@ export default function AdvancedChatbot() {
       document.removeEventListener('chatbot:camera', handleCameraEvent);
       document.removeEventListener('chatbot:qr', handleQrEvent);
       document.removeEventListener('chatbot:ar', handleArEvent);
+      document.removeEventListener('chatbot:language', handleLanguageEvent);
+      document.removeEventListener('chatbot:command', handleCommandEvent);
     };
   }, []);
   
