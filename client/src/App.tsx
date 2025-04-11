@@ -15,11 +15,6 @@ import NotFound from "@/pages/not-found";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./lib/queryClient";
-import { LanguageProvider } from "./contexts/LanguageContext";
-import { GeminiProvider } from "./contexts/GeminiContext";
-import { CryptoProvider } from "./contexts/CryptoContext";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);

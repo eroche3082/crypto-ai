@@ -6,12 +6,15 @@ interface LanguageContextType {
   setLanguage: (language: string) => void;
 }
 
-const LanguageContext = createContext<LanguageContextType>({
-  language: "en",
-  setLanguage: () => {},
-});
+const LanguageContext = createContext<LanguageContextType | null>(null);
 
-export const useLanguage = () => useContext(LanguageContext);
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (context === null) {
+    throw new Error("useLanguage must be used within a LanguageProvider");
+  }
+  return context;
+};
 
 interface LanguageProviderProps {
   children: ReactNode;

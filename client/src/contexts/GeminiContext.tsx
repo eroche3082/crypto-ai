@@ -14,16 +14,15 @@ interface GeminiContextType {
   isLoading: boolean;
 }
 
-const GeminiContext = createContext<GeminiContextType>({
-  model: "gemini-1.5-flash-latest",
-  setModel: () => {},
-  language: "en",
-  setLanguage: () => {},
-  generateResponse: async () => "",
-  isLoading: false,
-});
+const GeminiContext = createContext<GeminiContextType | null>(null);
 
-export const useGemini = () => useContext(GeminiContext);
+export const useGemini = () => {
+  const context = useContext(GeminiContext);
+  if (context === null) {
+    throw new Error("useGemini must be used within a GeminiProvider");
+  }
+  return context;
+};
 
 interface GeminiProviderProps {
   children: ReactNode;

@@ -8,14 +8,15 @@ interface CryptoContextValue {
   refetch: () => void;
 }
 
-const CryptoContext = createContext<CryptoContextValue>({
-  cryptoData: undefined,
-  isLoading: false,
-  error: null,
-  refetch: () => {},
-});
+const CryptoContext = createContext<CryptoContextValue | null>(null);
 
-export const useCrypto = () => useContext(CryptoContext);
+export const useCrypto = () => {
+  const context = useContext(CryptoContext);
+  if (context === null) {
+    throw new Error("useCrypto must be used within a CryptoProvider");
+  }
+  return context;
+};
 
 interface CryptoProviderProps {
   children: ReactNode;
