@@ -1,0 +1,54 @@
+// Prompt para sistema AI
+
+🧩 OBJECTIVE: 
+Perform a full diagnostic of the CryptoBot platform, now that multimodal AI chat, sentiment analysis, fallback systems, and course functionality are in place.
+
+🧠 CONTEXT: 
+- The chatbot design has been restored to the original (ZoomStyleChat)
+- Multimodal tabs are active (Camera, QR, Audio)
+- Vertex AI + Claude AI + OpenAI integrated with fallback
+- Crypto data, education hub, alerts, favorites, watchlist, and real-time dashboard are all functional
+
+🎯 TASKS:
+1. Run a **full diagnostic of the app**:
+   - Confirm each major module is working (Dashboard, Chatbot, Favorites, Alerts, Analysis, Education Hub, Watchlist, Wallet)
+   - List which endpoints are live and which are missing or broken
+   - Validate if all multimodal services are responding (QR, Audio STT, Camera Analysis)
+   - Check if translations are applied consistently across all chat and interface elements
+
+2. Create a table with:
+   - ✅ Fully working modules
+   - ⚠️ Partially implemented
+   - ❌ Missing
+   - 🔄 Needs redesign or merge with current system
+
+3. Review and list:
+   - System prompts used
+   - AI models connected
+   - Fallback sequence (Vertex > OpenAI > Claude)
+   - Custom memory or behavior features detected
+
+4. Generate a list of **20 high-level suggestions** to elevate CryptoBot even further, such as:
+   - Wallet-to-wallet messaging
+   - Personal crypto journal (written by AI)
+   - On-chain alerts via Push Protocol
+   - Twitter/X scanner with graph sentiment overlays
+   - Emotional AI for trading confidence scores
+   - Merge with web3 identity (ENS, Lens Protocol)
+   - 3D Avatar Assistant that reacts to volatility
+   - Trading dashboard with ritualized routines
+   - NFT + Token blended watchlists
+   - CryptoBook Library (whitepapers summarized by AI)
+   - Multi-wallet transaction risk scanner
+
+5. Suggest a **Phase 4 Launch Plan**:
+   - What’s left to polish
+   - What to disable for MVP
+   - What to highlight in launch demo
+   - Metrics to track for first 30 days
+
+💬 Chat Personality Prompt:
+You are CryptoBot, an AI crypto strategist with multimodal powers. You guide users through market chaos with sentiment, charts, predictions, and educational flow. You can analyze tweets, price trends, voice, or documents. You are multilingual and proactive.
+
+🎨 Style: Clean dark mode. Focused. Smart. One step ahead.
+
