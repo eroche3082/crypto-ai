@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import RealCourses from "./RealCourses";
+import RealCourses, { realCourses } from "./RealCourses";
 
 // Define the course data
 const initialCourses = [
@@ -312,13 +312,46 @@ const EducationHub = () => {
   
   // Complete enrollment process
   const completeEnrollment = () => {
-    // Find the selected course
-    const courseToUpdate = updatedCourses.find(course => course.id === selectedCourseForEnroll);
+    // Get the course ID from the state
+    const courseId = selectedCourseForEnroll;
+    
+    // Check if it's a beginner course or pro course
+    const isProCourse = !updatedCourses.some(course => course.id === courseId);
+    
+    if (isProCourse) {
+      // We need to handle real courses enrollment differently
+      // Find the corresponding real course
+      const realCourse = realCourses.find(course => course.id === courseId);
+      
+      if (realCourse) {
+        // Update the real course progress (in a real app, this would be saved to a database)
+        const updatedRealCourses = realCourses.map(course => 
+          course.id === courseId 
+            ? { ...course, progress: course.progress > 0 ? course.progress : 1 } 
+            : course
+        );
+        
+        // In a production app, we would update this in a database
+        // For now, we'll just show a toast notification
+        toast({
+          title: t("education.enrollmentSuccessful", "Enrollment Successful"),
+          description: t("education.enrollmentSuccessfulDesc", `You have successfully enrolled in the course: ${realCourse.title}`),
+          duration: 3000
+        });
+        
+        // Close the dialog
+        setEnrollDialogOpen(false);
+        return;
+      }
+    }
+    
+    // Handle beginner courses (the original implementation)
+    const courseToUpdate = updatedCourses.find(course => course.id === courseId);
     
     // Update courses with the new progress status (set to 1% to show it's started)
     if (courseToUpdate) {
       const newUpdatedCourses = updatedCourses.map(course => 
-        course.id === selectedCourseForEnroll 
+        course.id === courseId 
           ? { ...course, progress: course.progress > 0 ? course.progress : 1 } 
           : course
       );
