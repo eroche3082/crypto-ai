@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Bot, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import AdvancedChatbot from './AdvancedChatbot';
+import ZoomStyleChat from './chat/ZoomStyleChat';
 
 interface FloatingChatbotProps {
   defaultLanguage?: string;
@@ -15,12 +15,27 @@ export default function FloatingChatbot({
 }: FloatingChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check for mobile viewport on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    
+    // Check on load
+    checkMobile();
+    
+    // Add event listener for resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleToggle = () => {
     if (isMinimized) {
       setIsMinimized(false);
       // On mobile, use dialog for fullscreen
-      if (window.innerWidth < 768) {
+      if (isMobile) {
         setIsOpen(true);
       }
     } else {
@@ -51,22 +66,19 @@ export default function FloatingChatbot({
       {/* Mobile dialog version */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="p-0 max-w-[95vw] h-[95vh]">
-          <AdvancedChatbot 
+          <ZoomStyleChat 
+            initialOpen={true}
             defaultLanguage={defaultLanguage}
-            isFullscreen={true}
-            onClose={handleClose}
-            className="h-full rounded-none"
           />
         </DialogContent>
       </Dialog>
 
       {/* Desktop fixed chatbot */}
-      {!isMinimized && window.innerWidth >= 768 && (
+      {!isMinimized && !isMobile && (
         <div className="fixed bottom-4 right-4 z-40 w-[400px] h-[600px] shadow-lg">
-          <AdvancedChatbot 
+          <ZoomStyleChat 
+            initialOpen={true}
             defaultLanguage={defaultLanguage}
-            onClose={() => setIsMinimized(true)}
-            className="h-full"
           />
         </div>
       )}
