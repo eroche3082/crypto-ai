@@ -10,6 +10,7 @@ import { analyzeImage, uploadMiddleware } from "./vision";
 import { getTwitterSentiment, getMarketSentiment } from "./twitter";
 import { analyzeSentiment } from "./sentiment";
 import { generateAIResponse } from "./gemini";
+import { generateVertexAIResponse } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -264,6 +265,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Gemini AI proxy - using real implementation
   app.post("/api/generate-ai-response", generateAIResponse);
+  
+  // VertexAI proxy for enhanced Gemini capabilities
+  app.post("/api/vertex-ai-response", generateVertexAIResponse);
   
   // Crypto data proxy to avoid exposing API keys on frontend
   // Sentiment analysis API routes

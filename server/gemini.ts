@@ -114,6 +114,10 @@ async function callGeminiAPI(
 ): Promise<{ text: string }> {
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   
+  // Combine system instruction and prompt into a single text for the user role
+  // This is because Gemini API in REST mode does not accept "system" role
+  const combinedPrompt = systemInstruction + "\n\n" + prompt;
+  
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -125,7 +129,7 @@ async function callGeminiAPI(
           {
             role: 'user',
             parts: [
-              { text: systemInstruction + "\n\n" + prompt }
+              { text: combinedPrompt }
             ]
           }
         ],
