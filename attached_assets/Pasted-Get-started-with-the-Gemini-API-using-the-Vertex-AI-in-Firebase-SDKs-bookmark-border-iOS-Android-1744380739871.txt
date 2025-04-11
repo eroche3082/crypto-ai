@@ -1,0 +1,132 @@
+Get started with the Gemini API using the Vertex AI in Firebase SDKs 
+
+bookmark_border
+
+iOS+ Android Web Flutter
+
+This guide shows you how to get started making calls to the Vertex AI Gemini API directly from your app using the Vertex AI in Firebase SDK for your chosen platform.
+
+Other options for working with the Gemini API
+
+Note that you can also use this guide to get started with accessing Imagen models using the Vertex AI in Firebase SDKs.
+
+Prerequisites
+This guide assumes that you're familiar with using JavaScript to develop web apps. This guide is framework-independent.
+
+Make sure that your development environment and web app meet these requirements:
+
+(Optional) Node.js
+Modern web browser
+(Optional) Check out the sample app.
+
+Download the sample app
+
+You can try out the SDK quickly, see a complete implementation of various use cases, or use the sample app if don't have your own web app. To use the sample app, you'll need to connect it to a Firebase project.
+
+Step 1: Set up a Firebase project and connect your app to Firebase
+If you already have a Firebase project and an app connected to Firebase
+In the Firebase console, go to the Vertex AI page.
+
+Click the Vertex AI in Firebase card to launch a workflow that helps you complete the following tasks:
+
+Upgrade your project to use the pay-as-you-go Blaze pricing plan.
+
+Enable the required APIs in your project (Vertex AI API and Vertex AI in Firebase API).
+
+Continue to the next step in this guide to add the SDK to your app.
+
+If you do not already have a Firebase project and an app connected to Firebase
+Set up a Firebase project
+
+Connect your app to Firebase
+
+
+
+Note: In the Firebase console, you're strongly encouraged to set up Firebase App Check. If you're just trying out the Gemini API, you don't need to set up App Check right away; however, we recommend setting it up as soon as you start seriously developing your app.
+Step 2: Add the SDK
+With your Firebase project set up and your app connected to Firebase (see previous step), you can now add the Vertex AI in Firebase SDK to your app.
+
+iOS+ Android Web Flutter
+The Vertex AI in Firebase library provides access to the APIs for interacting with Gemini and Imagen models. The library is included as part of the Firebase JavaScript SDK for Web.
+
+Install the Firebase JS SDK for Web using npm:
+
+
+  npm install firebase
+Initialize Firebase in your app:
+
+
+  import { initializeApp } from "firebase/app";
+
+  // TODO(developer) Replace the following with your app's Firebase configuration
+  // See: https://firebase.google.com/docs/web/learn-more#config-object
+  const firebaseConfig = {
+    // ...
+  };
+
+  // Initialize FirebaseApp
+  const firebaseApp = initializeApp(firebaseConfig);
+Step 3: Initialize the Vertex AI service and create a GenerativeModel instance
+Before you can make any API calls and send a prompt to a Gemini model, you need to initialize the Vertex AI service and create a GenerativeModel instance.
+
+Note: Depending on the capability you're using, you might not always create a GenerativeModel instance.
+To access an Imagen model, create an ImagenModel instance.
+To stream input and output using the Gemini Live API, create a LiveModel instance.
+
+import { initializeApp } from "firebase/app";
+import { getVertexAI, getGenerativeModel } from "firebase/vertexai";
+
+// TODO(developer) Replace the following with your app's Firebase configuration
+// See: https://firebase.google.com/docs/web/learn-more#config-object
+const firebaseConfig = {
+  // ...
+};
+
+// Initialize FirebaseApp
+const firebaseApp = initializeApp(firebaseConfig);
+
+// Initialize the Vertex AI service
+const vertexAI = getVertexAI(firebaseApp);
+
+// Create a `GenerativeModel` instance with a model that supports your use case
+const model = getGenerativeModel(vertexAI, { model: "gemini-2.0-flash" });
+After you finish this getting started guide, learn how to choose a model and (optionally) a location appropriate for your use case and app.
+
+Step 4: Send a prompt request to a model
+Now that you've connected your app to Firebase, added the SDK, and initialized the Vertex AI service and the generative model, you're ready to send a prompt request to a Gemini model.
+
+You can use generateContent() to generate text from a text-only prompt request:
+
+
+import { initializeApp } from "firebase/app";
+import { getVertexAI, getGenerativeModel } from "firebase/vertexai";
+
+// TODO(developer) Replace the following with your app's Firebase configuration
+// See: https://firebase.google.com/docs/web/learn-more#config-object
+const firebaseConfig = {
+  // ...
+};
+
+// Initialize FirebaseApp
+const firebaseApp = initializeApp(firebaseConfig);
+
+// Initialize the Vertex AI service
+const vertexAI = getVertexAI(firebaseApp);
+
+// Create a `GenerativeModel` instance with a model that supports your use case
+const model = getGenerativeModel(vertexAI, { model: "gemini-2.0-flash" });
+
+// Wrap in an async function so you can use await
+async function run() {
+  // Provide a prompt that contains text
+  const prompt = "Write a story about a magic backpack."
+
+  // To generate text output, call generateContent with the text input
+  const result = await model.generateContent(prompt);
+
+  const response = result.response;
+  const text = response.text();
+  console.log(text);
+}
+
+run();
