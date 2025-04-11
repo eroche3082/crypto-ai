@@ -836,5 +836,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     app.post("/api/stripe-webhook", stripeErrorHandler);
   }
   
+  // Text-to-Speech API routes
+  app.post('/api/tts/google', googleTTSHandler);
+  app.post('/api/tts/elevenlabs', elevenLabsTTSHandler);
+  
   return httpServer;
 }

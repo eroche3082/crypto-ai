@@ -2,21 +2,21 @@ import { Request, Response } from 'express';
 import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import fs from 'fs';
 import path from 'path';
-import util from 'util';
+import fetch from 'node-fetch';
 
 // Initialize Google TTS client
-let ttsClient: textToSpeech.TextToSpeechClient;
+let ttsClient: TextToSpeechClient;
 try {
   // Try to use the credentials JSON file if available
   const credentialsPath = path.join(process.cwd(), 'google-credentials-global.json');
   if (fs.existsSync(credentialsPath)) {
-    ttsClient = new textToSpeech.TextToSpeechClient({
+    ttsClient = new TextToSpeechClient({
       keyFilename: credentialsPath
     });
     console.log('Google TTS client initialized with credentials file');
   } else if (process.env.GOOGLE_TTS_KEY_ID) {
     // Use environment variables if file is not available
-    ttsClient = new textToSpeech.TextToSpeechClient();
+    ttsClient = new TextToSpeechClient();
     console.log('Google TTS client initialized with environment credentials');
   } else {
     console.warn('No Google TTS credentials found');
@@ -65,7 +65,7 @@ export async function googleTTSHandler(req: Request, res: Response) {
         ssmlGender: gender,
       },
       audioConfig: {
-        audioEncoding: 'MP3',
+        audioEncoding: 'MP3' as const,
         speakingRate,
         pitch,
       },
