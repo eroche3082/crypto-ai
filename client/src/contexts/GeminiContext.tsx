@@ -1,10 +1,4 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-// Remove the circular dependency
-// import { useLanguage } from "./LanguageContext";
-
-// Import these as types only to avoid runtime errors
-type VertexAI = any;
-type GoogleAuth = any;
 
 interface Message {
   role: "user" | "bot";
@@ -21,7 +15,7 @@ interface GeminiContextType {
 }
 
 const GeminiContext = createContext<GeminiContextType>({
-  model: "gemini-1.5-pro",
+  model: "gemini-1.5-pro-latest",
   setModel: () => {},
   language: "en",
   setLanguage: () => {},
@@ -36,7 +30,7 @@ interface GeminiProviderProps {
 }
 
 export const GeminiProvider = ({ children }: GeminiProviderProps) => {
-  const [model, setModel] = useState("gemini-1.5-pro");
+  const [model, setModel] = useState("gemini-1.5-pro-latest");
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState("en");
   
@@ -48,32 +42,9 @@ export const GeminiProvider = ({ children }: GeminiProviderProps) => {
     }
   }, []);
   
-  // Initialize Vertex AI client (dynamically import to avoid errors)
-  const initializeVertexClient = async () => {
-    try {
-      // Check if VertexAI is available
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        console.warn("Gemini API key not found, skipping Vertex AI initialization");
-        return null;
-      }
-      
-      // Try to dynamically import the required modules
-      try {
-        // We'll just use the fallback method for now to avoid import errors
-        return null;
-      } catch (importError) {
-        console.error("Error importing Vertex AI modules:", importError);
-        return null;
-      }
-    } catch (error) {
-      console.error("Error initializing Vertex AI client:", error);
-      return null;
-    }
-  };
-  
-  // Alternative function that uses the direct API approach if VertexAI setup fails
-  const fallbackGenerateResponse = async (text: string, messageHistory: Message[]): Promise<string> => {
+  const generateResponse = async (text: string, messageHistory: Message[]): Promise<string> => {
+    setIsLoading(true);
+    
     try {
       // Prepare conversation history
       const history = messageHistory
@@ -117,59 +88,72 @@ export const GeminiProvider = ({ children }: GeminiProviderProps) => {
         safetySettings: [
           {
             category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            threshold: "BLOCK_ONLY_HIGH"
           },
           {
             category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            threshold: "BLOCK_ONLY_HIGH"
           },
           {
             category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            threshold: "BLOCK_ONLY_HIGH"
           },
           {
             category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            threshold: "BLOCK_ONLY_HIGH"
           }
         ]
       };
       
       // Make the API request to Gemini
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      console.log(`Making API request to Gemini (model: ${model})`);
+      
+      // The API URL format has changed, make sure we're using the correct endpoint
+      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+      console.log(`API URL: ${apiUrl.replace(apiKey, "API_KEY_HIDDEN")}`);
+      
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      
+      // Debug response status
+      console.log(`Gemini API response status: ${response.status}`);
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || "Error calling Gemini API");
+        const errorText = await response.text();
+        console.error("Gemini API error response:", errorText);
+        let errorMessage = "Error calling Gemini API";
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error?.message || errorMessage;
+        } catch (e) {
+          console.error("Failed to parse error response as JSON", e);
+        }
+        
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
+      console.log("Gemini API response data structure:", Object.keys(data));
       
-      // Extract the response text
-      const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated";
+      // Extract the response text with better error handling
+      if (!data.candidates || data.candidates.length === 0) {
+        console.error("No candidates in response", data);
+        return "Sorry, I couldn't generate a response. Please try again.";
+      }
+      
+      const generatedText = data.candidates[0]?.content?.parts?.[0]?.text || "No response generated";
+      if (generatedText === "No response generated") {
+        console.error("Response structure unexpected", data.candidates[0]);
+      }
       
       return generatedText;
-    } catch (error) {
-      console.error("Error in fallback generation:", error);
-      return "I'm having trouble connecting to my AI services right now. Please try again later.";
-    }
-  };
-  
-  const generateResponse = async (text: string, messageHistory: Message[]): Promise<string> => {
-    setIsLoading(true);
-    
-    try {
-      // Only use the direct API approach now
-      const directApiResponse = await fallbackGenerateResponse(text, messageHistory);
-      return directApiResponse;
+      
     } catch (error) {
       console.error("Error generating response:", error);
       return "I'm having trouble connecting to my AI services right now. Please try again later.";
