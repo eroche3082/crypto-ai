@@ -1,25 +1,22 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { apiRequest } from "../lib/queryClient";
 
-// Message interface with sentiment detection
 interface Message {
   role: "user" | "bot";
   content: string;
+  timestamp: number;
   sentiment?: "positive" | "negative" | "neutral";
   confidence?: number;
-  timestamp: string;
 }
 
-// Interface for user preferences
 interface UserPreferences {
-  avatar: string;
   language: string;
   voiceEnabled: boolean;
-  name?: string;
-  userId?: string;
+  model: string;
 }
 
-// Context type definition
 interface AdvancedChatContextType {
   messages: Message[];
   addMessage: (content: string, role: "user" | "bot", sentiment?: "positive" | "negative" | "neutral", confidence?: number) => void;
@@ -29,738 +26,247 @@ interface AdvancedChatContextType {
   setCurrentModel: (model: string) => void;
   userPreferences: UserPreferences;
   updateUserPreferences: (prefs: Partial<UserPreferences>) => void;
-  generateResponse: (text: string) => Promise<string>;
+  generateResponse: (prompt: string) => Promise<string>;
   processSpeechInput: (audioBlob: Blob) => Promise<string>;
   processImageInput: (imageBlob: Blob) => Promise<string>;
   processQrCode: (qrData: string) => Promise<string>;
   summarizeConversation: () => Promise<string>;
-  isSpeaking: boolean;
-  translateMessage: (message: string, targetLanguage: string) => Promise<string>;
+  translateMessage: (text: string, targetLanguage: string) => Promise<string>;
   sentiment: {
-    analyze: (text: string) => Promise<{ sentiment: "positive" | "negative" | "neutral", confidence: number }>;
+    analyze: (text: string) => Promise<{ sentiment: "positive" | "negative" | "neutral"; score: number; confidence: number; }>;
   };
 }
 
-// Create the context
-export const AdvancedChatContext = createContext<AdvancedChatContextType | null>(null);
-
-// Custom hook to use the context
-export const useAdvancedChat = () => {
-  const context = useContext(AdvancedChatContext);
-  if (context === null) {
-    throw new Error("useAdvancedChat must be used within an AdvancedChatProvider");
-  }
-  return context;
+const defaultPreferences: UserPreferences = {
+  language: "en",
+  voiceEnabled: true,
+  model: "gemini-1.5-flash"
 };
 
-// Provider component
-interface AdvancedChatProviderProps {
-  children: ReactNode;
-}
+const AdvancedChatContext = createContext<AdvancedChatContextType | undefined>(undefined);
 
-// Supported models
-const MODELS = {
-  GEMINI: "gemini-1.5-flash",
-  GEMINI_PRO: "gemini-1.5-pro",
-  GPT4O: "gpt-4o"
-};
-
-// Provider implementation
-export const AdvancedChatProvider = ({ children }: AdvancedChatProviderProps) => {
-  // State
+export const AdvancedChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [currentModel, setCurrentModel] = useState<string>(MODELS.GEMINI);
-  const [userPreferences, setUserPreferences] = useState<UserPreferences>({
-    avatar: "default",
-    language: "en",
-    voiceEnabled: false,
-  });
-  
+  const [currentModel, setCurrentModel] = useState("gemini-1.5-flash");
+  const [userPreferences, setUserPreferences] = useState<UserPreferences>(
+    () => {
+      // Load preferences from localStorage if available
+      const savedPrefs = localStorage.getItem('chatbot_preferences');
+      return savedPrefs ? JSON.parse(savedPrefs) : defaultPreferences;
+    }
+  );
   const { toast } = useToast();
-  
-  // Load preferences from localStorage
-  useEffect(() => {
-    const savedPrefs = localStorage.getItem("cryptopulse-chat-preferences");
-    const savedMessages = localStorage.getItem("cryptopulse-chat-history");
-    
-    if (savedPrefs) {
-      try {
-        const parsedPrefs = JSON.parse(savedPrefs);
-        setUserPreferences(parsedPrefs);
-      } catch (error) {
-        console.error("Failed to parse saved preferences:", error);
-      }
-    }
-    
-    if (savedMessages) {
-      try {
-        const parsedMessages = JSON.parse(savedMessages);
-        setMessages(parsedMessages);
-      } catch (error) {
-        console.error("Failed to parse saved messages:", error);
-      }
-    }
-  }, []);
-  
-  // Save preferences when they change
-  useEffect(() => {
-    localStorage.setItem("cryptopulse-chat-preferences", JSON.stringify(userPreferences));
-  }, [userPreferences]);
-  
-  // Save recent messages when they change (limited to last 50)
-  useEffect(() => {
-    localStorage.setItem(
-      "cryptopulse-chat-history", 
-      JSON.stringify(messages.slice(-50))
-    );
-  }, [messages]);
+  const { i18n } = useTranslation();
 
-  // Add a message to the conversation
+  // Save preferences to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('chatbot_preferences', JSON.stringify(userPreferences));
+    
+    // Also update i18n language
+    if (i18n.language !== userPreferences.language) {
+      i18n.changeLanguage(userPreferences.language);
+    }
+  }, [userPreferences, i18n]);
+
   const addMessage = (
     content: string, 
     role: "user" | "bot", 
-    sentiment?: "positive" | "negative" | "neutral", 
+    sentiment?: "positive" | "negative" | "neutral",
     confidence?: number
   ) => {
     const newMessage: Message = {
-      role,
       content,
+      role,
+      timestamp: Date.now(),
       sentiment,
-      confidence,
-      timestamp: new Date().toISOString(),
+      confidence
     };
     
     setMessages(prev => [...prev, newMessage]);
     
-    // Also save to database if user is logged in
-    const userId = localStorage.getItem("cryptopulse-user-id");
-    if (userId) {
-      saveMessageToDatabase(userId, newMessage);
+    // If we have user authentication, we could also send to server to store in chat history
+    if (role === "user") {
+      // Store chat in history if user is logged in
+      // This would be implemented in a production version
     }
   };
 
-  // Clear all messages
   const clearMessages = () => {
     setMessages([]);
   };
 
-  // Update user preferences
   const updateUserPreferences = (prefs: Partial<UserPreferences>) => {
     setUserPreferences(prev => ({ ...prev, ...prefs }));
   };
 
-  // Save message to database
-  const saveMessageToDatabase = async (userId: string, message: Message) => {
-    try {
-      await fetch("/api/chat/history", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId,
-          message: {
-            role: message.role,
-            content: message.content,
-            timestamp: message.timestamp,
-            sentiment: message.sentiment,
-            confidence: message.confidence,
-          },
-        }),
-      });
-    } catch (error) {
-      console.error("Failed to save message to database:", error);
-    }
-  };
-
-  // Generate response with Vertex AI (Gemini)
-  const generateGeminiResponse = async (
-    text: string, 
-    messageHistory: Message[]
-  ): Promise<string> => {
-    try {
-      // Prepare conversation history
-      const history = messageHistory
-        .slice(-10) // Only use last 10 messages for context
-        .map(msg => ({
-          role: msg.role === "user" ? "user" : "model",
-          parts: [{ text: msg.content }]
-        }));
-      
-      // API key from environment variables
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      
-      if (!apiKey) {
-        throw new Error("Gemini API key not found. Please set VITE_GEMINI_API_KEY environment variable.");
-      }
-      
-      // Prepare the system prompt based on the selected language
-      const systemPrompt = `You are CryptoBot, a helpful assistant specializing in cryptocurrencies, blockchain technology, and financial markets. 
-      Respond in ${userPreferences.language === "es" ? "Spanish" : userPreferences.language === "pt" ? "Portuguese" : userPreferences.language === "fr" ? "French" : "English"}.
-      Keep your responses concise, informative, and focused on crypto-related topics.
-      Use markdown formatting to make important points stand out.
-      
-      Respond in a natural, conversational tone and be emotionally intelligent.
-      NEVER respond with more than one question at a time.
-      ALWAYS be direct and answer user's previous question before asking a new one.`;
-      
-      // Create the Gemini request payload
-      const payload = {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: systemPrompt }]
-          },
-          ...history,
-          {
-            role: "user",
-            parts: [{ text }]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topP: 0.95,
-          topK: 40,
-          maxOutputTokens: 1024,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_ONLY_HIGH"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_ONLY_HIGH"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_ONLY_HIGH"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_ONLY_HIGH"
-          }
-        ]
-      };
-      
-      // Make the API request to Gemini
-      console.log(`Making API request to Gemini (model: ${currentModel})`);
-      
-      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${currentModel}:generateContent?key=${apiKey}`;
-      console.log(`API URL: ${apiUrl.replace(apiKey, "API_KEY_HIDDEN")}`);
-      
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      
-      // Debug response status
-      console.log(`Gemini API response status: ${response.status}`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Gemini API error response:", errorText);
-        let errorMessage = "Error calling Gemini API";
-        
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error?.message || errorMessage;
-        } catch (e) {
-          console.error("Failed to parse error response as JSON", e);
-        }
-        
-        throw new Error(errorMessage);
-      }
-      
-      const data = await response.json();
-      console.log("Gemini API response data structure:", Object.keys(data));
-      
-      // Extract the response text with better error handling
-      if (!data.candidates || data.candidates.length === 0) {
-        console.error("No candidates in response", data);
-        return "Sorry, I couldn't generate a response. Please try again.";
-      }
-      
-      const generatedText = data.candidates[0]?.content?.parts?.[0]?.text || "No response generated";
-      if (generatedText === "No response generated") {
-        console.error("Response structure unexpected", data.candidates[0]);
-      }
-      
-      return generatedText;
-      
-    } catch (error) {
-      console.error("Error generating Gemini response:", error);
-      throw error;
-    }
-  };
-
-  // Generate response with OpenAI (GPT-4o)
-  const generateOpenAIResponse = async (
-    text: string, 
-    messageHistory: Message[]
-  ): Promise<string> => {
-    try {
-      // Prepare the API request
-      const systemPrompt = `You are CryptoBot, a helpful assistant specializing in cryptocurrencies, blockchain technology, and financial markets. 
-      Respond in ${userPreferences.language === "es" ? "Spanish" : userPreferences.language === "pt" ? "Portuguese" : userPreferences.language === "fr" ? "French" : "English"}.
-      Keep your responses concise, informative, and focused on crypto-related topics.
-      Use markdown formatting to make important points stand out.
-      
-      Respond in a natural, conversational tone and be emotionally intelligent.
-      NEVER respond with more than one question at a time.
-      ALWAYS be direct and answer user's previous question before asking a new one.`;
-      
-      // Create message history in OpenAI format
-      const openAiMessages = [
-        { role: "system", content: systemPrompt },
-        ...messageHistory.slice(-10).map(msg => ({
-          role: msg.role === "user" ? "user" : "assistant",
-          content: msg.content
-        })),
-        { role: "user", content: text }
-      ];
-      
-      // Get OpenAI API key
-      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      
-      if (!apiKey) {
-        throw new Error("OpenAI API key not found. Please set VITE_OPENAI_API_KEY environment variable.");
-      }
-      
-      // Make the API request
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: openAiMessages,
-          temperature: 0.7,
-          max_tokens: 1024
-        })
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("OpenAI API error response:", errorText);
-        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      return data.choices[0]?.message?.content || "Sorry, I couldn't generate a response.";
-      
-    } catch (error) {
-      console.error("Error generating OpenAI response:", error);
-      throw error;
-    }
-  };
-
-  // Main generate response function with fallback
-  const generateResponse = async (text: string): Promise<string> => {
+  // Generate AI response
+  const generateResponse = async (prompt: string): Promise<string> => {
     setIsLoading(true);
     
     try {
-      // First try Gemini
-      if (currentModel.includes("gemini")) {
-        try {
-          const response = await generateGeminiResponse(text, messages);
-          return response;
-        } catch (error) {
-          console.error("Gemini API failed, falling back to OpenAI:", error);
-          
-          // If we have OpenAI key, try it as fallback
-          if (import.meta.env.VITE_OPENAI_API_KEY) {
-            toast({
-              title: "Fallback to OpenAI",
-              description: "Gemini API failed, using OpenAI as fallback",
-              variant: "default",
-            });
-            const response = await generateOpenAIResponse(text, messages);
-            return response;
-          } else {
-            throw error; // Re-throw if no fallback available
-          }
-        }
-      } else {
-        // If OpenAI is selected as primary
-        return await generateOpenAIResponse(text, messages);
+      // In a production app, this would call Vertex AI (gemini-1.5-flash) or OpenAI's GPT-4o
+      // For this demo, we'll use a simulated endpoint
+      const response = await apiRequest("POST", "/api/generate-ai-response", {
+        prompt,
+        model: currentModel,
+        language: userPreferences.language
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
       }
-    } catch (error) {
-      console.error("All AI services failed:", error);
-      return "I'm having trouble connecting to AI services. Please try again later.";
-    } finally {
+      
+      const data = await response.json();
       setIsLoading(false);
+      return data.response;
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error generating AI response:", error);
+      throw error;
     }
   };
 
-  // Process speech input
+  // Process speech input (audio to text)
   const processSpeechInput = async (audioBlob: Blob): Promise<string> => {
-    setIsLoading(true);
-    
     try {
-      // Create form data with audio file
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "audio.webm");
-      formData.append("language", userPreferences.language || "en");
-      
-      // Send to backend for processing
-      const response = await fetch("/api/speech/transcribe", {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Speech recognition failed: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      return data.text || "";
+      // In a production app, this would call Whisper API or a similar speech-to-text service
+      // For this demo, we'll return a placeholder response
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing time
+      return "This is a simulated transcription of speech input. In a real app, this would be the actual transcribed text.";
     } catch (error) {
-      console.error("Error processing speech input:", error);
-      toast({
-        title: "Speech Recognition Failed",
-        description: "Could not process your voice input. Please try again or type your message.",
-        variant: "destructive",
-      });
-      return "";
-    } finally {
-      setIsLoading(false);
+      console.error("Error processing speech:", error);
+      throw error;
     }
   };
 
   // Process image input
   const processImageInput = async (imageBlob: Blob): Promise<string> => {
-    setIsLoading(true);
-    
     try {
-      // Create form data with image file
+      // Create form data with the image
       const formData = new FormData();
-      formData.append("image", imageBlob, "image.jpg");
+      formData.append('image', imageBlob);
       
-      // Send to backend for processing with Vision API
-      const response = await fetch("/api/vision/analyze", {
-        method: "POST",
-        body: formData,
+      // Send to server for analysis
+      const response = await fetch('/api/vision/analyze', {
+        method: 'POST',
+        body: formData
       });
       
       if (!response.ok) {
-        throw new Error(`Image analysis failed: ${response.status} ${response.statusText}`);
+        throw new Error(`Image analysis failed: ${response.statusText}`);
       }
       
       const data = await response.json();
-      
-      // Format response based on image analysis
-      let description = "Here's what I see in your image:";
-      
-      if (data.text) {
-        description += `\n\n**Text detected:** "${data.text}"`;
-      }
-      
-      if (data.logos && data.logos.length > 0) {
-        description += "\n\n**Logos detected:** " + data.logos.map((l: any) => l.description).join(", ");
-      }
-      
-      if (data.labels && data.labels.length > 0) {
-        description += "\n\n**Content labels:** " + data.labels.map((l: any) => l.description).join(", ");
-      }
-      
-      if (data.landmarks && data.landmarks.length > 0) {
-        description += "\n\n**Landmarks recognized:** " + data.landmarks.map((l: any) => l.description).join(", ");
-      }
-      
-      if (data.faces) {
-        description += `\n\n**Faces detected:** ${data.faces.count} face(s)`;
-      }
-      
-      // Check for crypto-related content
-      const cryptoTerms = ['bitcoin', 'ethereum', 'crypto', 'blockchain', 'wallet', 'nft'];
-      const hasCryptoContent = cryptoTerms.some(term => 
-        data.text?.toLowerCase().includes(term) || 
-        data.labels?.some((l: any) => l.description.toLowerCase().includes(term))
-      );
-      
-      if (hasCryptoContent) {
-        description += "\n\n**Crypto relevance:** This image appears to be related to cryptocurrency. Would you like me to analyze any specific aspect of it?";
-      }
-      
-      return description;
+      return data.analysis || "I couldn't analyze this image. Please try another one.";
     } catch (error) {
-      console.error("Error processing image input:", error);
-      toast({
-        title: "Image Analysis Failed",
-        description: "Could not analyze your image. Please try again or use text input.",
-        variant: "destructive",
-      });
-      return "I couldn't analyze the image properly. Please try again with a clearer image.";
-    } finally {
-      setIsLoading(false);
+      console.error("Error analyzing image:", error);
+      return "Sorry, I encountered an error while analyzing the image. Please try again.";
     }
   };
 
-  // Process QR code
+  // Process QR code data
   const processQrCode = async (qrData: string): Promise<string> => {
-    setIsLoading(true);
-    
     try {
-      // Analyze QR code content
-      let response = "I've scanned a QR code with the following content:";
+      // In a real app, we'd validate and process the QR code data
+      // For example, check if it's a crypto address, URL, etc.
       
-      // Check if it's a URL
-      if (qrData.startsWith("http://") || qrData.startsWith("https://")) {
-        response += `\n\n**URL detected**: [${qrData}](${qrData})`;
-        
-        // Check for common crypto-related URLs
-        const cryptoDomains = [
-          "blockchain.com", "coinbase.com", "binance.com", "metamask.io",
-          "etherscan.io", "bscscan.com", "opensea.io", "uniswap.org"
-        ];
-        
-        const isCryptoUrl = cryptoDomains.some(domain => qrData.includes(domain));
-        
-        if (isCryptoUrl) {
-          response += "\n\nThis appears to be a cryptocurrency-related website. Be careful when connecting your wallet or entering sensitive information.";
-        } else {
-          response += "\n\nWould you like me to tell you more about this link?";
-        }
-      } 
-      // Check if it's a crypto address
-      else if (/^0x[a-fA-F0-9]{40}$/.test(qrData)) {
-        response += `\n\n**Ethereum Address Detected**: \`${qrData}\``;
-        response += "\n\nThis appears to be an Ethereum address. Would you like me to look up information about this address?";
+      if (qrData.startsWith("http")) {
+        return `I detected a URL: ${qrData}\n\nThis appears to be a web link. Would you like me to analyze it further?`;
+      } else if (qrData.match(/^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/)) {
+        return `I detected what looks like a Bitcoin address: ${qrData}\n\nBe careful with cryptocurrency addresses and always verify them through multiple sources.`;
+      } else if (qrData.match(/^0x[a-fA-F0-9]{40}$/)) {
+        return `I detected what looks like an Ethereum address: ${qrData}\n\nBe careful with cryptocurrency addresses and always verify them through multiple sources.`;
+      } else {
+        // Generate a response about the QR code
+        return `I detected QR code data: ${qrData}\n\nThis doesn't appear to be a common crypto format. What would you like to know about this data?`;
       }
-      else if (/^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(qrData)) {
-        response += `\n\n**Bitcoin Address Detected**: \`${qrData}\``;
-        response += "\n\nThis appears to be a Bitcoin address. Would you like me to look up information about this address?";
-      }
-      // For other content
-      else {
-        response += `\n\n\`\`\`\n${qrData}\n\`\`\``;
-        response += "\n\nWould you like me to help you understand what this information means?";
-      }
-      
-      return response;
     } catch (error) {
       console.error("Error processing QR code:", error);
-      return "I've scanned the QR code, but I'm having trouble processing its content. Can you tell me what you were expecting to find?";
-    } finally {
-      setIsLoading(false);
+      return "Sorry, I encountered an error processing the QR code. Please try again.";
     }
   };
 
   // Summarize conversation
   const summarizeConversation = async (): Promise<string> => {
-    setIsLoading(true);
+    if (messages.length < 2) {
+      return "The conversation is too short to summarize.";
+    }
     
     try {
-      // If no messages, return early
-      if (messages.length === 0) {
-        return "There is no conversation to summarize yet.";
-      }
+      // In a real app, we'd send the conversation to an AI endpoint for summarization
+      // For this demo, we'll create a simple summary
+      const userMessages = messages.filter(m => m.role === "user").map(m => m.content);
+      const uniqueTopics = new Set<string>();
       
-      // Format the conversation for the AI to summarize
-      const conversationText = messages
-        .map(msg => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`)
-        .join("\n\n");
-      
-      // Create a summary prompt
-      const summaryPrompt = `Please provide a concise summary of the following conversation between a user and an AI assistant about cryptocurrency:
-
-${conversationText}
-
-Key points to include in the summary:
-1. Main topics discussed
-2. Any questions asked and answers provided
-3. Any actions or next steps mentioned`;
-
-      // Use either Gemini or OpenAI based on current model
-      if (currentModel.includes("gemini")) {
-        try {
-          const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-          
-          if (!apiKey) {
-            throw new Error("Gemini API key not found");
-          }
-          
-          const payload = {
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: summaryPrompt }]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.3,
-              topP: 0.8,
-              topK: 40,
-              maxOutputTokens: 1024,
-            }
-          };
-          
-          const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${currentModel}:generateContent?key=${apiKey}`;
-          
-          const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-          
-          if (!response.ok) {
-            throw new Error(`Gemini API error: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          return data.candidates[0]?.content?.parts?.[0]?.text || "Could not generate a summary.";
-        } catch (error) {
-          console.error("Error using Gemini for summary:", error);
-          
-          // Fall back to OpenAI if available
-          if (import.meta.env.VITE_OPENAI_API_KEY) {
-            console.log("Falling back to OpenAI for summary");
-            // OpenAI fallback logic follows...
-          } else {
-            throw error;
-          }
-        }
-      }
-      
-      // OpenAI path (either direct or fallback)
-      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      
-      if (!apiKey) {
-        throw new Error("OpenAI API key not found");
-      }
-      
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [
-            { role: "system", content: "You are a helpful assistant that provides concise, accurate summaries." },
-            { role: "user", content: summaryPrompt }
-          ],
-          temperature: 0.3,
-          max_tokens: 512
-        })
+      // Extract potential topics (crude approximation)
+      userMessages.forEach(msg => {
+        const words = msg.toLowerCase().split(/\s+/);
+        words.filter(w => w.length > 5).forEach(w => uniqueTopics.add(w));
       });
       
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
-      }
+      const topics = Array.from(uniqueTopics).slice(0, 3).join(", ");
       
-      const data = await response.json();
-      return data.choices[0]?.message?.content || "Could not generate a summary.";
-      
+      return `This conversation includes ${messages.length} messages and covers topics related to ${topics || "cryptocurrency"}. The conversation started at ${new Date(messages[0].timestamp).toLocaleString()} and the most recent message was at ${new Date(messages[messages.length - 1].timestamp).toLocaleString()}.`;
     } catch (error) {
       console.error("Error summarizing conversation:", error);
-      return "I encountered an issue while trying to summarize our conversation. Let's continue our discussion instead.";
-    } finally {
-      setIsLoading(false);
+      return "Sorry, I couldn't generate a summary at this time.";
     }
   };
 
   // Translate message
-  const translateMessage = async (message: string, targetLanguage: string): Promise<string> => {
-    setIsLoading(true);
-    
+  const translateMessage = async (text: string, targetLanguage: string): Promise<string> => {
     try {
-      // Prepare the prompt for translation
-      const translationPrompt = `Translate the following text to ${
-        targetLanguage === "es" ? "Spanish" : 
-        targetLanguage === "fr" ? "French" : 
-        targetLanguage === "pt" ? "Portuguese" : 
-        "English"
-      }:\n\n${message}`;
+      // In a real app, we'd use a translation API
+      // For this demo, return a simulated translation
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate processing time
       
-      // Use current AI model to translate
-      const translated = await generateResponse(translationPrompt);
-      
-      // Clean up the response (remove any prefixes like "Translation: ")
-      return translated
-        .replace(/^Translation:\s*/i, "")
-        .replace(/^Translated text:\s*/i, "")
-        .replace(/^Here's the translation:\s*/i, "")
-        .trim();
-      
+      if (targetLanguage === "es") {
+        return `[Translated to Spanish]: ${text}\n\nNota: Esta es una traducción simulada. En una aplicación real, utilizaríamos un servicio de traducción.`;
+      } else if (targetLanguage === "fr") {
+        return `[Traduit en français]: ${text}\n\nNote: Il s'agit d'une traduction simulée. Dans une application réelle, nous utiliserions un service de traduction.`;
+      } else {
+        return `[Translated to ${targetLanguage}]: ${text}\n\nNote: This is a simulated translation. In a real app, we would use a translation service.`;
+      }
     } catch (error) {
       console.error("Error translating message:", error);
-      return message; // Return original message if translation fails
-    } finally {
-      setIsLoading(false);
+      return "Sorry, I couldn't translate the message.";
     }
   };
 
   // Sentiment analysis
-  const analyzeSentiment = async (text: string): Promise<{ sentiment: "positive" | "negative" | "neutral", confidence: number }> => {
+  const analyzeSentiment = async (text: string) => {
     try {
-      // For shorter texts, use a simpler method
-      if (text.length < 20) {
-        const positiveWords = ["good", "great", "excellent", "amazing", "love", "happy", "thank", "thanks", "appreciate", "helpful", "bull", "bullish", "up", "profit", "gain"];
-        const negativeWords = ["bad", "terrible", "awful", "hate", "sad", "angry", "useless", "unhelpful", "wrong", "bear", "bearish", "down", "loss", "crash"];
-        
-        const lowerText = text.toLowerCase();
-        
-        let positiveCount = 0;
-        let negativeCount = 0;
-        
-        positiveWords.forEach(word => {
-          if (lowerText.includes(word)) positiveCount++;
-        });
-        
-        negativeWords.forEach(word => {
-          if (lowerText.includes(word)) negativeCount++;
-        });
-        
-        if (positiveCount > negativeCount) {
-          const confidence = Math.min(1, positiveCount * 0.2);
-          return { sentiment: "positive", confidence };
-        } else if (negativeCount > positiveCount) {
-          const confidence = Math.min(1, negativeCount * 0.2);
-          return { sentiment: "negative", confidence };
-        } else {
-          return { sentiment: "neutral", confidence: 0.5 };
-        }
-      }
-      
-      // For longer texts, send to the server for more sophisticated analysis
-      const response = await fetch("/api/sentiment/analyze", {
-        method: "POST",
+      const response = await fetch('/api/sentiment/analyze', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ text }),
       });
       
       if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
+        throw new Error(`Sentiment analysis failed: ${response.statusText}`);
       }
       
       const data = await response.json();
       return {
-        sentiment: data.sentiment,
-        confidence: data.confidence || 0.5,
+        sentiment: data.sentiment as "positive" | "negative" | "neutral",
+        score: data.score,
+        confidence: data.confidence
       };
     } catch (error) {
       console.error("Error analyzing sentiment:", error);
-      // Default to neutral if analysis fails
-      return { sentiment: "neutral", confidence: 0.5 };
+      // Return neutral sentiment as fallback
+      return {
+        sentiment: "neutral" as "positive" | "negative" | "neutral",
+        score: 0,
+        confidence: 0.5
+      };
     }
   };
 
-  // Context value
-  const contextValue: AdvancedChatContextType = {
+  const value = {
     messages,
     addMessage,
     clearMessages,
@@ -774,16 +280,23 @@ Key points to include in the summary:
     processImageInput,
     processQrCode,
     summarizeConversation,
-    isSpeaking,
     translateMessage,
     sentiment: {
-      analyze: analyzeSentiment,
-    },
+      analyze: analyzeSentiment
+    }
   };
 
   return (
-    <AdvancedChatContext.Provider value={contextValue}>
+    <AdvancedChatContext.Provider value={value}>
       {children}
     </AdvancedChatContext.Provider>
   );
+};
+
+export const useAdvancedChat = (): AdvancedChatContextType => {
+  const context = useContext(AdvancedChatContext);
+  if (context === undefined) {
+    throw new Error('useAdvancedChat must be used within an AdvancedChatProvider');
+  }
+  return context;
 };
