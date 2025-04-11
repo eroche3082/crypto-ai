@@ -36,6 +36,7 @@ const Sidebar = () => {
     { path: "/watchlist", icon: <ShieldAlert size={20} />, label: t("watchlist.title", "Risk Watchlist") },
     { path: "/investment-advisor", icon: <Sparkles size={20} />, label: t("investmentAdvisor.title", "Investment Advisor") },
     { path: "/twitter-sentiment", icon: <MessageCircle size={20} />, label: t("twitterSentiment.title", "Twitter Analysis") },
+    { path: "/tax-simulator", icon: <Calculator size={20} />, label: t("taxSimulator.title", "Tax Simulator") },
     { path: "/news", icon: <Newspaper size={20} />, label: t("news.title", "News") },
     { path: "/alerts", icon: <Bell size={20} />, label: t("alerts.title", "Alerts") },
     { path: "/converter", icon: <ArrowLeftRight size={20} />, label: t("converter.title", "Converter") },
