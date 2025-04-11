@@ -66,35 +66,31 @@ export async function generateVertexAIResponse(req: Request, res: Response) {
     // Extract the response text safely
     let responseText = "No response generated";
     
-    try {
-      // Attempt various ways to extract the text based on the API version
-      if (typeof result.response.text === 'function') {
-        // If text() is a function, call it
-        responseText = result.response.text();
-      } else if (result.response.candidates && result.response.candidates.length > 0) {
-        // Try to get text from candidates array
-        if (result.response.candidates[0].content?.parts?.[0]?.text) {
-          responseText = result.response.candidates[0].content.parts[0].text;
-        }
-      } else {
-        // Last resort - try to convert the entire response to a string
-        console.log("Attempting to stringify the entire response");
-        const stringifiedResponse = JSON.stringify(result.response);
-        if (stringifiedResponse && stringifiedResponse.length > 0) {
-          responseText = `Raw response: ${stringifiedResponse.substring(0, 500)}...`;
+    // Access the response content through the appropriate structure
+    // Note: The structure of the response might vary depending on the API version
+    if (result.response && result.response.candidates && result.response.candidates.length > 0) {
+      const candidate = result.response.candidates[0];
+      if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+        const part = candidate.content.parts[0];
+        if (part.text) {
+          responseText = part.text;
         }
       }
-    } catch (e) {
-      console.error("Error extracting text from response:", e);
     }
     
-    console.log("VertexAI generated response:", responseText.substring(0, 100) + "...");
+    // If we still don't have a response, try to log the structure for debugging
+    if (responseText === "No response generated") {
+      console.log("Could not extract text from response. Response structure:", 
+                  JSON.stringify(result.response).substring(0, 500));
+    } else {
+      console.log("VertexAI generated response:", responseText.substring(0, 100) + "...");
+    }
     
     // Return response to client
     res.json({ 
       response: responseText,
       model: modelName,
-      language
+      language: language
     });
   } catch (error) {
     console.error('Vertex AI error:', error);
