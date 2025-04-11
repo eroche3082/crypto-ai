@@ -285,9 +285,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { vs_currency, ids, category, order, per_page, page, sparkline, price_change_percentage } = req.query;
       
-      // Construct the URL with query parameters - use Pro API endpoint for the paid tier
+      // Use free API for now since the Pro API seems to have authentication issues
       const apiKey = process.env.VITE_COINGECKO_API_KEY;
-      const baseUrl = apiKey ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
+      const baseUrl = "https://api.coingecko.com/api/v3";
       const url = new URL(`${baseUrl}/coins/markets`);
       
       // Add common query parameters
@@ -392,9 +392,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = req.params.id;
       const queryParams = new URLSearchParams(req.query as any);
       
-      // Construct the URL with query parameters - use Pro API endpoint for paid tier
+      // Use free API for now since the Pro API seems to have authentication issues
       const apiKey = process.env.VITE_COINGECKO_API_KEY;
-      const baseUrl = apiKey ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
+      const baseUrl = "https://api.coingecko.com/api/v3";
       const url = `${baseUrl}/coins/${id}?${queryParams.toString()}`;
       
       // Configure headers with API key
@@ -514,154 +514,201 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // News API proxy
+  // News API proxy with live data
   app.get("/api/crypto/news", async (req, res) => {
     try {
       const { category } = req.query;
+      const apiKey = process.env.NEWS_API_KEY;
       
-      // Mock news data for demonstration
-      const mockNews = [
-        {
-          id: "1",
-          title: "Bitcoin Breaks $60,000 Barrier After ETF Approval",
-          summary: "Bitcoin has surged past $60,000 following the SEC's approval of spot Bitcoin ETFs, marking a significant milestone for cryptocurrency adoption.",
-          url: "#",
-          source: "CryptoNews",
-          publishedAt: new Date().toISOString(),
-          categories: ["bitcoin", "market", "regulation"],
-        },
-        {
-          id: "2",
-          title: "Ethereum Completes Major Network Upgrade",
-          summary: "Ethereum has successfully implemented its latest network upgrade, improving scalability and reducing gas fees for transactions.",
-          url: "#",
-          source: "BlockchainInsider",
-          publishedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-          categories: ["ethereum", "technology", "upgrade"],
-        },
-        {
-          id: "3",
-          title: "DeFi Protocol Launches New Governance Token",
-          summary: "A leading DeFi protocol has launched a new governance token, giving users more control over the future development of the platform.",
-          url: "#",
-          source: "DeFiDaily",
-          publishedAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-          categories: ["defi", "tokens", "governance"],
-        },
-        {
-          id: "4",
-          title: "NFT Market Shows Signs of Recovery After Slump",
-          summary: "The NFT market is showing signs of recovery with increasing trading volumes after months of declining activity and prices.",
-          url: "#",
-          source: "NFTWorld",
-          publishedAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
-          categories: ["nft", "market", "trends"],
-        },
-        {
-          id: "5",
-          title: "Central Banks Accelerate CBDC Development",
-          summary: "Several central banks worldwide are accelerating their central bank digital currency (CBDC) development efforts in response to the growing popularity of cryptocurrencies.",
-          url: "#",
-          source: "GlobalCryptoNews",
-          publishedAt: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
-          categories: ["cbdc", "regulation", "government"],
-        },
-      ];
+      if (!apiKey) {
+        throw new Error("NEWS_API_KEY is required. Please provide a NewsAPI.org API key.");
+      }
       
+      // Determine search query based on category
+      let q = "cryptocurrency OR bitcoin OR blockchain";
       if (category && category !== "all") {
-        const filteredNews = mockNews.filter(item => 
+        q = `${category}`;
+      }
+      
+      // Build URL with query parameters
+      const url = new URL("https://newsapi.org/v2/everything");
+      url.searchParams.append("q", q);
+      url.searchParams.append("language", "en");
+      url.searchParams.append("sortBy", "publishedAt");
+      url.searchParams.append("pageSize", "20");
+      
+      console.log(`Fetching news from NewsAPI: ${url.toString()}`);
+      
+      // Make request to News API
+      const response = await fetch(url.toString(), {
+        headers: {
+          "X-Api-Key": apiKey,
+        },
+      });
+      
+      if (!response.ok) {
+        console.error(`NewsAPI error: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to fetch news: ${response.statusText}`);
+      }
+      
+      const newsData = await response.json();
+      
+      if (newsData.status !== "ok") {
+        console.error("NewsAPI returned an error:", newsData);
+        throw new Error(newsData.message || "Unknown error from NewsAPI");
+      }
+      
+      // Transform the response to match our API format
+      const formattedNews = newsData.articles.map((article: any, index: number) => {
+        // Generate categories based on content
+        const title = article.title?.toLowerCase() || "";
+        const description = article.description?.toLowerCase() || "";
+        
+        const categories = [];
+        
+        if (title.includes("bitcoin") || description.includes("bitcoin")) categories.push("bitcoin");
+        if (title.includes("ethereum") || description.includes("ethereum")) categories.push("ethereum");
+        if (title.includes("defi") || description.includes("defi")) categories.push("defi");
+        if (title.includes("nft") || description.includes("nft")) categories.push("nft");
+        if (title.includes("regulation") || description.includes("regulation")) categories.push("regulation");
+        if (title.includes("exchange") || description.includes("exchange")) categories.push("exchange");
+        if (title.includes("mining") || description.includes("mining")) categories.push("mining");
+        if (title.includes("wallet") || description.includes("wallet")) categories.push("wallet");
+        
+        // Default category if none matched
+        if (categories.length === 0) categories.push("market");
+        
+        return {
+          id: String(index + 1),
+          title: article.title || "No Title Available",
+          summary: article.description || article.content || "No description available",
+          url: article.url || "#",
+          imageUrl: article.urlToImage,
+          source: article.source?.name || "Unknown Source",
+          publishedAt: article.publishedAt || new Date().toISOString(),
+          categories: categories,
+        };
+      });
+      
+      // Filter by category if needed
+      if (category && category !== "all") {
+        const filteredNews = formattedNews.filter((item: any) => 
           item.categories.includes(category as string)
         );
         return res.json(filteredNews);
       }
       
-      res.json(mockNews);
+      res.json(formattedNews);
     } catch (error) {
-      res.status(400).json({ error: (error as Error).message });
+      console.error("Error in /api/crypto/news:", error);
+      res.status(500).json({ error: (error as Error).message });
     }
   });
   
-  // Generic news endpoint
+  // Generic news endpoint using NewsAPI
   app.get("/api/news", async (req, res) => {
     try {
-      const mockNews = [
-        {
-          id: "1",
-          title: "Bitcoin Price Surges Past $80,000 as Institutional Adoption Continues",
-          summary: "Bitcoin has reached a new all-time high as major financial institutions announce further investments in the cryptocurrency market. Analysts predict continued growth in 2025.",
-          url: "https://example.com/news/bitcoin-surge",
-          source: "CryptoNews",
-          publishedAt: new Date().toISOString(),
-          categories: ["Bitcoin", "Markets"],
-        },
-        {
-          id: "2",
-          title: "Ethereum Completes Significant Protocol Upgrade",
-          summary: "Ethereum has successfully implemented its latest network upgrade, improving scalability and reducing transaction fees by up to 80% for users.",
-          url: "https://example.com/news/ethereum-upgrade",
-          source: "ETH Daily",
-          publishedAt: new Date(Date.now() - 86400000).toISOString(),
-          categories: ["Ethereum", "Technology"],
-        },
-        {
-          id: "3",
-          title: "New DeFi Protocol Launches with $200M Total Value Locked",
-          summary: "A revolutionary decentralized finance platform has attracted massive liquidity within just 24 hours of launch, signaling strong market demand for innovative DeFi solutions.",
-          url: "https://example.com/news/defi-launch",
-          source: "DeFi Daily",
-          publishedAt: new Date(Date.now() - 172800000).toISOString(),
-          categories: ["DeFi", "Ethereum"],
-        },
-        {
-          id: "4",
-          title: "SEC Approves New Cryptocurrency Regulations Framework",
-          summary: "The Securities and Exchange Commission has announced a comprehensive regulatory framework for digital assets, providing clearer guidelines for cryptocurrency companies.",
-          url: "https://example.com/news/sec-regulations",
-          source: "Regulation Today",
-          publishedAt: new Date(Date.now() - 259200000).toISOString(),
-          categories: ["Regulation", "Government"],
-        },
-        {
-          id: "5",
-          title: "Major Bank Launches Institutional Crypto Custody Service",
-          summary: "One of the world's largest banks has announced a new cryptocurrency custody service aimed at institutional investors, further legitimizing digital assets.",
-          url: "https://example.com/news/bank-custody",
-          source: "Banking News",
-          publishedAt: new Date(Date.now() - 345600000).toISOString(),
-          categories: ["Banking", "Custody", "Institutional"],
-        },
-        {
-          id: "6",
-          title: "NFT Market Shows Signs of Recovery with Record-Breaking Sale",
-          summary: "The NFT market is showing strong signs of recovery after a notable digital artwork sold for $12.3 million, setting a new record for 2025.",
-          url: "https://example.com/news/nft-recovery",
-          source: "NFT Insider",
-          publishedAt: new Date(Date.now() - 432000000).toISOString(),
-          categories: ["NFT", "Art", "Markets"],
-        },
-        {
-          id: "7",
-          title: "Blockchain Technology Adoption Soars in Supply Chain Management",
-          summary: "Major corporations are increasingly implementing blockchain solutions for supply chain management, with a 78% increase in adoption compared to last year.",
-          url: "https://example.com/news/blockchain-supply-chain",
-          source: "Blockchain Business",
-          publishedAt: new Date(Date.now() - 518400000).toISOString(),
-          categories: ["Blockchain", "Enterprise", "Supply Chain"],
-        },
-      ];
-      
       const { category, search } = req.query;
-      let filteredNews = [...mockNews];
+      const apiKey = process.env.NEWS_API_KEY;
       
-      if (category) {
-        filteredNews = filteredNews.filter(item => 
-          item.categories.some(cat => cat.toLowerCase() === (category as string).toLowerCase())
+      if (!apiKey) {
+        throw new Error("NEWS_API_KEY is required. Please provide a NewsAPI.org API key.");
+      }
+      
+      // Build search query
+      let q = "cryptocurrency OR bitcoin OR blockchain OR crypto";
+      
+      if (search) {
+        q = `${search}`;
+      }
+      
+      if (category && category !== "all") {
+        q = `${q} AND ${category}`;
+      }
+      
+      // Build URL with query parameters
+      const url = new URL("https://newsapi.org/v2/everything");
+      url.searchParams.append("q", q);
+      url.searchParams.append("language", "en");
+      url.searchParams.append("sortBy", "publishedAt");
+      url.searchParams.append("pageSize", "30");
+      
+      console.log(`Fetching general news from NewsAPI: ${url.toString()}`);
+      
+      // Make request to News API
+      const response = await fetch(url.toString(), {
+        headers: {
+          "X-Api-Key": apiKey,
+        },
+      });
+      
+      if (!response.ok) {
+        console.error(`NewsAPI error: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to fetch news: ${response.statusText}`);
+      }
+      
+      const newsData = await response.json();
+      
+      if (newsData.status !== "ok") {
+        console.error("NewsAPI returned an error:", newsData);
+        throw new Error(newsData.message || "Unknown error from NewsAPI");
+      }
+      
+      // Generate map of categories
+      const categoryKeywords = {
+        "Bitcoin": ["bitcoin", "btc"],
+        "Ethereum": ["ethereum", "eth"],
+        "DeFi": ["defi", "decentralized finance", "yield farming"],
+        "NFT": ["nft", "non-fungible"],
+        "Markets": ["markets", "price", "trading", "exchange"],
+        "Technology": ["technology", "protocol", "blockchain", "crypto"],
+        "Regulation": ["regulation", "sec", "law", "compliance", "legal"],
+        "Government": ["government", "policy", "central bank"],
+        "Banking": ["bank", "banking"],
+        "Enterprise": ["enterprise", "business", "corporate", "company"],
+        "Supply Chain": ["supply chain", "logistics", "tracking"],
+        "Mining": ["mining", "miner", "hash rate", "proof of work"],
+        "Security": ["security", "hack", "exploit", "vulnerability"],
+        "Adoption": ["adoption", "mainstream", "institutional"],
+      };
+      
+      // Transform the response to match our API format
+      const formattedNews = newsData.articles.map((article: any, index: number) => {
+        // Combine title and description for category matching
+        const text = (article.title + " " + (article.description || "")).toLowerCase();
+        
+        // Generate categories based on content
+        const categories = Object.entries(categoryKeywords)
+          .filter(([_, keywords]) => keywords.some(keyword => text.includes(keyword)))
+          .map(([category, _]) => category);
+        
+        // Default category if none matched
+        if (categories.length === 0) categories.push("Markets");
+        
+        return {
+          id: String(index + 1),
+          title: article.title || "No Title Available",
+          summary: article.description || article.content || "No description available",
+          url: article.url || "#",
+          imageUrl: article.urlToImage,
+          source: article.source?.name || "Unknown Source",
+          publishedAt: article.publishedAt || new Date().toISOString(),
+          categories: categories,
+        };
+      });
+      
+      // Additional filtering if needed beyond the API query
+      let filteredNews = formattedNews;
+      
+      if (category && category !== "all") {
+        filteredNews = filteredNews.filter((item: any) => 
+          item.categories.some((cat: string) => cat.toLowerCase() === (category as string).toLowerCase())
         );
       }
       
       if (search) {
         const searchTerm = (search as string).toLowerCase();
-        filteredNews = filteredNews.filter(item => 
+        filteredNews = filteredNews.filter((item: any) => 
           item.title.toLowerCase().includes(searchTerm) || 
           item.summary.toLowerCase().includes(searchTerm)
         );
@@ -669,7 +716,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(filteredNews);
     } catch (error) {
-      res.status(400).json({ error: (error as Error).message });
+      console.error("Error in /api/news:", error);
+      res.status(500).json({ error: (error as Error).message });
     }
   });
   
