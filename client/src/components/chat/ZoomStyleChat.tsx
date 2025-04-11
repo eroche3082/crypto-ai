@@ -244,17 +244,14 @@ const ZoomStyleChat: React.FC<ZoomStyleChatProps> = ({ initialOpen = false, defa
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
+        exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.3 }}
-        className={`fixed z-50 ${isFullscreen ? 'inset-0' : 'bottom-4 right-4 w-[400px]'}`}
+        className="w-full h-full flex flex-col"
       >
         <div 
-          className={`
-            bg-card text-card-foreground rounded-lg shadow-lg overflow-hidden flex flex-col
-            ${isFullscreen ? 'h-screen' : 'h-[600px]'}
-          `}
+          className="bg-card text-card-foreground rounded-lg overflow-hidden flex flex-col h-full w-full"
         >
           {/* Chat header */}
           <div className="p-4 border-b flex justify-between items-center">

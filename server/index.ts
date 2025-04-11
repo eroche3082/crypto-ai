@@ -2,9 +2,14 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 
 // Load environment variables from .env file
 dotenv.config();
+
+// Set Google Cloud credentials directly
+process.env.GOOGLE_APPLICATION_CREDENTIALS = path.resolve('./google-credentials-global.json');
+console.log('Setting GOOGLE_APPLICATION_CREDENTIALS to:', process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 const app = express();
 app.use(express.json());
