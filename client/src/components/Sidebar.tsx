@@ -18,7 +18,8 @@ import {
   MessageSquare,
   ShieldAlert,
   Briefcase,
-  Sparkles
+  Sparkles,
+  MessageCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +35,7 @@ const Sidebar = () => {
     { path: "/portfolio", icon: <BarChart3 size={20} />, label: t("portfolio.title", "Portfolio") },
     { path: "/watchlist", icon: <ShieldAlert size={20} />, label: t("watchlist.title", "Risk Watchlist") },
     { path: "/investment-advisor", icon: <Sparkles size={20} />, label: t("investmentAdvisor.title", "Investment Advisor") },
-    { path: "/twitter-sentiment", icon: <Twitter size={20} />, label: t("twitterSentiment.title", "Twitter Analysis") },
+    { path: "/twitter-sentiment", icon: <MessageCircle size={20} />, label: t("twitterSentiment.title", "Twitter Analysis") },
     { path: "/news", icon: <Newspaper size={20} />, label: t("news.title", "News") },
     { path: "/alerts", icon: <Bell size={20} />, label: t("alerts.title", "Alerts") },
     { path: "/converter", icon: <ArrowLeftRight size={20} />, label: t("converter.title", "Converter") },
