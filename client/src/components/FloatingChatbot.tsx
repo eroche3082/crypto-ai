@@ -1,13 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { useGemini } from "@/contexts/GeminiContext";
 // Using language directly from GeminiContext
-import { MessageSquare, X, Settings, Mic, Camera, Languages, QrCode, Smile, Sparkles, Send } from "lucide-react";
+import { 
+  MessageSquare, X, Settings, Mic, Camera, 
+  Languages, QrCode, Box, Sparkles, Send 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MessageInput from "@/components/MessageInput";
 import QuickPrompts from "@/components/QuickPrompts";
 import { SpeechButton } from "@/components/SpeechButton";
 import { useToast } from "@/hooks/use-toast";
+import AudioRecorder from "@/components/AudioRecorder";
+import CameraCapture from "@/components/CameraCapture";
+import QrScanner from "@/components/QrScanner";
+import ArViewer from "@/components/ArViewer";
 
 // Define message type
 interface Message {
@@ -22,6 +29,10 @@ export default function FloatingChatbot() {
   const [inputDisabled, setInputDisabled] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  // Tool states
+  const [activeToolType, setActiveToolType] = useState<'audio' | 'camera' | 'qr' | 'ar' | null>(null);
+  const [selectedCryptoSymbol, setSelectedCryptoSymbol] = useState("BTC");
 
   // Scroll to bottom of chat when new messages arrive
   useEffect(() => {
@@ -115,6 +126,102 @@ export default function FloatingChatbot() {
     };
     setMessages([welcomeMessage]);
   };
+  
+  // Audio recorder handlers
+  const handleOpenAudioRecorder = () => {
+    setActiveToolType('audio');
+  };
+  
+  const handleAudioCaptured = (audioBlob: Blob) => {
+    // In a real implementation, you would process the audio by sending to an API
+    // For now, we'll just add a message indicating audio was captured
+    const audioMessage: Message = { 
+      role: "user", 
+      content: "🎤 [Audio message submitted for analysis]" 
+    };
+    setMessages((prev) => [...prev, audioMessage]);
+    
+    // Close audio recorder
+    setActiveToolType(null);
+    
+    // Simulate AI response with delay
+    setInputDisabled(true);
+    setTimeout(() => {
+      const botMessage: Message = { 
+        role: "bot", 
+        content: "I've analyzed your audio message. It sounds like you're asking about recent market trends. Bitcoin has shown some volatility lately with a 5% fluctuation in the past 24 hours." 
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      setInputDisabled(false);
+    }, 2000);
+  };
+  
+  // Camera handlers
+  const handleOpenCamera = () => {
+    setActiveToolType('camera');
+  };
+  
+  const handleImageCaptured = (imageBlob: Blob, imageUrl: string) => {
+    // In a real implementation, you would process the image by sending to an API
+    // For now, we'll just add a message indicating image was captured
+    const imageMessage: Message = { 
+      role: "user", 
+      content: "📷 [Image captured for analysis]" 
+    };
+    setMessages((prev) => [...prev, imageMessage]);
+    
+    // Close camera
+    setActiveToolType(null);
+    
+    // Simulate AI response with delay
+    setInputDisabled(true);
+    setTimeout(() => {
+      const botMessage: Message = { 
+        role: "bot", 
+        content: "I've analyzed your image. It appears to be related to cryptocurrency trading. I can see several price charts showing an upward trend in what looks like Bitcoin's price movement." 
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      setInputDisabled(false);
+    }, 2000);
+  };
+  
+  // QR Scanner handlers
+  const handleOpenQrScanner = () => {
+    setActiveToolType('qr');
+  };
+  
+  const handleQrCodeScanned = (qrData: string) => {
+    // In a real implementation, you would process the QR data
+    // For now, we'll just add the QR data to the chat
+    const qrMessage: Message = { 
+      role: "user", 
+      content: `QR Code scanned: ${qrData}` 
+    };
+    setMessages((prev) => [...prev, qrMessage]);
+    
+    // Close QR scanner
+    setActiveToolType(null);
+    
+    // Simulate AI response with delay
+    setInputDisabled(true);
+    setTimeout(() => {
+      const botMessage: Message = { 
+        role: "bot", 
+        content: `I've analyzed the wallet address from your QR code (${qrData.substring(0, 10)}...). This appears to be a valid Ethereum address. Would you like me to check the balance or recent transactions for this address?` 
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      setInputDisabled(false);
+    }, 2000);
+  };
+  
+  // AR Viewer handlers
+  const handleOpenArViewer = () => {
+    setActiveToolType('ar');
+  };
+  
+  const handleCancelTool = () => {
+    setActiveToolType(null);
+  };
 
   return (
     <>
@@ -126,8 +233,33 @@ export default function FloatingChatbot() {
         <MessageSquare className="w-6 h-6" />
       </button>
 
+      {/* Active tool overlay */}
+      {isChatOpen && activeToolType === 'audio' && (
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+          <AudioRecorder onAudioCaptured={handleAudioCaptured} onCancel={handleCancelTool} />
+        </div>
+      )}
+      
+      {isChatOpen && activeToolType === 'camera' && (
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+          <CameraCapture onImageCaptured={handleImageCaptured} onCancel={handleCancelTool} />
+        </div>
+      )}
+      
+      {isChatOpen && activeToolType === 'qr' && (
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+          <QrScanner onQrCodeScanned={handleQrCodeScanned} onCancel={handleCancelTool} />
+        </div>
+      )}
+      
+      {isChatOpen && activeToolType === 'ar' && (
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+          <ArViewer cryptoSymbol={selectedCryptoSymbol} onCancel={handleCancelTool} />
+        </div>
+      )}
+      
       {/* Chat overlay */}
-      {isChatOpen && (
+      {isChatOpen && !activeToolType && (
         <div className="fixed inset-0 z-50 bg-background flex flex-col">
           {/* Chat header */}
           <div className="border-b py-4 px-6 flex items-center justify-between">
@@ -299,20 +431,40 @@ export default function FloatingChatbot() {
 
                 <TabsContent value="tools" className="p-4 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" size="sm" className="flex flex-col h-auto py-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex flex-col h-auto py-3"
+                      onClick={handleOpenAudioRecorder}
+                    >
                       <Mic className="h-5 w-5 mb-1" />
                       <span className="text-xs">Audio</span>
                     </Button>
-                    <Button variant="outline" size="sm" className="flex flex-col h-auto py-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex flex-col h-auto py-3"
+                      onClick={handleOpenCamera}
+                    >
                       <Camera className="h-5 w-5 mb-1" />
                       <span className="text-xs">Camera</span>
                     </Button>
-                    <Button variant="outline" size="sm" className="flex flex-col h-auto py-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex flex-col h-auto py-3"
+                      onClick={handleOpenQrScanner}
+                    >
                       <QrCode className="h-5 w-5 mb-1" />
                       <span className="text-xs">QR</span>
                     </Button>
-                    <Button variant="outline" size="sm" className="flex flex-col h-auto py-3">
-                      <Smile className="h-5 w-5 mb-1" />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex flex-col h-auto py-3"
+                      onClick={handleOpenArViewer}
+                    >
+                      <Box className="h-5 w-5 mb-1" />
                       <span className="text-xs">AR</span>
                     </Button>
                   </div>
