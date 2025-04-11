@@ -1,13 +1,14 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Mic, Send } from "lucide-react";
+import { Mic, Send, Camera, QrCode, Box } from "lucide-react";
 
 interface MessageInputProps {
   onSendMessage: (text: string) => void;
   disabled?: boolean;
+  onToolClick?: (toolType: 'audio' | 'camera' | 'qr' | 'ar') => void;
 }
 
-const MessageInput = ({ onSendMessage, disabled = false }: MessageInputProps) => {
+const MessageInput = ({ onSendMessage, disabled = false, onToolClick }: MessageInputProps) => {
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -60,6 +61,48 @@ const MessageInput = ({ onSendMessage, disabled = false }: MessageInputProps) =>
   
   return (
     <div className="p-2">
+      {/* Tool buttons above input */}
+      {onToolClick && (
+        <div className="flex items-center justify-start mb-2 space-x-1">
+          <button
+            className="text-muted-foreground p-1.5 rounded-full hover:bg-accent hover:text-accent-foreground"
+            onClick={() => onToolClick('camera')}
+            disabled={disabled}
+            title={t("messageInput.camera", "Camera")}
+          >
+            <Camera size={16} />
+          </button>
+          
+          <button
+            className="text-muted-foreground p-1.5 rounded-full hover:bg-accent hover:text-accent-foreground"
+            onClick={() => onToolClick('audio')}
+            disabled={disabled}
+            title={t("messageInput.audioRecorder", "Audio recorder")}
+          >
+            <Mic size={16} />
+          </button>
+          
+          <button
+            className="text-muted-foreground p-1.5 rounded-full hover:bg-accent hover:text-accent-foreground"
+            onClick={() => onToolClick('qr')}
+            disabled={disabled}
+            title={t("messageInput.qrScanner", "QR code scanner")}
+          >
+            <QrCode size={16} />
+          </button>
+          
+          <button
+            className="text-muted-foreground p-1.5 rounded-full hover:bg-accent hover:text-accent-foreground"
+            onClick={() => onToolClick('ar')}
+            disabled={disabled}
+            title={t("messageInput.arViewer", "AR viewer")}
+          >
+            <Box size={16} />
+          </button>
+        </div>
+      )}
+      
+      {/* Text input */}
       <div className="relative flex items-center">
         <input
           ref={inputRef}

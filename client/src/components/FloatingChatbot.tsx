@@ -348,7 +348,11 @@ export default function FloatingChatbot() {
 
               {/* Input area */}
               <div className="p-4 border-t">
-                <MessageInput onSendMessage={handleSendMessage} disabled={inputDisabled || isLoading} />
+                <MessageInput 
+                  onSendMessage={handleSendMessage} 
+                  disabled={inputDisabled || isLoading} 
+                  onToolClick={(toolType) => setActiveToolType(toolType)}
+                />
               </div>
             </div>
 
