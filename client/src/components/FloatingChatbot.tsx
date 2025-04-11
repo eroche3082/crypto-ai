@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MessageInput from "@/components/MessageInput";
 import QuickPrompts from "@/components/QuickPrompts";
+import { SpeechButton } from "@/components/SpeechButton";
 import { useToast } from "@/hooks/use-toast";
 
 // Define message type
@@ -181,8 +182,13 @@ export default function FloatingChatbot() {
                       }`}
                     >
                       {message.role === 'bot' && (
-                        <div className="flex items-center mb-1 text-xs font-medium text-muted-foreground">
+                        <div className="flex items-center justify-between mb-1 text-xs font-medium text-muted-foreground">
                           <span className="mr-1">Gemini AI</span>
+                          <SpeechButton 
+                            text={message.content} 
+                            language={language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : language === 'fr' ? 'fr-FR' : 'pt-BR'} 
+                            compact 
+                          />
                         </div>
                       )}
                       <div className="whitespace-pre-line">{message.content}</div>
