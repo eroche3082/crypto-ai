@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useCrypto } from "@/contexts/CryptoContext";
 import CryptoCard from "@/components/CryptoCard";
-import { Star, RefreshCw } from "lucide-react";
+import TodoFavorites from "@/components/TodoFavorites";
+import { Star, RefreshCw, ListTodo } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
@@ -89,6 +90,12 @@ export default function Favorites() {
         </h1>
         
         <div className="flex items-center gap-2">
+          <TodoFavorites 
+            favorites={favorites}
+            onAddFavorite={(symbol) => toggleFavorite(symbol)}
+            onRemoveFavorite={(symbol) => toggleFavorite(symbol)}
+          />
+          
           <div className="flex bg-card rounded-lg p-1">
             {["24h", "7d", "14d", "30d"].map((filter) => (
               <Button
@@ -127,9 +134,16 @@ export default function Favorites() {
           <p className="text-muted-foreground mb-4">
             {t("favorites.empty.description", "Add cryptocurrencies to your favorites to track them easily")}
           </p>
-          <Button asChild>
-            <a href="/">{t("favorites.browse", "Browse Cryptocurrencies")}</a>
-          </Button>
+          <div className="flex justify-center gap-4">
+            <Button asChild>
+              <a href="/">{t("favorites.browse", "Browse Cryptocurrencies")}</a>
+            </Button>
+            <TodoFavorites 
+              favorites={favorites}
+              onAddFavorite={(symbol) => toggleFavorite(symbol)}
+              onRemoveFavorite={(symbol) => toggleFavorite(symbol)}
+            />
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

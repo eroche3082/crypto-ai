@@ -1,13 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import CryptoCard from "./CryptoCard";
+import TodoFavorites from "./TodoFavorites";
 import { useCryptoData } from "../hooks/useCryptoData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 const CryptoDashboard = () => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [timeFilter, setTimeFilter] = useState("24h");
+  const [favorites, setFavorites] = useState<string[]>([]);
   const { data, isLoading, error } = useCryptoData({ timeFilter });
+  
+  // Fetch favorites from the server
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const response = await fetch("/api/favorites");
+        if (response.ok) {
+          const data = await response.json();
+          setFavorites(data.map((item: any) => item.symbol.toLowerCase()));
+        }
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+      }
+    };
+
+    fetchFavorites();
+  }, []);
+  
+  // Toggle favorite status
+  const toggleFavorite = async (symbol: string) => {
+    try {
+      const method = favorites.includes(symbol.toLowerCase()) ? "DELETE" : "POST";
+      const response = await fetch(`/api/favorites/${symbol}`, { method });
+      
+      if (response.ok) {
+        if (method === "DELETE") {
+          setFavorites(favorites.filter(fav => fav !== symbol.toLowerCase()));
+          toast({
+            title: "Removed from favorites",
+            description: `${symbol.toUpperCase()} has been removed from your favorites`
+          });
+        } else {
+          setFavorites([...favorites, symbol.toLowerCase()]);
+          toast({
+            title: "Added to favorites",
+            description: `${symbol.toUpperCase()} has been added to your favorites`
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update favorites"
+      });
+    }
+  };
   
   if (isLoading) {
     return (
@@ -35,27 +87,40 @@ const CryptoDashboard = () => {
     <div className="p-4 flex flex-col gap-4 overflow-auto scrollbar-hide">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">{t("dashboard.title")}</h2>
-        <Select value={timeFilter} onValueChange={setTimeFilter}>
-          <SelectTrigger className="w-28">
-            <SelectValue placeholder={t("dashboard.timeFilter")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="24h">24h</SelectItem>
-            <SelectItem value="7d">7d</SelectItem>
-            <SelectItem value="14d">14d</SelectItem>
-            <SelectItem value="30d">30d</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <TodoFavorites 
+            favorites={favorites}
+            onAddFavorite={(symbol) => toggleFavorite(symbol)}
+            onRemoveFavorite={(symbol) => toggleFavorite(symbol)}
+          />
+          
+          <Select value={timeFilter} onValueChange={setTimeFilter}>
+            <SelectTrigger className="w-28">
+              <SelectValue placeholder={t("dashboard.timeFilter")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="24h">24h</SelectItem>
+              <SelectItem value="7d">7d</SelectItem>
+              <SelectItem value="14d">14d</SelectItem>
+              <SelectItem value="30d">30d</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {data?.map((crypto) => (
-          <CryptoCard 
-            key={crypto.id} 
-            crypto={crypto} 
-            timeFilter={timeFilter}
-          />
-        ))}
+        {data?.map((crypto) => {
+          const isFavorite = favorites.includes(crypto.symbol.toLowerCase());
+          return (
+            <CryptoCard 
+              key={crypto.id} 
+              crypto={crypto} 
+              timeFilter={timeFilter}
+              active={isFavorite}
+              onClick={() => toggleFavorite(crypto.symbol)}
+            />
+          );
+        })}
       </div>
     </div>
   );
