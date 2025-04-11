@@ -333,6 +333,11 @@ export default function Analysis() {
                         <h3 className="text-lg font-medium mb-3">Vertex AI Market Analysis</h3>
                         <MarketAnalysisWidget />
                       </div>
+                      
+                      <div className="mb-6">
+                        <h3 className="text-lg font-medium mb-3">AI Price Prediction</h3>
+                        <PricePredictionWidget />
+                      </div>
                     </div>
                     
                     <div>
