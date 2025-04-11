@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bot } from 'lucide-react';
+import { Bot, Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import ZoomStyleChat from './chat/ZoomStyleChat';
@@ -15,31 +15,15 @@ export default function FloatingChatbot({
 }: FloatingChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
 
-  // Check for mobile viewport on mount and resize
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    
-    // Check on load
-    checkMobile();
-    
-    // Add event listener for resize
-    window.addEventListener('resize', checkMobile);
-    
-    // Clean up
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
+  // Always use fullscreen dialog based on screenshot
   const handleToggle = () => {
     if (isMinimized) {
       setIsMinimized(false);
-      // On mobile, use dialog for fullscreen
-      if (isMobile) {
-        setIsOpen(true);
-      }
+      setIsOpen(true);
     } else {
       setIsMinimized(true);
+      setIsOpen(false);
     }
   };
 
@@ -63,25 +47,25 @@ export default function FloatingChatbot({
         </Button>
       </div>
 
-      {/* Mobile dialog version */}
+      {/* Fullscreen chatbot dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="p-0 max-w-[95vw] h-[95vh]">
-          <ZoomStyleChat 
-            initialOpen={true}
-            defaultLanguage={defaultLanguage}
-          />
+        <DialogContent className="p-0 sm:max-w-[95vw] md:max-w-[90vw] h-[95vh] flex flex-col">
+          <div className="flex items-center justify-between p-2 bg-primary/10 border-b">
+            <h2 className="font-semibold text-lg ml-2">CryptoBot Assistant</h2>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" onClick={handleClose}>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <ZoomStyleChat 
+              initialOpen={true}
+              defaultLanguage={defaultLanguage}
+            />
+          </div>
         </DialogContent>
       </Dialog>
-
-      {/* Desktop fixed chatbot */}
-      {!isMinimized && !isMobile && (
-        <div className="fixed bottom-4 right-4 z-40 w-[400px] h-[600px] shadow-lg">
-          <ZoomStyleChat 
-            initialOpen={true}
-            defaultLanguage={defaultLanguage}
-          />
-        </div>
-      )}
     </>
   );
 }
