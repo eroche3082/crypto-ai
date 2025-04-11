@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -6,14 +6,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import RealCourses from "./RealCourses";
 
 const EducationHub = () => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [selectedTab, setSelectedTab] = useState("basics");
-  const [view, setView] = useState<"topics" | "resources" | "courses">("topics");
+  const [view, setView] = useState<"topics" | "resources" | "courses" | "realCourses">("topics");
   const [expandedAccordions, setExpandedAccordions] = useState<Record<string, boolean>>({});
   const [completedTopics, setCompletedTopics] = useState<string[]>([]);
   const [bookmarkedResources, setBookmarkedResources] = useState<string[]>([]);
+  const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
+  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
+  const [selectedCourseForEnroll, setSelectedCourseForEnroll] = useState("");
   
   const educationCategories = [
     {
