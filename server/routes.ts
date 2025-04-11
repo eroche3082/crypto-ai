@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { googleTTSHandler, elevenLabsTTSHandler } from "./tts";
 import { analyzeImage, uploadMiddleware } from "./vision";
+import { getTwitterSentiment, getMarketSentiment } from "./twitter";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -846,6 +847,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Image analysis with Google Vision API
   app.post('/api/vision/analyze', uploadMiddleware, analyzeImage);
+  
+  // Twitter sentiment analysis endpoints
+  app.get('/api/sentiment/twitter/:symbol', getTwitterSentiment);
+  app.get('/api/sentiment/market', getMarketSentiment);
   
   // API routes for Favorites
   app.get("/api/favorites", async (req, res) => {
