@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useCrypto } from "@/contexts/CryptoContext";
 import CryptoCard from "@/components/CryptoCard";
-import TodoFavorites from "@/components/TodoFavorites";
-import { Star, RefreshCw, ListTodo } from "lucide-react";
+import ManageFavoritesDialog from "@/components/ManageFavoritesDialog";
+import { Star, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,7 @@ export default function Favorites() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState("24h");
+  const [manageFavoritesOpen, setManageFavoritesOpen] = useState(false);
   const { toast } = useToast();
 
   // Fetch favorites from the server
@@ -90,10 +91,21 @@ export default function Favorites() {
         </h1>
         
         <div className="flex items-center gap-2">
-          <TodoFavorites 
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => setManageFavoritesOpen(true)}
+          >
+            <Star size={16} className="text-yellow-500" />
+            {t("favorites.manage", "Manage Favorites")}
+          </Button>
+          
+          <ManageFavoritesDialog
+            open={manageFavoritesOpen}
+            onOpenChange={setManageFavoritesOpen}
             favorites={favorites}
-            onAddFavorite={(symbol) => toggleFavorite(symbol)}
-            onRemoveFavorite={(symbol) => toggleFavorite(symbol)}
+            onAddFavorite={(symbol: string) => toggleFavorite(symbol)}
+            onRemoveFavorite={(symbol: string) => toggleFavorite(symbol)}
           />
           
           <div className="flex bg-card rounded-lg p-1">

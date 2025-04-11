@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import CryptoCard from "./CryptoCard";
 import TodoFavorites from "./TodoFavorites";
+import ManageFavoritesDialog from "./ManageFavoritesDialog";
 import { useCryptoData } from "../hooks/useCryptoData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const CryptoDashboard = () => {
@@ -11,6 +14,7 @@ const CryptoDashboard = () => {
   const { toast } = useToast();
   const [timeFilter, setTimeFilter] = useState("24h");
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [manageFavoritesOpen, setManageFavoritesOpen] = useState(false);
   const { data, isLoading, error } = useCryptoData({ timeFilter });
   
   // Fetch favorites from the server
@@ -88,7 +92,18 @@ const CryptoDashboard = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">{t("dashboard.title")}</h2>
         <div className="flex items-center gap-2">
-          <TodoFavorites 
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => setManageFavoritesOpen(true)}
+          >
+            <Star size={16} className="text-yellow-500" />
+            {t("favorites.manage", "Manage Favorites")}
+          </Button>
+          
+          <ManageFavoritesDialog
+            open={manageFavoritesOpen}
+            onOpenChange={setManageFavoritesOpen}
             favorites={favorites}
             onAddFavorite={(symbol) => toggleFavorite(symbol)}
             onRemoveFavorite={(symbol) => toggleFavorite(symbol)}
