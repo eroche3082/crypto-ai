@@ -1,6 +1,6 @@
 import { VertexAI } from "@google-cloud/vertexai";
-import { systemPrompt } from "../client/src/lib/systemPrompt";
 import { Request, Response } from 'express';
+import { getSystemPrompt } from "../client/src/lib/systemPrompts";
 
 // Create client options
 const options = {
@@ -36,18 +36,11 @@ export async function generateVertexAIResponse(req: Request, res: Response) {
       });
     }
     
-    // Create a language-specific instruction based on the user's preference
-    let languageInstruction = "";
-    if (language === 'es') {
-      languageInstruction = "Responde en español. ";
-    } else if (language === 'fr') {
-      languageInstruction = "Réponds en français. ";
-    } else if (language === 'pt') {
-      languageInstruction = "Responda em português. ";
-    }
+    // Get the system prompt for Gemini model
+    const systemPromptText = getSystemPrompt('gemini', language);
     
     // Combine the system prompt with the user's prompt
-    const fullPrompt = `${systemPrompt}\n\n${languageInstruction}${prompt}`;
+    const fullPrompt = `${systemPromptText}\n\n${prompt}`;
     
     // Get the generative model
     const generativeModel = getGenerativeModel(modelName);
