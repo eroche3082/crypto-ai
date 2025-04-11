@@ -242,7 +242,7 @@ const TwitterSentimentAnalysis: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="bg-card/50 p-4 rounded-lg">
-                      <h3 className="text-lg font-medium mb-2">Sentimiento General</h3>
+                      <h3 className="text-lg font-medium mb-2">Overall Sentiment</h3>
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center space-x-2">
@@ -250,28 +250,28 @@ const TwitterSentimentAnalysis: React.FC = () => {
                             <span className="font-bold text-lg">{getSentimentText(sentimentData.overallSentiment.sentiment)}</span>
                           </div>
                           <p className="text-muted-foreground">Score: {(sentimentData.overallSentiment.score * 100).toFixed(1)}%</p>
-                          <p className="text-muted-foreground">Confianza: {(sentimentData.overallSentiment.confidence * 100).toFixed(0)}%</p>
+                          <p className="text-muted-foreground">Confidence: {(sentimentData.overallSentiment.confidence * 100).toFixed(0)}%</p>
                         </div>
                         <div className="text-right">
                           <div className="flex items-center space-x-2 justify-end">
                             {getTrendIcon(sentimentData.trend)}
                             <span className="font-medium">
-                              {sentimentData.trend === 'up' ? 'Tendencia al alza' : 
-                               sentimentData.trend === 'down' ? 'Tendencia a la baja' : 'Tendencia estable'}
+                              {sentimentData.trend === 'up' ? 'Upward Trend' : 
+                               sentimentData.trend === 'down' ? 'Downward Trend' : 'Stable Trend'}
                             </span>
                           </div>
-                          <p className="text-muted-foreground">Volumen: {sentimentData.tweetCount.toLocaleString()} tweets</p>
-                          <p className="text-muted-foreground text-xs">Actualizado: {formatDate(sentimentData.lastUpdated)}</p>
+                          <p className="text-muted-foreground">Volume: {sentimentData.tweetCount.toLocaleString()} tweets</p>
+                          <p className="text-muted-foreground text-xs">Updated: {formatDate(sentimentData.lastUpdated)}</p>
                         </div>
                       </div>
                     </div>
                     
                     <div className="bg-card/50 p-4 rounded-lg">
-                      <h3 className="text-lg font-medium mb-2">Distribución de Sentimiento</h3>
+                      <h3 className="text-lg font-medium mb-2">Sentiment Distribution</h3>
                       <div className="space-y-3">
                         <div>
                           <div className="flex justify-between mb-1">
-                            <span className="text-sm font-medium">Positivo ({sentimentData.breakdown.positive})</span>
+                            <span className="text-sm font-medium">Positive ({sentimentData.breakdown.positive})</span>
                             <span className="text-sm text-muted-foreground">
                               {((sentimentData.breakdown.positive / 
                                 (sentimentData.breakdown.positive + sentimentData.breakdown.neutral + sentimentData.breakdown.negative)) * 100).toFixed(1)}%
@@ -297,7 +297,7 @@ const TwitterSentimentAnalysis: React.FC = () => {
                         </div>
                         <div>
                           <div className="flex justify-between mb-1">
-                            <span className="text-sm font-medium">Negativo ({sentimentData.breakdown.negative})</span>
+                            <span className="text-sm font-medium">Negative ({sentimentData.breakdown.negative})</span>
                             <span className="text-sm text-muted-foreground">
                               {((sentimentData.breakdown.negative / 
                                 (sentimentData.breakdown.positive + sentimentData.breakdown.neutral + sentimentData.breakdown.negative)) * 100).toFixed(1)}%
@@ -325,7 +325,7 @@ const TwitterSentimentAnalysis: React.FC = () => {
                           }, 100);
                         }}
                       >
-                        Ver Precio Actual
+                        View Current Price
                       </Button>
                       <Button 
                         variant="default" 
@@ -333,12 +333,12 @@ const TwitterSentimentAnalysis: React.FC = () => {
                         onClick={() => {
                           fetchSentimentData(selectedCrypto);
                           toast({
-                            title: "Actualizando datos",
-                            description: `Obteniendo el último sentimiento para ${selectedCrypto}`,
+                            title: "Updating data",
+                            description: `Getting latest sentiment for ${selectedCrypto}`,
                           });
                         }}
                       >
-                        Actualizar Datos
+                        Update Data
                       </Button>
                     </div>
                   </div>
