@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { GeminiProvider } from "./contexts/GeminiContext";
 import { CryptoProvider } from "./contexts/CryptoContext";
+import { AuthProvider } from "./lib/auth";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -159,32 +160,35 @@ function App() {
     <LanguageProvider>
       <GeminiProvider>
         <CryptoProvider>
-          <div className="flex h-screen overflow-hidden bg-background text-foreground">
-            <Sidebar />
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <Switch>
-                <Route path="/" component={Dashboard} />
-                <Route path="/portfolio" component={Portfolio} />
-                <Route path="/favorites" component={Favorites} />
-                <Route path="/alerts" component={Alerts} />
-                <Route path="/converter" component={Converter} />
-                <Route path="/education" component={Education} />
-                <Route path="/news" component={News} />
-                <Route path="/locations" component={Locations} />
-                <Route path="/analysis" component={Analysis} />
-                <Route path="/watchlist" component={Watchlist} />
-                <Route path="/investment-advisor" component={InvestmentAdvisor} />
-                <Route path="/twitter-sentiment" component={TwitterSentiment} />
-                <Route path="/tax-simulator" component={TaxSimulator} />
-                <Route path="/wallet-messaging" component={WalletMessaging} />
-                <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
-                <Route path="/nft-gallery" component={NFTGalleryPage} />
-                <Route path="/token-tracker" component={TokenTrackerPage} />
-                <Route component={NotFound} />
-              </Switch>
+          <AuthProvider>
+            <div className="flex h-screen overflow-hidden bg-background text-foreground">
+              <Sidebar />
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <Switch>
+                  <Route path="/" component={Dashboard} />
+                  <Route path="/portfolio" component={Portfolio} />
+                  <Route path="/favorites" component={Favorites} />
+                  <Route path="/alerts" component={Alerts} />
+                  <Route path="/converter" component={Converter} />
+                  <Route path="/education" component={Education} />
+                  <Route path="/news" component={News} />
+                  <Route path="/locations" component={Locations} />
+                  <Route path="/analysis" component={Analysis} />
+                  <Route path="/watchlist" component={Watchlist} />
+                  <Route path="/investment-advisor" component={InvestmentAdvisor} />
+                  <Route path="/twitter-sentiment" component={TwitterSentiment} />
+                  <Route path="/tax-simulator" component={TaxSimulator} />
+                  <Route path="/wallet-messaging" component={WalletMessaging} />
+                  <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
+                  <Route path="/nft-gallery" component={NFTGalleryPage} />
+                  <Route path="/token-tracker" component={TokenTrackerPage} />
+                  <Route path="/gamification" component={GamificationPage} />
+                  <Route component={NotFound} />
+                </Switch>
+              </div>
+              <FloatingChatbot />
             </div>
-            <FloatingChatbot />
-          </div>
+          </AuthProvider>
         </CryptoProvider>
       </GeminiProvider>
     </LanguageProvider>
