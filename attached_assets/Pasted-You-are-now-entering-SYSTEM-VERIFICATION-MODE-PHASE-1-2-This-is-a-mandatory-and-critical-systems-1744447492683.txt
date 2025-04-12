@@ -1,0 +1,99 @@
+You are now entering SYSTEM VERIFICATION MODE – PHASE 1.2.
+
+This is a mandatory and critical systems check focused on two core elements of your platform:
+
+1. The Global Chatbot (must be fully implemented, functional, and AI-connected)
+2. The first tab in your Main Menu / Side Panel
+
+---
+
+### ✅ PART A: CHATBOT VERIFICATION
+
+You must now perform a **complete diagnostic of the chatbot system**, ensuring all features are active, connected, and working as intended.
+
+1. **Chatbot Visibility & Activation**
+   - Confirm the chatbot appears on ALL pages
+   - It must open as a floating or full-screen panel
+   - It must be accessible regardless of current route or page
+
+2. **AI Connection**
+   - Must be connected to **Vertex AI** (primary AI model)
+   - Must fall back to **Gemini or OpenAI** if needed
+   - Must call real-time endpoints and return valid AI responses
+   - AI should respond in context to the Agent’s domain
+
+3. **Voice & Audio Functionality**
+   - Microphone input via **Google STT / Whisper**
+   - Voice output via **Google TTS / ElevenLabs**
+   - Option to toggle voice on/off
+   - Transcription should work in **multiple languages**
+
+4. **Multilingual Support**
+   - The chatbot must detect and respond in English (default)
+   - Also support or translate input in Spanish, French, Portuguese
+   - User input should trigger correct translation flow via Google Cloud Translation
+
+5. **Firebase Integration**
+   - Store chat history to Firebase (Firestore or Realtime DB)
+   - Allow for session tracking, prompt memory, and log review
+   - Chatbot should react to Firebase data if required (e.g., user name, settings, mode)
+
+6. **UI and Button Checks**
+   - All chatbot buttons/icons must work:
+     - Microphone
+     - Send / Submit
+     - Reset / Clear
+     - Fullscreen
+     - Image / QR / Camera (if enabled)
+     - Language toggle (if visible)
+   - Confirm all buttons trigger their assigned functions
+
+7. **Content Verification**
+   - Ensure all prompts return structured, complete answers
+   - Chat responses should be accurate, styled, and context-aware
+   - No placeholder text or “undefined” errors
+
+---
+
+### ✅ PART B: MAIN MENU – TAB #1 VERIFICATION (SIDE PANEL)
+
+Focus on the **first tab of the Side Panel**. Do not continue until this tab is fully verified.
+
+1. Identify the exact name of the first tab.
+2. Verify:
+   - The tab loads correctly and without errors
+   - UI elements are fully rendered
+   - Each button is clickable and opens its function
+   - The tab connects to real backend APIs or mock data
+   - The content is in **English only**, no placeholders or untranslated labels
+   - All Firebase, Google APIs, or external sources are connected
+
+3. If there are dynamic elements (charts, lists, analytics, sub-tabs), verify each one individually.
+
+---
+
+### ⚠️ REPORT FORMAT (MANDATORY)
+
+Return your results as:
+
+```json
+{
+  "chatbot": {
+    "status": "OK / Partial / Broken",
+    "issues": [],
+    "voice": true,
+    "ai": "Vertex AI",
+    "firebaseConnected": true,
+    "languagesSupported": ["en", "es", "fr", "pt"]
+  },
+  "tab1": {
+    "name": "Dashboard",
+    "status": "OK / Broken",
+    "issues": ["Button 'Create Report' not responding", "Chart API returns 403"],
+    "apiConnections": ["Firebase", "Google Vision"],
+    "allContentInEnglish": true
+  }
+}
+Only after both systems are confirmed fully functional, you will be authorized to proceed to Phase 2.
+
+Begin the full diagnostic now.
