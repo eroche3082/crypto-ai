@@ -1,0 +1,55 @@
+ou are now required to perform a **complete verification audit** of Phases 1, 2, and 3 of your application system.
+
+✅ OBJECTIVE:
+Confirm that all essential modules for Initialization, UI, and Chatbot Core are fully implemented and functional, and that Tab Integration from Phase 3 has been completed successfully.
+
+📦 PHASE CHECKLIST TO VERIFY:
+
+🟢 PHASE 1 – UI Layout & Foundation:
+- Header, Footer, and Side Panel UI are present and responsive
+- Navigation between pages is functional
+- Admin Panel is accessible
+- Dark/Light theme (if applicable) is working
+- Tabs are structured and properly rendered
+
+🟢 PHASE 2 – Chatbot Core:
+- Chatbot is present in all pages (floating icon or embedded)
+- Fullpage Chat view opens properly
+- Vertex AI or Gemini AI is connected
+- Multilingual support works
+- Speech-to-text and text-to-speech are functional (if applicable)
+- Context memory is implemented (at least session-based)
+- Onboarding flow and Smart Flows are working
+- Chat history is stored or visually accessible
+
+🟢 PHASE 3 – Tab-by-Tab Integration:
+- Each main tab (Dashboard, Profile, Tools, Analytics, etc.) has:
+   - Chatbot context awareness
+   - Smart flow triggers working
+   - Successful action execution
+   - API integration functional
+   - Memory context saved
+   - Visual feedback active (toast, loaders, indicators)
+   - Fallbacks implemented
+
+🚨 INSTRUCTIONS:
+1. Run a full diagnostic on Phases 1, 2, and 3.
+2. Return a ✅ / ⚠️ / ❌ status per phase.
+3. Confirm if the system is **approved for Phase 4**.
+4. List any final blockers, suggestions, or remaining items to fix.
+5. Submit confirmation to proceed or flag issues.
+
+💬 FORMAT TO REPLY:
+{
+  "phase_1_status": "✅ Complete",
+  "phase_2_status": "✅ Complete",
+  "phase_3_status": "✅ Complete",
+  "ready_for_phase_4": true,
+  "final_notes": [
+    "Chatbot context is stable across all tabs",
+    "Speech support works but could be optimized later",
+    "Analytics tab may need enhancements in Phase 4"
+  ]
+}
+
+Only return once the full verification has been completed and results are validated in the Admin Panel. Be honest and accurate.

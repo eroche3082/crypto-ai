@@ -1,121 +1,317 @@
 /**
  * Context-Aware Chat Service
  * 
- * This service handles API calls for the chatbot with proper context
- * based on the current tab and user preferences.
+ * Provides an interface for interacting with various AI providers
+ * with context awareness across tabs and sessions
  */
 
-import { getCurrentTabContext, getContextDataForAPI } from '@/utils/chatContextManager';
+import { getFormattedContextForAI, getFullTabContext } from '@/utils/chatContextManager';
+import { apiRequest } from '@/lib/queryClient';
 
-// Define message interfaces
-interface UserMessage {
-  content: string;
-  metadata?: any;
+// Supported AI providers
+type AIProvider = 'openai' | 'anthropic' | 'gemini' | 'vertex' | 'auto';
+
+// Configuration for the chat request
+interface ChatRequestConfig {
+  provider?: AIProvider;
+  systemPrompt?: string;
+  temperature?: number;
+  maxTokens?: number;
+  includeContext?: boolean;
+  fallbackProviders?: AIProvider[];
 }
 
-interface ChatMessage {
-  id: string;
-  content: string;
-  sender: 'user' | 'assistant';
-  timestamp: Date;
-  metadata?: any;
-}
-
-interface ChatResponse {
-  message: string;
-  action?: any;
-  metadata?: any;
-}
+// Default configuration
+const defaultConfig: ChatRequestConfig = {
+  provider: 'auto',
+  temperature: 0.7,
+  maxTokens: 1000,
+  includeContext: true,
+  fallbackProviders: ['gemini', 'openai', 'anthropic']
+};
 
 /**
- * Send a chat message with proper context awareness
+ * Send a message to the AI with context awareness
  */
 export async function sendContextAwareMessage(
-  message: UserMessage,
-  history: ChatMessage[] = [],
-  apiEndpoint: string = '/api/chat'
-): Promise<ChatResponse> {
+  message: string,
+  config: ChatRequestConfig = {}
+): Promise<{ text: string; provider: string }> {
+  // Merge with default config
+  const finalConfig = { ...defaultConfig, ...config };
+  
+  // Determine the provider to use
+  const provider = finalConfig.provider === 'auto' 
+    ? determineOptimalProvider(message)
+    : finalConfig.provider;
+    
+  // Get context if needed
+  const context = finalConfig.includeContext 
+    ? getFormattedContextForAI() 
+    : '';
+  
   try {
-    // Get current tab context
-    const currentTab = getCurrentTabContext();
+    // Send to the selected provider
+    return await sendToProvider(provider, message, context, finalConfig);
+  } catch (error) {
+    console.error(`Error with provider ${provider}:`, error);
     
-    // Get context data for this tab
-    const contextData = getContextDataForAPI(currentTab);
-    
-    // Send request to API
-    const response = await fetch(apiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: message.content,
-        history: history.slice(-10), // Send last 10 messages for context
-        context: {
-          tab: currentTab,
-          ...contextData,
-          userMetadata: message.metadata
+    // Try fallback providers if available
+    if (finalConfig.fallbackProviders && finalConfig.fallbackProviders.length > 0) {
+      console.log(`Trying fallback providers: ${finalConfig.fallbackProviders.join(', ')}`);
+      
+      // Filter out the failed provider
+      const availableFallbacks = finalConfig.fallbackProviders.filter(p => p !== provider);
+      
+      // Try each fallback in order
+      for (const fallbackProvider of availableFallbacks) {
+        try {
+          console.log(`Trying fallback provider: ${fallbackProvider}`);
+          return await sendToProvider(fallbackProvider, message, context, finalConfig);
+        } catch (fallbackError) {
+          console.error(`Error with fallback provider ${fallbackProvider}:`, fallbackError);
         }
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+      }
     }
     
-    return await response.json();
-  } catch (error) {
-    console.error('Error sending context-aware message:', error);
-    
-    // Return a fallback response
-    return {
-      message: `I'm having trouble connecting right now. Please try again later. ${error instanceof Error ? error.message : ''}`
-    };
+    // All providers failed
+    throw new Error(`All AI providers failed to process the request: ${error.message}`);
   }
 }
 
 /**
- * Get fallback response for a specific tab when API call fails
+ * Determine the optimal provider based on message content
  */
-export function getFallbackResponse(tabName: string): string {
-  // Tab-specific fallback messages
-  const fallbacks: Record<string, string[]> = {
-    dashboard: [
-      "I'm having trouble loading the latest market data. Let me know what specific cryptocurrency information you're looking for.",
-      "The dashboard data is temporarily unavailable. In the meantime, I can answer general questions about cryptocurrencies."
-    ],
-    portfolio: [
-      "I can't access your portfolio data right now. Would you like to discuss investment strategies instead?",
-      "Portfolio analysis is currently unavailable. I can still help with general portfolio advice if you'd like."
-    ],
-    education: [
-      "Our educational content is temporarily unavailable. I can still answer your questions about crypto concepts.",
-      "The learning materials aren't loading right now, but I can explain any crypto topic you're interested in."
-    ],
-    news: [
-      "I'm having trouble fetching the latest news. Would you like me to summarize recent market trends instead?",
-      "News feed is temporarily unavailable. I can still discuss major market events from the past week."
-    ],
-    locations: [
-      "Location services are currently unavailable. Would you like to save your search for later?",
-      "I can't access the map data right now. Please try again later or let me know if there's another way I can help."
-    ],
-    taxsimulator: [
-      "The tax calculator is temporarily unavailable. I can still answer general questions about crypto taxation.",
-      "Tax simulation is currently offline. Would you like some general information about crypto tax regulations instead?"
-    ],
-    walletmessaging: [
-      "Wallet messaging services are temporarily unavailable. Your message will be saved as a draft.",
-      "I can't connect to the messaging service right now. Please try again later."
-    ]
-  };
+function determineOptimalProvider(message: string): AIProvider {
+  // This function would use heuristics to determine the best provider
+  // For now, we'll use a simple strategy:
   
-  // Get fallbacks for the tab, or use a default
-  const tabFallbacks = fallbacks[tabName] || [
-    "I'm having trouble connecting to our services right now. Please try again later.",
-    "This feature is temporarily unavailable. Is there something else I can help you with?"
-  ];
+  // For code-related questions, prefer OpenAI
+  if (
+    message.includes('code') || 
+    message.includes('programming') || 
+    message.includes('function') ||
+    message.includes('```')
+  ) {
+    return 'openai';
+  }
   
-  // Return a random fallback from the list
-  return tabFallbacks[Math.floor(Math.random() * tabFallbacks.length)];
+  // For complex reasoning or multimodal content, prefer Anthropic
+  if (
+    message.includes('explain') || 
+    message.includes('analyze') ||
+    message.includes('evaluation') ||
+    message.includes('image')
+  ) {
+    return 'anthropic';
+  }
+  
+  // For general questions, prefer Gemini for speed/cost
+  return 'gemini';
 }
+
+/**
+ * Send a message to a specific provider
+ */
+async function sendToProvider(
+  provider: AIProvider,
+  message: string,
+  context: string,
+  config: ChatRequestConfig
+): Promise<{ text: string; provider: string }> {
+  switch (provider) {
+    case 'openai':
+      return sendToOpenAI(message, context, config);
+    case 'anthropic':
+      return sendToAnthropic(message, context, config);
+    case 'gemini':
+      return sendToGemini(message, context, config);
+    case 'vertex':
+      return sendToVertex(message, context, config);
+    default:
+      throw new Error(`Unsupported provider: ${provider}`);
+  }
+}
+
+/**
+ * Send a message to OpenAI
+ */
+async function sendToOpenAI(
+  message: string,
+  context: string,
+  config: ChatRequestConfig
+): Promise<{ text: string; provider: string }> {
+  try {
+    const systemPrompt = config.systemPrompt || 
+      `You are a helpful crypto assistant that provides accurate information and guidance. 
+      You have context about the current tab and recent interactions.`;
+    
+    const fullPrompt = context 
+      ? `${systemPrompt}\n\nContext:\n${context}\n\nUser Question: ${message}`
+      : `${systemPrompt}\n\nUser Question: ${message}`;
+    
+    const response = await apiRequest('POST', '/api/openai/chat', {
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: context ? `Context:\n${context}\n\nQuestion: ${message}` : message }
+      ],
+      temperature: config.temperature,
+      max_tokens: config.maxTokens
+    });
+    
+    const data = await response.json();
+    
+    if (!data.text) {
+      throw new Error('Invalid response from OpenAI API');
+    }
+    
+    return {
+      text: data.text,
+      provider: 'openai'
+    };
+  } catch (error) {
+    console.error('Error with OpenAI:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send a message to Anthropic
+ */
+async function sendToAnthropic(
+  message: string,
+  context: string,
+  config: ChatRequestConfig
+): Promise<{ text: string; provider: string }> {
+  try {
+    const systemPrompt = config.systemPrompt || 
+      `You are a helpful crypto assistant that provides accurate information and guidance. 
+      You have context about the current tab and recent interactions.`;
+    
+    const response = await apiRequest('POST', '/api/anthropic/chat', {
+      system: systemPrompt,
+      messages: [
+        { role: 'user', content: context ? `Context:\n${context}\n\nQuestion: ${message}` : message }
+      ],
+      temperature: config.temperature,
+      max_tokens: config.maxTokens
+    });
+    
+    const data = await response.json();
+    
+    if (!data.text) {
+      throw new Error('Invalid response from Anthropic API');
+    }
+    
+    return {
+      text: data.text,
+      provider: 'anthropic'
+    };
+  } catch (error) {
+    console.error('Error with Anthropic:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send a message to Gemini
+ */
+async function sendToGemini(
+  message: string,
+  context: string,
+  config: ChatRequestConfig
+): Promise<{ text: string; provider: string }> {
+  try {
+    const response = await apiRequest('POST', '/api/generate-ai-response', {
+      prompt: context 
+        ? `Context:\n${context}\n\nQuestion: ${message}` 
+        : message,
+      temperature: config.temperature,
+      maxTokens: config.maxTokens
+    });
+    
+    const data = await response.json();
+    
+    if (!data.response) {
+      throw new Error('Invalid response from Gemini API');
+    }
+    
+    return {
+      text: data.response,
+      provider: 'gemini'
+    };
+  } catch (error) {
+    console.error('Error with Gemini:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send a message to Google Vertex AI
+ */
+async function sendToVertex(
+  message: string,
+  context: string,
+  config: ChatRequestConfig
+): Promise<{ text: string; provider: string }> {
+  try {
+    const response = await apiRequest('POST', '/api/vertex-ai-response', {
+      prompt: context 
+        ? `Context:\n${context}\n\nQuestion: ${message}` 
+        : message,
+      temperature: config.temperature,
+      maxTokens: config.maxTokens
+    });
+    
+    const data = await response.json();
+    
+    if (!data.response) {
+      throw new Error('Invalid response from Vertex AI API');
+    }
+    
+    return {
+      text: data.response,
+      provider: 'vertex'
+    };
+  } catch (error) {
+    console.error('Error with Vertex AI:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get context-specific recommendations based on tab and user behavior
+ */
+export async function getContextSpecificRecommendations(
+  tab: string,
+  config: ChatRequestConfig = {}
+): Promise<string> {
+  try {
+    // Get full context for the tab
+    const tabContext = getFullTabContext();
+    
+    if (!tabContext) {
+      return 'No context available for generating recommendations.';
+    }
+    
+    // Prepare a prompt focused on recommendations
+    const recommendationPrompt = 
+      `Based on the user's activity in the ${tab} tab, provide 2-3 helpful recommendations or insights.
+       Keep your response concise and actionable (under 200 words total).
+       Format as bullet points with emoji icons.`;
+    
+    // Get recommendations from the AI
+    const { text } = await sendContextAwareMessage(recommendationPrompt, {
+      ...config,
+      includeContext: true,
+      temperature: 0.7 // Slightly creative
+    });
+    
+    return text;
+  } catch (error) {
+    console.error('Error getting context-specific recommendations:', error);
+    return 'Unable to generate recommendations at this time.';
+  }
+}
+
+export type { AIProvider, ChatRequestConfig };

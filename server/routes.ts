@@ -10,7 +10,7 @@ import { analyzeImage, uploadMiddleware } from "./vision";
 import { getTwitterSentiment, getMarketSentiment } from "./twitter";
 import { analyzeSentiment } from "./sentiment";
 import { generateAIResponse } from "./gemini";
-import { generateVertexAIResponse } from "./vertexai";
+import { handleVertexAIResponse } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
 import apiRouter from "./apiRoutes";
@@ -281,7 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/generate-ai-response", generateAIResponse);
   
   // VertexAI proxy for enhanced Gemini capabilities
-  app.post("/api/vertex-ai-response", generateVertexAIResponse);
+  app.post("/api/vertex-ai-response", handleVertexAIResponse);
   
   // Vertex AI Market Analysis
   app.post("/api/v2/vertex/market/analyze", async (req, res) => {

@@ -9,6 +9,7 @@ import { generateClaudeResponse, analyzeImageWithClaude } from './anthropic';
 import { generateAIResponse } from './gemini';
 import { analyzeSentiment } from './sentiment';
 import { getTwitterSentiment, getMarketSentiment } from './twitter';
+import { handleContextAwareChat } from './controllers/contextAwareChatController';
 import { 
   getWalletMessages, 
   sendWalletMessage, 
@@ -24,6 +25,7 @@ const apiRouter = Router();
 apiRouter.post('/ai/claude', generateClaudeResponse);
 apiRouter.post('/ai/claude/vision', uploadMiddleware, analyzeImageWithClaude);
 apiRouter.post('/ai/gemini', generateAIResponse);
+apiRouter.post('/ai/context-chat', handleContextAwareChat);
 
 // Vertex AI Market Analysis routes
 apiRouter.post('/vertex/market/analyze', services.analyzeMarketTrends);

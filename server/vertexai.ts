@@ -1,94 +1,218 @@
-import { VertexAI } from "@google-cloud/vertexai";
+/**
+ * Vertex AI Integration Service
+ * 
+ * Provides functions for interacting with Google Vertex AI
+ */
 import { Request, Response } from 'express';
-import { getSystemPrompt } from "../client/src/lib/systemPrompts";
+import { VertexAI } from '@google-cloud/vertexai';
 
-// Create client options
-const options = {
-  project: process.env.GOOGLE_PROJECT_ID || "your-project-id",
-  location: process.env.GOOGLE_LOCATION || "us-central1",
-  apiEndpoint: process.env.GOOGLE_API_ENDPOINT,
-};
+// Check if Vertex AI is configured
+const isConfigured = !!process.env.GOOGLE_VERTEX_KEY_ID;
 
-// Create the VertexAI client
-const vertexAi = new VertexAI(options);
+let vertexAI: VertexAI | null = null;
 
-// Get the generative model
-const getGenerativeModel = (modelName: string = "gemini-1.5-flash-latest") => {
-  return vertexAi.getGenerativeModel({ model: modelName });
-};
+// Initialize Vertex AI if configured
+if (isConfigured) {
+  try {
+    vertexAI = new VertexAI({
+      project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+      location: process.env.GOOGLE_LOCATION || 'us-central1',
+    });
+    console.log('Vertex AI initialized successfully');
+  } catch (error) {
+    console.error('Error initializing Vertex AI:', error);
+    vertexAI = null;
+  }
+}
 
 /**
- * Generate a response using Vertex AI Gemini
+ * Generate a response using Vertex AI
  */
-export async function generateVertexAIResponse(req: Request, res: Response) {
+export async function generateResponse(
+  prompt: string,
+  temperature: number = 0.7,
+  maxTokens: number = 1000
+): Promise<string> {
+  if (!isConfigured || !vertexAI) {
+    throw new Error('Vertex AI is not configured. Please provide GOOGLE_VERTEX_KEY_ID environment variable.');
+  }
+
   try {
-    const { prompt, modelName = 'gemini-1.5-flash-latest', language = 'en' } = req.body;
-    
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
-    }
-    
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
-    
-    if (!apiKey) {
-      return res.status(500).json({ 
-        error: 'Gemini API key not found. Please set GEMINI_API_KEY environment variable.'
-      });
-    }
-    
-    // Get the system prompt for Gemini model
-    const systemPromptText = getSystemPrompt('gemini', language);
-    
-    // Combine the system prompt with the user's prompt
-    const fullPrompt = `${systemPromptText}\n\n${prompt}`;
-    
-    // Get the generative model
-    const generativeModel = getGenerativeModel(modelName);
-    
-    // Generate content - Use simpler config without safety settings to avoid type errors
-    const result = await generativeModel.generateContent({
-      contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 1024,
-      }
+    // Access the generative model
+    const generativeModel = vertexAI.getGenerativeModel({
+      model: 'gemini-1.5-pro',
+      generation_config: {
+        max_output_tokens: maxTokens,
+        temperature,
+      },
     });
-    
-    // Extract the response text safely
-    let responseText = "No response generated";
-    
-    // Access the response content through the appropriate structure
-    // Note: The structure of the response might vary depending on the API version
-    if (result.response && result.response.candidates && result.response.candidates.length > 0) {
-      const candidate = result.response.candidates[0];
-      if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-        const part = candidate.content.parts[0];
-        if (part.text) {
-          responseText = part.text;
-        }
-      }
-    }
-    
-    // If we still don't have a response, try to log the structure for debugging
-    if (responseText === "No response generated") {
-      console.log("Could not extract text from response. Response structure:", 
-                  JSON.stringify(result.response).substring(0, 500));
-    } else {
-      console.log("VertexAI generated response:", responseText.substring(0, 100) + "...");
-    }
-    
-    // Return response to client
-    res.json({ 
-      response: responseText,
-      model: modelName,
-      language: language
+
+    // Generate text response
+    const result = await generativeModel.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    });
+
+    const response = result.response;
+    return response.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Error generating text with Vertex AI:', error);
+    throw new Error(`Vertex AI error: ${error.message}`);
+  }
+}
+
+/**
+ * Generate a response with image input using Vertex AI
+ */
+export async function generateResponseWithImage(
+  prompt: string,
+  imageData: string,
+  mimeType: string,
+  temperature: number = 0.7,
+  maxTokens: number = 1000
+): Promise<string> {
+  if (!isConfigured || !vertexAI) {
+    throw new Error('Vertex AI is not configured. Please provide GOOGLE_VERTEX_KEY_ID environment variable.');
+  }
+
+  try {
+    // Access the generative model with vision capabilities
+    const generativeModel = vertexAI.getGenerativeModel({
+      model: 'gemini-1.5-pro-vision',
+      generation_config: {
+        max_output_tokens: maxTokens,
+        temperature,
+      },
+    });
+
+    // Generate text response
+    const result = await generativeModel.generateContent({
+      contents: [{ 
+        role: 'user',
+        parts: [
+          { text: prompt },
+          { 
+            inline_data: {
+              mime_type: mimeType,
+              data: imageData
+            }
+          }
+        ]
+      }],
+    });
+
+    const response = result.response;
+    return response.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Error generating text with Vertex AI Vision:', error);
+    throw new Error(`Vertex AI error: ${error.message}`);
+  }
+}
+
+/**
+ * Express handler for Vertex AI requests
+ */
+export async function handleVertexAIResponse(req: Request, res: Response) {
+  if (!isConfigured || !vertexAI) {
+    return res.status(503).json({
+      error: 'Vertex AI is not configured. Please provide GOOGLE_VERTEX_KEY_ID environment variable.'
+    });
+  }
+
+  const {
+    prompt,
+    temperature = 0.7,
+    maxTokens = 1000
+  } = req.body;
+
+  if (!prompt) {
+    return res.status(400).json({
+      error: 'Prompt is required.'
+    });
+  }
+
+  try {
+    const response = await generateResponse(prompt, temperature, maxTokens);
+    res.json({
+      response,
+      model: 'gemini-1.5-pro'
     });
   } catch (error) {
-    console.error('Vertex AI error:', error);
-    res.status(500).json({ 
-      error: `Failed to generate AI response: ${error instanceof Error ? error.message : String(error)}`
+    console.error('Error calling Vertex AI:', error);
+    res.status(500).json({
+      error: `Vertex AI error: ${error.message}`
     });
   }
 }
+
+/**
+ * Express handler for Vertex AI market analysis
+ */
+export async function generateMarketAnalysis(req: Request, res: Response) {
+  if (!isConfigured || !vertexAI) {
+    return res.status(503).json({
+      error: 'Vertex AI is not configured. Please provide GOOGLE_VERTEX_KEY_ID environment variable.'
+    });
+  }
+
+  const {
+    coins,
+    timeframe = '24h',
+    language = 'en',
+    temperature = 0.4
+  } = req.body;
+
+  if (!coins || !Array.isArray(coins) || coins.length === 0) {
+    return res.status(400).json({
+      error: 'Invalid request: coins array is required'
+    });
+  }
+
+  const coinNames = coins.map(c => c.toUpperCase()).join(', ');
+  
+  const timeframeMap: Record<string, string> = {
+    '24h': 'next 24 hours',
+    '7d': 'coming week',
+    '30d': 'next month',
+    '90d': 'next quarter'
+  };
+  
+  const timeText = timeframeMap[timeframe] || timeframe;
+
+  const prompt = `
+    Provide a detailed market analysis for the following cryptocurrencies: ${coinNames}.
+    Focus on analyzing patterns for the ${timeText}.
+    Include technical indicators, market sentiment, trading volume trends, and price predictions.
+    Structure your response with these sections:
+    1. Overview
+    2. Key Insights
+    3. Market Sentiment
+    4. Technical Analysis
+    5. Recommendation
+    
+    Base your analysis on factual market patterns, not speculation.
+    Respond in ${language} language.
+  `;
+
+  try {
+    const analysis = await generateResponse(prompt, temperature, 2000);
+    
+    res.json({
+      success: true,
+      analysis,
+      metadata: {
+        coins,
+        timeframe,
+        timestamp: new Date().toISOString(),
+        analysisEngine: 'Vertex AI Gemini 1.5'
+      }
+    });
+  } catch (error) {
+    console.error('Error in market analysis:', error);
+    res.status(500).json({
+      error: 'Failed to analyze market trends',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+}
+
+export { isConfigured };

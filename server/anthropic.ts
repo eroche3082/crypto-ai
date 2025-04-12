@@ -1,163 +1,167 @@
-import { Request, Response } from 'express';
+/**
+ * Anthropic Integration Service
+ * 
+ * Provides functions for interacting with Anthropic's API (Claude)
+ */
 import Anthropic from '@anthropic-ai/sdk';
-import { getSystemPrompt } from "./lib/systemPrompts";
+import { Request, Response } from 'express';
 
-// Initialize Anthropic client
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Initialize Anthropic with API key from environment
+const anthropic = process.env.ANTHROPIC_API_KEY 
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
 
-// Check if environment variable exists
-if (!process.env.ANTHROPIC_API_KEY) {
-  console.warn("ANTHROPIC_API_KEY environment variable is not set. Anthropic API will not work.");
-}
+// Check if Anthropic is configured
+const isConfigured = !!anthropic;
 
 /**
- * Generate a response using Anthropic's Claude model
+ * Generate a chat response using Anthropic's Claude
  */
-export async function generateClaudeResponse(req: Request, res: Response) {
+export async function generateChatResponse(
+  systemPrompt: string,
+  userMessage: string,
+  temperature: number = 0.7,
+  maxTokens: number = 1000
+): Promise<string> {
+  if (!isConfigured) {
+    throw new Error('Anthropic API is not configured. Please provide ANTHROPIC_API_KEY environment variable.');
+  }
+
   try {
-    const { prompt, model = 'claude-3-7-sonnet-20250219', language = 'en' } = req.body;
-    
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
-    }
-    
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    
-    if (!apiKey) {
-      return res.status(500).json({ 
-        error: 'Anthropic API key not found. Please set ANTHROPIC_API_KEY environment variable.'
-      });
-    }
-    
-    // Get the system prompt for Claude - using OpenAI prompt format for compatibility
-    const systemPromptText = getSystemPrompt('openai', language);
-    
-    // Send request to Anthropic API
-    const result = await anthropic.messages.create({
-      model: model,
-      max_tokens: 1024,
-      system: systemPromptText,
+    // the newest Anthropic model is "claude-3-7-sonnet-20250219" which was released February 24, 2025
+    const response = await anthropic.messages.create({
+      model: 'claude-3-7-sonnet-20250219',
+      max_tokens: maxTokens,
+      temperature,
+      system: systemPrompt,
       messages: [
-        { role: 'user', content: prompt }
+        { role: 'user', content: userMessage }
       ]
     });
-    
-    // Extract response content
-    let responseText = "";
-    if (result.content && result.content.length > 0) {
-      responseText = result.content[0].text;
-    } else {
-      responseText = "No response generated";
-    }
-    
-    // Return response to client
-    res.json({ 
-      response: responseText,
-      model: model,
-      language: language
-    });
+
+    return response.content[0].text;
   } catch (error) {
-    console.error('Anthropic API error:', error);
-    res.status(500).json({ 
-      error: `Failed to generate Claude response: ${error instanceof Error ? error.message : String(error)}`
-    });
+    console.error('Error calling Anthropic API:', error);
+    throw new Error(`Anthropic API error: ${error.message}`);
   }
 }
 
 /**
- * Analyze an image using Claude's vision capabilities
+ * Express handler for Claude chat requests
  */
-export async function analyzeImageWithClaude(req: Request, res: Response) {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'Image file is required' });
-    }
-    
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    
-    if (!apiKey) {
-      return res.status(500).json({ 
-        error: 'Anthropic API key not found. Please set ANTHROPIC_API_KEY environment variable.'
-      });
-    }
-    
-    // Convert image to base64
-    const imageBase64 = req.file.buffer.toString('base64');
-    const mimeType = req.file.mimetype || 'image/jpeg';
-    
-    // Get the enhanced system prompt for image analysis
-    const imageAnalysisSystemPrompt = `You are CryptoBot, an advanced cryptocurrency image analysis expert with multimodal capabilities as part of PHASE 4 - UNIVERSAL INTELLIGENCE.
-You can analyze:
-1. Cryptocurrency charts and identify technical patterns like head and shoulders, wedges, pennants, etc.
-2. Blockchain transaction visualizations and network graphs
-3. Cryptocurrency logos and brand materials
-4. NFT collections and digital assets
-5. QR codes containing wallet addresses or transaction data
-6. Market sentiment visualizations
+export function generateClaudeResponse(req: Request, res: Response) {
+  if (!isConfigured) {
+    return res.status(503).json({
+      error: 'Anthropic API is not configured. Please provide ANTHROPIC_API_KEY environment variable.'
+    });
+  }
 
-When analyzing charts:
-- Identify the time frame and scale
-- Note key support and resistance levels
-- Describe visible patterns and what they typically indicate
-- Identify trend lines and potential breakout/breakdown points
-- Comment on volume indicators if visible
+  const {
+    system = 'You are Claude, a helpful AI assistant.',
+    messages,
+    temperature = 0.7,
+    max_tokens = 1000
+  } = req.body;
 
-For QR codes:
-- Describe what the QR code likely contains (wallet address, transaction, etc.)
-- Identify the blockchain network if possible
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({
+      error: 'Messages array is required.'
+    });
+  }
 
-For NFTs or digital assets:
-- Describe the visual elements and artistic style
-- Identify the collection if recognizable
-- Note any distinctive features that might affect valuation
-
-Respond with clear, educational analysis without making definitive price predictions.`;
-
-    // Send request to Anthropic API
-    const result = await anthropic.messages.create({
-      model: "claude-3-7-sonnet-20250219",
-      max_tokens: 1024,
-      system: imageAnalysisSystemPrompt,
-      messages: [
-        { 
-          role: 'user', 
-          content: [
-            {
-              type: "text",
-              text: "Analyze this cryptocurrency-related image in detail and explain what you see. Identify patterns, trends, or important information that would be relevant for cryptocurrency investors or enthusiasts."
-            },
-            {
-              type: "image",
-              source: {
-                type: "base64",
-                media_type: mimeType,
-                data: imageBase64
-              }
-            }
-          ]
+  // the newest Anthropic model is "claude-3-7-sonnet-20250219" which was released February 24, 2025
+  anthropic.messages.create({
+    model: 'claude-3-7-sonnet-20250219',
+    max_tokens,
+    temperature,
+    system,
+    messages
+  })
+    .then(response => {
+      res.json({
+        text: response.content[0].text,
+        model: response.model,
+        usage: {
+          input_tokens: response.usage.input_tokens,
+          output_tokens: response.usage.output_tokens
         }
-      ]
+      });
+    })
+    .catch(error => {
+      console.error('Error calling Anthropic API:', error);
+      res.status(500).json({
+        error: `Anthropic API error: ${error.message}`
+      });
     });
-    
-    // Extract response content
-    let analysisText = "";
-    if (result.content && result.content.length > 0) {
-      analysisText = result.content[0].text;
-    } else {
-      analysisText = "No analysis generated";
-    }
-    
-    // Return response to client
-    res.json({ 
-      analysis: analysisText,
-      model: "claude-3-7-sonnet-20250219"
-    });
-  } catch (error) {
-    console.error('Claude image analysis error:', error);
-    res.status(500).json({ 
-      error: `Failed to analyze image with Claude: ${error instanceof Error ? error.message : String(error)}`
+}
+
+/**
+ * Analyze an image with Claude
+ */
+export function analyzeImageWithClaude(req: Request, res: Response) {
+  if (!isConfigured) {
+    return res.status(503).json({
+      error: 'Anthropic API is not configured. Please provide ANTHROPIC_API_KEY environment variable.'
     });
   }
+
+  if (!req.file) {
+    return res.status(400).json({
+      error: 'Image file is required.'
+    });
+  }
+
+  // Convert image buffer to base64
+  const base64Image = req.file.buffer.toString('base64');
+  const mimeType = req.file.mimetype;
+
+  const { 
+    prompt = 'Describe this image in detail.',
+    temperature = 0.7,
+    max_tokens = 1000
+  } = req.body;
+
+  // the newest Anthropic model is "claude-3-7-sonnet-20250219" which was released February 24, 2025
+  anthropic.messages.create({
+    model: 'claude-3-7-sonnet-20250219',
+    max_tokens,
+    temperature,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: prompt
+          },
+          {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: mimeType,
+              data: base64Image
+            }
+          }
+        ]
+      }
+    ]
+  })
+    .then(response => {
+      res.json({
+        text: response.content[0].text,
+        model: response.model,
+        usage: {
+          input_tokens: response.usage.input_tokens,
+          output_tokens: response.usage.output_tokens
+        }
+      });
+    })
+    .catch(error => {
+      console.error('Error calling Anthropic API for image analysis:', error);
+      res.status(500).json({
+        error: `Anthropic API error: ${error.message}`
+      });
+    });
 }
+
+export { isConfigured };
