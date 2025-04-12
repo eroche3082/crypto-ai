@@ -89,33 +89,89 @@ export class DatabaseStorage implements IStorage {
   // Portfolio methods
   async getPortfolioAssets(userId: number): Promise<PortfolioAsset[]> {
     return await db
-      .select()
+      .select({
+        id: portfolioAssets.id,
+        userId: portfolioAssets.userId,
+        symbol: portfolioAssets.symbol,
+        name: portfolioAssets.name, 
+        quantity: portfolioAssets.quantity,
+        purchasePrice: portfolioAssets.purchasePrice,
+        purchaseDate: portfolioAssets.purchaseDate,
+        createdAt: portfolioAssets.createdAt,
+        updatedAt: portfolioAssets.updatedAt
+      })
       .from(portfolioAssets)
       .where(eq(portfolioAssets.userId, userId));
   }
   
   async getPortfolioAsset(id: number): Promise<PortfolioAsset | undefined> {
     const [asset] = await db
-      .select()
+      .select({
+        id: portfolioAssets.id,
+        userId: portfolioAssets.userId,
+        symbol: portfolioAssets.symbol,
+        name: portfolioAssets.name,
+        quantity: portfolioAssets.quantity,
+        purchasePrice: portfolioAssets.purchasePrice,
+        purchaseDate: portfolioAssets.purchaseDate,
+        createdAt: portfolioAssets.createdAt,
+        updatedAt: portfolioAssets.updatedAt
+      })
       .from(portfolioAssets)
       .where(eq(portfolioAssets.id, id));
     return asset;
   }
   
   async createPortfolioAsset(asset: InsertPortfolioAsset): Promise<PortfolioAsset> {
+    // Omitimos el campo 'type' que no existe en la base de datos real
     const [newAsset] = await db
       .insert(portfolioAssets)
-      .values(asset)
-      .returning();
+      .values({
+        userId: asset.userId,
+        symbol: asset.symbol,
+        name: asset.name,
+        quantity: asset.quantity,
+        purchasePrice: asset.purchasePrice,
+        purchaseDate: asset.purchaseDate
+      })
+      .returning({
+        id: portfolioAssets.id,
+        userId: portfolioAssets.userId,
+        symbol: portfolioAssets.symbol,
+        name: portfolioAssets.name,
+        quantity: portfolioAssets.quantity,
+        purchasePrice: portfolioAssets.purchasePrice,
+        purchaseDate: portfolioAssets.purchaseDate,
+        createdAt: portfolioAssets.createdAt,
+        updatedAt: portfolioAssets.updatedAt
+      });
     return newAsset;
   }
   
   async updatePortfolioAsset(id: number, updates: Partial<InsertPortfolioAsset>): Promise<PortfolioAsset | undefined> {
+    // Creamos un objeto con sólo los campos que existen en la base de datos
+    const validUpdates: Partial<InsertPortfolioAsset> = {};
+    if (updates.name !== undefined) validUpdates.name = updates.name;
+    if (updates.symbol !== undefined) validUpdates.symbol = updates.symbol;
+    if (updates.quantity !== undefined) validUpdates.quantity = updates.quantity;
+    if (updates.purchasePrice !== undefined) validUpdates.purchasePrice = updates.purchasePrice;
+    if (updates.purchaseDate !== undefined) validUpdates.purchaseDate = updates.purchaseDate;
+    
     const [updatedAsset] = await db
       .update(portfolioAssets)
-      .set(updates)
+      .set(validUpdates)
       .where(eq(portfolioAssets.id, id))
-      .returning();
+      .returning({
+        id: portfolioAssets.id,
+        userId: portfolioAssets.userId,
+        symbol: portfolioAssets.symbol,
+        name: portfolioAssets.name,
+        quantity: portfolioAssets.quantity,
+        purchasePrice: portfolioAssets.purchasePrice,
+        purchaseDate: portfolioAssets.purchaseDate,
+        createdAt: portfolioAssets.createdAt,
+        updatedAt: portfolioAssets.updatedAt
+      });
     return updatedAsset;
   }
   
@@ -129,14 +185,34 @@ export class DatabaseStorage implements IStorage {
   // Price alert methods
   async getPriceAlerts(userId: number): Promise<PriceAlert[]> {
     return await db
-      .select()
+      .select({
+        id: priceAlerts.id,
+        userId: priceAlerts.userId,
+        symbol: priceAlerts.symbol,
+        targetPrice: priceAlerts.targetPrice,
+        condition: priceAlerts.condition,
+        active: priceAlerts.active,
+        triggered: priceAlerts.triggered,
+        triggeredAt: priceAlerts.triggeredAt,
+        createdAt: priceAlerts.createdAt
+      })
       .from(priceAlerts)
       .where(eq(priceAlerts.userId, userId));
   }
   
   async getPriceAlert(id: number): Promise<PriceAlert | undefined> {
     const [alert] = await db
-      .select()
+      .select({
+        id: priceAlerts.id,
+        userId: priceAlerts.userId,
+        symbol: priceAlerts.symbol,
+        targetPrice: priceAlerts.targetPrice,
+        condition: priceAlerts.condition,
+        active: priceAlerts.active,
+        triggered: priceAlerts.triggered,
+        triggeredAt: priceAlerts.triggeredAt,
+        createdAt: priceAlerts.createdAt
+      })
       .from(priceAlerts)
       .where(eq(priceAlerts.id, id));
     return alert;
@@ -145,17 +221,52 @@ export class DatabaseStorage implements IStorage {
   async createPriceAlert(alert: InsertPriceAlert): Promise<PriceAlert> {
     const [newAlert] = await db
       .insert(priceAlerts)
-      .values(alert)
-      .returning();
+      .values({
+        userId: alert.userId,
+        symbol: alert.symbol,
+        targetPrice: alert.targetPrice,
+        condition: alert.condition,
+        active: alert.active,
+        triggered: alert.triggered
+      })
+      .returning({
+        id: priceAlerts.id,
+        userId: priceAlerts.userId,
+        symbol: priceAlerts.symbol,
+        targetPrice: priceAlerts.targetPrice,
+        condition: priceAlerts.condition,
+        active: priceAlerts.active,
+        triggered: priceAlerts.triggered,
+        triggeredAt: priceAlerts.triggeredAt,
+        createdAt: priceAlerts.createdAt
+      });
     return newAlert;
   }
   
   async updatePriceAlert(id: number, updates: Partial<InsertPriceAlert>): Promise<PriceAlert | undefined> {
+    // Creamos un objeto con sólo los campos que existen en la base de datos
+    const validUpdates: Partial<InsertPriceAlert> = {};
+    if (updates.symbol !== undefined) validUpdates.symbol = updates.symbol;
+    if (updates.targetPrice !== undefined) validUpdates.targetPrice = updates.targetPrice;
+    if (updates.condition !== undefined) validUpdates.condition = updates.condition;
+    if (updates.active !== undefined) validUpdates.active = updates.active;
+    if (updates.triggered !== undefined) validUpdates.triggered = updates.triggered;
+    
     const [updatedAlert] = await db
       .update(priceAlerts)
-      .set(updates)
+      .set(validUpdates)
       .where(eq(priceAlerts.id, id))
-      .returning();
+      .returning({
+        id: priceAlerts.id,
+        userId: priceAlerts.userId,
+        symbol: priceAlerts.symbol,
+        targetPrice: priceAlerts.targetPrice,
+        condition: priceAlerts.condition,
+        active: priceAlerts.active,
+        triggered: priceAlerts.triggered,
+        triggeredAt: priceAlerts.triggeredAt,
+        createdAt: priceAlerts.createdAt
+      });
     return updatedAlert;
   }
   
@@ -168,7 +279,17 @@ export class DatabaseStorage implements IStorage {
         active: false 
       })
       .where(eq(priceAlerts.id, id))
-      .returning();
+      .returning({
+        id: priceAlerts.id,
+        userId: priceAlerts.userId,
+        symbol: priceAlerts.symbol,
+        targetPrice: priceAlerts.targetPrice,
+        condition: priceAlerts.condition,
+        active: priceAlerts.active,
+        triggered: priceAlerts.triggered,
+        triggeredAt: priceAlerts.triggeredAt,
+        createdAt: priceAlerts.createdAt
+      });
     return updatedAlert;
   }
   
@@ -182,7 +303,15 @@ export class DatabaseStorage implements IStorage {
   // Chat history methods
   async getChatHistory(userId: number): Promise<ChatHistory[]> {
     return await db
-      .select()
+      .select({
+        id: chatHistory.id,
+        userId: chatHistory.userId,
+        role: chatHistory.role,
+        content: chatHistory.content,
+        model: chatHistory.model,
+        timestamp: chatHistory.timestamp,
+        metadata: chatHistory.metadata
+      })
       .from(chatHistory)
       .where(eq(chatHistory.userId, userId))
       .orderBy(chatHistory.timestamp);
@@ -191,8 +320,22 @@ export class DatabaseStorage implements IStorage {
   async createChatMessage(message: InsertChatHistory): Promise<ChatHistory> {
     const [newMessage] = await db
       .insert(chatHistory)
-      .values(message)
-      .returning();
+      .values({
+        userId: message.userId,
+        role: message.role,
+        content: message.content,
+        model: message.model,
+        metadata: message.metadata
+      })
+      .returning({
+        id: chatHistory.id,
+        userId: chatHistory.userId,
+        role: chatHistory.role,
+        content: chatHistory.content,
+        model: chatHistory.model,
+        timestamp: chatHistory.timestamp,
+        metadata: chatHistory.metadata
+      });
     return newMessage;
   }
   
