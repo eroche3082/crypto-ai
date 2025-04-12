@@ -137,6 +137,7 @@ export const Icons = {
   globe: Globe,
   externalLink: ExternalLink,
   cube: Package,
+  upload: Download,
   vr: VrIcon,
   help: FileQuestion,
   

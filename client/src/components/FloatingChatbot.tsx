@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Share, Volume2, VolumeX } from 'lucide-react';
+import { Bot, Share, Volume2, VolumeX, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -255,7 +255,7 @@ export default function FloatingChatbot({
                       onClick={() => activateTool('ar')}
                       className="px-2 h-8"
                     >
-                      <Icons.cube className="h-4 w-4 mr-2" />
+                      <Package className="h-4 w-4 mr-2" />
                       <span className="text-xs">AR View</span>
                     </Button>
                   </TooltipTrigger>
@@ -309,7 +309,7 @@ export default function FloatingChatbot({
                       size="sm"
                       className="px-2 h-8"
                     >
-                      <Icons.upload className="h-4 w-4" />
+                      <Icons.plus className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -375,7 +375,7 @@ export default function FloatingChatbot({
             {activeTool === 'vr' && (
               <div className="flex flex-col items-center justify-center h-full">
                 <div className="p-8 text-center max-w-md">
-                  <Icons.cube className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                  <Icons.vr className="h-16 w-16 mx-auto mb-4 opacity-30" />
                   <h3 className="text-xl font-bold mb-2">VR Experience</h3>
                   <p className="mb-4 text-muted-foreground">
                     The VR experience is coming soon. This feature will allow immersive

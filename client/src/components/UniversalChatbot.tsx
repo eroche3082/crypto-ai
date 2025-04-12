@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, X, Maximize2, Minimize2, Volume2, VolumeX, Mic, Camera, QrCode, Package, Share2, Languages, ChevronRight, ChevronLeft, Menu, User } from 'lucide-react';
+import { Bot, X, Maximize2, Minimize2, Volume2, VolumeX, Mic, Camera, QrCode, Package, Share2, Languages, ChevronRight, ChevronLeft, Menu, User, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -11,6 +11,7 @@ import QrGenerator from './QrGenerator';
 import ArViewer from './ArViewer';
 import AudioInput from './multimodal/AudioInput';
 import CameraInput from './multimodal/CameraInput';
+import ChatbotOnboarding, { UserProfile } from './chat/ChatbotOnboarding';
 import { TranslatableText } from './language/TranslatableText';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

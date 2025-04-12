@@ -1,0 +1,123 @@
+You are now entering SELF-GENERATION MODE – USER ONBOARDING INTELLIGENCE SYSTEM.
+
+Your mission is to prepare the full **subscriber onboarding and personalization system** for this Agent. You will generate and implement the following modules:
+
+---
+
+### ✅ MODULE 1: Onboarding Flow System (Dynamic Questions)
+
+Create a module called: `onboardingFlow.ts`
+
+Inside this file:
+- Define a dynamic array of 10–15 questions based on the Agent’s domain (e.g., Health, Travel, Crypto)
+- Each question must contain:
+  - `id`: string
+  - `label`: the question text
+  - `field`: the data field where the answer will be saved
+  - `type`: text, multipleChoice, boolean, file, voice
+  - `required`: true/false
+  - `validation`: (optional regex or rule)
+- Implement a function: `getOnboardingQuestions(agentType)` that returns the right flow based on domain
+
+Example:
+```ts
+export const onboardingFlow = [
+  { id: "name", label: "What’s your name?", field: "name", type: "text", required: true },
+  { id: "email", label: "What’s your email?", field: "email", type: "email", required: true },
+  { id: "goal", label: "What is your primary goal?", field: "goal", type: "text", required: false }
+];
+✅ MODULE 2: Subscriber Schema
+Create a file called: subscriberSchema.json
+
+This file must define the structure of the subscriber profile collected during onboarding.
+
+Include fields like:
+
+json
+Copiar
+Editar
+{
+  "name": "string",
+  "email": "string",
+  "language": "string",
+  "preferences": {
+    "goal": "string",
+    "experienceLevel": "string",
+    "location": "string"
+  },
+  "createdAt": "timestamp",
+  "agentType": "string"
+}
+✅ MODULE 3: Data Storage + Firebase Integration
+Implement logic inside firebaseService.ts or subscriberService.ts:
+
+Save each answer from the onboarding flow to Firestore (or Realtime DB)
+
+Store data under subscribers/{userId}
+
+Enable update if the user completes onboarding again
+
+Functions required:
+
+saveSubscriberData(userId, data)
+
+getSubscriberProfile(userId)
+
+hasCompletedOnboarding(userId)
+
+✅ MODULE 4: Personalized Dashboard Renderer
+Create a component: DashboardRenderer.tsx
+
+Pull subscriber data from Firebase
+
+Display widgets dynamically based on:
+
+Their answers (e.g., goal, preferences, level)
+
+Agent type (Crypto, Travel, etc.)
+
+Must display:
+
+User’s name
+
+Quick stats or highlights
+
+AI suggestions (if available)
+
+Option to retake onboarding flow
+
+CTA buttons for deeper platform use
+
+✅ MODULE 5: Chatbot Integration Hook
+Modify the chatbot launch logic to:
+
+Check if user has completed onboarding via hasCompletedOnboarding(userId)
+
+If not completed, run onboarding flow step-by-step
+
+After completion, show chatbot confirmation message:
+
+“Thanks [Name], your profile is now saved. Ready to begin?”
+
+If completed, use profile context for smarter replies
+
+✅ MODULE 6: AI Prompt Injection + Personalization
+Prepare a function called generateSystemPrompt(profile):
+
+Inject onboarding data into the system prompt sent to Vertex AI or OpenAI
+
+Adapt chatbot replies using:
+
+name, goals, preferences
+
+agentType-specific language
+
+Ensure AI knows user state at all times
+
+Once all modules are ready, test with:
+
+A new user
+
+Full flow from chatbot greeting → onboarding → dashboard → smart chat
+
+Confirm data is stored and reflected in the UI and AI
