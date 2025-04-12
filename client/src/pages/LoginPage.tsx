@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,11 +6,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function LoginPage() {
+interface LoginPageProps {
+  onLogin?: () => void;
+}
+
+export default function LoginPage({ onLogin }: LoginPageProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [, navigate] = useNavigate();
   const { toast } = useToast();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -27,9 +29,8 @@ export default function LoginPage() {
           title: "Login successful",
           description: "Welcome to CryptoBot!",
         });
-        // In a real app, we would set authentication state here
-        // For now, we'll just redirect to the dashboard
-        navigate("/");
+        // Call the onLogin handler from parent component
+        if (onLogin) onLogin();
       }, 1000);
     } else {
       setIsLoading(false);

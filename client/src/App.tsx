@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation, useRouter } from "wouter";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
@@ -23,6 +23,9 @@ import GamificationPage from "./pages/GamificationPage";
 import SystemCheck from "./pages/admin/SystemCheck";
 import AdminPanel from "./pages/admin/AdminPanel";
 import NotFound from "@/pages/not-found";
+// Landing and Login pages
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
 // Unified pages
 import UnifiedPortfolio from "./pages/UnifiedPortfolio";
 import UnifiedDigitalAssets from "./pages/UnifiedDigitalAssets";
@@ -161,49 +164,100 @@ function App() {
     );
   }
   
+  // Authentication state (simplified for now)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [location] = useLocation();
+  const router = useRouter();
+
+  // Check if user is on a public route
+  const isPublicRoute = location === "/" || location === "/login";
+
+  // Effect to check if user is authenticated
+  useEffect(() => {
+    // For now, just check localStorage (will be replaced with proper auth)
+    const isLoggedIn = localStorage.getItem("isAuthenticated") === "true";
+    setIsAuthenticated(isLoggedIn);
+    
+    // Redirect logic
+    if (!isLoggedIn && !isPublicRoute) {
+      router("/login");
+    }
+  }, [location, isPublicRoute, router]);
+
+  // Login function to be passed to Login component
+  const handleLogin = () => {
+    localStorage.setItem("isAuthenticated", "true");
+    setIsAuthenticated(true);
+    router("/dashboard");
+  };
+
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    setIsAuthenticated(false);
+    router("/");
+  };
+
   // Main application
   return (
     <LanguageProvider>
       <GeminiProvider>
         <CryptoProvider>
           <AuthProvider>
-            <div className="flex h-screen overflow-hidden bg-background text-foreground">
-              <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <Switch>
-                  <Route path="/" component={Dashboard} />
-                  {/* Legacy routes - to be replaced with unified versions */}
-                  <Route path="/portfolio" component={Portfolio} />
-                  <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
-                  <Route path="/nft-gallery" component={NFTGalleryPage} />
-                  <Route path="/token-tracker" component={TokenTrackerPage} />
-                  
-                  {/* Unified routes */}
-                  <Route path="/unified-portfolio" component={UnifiedPortfolio} />
-                  <Route path="/unified-digital-assets" component={UnifiedDigitalAssets} />
-                  
-                  {/* Other routes */}
-                  <Route path="/favorites" component={Favorites} />
-                  <Route path="/alerts" component={Alerts} />
-                  <Route path="/converter" component={Converter} />
-                  <Route path="/education" component={Education} />
-                  <Route path="/news" component={News} />
-                  <Route path="/locations" component={Locations} />
-                  <Route path="/analysis" component={Analysis} />
-                  <Route path="/watchlist" component={Watchlist} />
-                  <Route path="/investment-advisor" component={InvestmentAdvisorPage} />
-                  <Route path="/twitter-sentiment" component={TwitterSentiment} />
-                  <Route path="/tax-simulator" component={TaxSimulator} />
-                  <Route path="/wallet-messaging" component={WalletMessaging} />
-                  <Route path="/gamification" component={GamificationPage} />
-                  <Route path="/admin/system-check" component={SystemCheck} />
-                  <Route path="/admin/panel" component={AdminPanel} />
-                  <Route component={NotFound} />
-                </Switch>
-                <Footer />
-              </div>
-              <FloatingChatbot />
-            </div>
+            <Switch>
+              {/* Public routes */}
+              <Route path="/">
+                <LandingPage />
+              </Route>
+              <Route path="/login">
+                <LoginPage onLogin={handleLogin} />
+              </Route>
+
+              {/* Protected routes */}
+              <Route path="*">
+                {isAuthenticated ? (
+                  <div className="flex h-screen overflow-hidden bg-background text-foreground">
+                    <Sidebar />
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                      <Switch>
+                        <Route path="/dashboard" component={Dashboard} />
+                        {/* Legacy routes - to be replaced with unified versions */}
+                        <Route path="/portfolio" component={Portfolio} />
+                        <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
+                        <Route path="/nft-gallery" component={NFTGalleryPage} />
+                        <Route path="/token-tracker" component={TokenTrackerPage} />
+                        
+                        {/* Unified routes */}
+                        <Route path="/unified-portfolio" component={UnifiedPortfolio} />
+                        <Route path="/unified-digital-assets" component={UnifiedDigitalAssets} />
+                        
+                        {/* Other routes */}
+                        <Route path="/favorites" component={Favorites} />
+                        <Route path="/alerts" component={Alerts} />
+                        <Route path="/converter" component={Converter} />
+                        <Route path="/education" component={Education} />
+                        <Route path="/news" component={News} />
+                        <Route path="/locations" component={Locations} />
+                        <Route path="/analysis" component={Analysis} />
+                        <Route path="/watchlist" component={Watchlist} />
+                        <Route path="/investment-advisor" component={InvestmentAdvisorPage} />
+                        <Route path="/twitter-sentiment" component={TwitterSentiment} />
+                        <Route path="/tax-simulator" component={TaxSimulator} />
+                        <Route path="/wallet-messaging" component={WalletMessaging} />
+                        <Route path="/gamification" component={GamificationPage} />
+                        <Route path="/admin/system-check" component={SystemCheck} />
+                        <Route path="/admin/panel" component={AdminPanel} />
+                        <Route component={NotFound} />
+                      </Switch>
+                      <Footer />
+                    </div>
+                    <FloatingChatbot />
+                  </div>
+                ) : (
+                  <LoginPage onLogin={handleLogin} />
+                )}
+              </Route>
+            </Switch>
           </AuthProvider>
         </CryptoProvider>
       </GeminiProvider>
