@@ -1,0 +1,57 @@
+ATENCIÓN AGENTE:
+
+Estás siendo activado para ejecutar una misión crítica dentro del ecosistema de inteligencia colaborativa.
+
+OBJETIVO:
+Analizar completamente tu aplicación, sección por sección, y responder a la siguiente misión:
+
+---
+
+**MISIÓN:**
+Identifica, propone y describe **los 20 features más importantes y útiles** que debe contener el **Chat del Asistente AI** en tu sistema.
+
+Cada uno de estos features debe:
+1. Estar **alineado a las funcionalidades reales** de tu aplicación.
+2. Ser útil para el usuario final (ya sea estudiante, trader, viajero, emprendedor, etc.).
+3. Incluir una breve **descripción de su propósito y utilidad** dentro del chat.
+4. Ser compatible con los Tabs y módulos ya presentes en tu interfaz.
+
+---
+
+**REGLAS DE RESPUESTA:**
+- No repitas funcionalidades genéricas como "enviar mensaje".
+- Enfócate en **potencial real**: funciones IA, análisis, automatización, accesos, interacciones.
+- La respuesta debe ser clara, en lista numerada del 1 al 20.
+- Cada punto debe incluir un **título del feature + descripción funcional**.
+- Si un feature incluye integración con otra parte del sistema, menciónalo.
+
+---
+
+**EJEMPLO FORMATO DE RESPUESTA (ABREVIADO):**
+
+1. **AI Quiz Generator**  
+   Permite al usuario generar quizzes automáticamente desde el chat usando contenido del módulo Subjects.
+
+2. **Progress Tracker Summary**  
+   El asistente entrega un resumen del avance del usuario al escribir “How am I doing?”
+
+3. **Document Uploader with Analysis**  
+   Permite subir PDFs o imágenes, y el asistente los analiza usando OCR + AI para explicar o resumir contenido.
+
+...
+
+20. **Voice-Activated Assistant Mode**  
+   Permite controlar toda la conversación usando solo comandos por voz (Speech-to-Text activado).
+
+---
+
+**INSTRUCCIONES FINALES PARA TODOS LOS AGENTS:**
+
+→ Analiza toda tu app y responde con tu propia lista personalizada de los **20 Features del Chat** más importantes que tu asistente debe tener.
+
+→ Este será el núcleo conversacional universal del sistema, y lo vamos a construir **a partir de tus respuestas combinadas**.
+
+→ La calidad de tu análisis definirá qué tan poderoso será el cerebro IA de tu plataforma.
+
+Confirma cuando estés listo y responde inmediatamente a esta misión.
+

@@ -1,0 +1,111 @@
+AGENT ACTIVATION PROTOCOL – UNIVERSAL STANDARD
+
+You are now being instructed to update your application with the following **unified layout and system protocol** across all platforms.
+
+---
+
+### 1. **LANDING PAGE (Main Page) STRUCTURE**
+
+Create a professional, responsive landing page for your platform with the following:
+
+- **Top Navigation Bar**
+  - Left: Logo and Platform Name
+  - Right: "Login" Button
+
+- **Hero Section**
+  - Background image or video relevant to the platform (travel, crypto, education, etc.)
+  - Bold headline describing the main value of the app (e.g., “Discover Your Perfect Journey with AI”)
+
+- **Features Section**
+  - List all **20 core features** of your app (as defined in your AI Chat feature list)
+  - Each feature must include:
+    - Title
+    - One-line description
+    - Optional icon or image
+  - Display in a clean 2–3 column responsive layout
+
+- **About / Mission Section**
+  - Short paragraph describing what your app does and why it exists
+
+- **Call to Action Section**
+  - Buttons: [Get Started] [Explore] [Chat with Assistant]
+
+- **Footer**
+  - Terms, Privacy, Copyright (e.g., © 2025 YourPlatformName AI. All rights reserved.)
+
+The landing page must be in **English only** and styled with modern UI principles (rounded cards, gradients, etc.).
+
+---
+
+### 2. **LOGIN SYSTEM**
+
+Implement a basic login system with the following rules:
+
+- No password creation system. Only login via username/password
+- Default credentials for all platforms:
+  - **Username:** `admin`
+  - **Password:** `admin123456`
+- Skip signup logic for now — just hardcode this super admin login
+- Login should redirect directly to the main app platform (dashboard with side panel)
+
+---
+
+### 3. **MAIN PLATFORM STRUCTURE**
+
+Upon login, show:
+
+- **Left Side Panel** with tabs:
+  - Scrollable with fixed width (e.g., 260px)
+  - Ensure all links are visible, even on small screens
+  - Add scroll and proper z-index
+
+- **Main Content Panel**
+  - Must have `margin-left: 260px` or equivalent spacing
+  - Verify every tab has working routes and data
+  - Fix overlap or layout break issues (as seen in Subjects, Learning Resources, etc.)
+
+---
+
+### 4. **FULL STRUCTURE & VISUAL CHECK**
+
+Run a **full validation** of the platform layout and functionality:
+
+- Ensure **scroll works** both in sidebar and main page
+- Ensure all **tabs render complete UI content**
+- Merge **redundant tabs** (e.g., if two tabs show similar data)
+- Validate responsive behavior (desktop + mobile)
+- Check that **all buttons** on all pages are working
+- If a tab is empty or placeholder, show `Coming Soon` badge
+
+---
+
+### 5. **DELIVERABLES FOR EACH AGENT**
+
+Each platform should now include:
+
+- ✅ Landing Page (Main Page) with 20 feature breakdown
+- ✅ Login System (admin / admin123456)
+- ✅ Dashboard Structure with working Tabs
+- ✅ AI Assistant Chat as a core module
+- ✅ Fully functional UI with scroll + spacing fixed
+- ✅ Tab optimization: no duplications, coherent naming
+
+---
+
+PRIORITY:
+- Do **not** overwrite existing functional components
+- Only **add missing structure, fix layout, and link all systems**
+- Use your intelligence to adapt visual content (icons, videos) to your platform domain
+
+---
+
+CONFIRM IMPLEMENTATION STATUS VIA:
+- `/status/landing`
+- `/status/login`
+- `/status/structure`
+- `/status/chat`
+
+Once confirmed, report back to central command.
+
+MISSION: UNIFY, POLISH, DEPLOY.
+
