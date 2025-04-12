@@ -1,470 +1,348 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  BarChart, 
-  PieChart,
-  LineChart,
-  Calendar,
-  Clock,
-  MousePointer,
-  Keyboard,
-  ArrowRight,
-  Info,
-  Download,
-  RefreshCw
-} from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-import { BehaviorEvent } from '@/utils/phase4Automation';
+/**
+ * Behavior Insights Component
+ * 
+ * Displays user behavior analytics and insights for administrative purposes,
+ * including interaction patterns, AI usage statistics, and system performance.
+ */
 
+import { useState, useEffect } from 'react';
+import { getFirebaseInstance } from '../../services/firebaseSync';
+
+// Component props
 interface BehaviorInsightsProps {
+  userId?: string;
+  startDate?: Date;
+  endDate?: Date;
   className?: string;
 }
 
-export const BehaviorInsights: React.FC<BehaviorInsightsProps> = ({
-  className = '',
-}) => {
-  const [activeTab, setActiveTab] = useState<string>('overview');
-  const [loading, setLoading] = useState(false);
-  const [behaviorEvents, setBehaviorEvents] = useState<BehaviorEvent[]>([]);
-  const { toast } = useToast();
+// Behavior record type
+interface BehaviorRecord {
+  id: string;
+  action: string;
+  details: any;
+  tabContext?: string;
+  timestamp: any;
+}
+
+// Behavior analytics
+interface BehaviorAnalytics {
+  totalInteractions: number;
+  uniqueActions: string[];
+  actionFrequency: Record<string, number>;
+  tabDistribution: Record<string, number>;
+  mostActiveHours: Record<number, number>;
+  avgSessionDuration: number;
+}
+
+// Analyze behavior data
+function analyzeBehaviorData(behaviors: BehaviorRecord[]): BehaviorAnalytics {
+  // Initialize analytics
+  const analytics: BehaviorAnalytics = {
+    totalInteractions: behaviors.length,
+    uniqueActions: [],
+    actionFrequency: {},
+    tabDistribution: {},
+    mostActiveHours: {},
+    avgSessionDuration: 0
+  };
   
-  // Load behavior events
-  useEffect(() => {
-    loadBehaviorEvents();
-  }, []);
-  
-  const loadBehaviorEvents = async () => {
-    setLoading(true);
+  // Process behaviors
+  behaviors.forEach(behavior => {
+    // Action frequency
+    const action = behavior.action;
+    analytics.actionFrequency[action] = (analytics.actionFrequency[action] || 0) + 1;
     
-    try {
-      // Load from localStorage
-      const storedEvents = localStorage.getItem('user_behavior_events');
+    // Unique actions
+    if (!analytics.uniqueActions.includes(action)) {
+      analytics.uniqueActions.push(action);
+    }
+    
+    // Tab distribution
+    if (behavior.tabContext) {
+      analytics.tabDistribution[behavior.tabContext] = 
+        (analytics.tabDistribution[behavior.tabContext] || 0) + 1;
+    }
+    
+    // Most active hours
+    if (behavior.timestamp) {
+      const date = behavior.timestamp.toDate ? behavior.timestamp.toDate() : new Date(behavior.timestamp);
+      const hour = date.getHours();
+      analytics.mostActiveHours[hour] = (analytics.mostActiveHours[hour] || 0) + 1;
+    }
+  });
+  
+  // Calculate average session duration
+  if (behaviors.length > 0) {
+    const sessionBehaviors = behaviors.filter(b => 
+      b.action === 'session_start' || b.action === 'session_end'
+    );
+    
+    if (sessionBehaviors.length >= 2) {
+      let totalDuration = 0;
+      let sessionCount = 0;
       
-      if (storedEvents) {
-        try {
-          const events = JSON.parse(storedEvents);
-          setBehaviorEvents(events);
-        } catch (error) {
-          console.error('Error parsing behavior events:', error);
-          setBehaviorEvents([]);
+      for (let i = 0; i < sessionBehaviors.length - 1; i++) {
+        if (sessionBehaviors[i].action === 'session_start' && 
+            sessionBehaviors[i+1].action === 'session_end') {
+          const startTime = sessionBehaviors[i].timestamp.toDate 
+            ? sessionBehaviors[i].timestamp.toDate() 
+            : new Date(sessionBehaviors[i].timestamp);
+          
+          const endTime = sessionBehaviors[i+1].timestamp.toDate 
+            ? sessionBehaviors[i+1].timestamp.toDate() 
+            : new Date(sessionBehaviors[i+1].timestamp);
+          
+          const durationMs = endTime.getTime() - startTime.getTime();
+          if (durationMs > 0 && durationMs < 24 * 60 * 60 * 1000) { // Less than a day
+            totalDuration += durationMs;
+            sessionCount++;
+          }
         }
-      } else {
-        setBehaviorEvents([]);
       }
-    } catch (error) {
-      console.error('Error loading behavior events:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load behavior data',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Export behavior data as JSON
-  const handleExport = () => {
-    try {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(behaviorEvents, null, 2));
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", `behavior-events-${new Date().toISOString()}.json`);
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
       
-      toast({
-        title: 'Export Complete',
-        description: 'Behavior data exported as JSON',
-      });
-    } catch (error) {
-      console.error('Error exporting data:', error);
-      toast({
-        title: 'Export Failed',
-        description: 'Could not export behavior data',
-        variant: 'destructive',
-      });
+      if (sessionCount > 0) {
+        analytics.avgSessionDuration = totalDuration / sessionCount / 1000 / 60; // In minutes
+      }
     }
-  };
+  }
   
-  // Calculate behavior metrics
-  const getBehaviorMetrics = () => {
-    const eventCount = behaviorEvents.length;
-    
-    // Event types
-    const clickEvents = behaviorEvents.filter(event => event.action === 'click').length;
-    const inputEvents = behaviorEvents.filter(event => event.action === 'input').length;
-    const navigationEvents = behaviorEvents.filter(event => event.action === 'navigation').length;
-    
-    // Tab activity
-    const tabCounts = behaviorEvents.reduce((counts, event) => {
-      const tab = event.tab || 'unknown';
-      counts[tab] = (counts[tab] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
-    
-    // Most active tabs (sorted)
-    const mostActiveTabs = Object.entries(tabCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-    
-    // Time patterns
-    const timeDistribution = behaviorEvents.reduce((counts, event) => {
-      const hour = new Date(event.timestamp).getHours();
-      const period = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
-      counts[period] = (counts[period] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
-    
-    return {
-      eventCount,
-      clickEvents,
-      inputEvents,
-      navigationEvents,
-      mostActiveTabs,
-      timeDistribution,
+  return analytics;
+}
+
+// Format duration in minutes to readable format
+function formatDuration(minutes: number): string {
+  if (minutes < 1) {
+    return 'Less than a minute';
+  } else if (minutes < 60) {
+    return `${Math.round(minutes)} minutes`;
+  } else {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = Math.round(minutes % 60);
+    return `${hours} hour${hours > 1 ? 's' : ''}${remainingMinutes > 0 ? ` ${remainingMinutes} min` : ''}`;
+  }
+}
+
+// BehaviorInsights component
+export function BehaviorInsights({
+  userId,
+  startDate,
+  endDate,
+  className = ''
+}: BehaviorInsightsProps) {
+  // Behaviors state
+  const [behaviors, setBehaviors] = useState<BehaviorRecord[]>([]);
+  // Loading state
+  const [loading, setLoading] = useState(false);
+  // Error state
+  const [error, setError] = useState<string | null>(null);
+  // Analytics state
+  const [analytics, setAnalytics] = useState<BehaviorAnalytics | null>(null);
+  
+  // Load behaviors
+  useEffect(() => {
+    const loadBehaviors = async () => {
+      if (!userId) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Get Firebase instance
+        const firebase = getFirebaseInstance();
+        
+        if (!firebase) {
+          throw new Error('Firebase is not initialized');
+        }
+        
+        // Get behaviors from Firebase
+        const recentBehaviors = await firebase.getRecentBehaviors(userId, 100);
+        
+        // Set behaviors
+        setBehaviors(recentBehaviors);
+        
+        // Analyze behaviors
+        const newAnalytics = analyzeBehaviorData(recentBehaviors);
+        setAnalytics(newAnalytics);
+      } catch (err) {
+        console.error('Error loading behaviors:', err);
+        setError('Failed to load behavior data');
+      } finally {
+        setLoading(false);
+      }
     };
-  };
+    
+    loadBehaviors();
+  }, [userId]);
   
-  // Get relevant metrics
-  const metrics = getBehaviorMetrics();
-  
-  // Calculate relative percentages
-  const getPercentage = (count: number) => {
-    if (metrics.eventCount === 0) return 0;
-    return Math.round((count / metrics.eventCount) * 100);
-  };
-  
-  // Get navigation flow data
-  const getNavigationFlow = () => {
-    const navigationEvents = behaviorEvents.filter(event => event.action === 'navigation');
-    
-    // Create a flow map of from -> to
-    const flowMap: Record<string, Record<string, number>> = {};
-    
-    for (let i = 1; i < navigationEvents.length; i++) {
-      const prevEvent = navigationEvents[i - 1];
-      const currentEvent = navigationEvents[i];
-      
-      const from = prevEvent.tab || 'unknown';
-      const to = currentEvent.tab || 'unknown';
-      
-      if (!flowMap[from]) {
-        flowMap[from] = {};
-      }
-      
-      flowMap[from][to] = (flowMap[from][to] || 0) + 1;
-    }
-    
-    // Convert to array of flows
-    const flows = Object.entries(flowMap).flatMap(([from, targets]) => {
-      return Object.entries(targets).map(([to, count]) => ({
-        from,
-        to,
-        count,
-      }));
-    });
-    
-    // Sort by count (descending)
-    return flows.sort((a, b) => b.count - a.count).slice(0, 10);
-  };
-  
-  // Get engagement data over time
-  const getEngagementOverTime = () => {
-    // Group events by date
-    const dateGroups = behaviorEvents.reduce((groups, event) => {
-      const date = new Date(event.timestamp).toLocaleDateString();
-      if (!groups[date]) {
-        groups[date] = [];
-      }
-      groups[date].push(event);
-      return groups;
-    }, {} as Record<string, BehaviorEvent[]>);
-    
-    // Convert to array of date and count
-    return Object.entries(dateGroups)
-      .map(([date, events]) => ({
-        date,
-        count: events.length,
-        clicks: events.filter(event => event.action === 'click').length,
-        inputs: events.filter(event => event.action === 'input').length,
-        navigations: events.filter(event => event.action === 'navigation').length,
-      }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  };
+  // If no user ID, don't render
+  if (!userId) {
+    return null;
+  }
   
   return (
-    <div className={`space-y-6 ${className}`}>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Behavior Insights</h2>
-          <p className="text-muted-foreground">
-            User behavior analytics and engagement patterns
-          </p>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          <Button 
-            onClick={handleExport}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1"
-          >
-            <Download className="h-4 w-4" />
-            Export Data
-          </Button>
-          <Button 
-            onClick={loadBehaviorEvents}
-            variant="default"
-            size="sm"
-            className="flex items-center gap-1"
-            disabled={loading}
-          >
-            {loading ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-            Refresh
-          </Button>
-        </div>
-      </div>
+    <div className={`behavior-insights p-4 bg-white rounded-lg shadow ${className}`}>
+      <h2 className="text-xl font-semibold mb-4">User Behavior Insights</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.eventCount}</div>
-            <p className="text-xs text-muted-foreground">Tracked interactions</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Click Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.clickEvents}</div>
-            <p className="text-xs text-muted-foreground">{getPercentage(metrics.clickEvents)}% of all events</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Input Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.inputEvents}</div>
-            <p className="text-xs text-muted-foreground">{getPercentage(metrics.inputEvents)}% of all events</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Navigation Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.navigationEvents}</div>
-            <p className="text-xs text-muted-foreground">{getPercentage(metrics.navigationEvents)}% of all events</p>
-          </CardContent>
-        </Card>
-      </div>
+      {loading && !analytics && (
+        <div className="text-gray-500">Loading behavior data...</div>
+      )}
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 mb-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="navigation">Navigation Flows</TabsTrigger>
-          <TabsTrigger value="details">Event Details</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-lg">Engagement Over Time</CardTitle>
-                <CardDescription>User activity patterns by date</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {getEngagementOverTime().length > 0 ? (
-                  <div className="h-80 w-full">
-                    {/* In a real implementation, this would be a chart component */}
-                    <div className="h-full w-full flex items-center justify-center bg-muted/40 rounded-md">
-                      <LineChart className="h-16 w-16 text-muted-foreground/50" />
-                      <span className="ml-2 text-muted-foreground">Chart visualization would be here</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="h-80 w-full flex flex-col items-center justify-center bg-muted/40 rounded-md">
-                    <Info className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                    <p className="text-muted-foreground">Not enough data to show engagement over time</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Most Active Tabs</CardTitle>
-                <CardDescription>Tabs with highest engagement</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {metrics.mostActiveTabs.length > 0 ? (
-                  <div className="space-y-4">
-                    {metrics.mostActiveTabs.map(([tab, count], index) => (
-                      <div key={index} className="flex justify-between items-center">
-                        <div className="flex items-center">
-                          <div className={`w-3 h-3 rounded-full ${
-                            index === 0 ? 'bg-green-500' : 
-                            index === 1 ? 'bg-blue-500' : 
-                            index === 2 ? 'bg-purple-500' : 
-                            'bg-gray-500'
-                          } mr-2`} />
-                          <span className="text-sm">{tab}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-sm font-medium">{count}</span>
-                          <span className="text-xs text-muted-foreground ml-1">
-                            ({getPercentage(count)}%)
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="h-40 w-full flex flex-col items-center justify-center">
-                    <Info className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                    <p className="text-sm text-muted-foreground">No tab activity data</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Time Distribution</CardTitle>
-                <CardDescription>Activity by time of day</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {Object.keys(metrics.timeDistribution).length > 0 ? (
-                  <div className="h-60 w-full">
-                    {/* In a real implementation, this would be a chart component */}
-                    <div className="h-full w-full flex items-center justify-center bg-muted/40 rounded-md">
-                      <PieChart className="h-12 w-12 text-muted-foreground/50" />
-                      <span className="ml-2 text-muted-foreground">Chart visualization would be here</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="h-60 w-full flex flex-col items-center justify-center">
-                    <Clock className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                    <p className="text-sm text-muted-foreground">No time distribution data</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-lg">Event Types</CardTitle>
-                <CardDescription>Breakdown of user interactions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-60 w-full">
-                  {/* In a real implementation, this would be a chart component */}
-                  <div className="h-full w-full flex items-center justify-center bg-muted/40 rounded-md">
-                    <BarChart className="h-12 w-12 text-muted-foreground/50" />
-                    <span className="ml-2 text-muted-foreground">Chart visualization would be here</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      {error && (
+        <div className="text-red-500 mb-2">{error}</div>
+      )}
+      
+      {analytics && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Overview metrics */}
+          <div className="bg-gray-50 p-3 rounded">
+            <h3 className="text-lg font-medium mb-2">Overview</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Interactions:</span>
+                <span className="font-medium">{analytics.totalInteractions}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Unique Actions:</span>
+                <span className="font-medium">{analytics.uniqueActions.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Avg Session Duration:</span>
+                <span className="font-medium">{formatDuration(analytics.avgSessionDuration)}</span>
+              </div>
+            </div>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="navigation">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Navigation Flow Analysis</CardTitle>
-              <CardDescription>
-                Common paths users take through the application
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {getNavigationFlow().length > 0 ? (
-                <div className="space-y-4">
-                  {getNavigationFlow().map((flow, index) => (
-                    <div key={index} className="flex items-center p-2 rounded-md bg-muted/50">
-                      <div className="text-sm font-medium">{flow.from}</div>
-                      <ArrowRight className="h-4 w-4 mx-2 text-muted-foreground" />
-                      <div className="text-sm font-medium">{flow.to}</div>
-                      <div className="flex-1 text-right">
-                        <span className="text-sm text-muted-foreground">{flow.count} times</span>
-                      </div>
+          
+          {/* Top actions */}
+          <div className="bg-gray-50 p-3 rounded">
+            <h3 className="text-lg font-medium mb-2">Top Actions</h3>
+            <div className="space-y-1">
+              {Object.entries(analytics.actionFrequency)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([action, count]) => (
+                  <div key={action} className="flex justify-between items-center">
+                    <span className="text-gray-600">{action}:</span>
+                    <div className="flex items-center">
+                      <div 
+                        className="h-2 bg-blue-400 mr-2" 
+                        style={{ 
+                          width: `${Math.min(100, count * 100 / analytics.totalInteractions)}px`
+                        }}
+                      ></div>
+                      <span className="font-medium">{count}</span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="h-60 w-full flex flex-col items-center justify-center">
-                  <Info className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                  <p className="text-muted-foreground">Not enough navigation data to analyze flows</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="details">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Recent Events</CardTitle>
-              <CardDescription>
-                Last 50 recorded user interactions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {behaviorEvents.length > 0 ? (
-                <div className="space-y-1 max-h-[600px] overflow-y-auto">
-                  {behaviorEvents.slice(-50).reverse().map((event, index) => (
-                    <div key={index} className="flex items-start p-2 text-sm rounded-md hover:bg-muted/50">
-                      <div className="w-5 mr-2 flex-shrink-0">
-                        {event.action === 'click' ? (
-                          <MousePointer className="h-4 w-4 text-blue-500" />
-                        ) : event.action === 'input' ? (
-                          <Keyboard className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <ArrowRight className="h-4 w-4 text-purple-500" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">
-                          {event.action.charAt(0).toUpperCase() + event.action.slice(1)} on {event.tab}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {event.target || 'Unknown target'}
-                        </div>
-                      </div>
-                      <div className="text-xs text-right text-muted-foreground whitespace-nowrap">
-                        {new Date(event.timestamp).toLocaleString()}
-                      </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          
+          {/* Tab distribution */}
+          <div className="bg-gray-50 p-3 rounded">
+            <h3 className="text-lg font-medium mb-2">Tab Distribution</h3>
+            <div className="space-y-1">
+              {Object.entries(analytics.tabDistribution)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([tab, count]) => (
+                  <div key={tab} className="flex justify-between items-center">
+                    <span className="text-gray-600">{tab || 'Unknown'}:</span>
+                    <div className="flex items-center">
+                      <div 
+                        className="h-2 bg-green-400 mr-2" 
+                        style={{ 
+                          width: `${Math.min(100, count * 100 / analytics.totalInteractions)}px`
+                        }}
+                      ></div>
+                      <span className="font-medium">{count}</span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="h-60 w-full flex flex-col items-center justify-center">
-                  <Info className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                  <p className="text-muted-foreground">No behavior events recorded yet</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          
+          {/* Active hours */}
+          <div className="bg-gray-50 p-3 rounded">
+            <h3 className="text-lg font-medium mb-2">Active Hours</h3>
+            <div className="space-y-1">
+              {Object.entries(analytics.mostActiveHours)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([hour, count]) => (
+                  <div key={hour} className="flex justify-between items-center">
+                    <span className="text-gray-600">{hour}:00 - {parseInt(hour) + 1}:00</span>
+                    <div className="flex items-center">
+                      <div 
+                        className="h-2 bg-purple-400 mr-2" 
+                        style={{ 
+                          width: `${Math.min(100, count * 100 / analytics.totalInteractions)}px`
+                        }}
+                      ></div>
+                      <span className="font-medium">{count}</span>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Recent activity log */}
+      <div className="mt-6">
+        <h3 className="text-lg font-medium mb-2">Recent Activity</h3>
+        
+        {behaviors.length === 0 && !loading && (
+          <div className="text-gray-500">No recent activity recorded</div>
+        )}
+        
+        {behaviors.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tab</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {behaviors.slice(0, 10).map(behavior => {
+                  // Format timestamp
+                  const timestamp = behavior.timestamp.toDate 
+                    ? behavior.timestamp.toDate() 
+                    : new Date(behavior.timestamp);
+                    
+                  return (
+                    <tr key={behavior.id}>
+                      <td className="px-3 py-2 text-xs">
+                        {timestamp.toLocaleTimeString()}
+                      </td>
+                      <td className="px-3 py-2 text-xs font-medium text-gray-900">
+                        {behavior.action}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-500">
+                        {behavior.tabContext || '-'}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-500">
+                        {behavior.details 
+                          ? JSON.stringify(behavior.details).slice(0, 30) + (JSON.stringify(behavior.details).length > 30 ? '...' : '')
+                          : '-'
+                        }
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default BehaviorInsights;

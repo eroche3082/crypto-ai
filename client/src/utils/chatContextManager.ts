@@ -1,136 +1,223 @@
 /**
  * Chat Context Manager
  * 
- * Manages chat message history, context retention, and persistence
- * with Firebase synchronization for cross-device access.
+ * Utility for managing chat contexts across tabs, preserving conversation
+ * context, and tracking user activities for context-enhanced AI responses.
  */
 
+import { ChatContext } from '../services/contextAwareChatService';
 import { getFirebaseInstance } from '../services/firebaseSync';
 
-// Message structure
-export interface ChatMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: string;
-  tabContext?: string;
-}
+// Maximum number of recent activities to track
+const MAX_RECENT_ACTIVITIES = 5;
 
-const DEFAULT_CONTEXT_SIZE = 10;
+// Global context state
+let globalContext: ChatContext = {};
 
-// In-memory cache of messages
-let messageCache: ChatMessage[] = [];
-let isInitialized = false;
+// Tab contexts map
+const tabContexts: Map<string, ChatContext> = new Map();
+
+// Recent user activities
+const recentActivities: string[] = [];
 
 /**
- * Initialize the chat context manager and load messages from storage
+ * Add a user activity to the recent activities list
  */
-export async function initChatContextManager(userId?: string): Promise<void> {
-  if (isInitialized) return;
+export function addUserActivity(activity: string): void {
+  // Add to the beginning of the array
+  recentActivities.unshift(activity);
   
-  try {
-    // Try to load from Firebase if available
-    const firebase = getFirebaseInstance();
-    
-    if (firebase && userId) {
-      const messages = await firebase.loadChatContext(userId);
-      if (messages && Array.isArray(messages)) {
-        messageCache = messages;
-        console.log(`Loaded ${messages.length} messages from Firebase for user ${userId}`);
-      }
-    } else {
-      // Fallback to localStorage
-      const storedMessages = localStorage.getItem('chatMessages');
-      if (storedMessages) {
-        messageCache = JSON.parse(storedMessages);
-        console.log(`Loaded ${messageCache.length} messages from localStorage`);
-      }
-    }
-    
-    isInitialized = true;
-  } catch (error) {
-    console.error('Error initializing chat context manager:', error);
-    // Initialize with empty cache if loading fails
-    messageCache = [];
-    isInitialized = true;
+  // Keep only the most recent activities
+  if (recentActivities.length > MAX_RECENT_ACTIVITIES) {
+    recentActivities.pop();
   }
+  
+  // Update global context
+  globalContext.previousActivity = [...recentActivities];
 }
 
 /**
- * Add a new message to the context
+ * Set the global context
  */
-export function addMessageToContext(
-  role: 'user' | 'assistant' | 'system',
-  content: string,
-  tabContext?: string
-): void {
-  const message: ChatMessage = {
-    role,
-    content,
-    timestamp: new Date().toISOString(),
-    tabContext
+export function setGlobalContext(context: Partial<ChatContext>): void {
+  globalContext = {
+    ...globalContext,
+    ...context
   };
   
-  // Add to cache
-  messageCache.push(message);
-  
-  // Trim cache if it gets too large
-  if (messageCache.length > 100) {
-    messageCache = messageCache.slice(-100);
+  // Sync with Firebase if user is logged in
+  const firebase = getFirebaseInstance();
+  if (firebase) {
+    const currentUser = firebase.getCurrentUser();
+    if (currentUser) {
+      firebase.saveUserContext(currentUser.uid, globalContext);
+    }
   }
+}
+
+/**
+ * Get the global context
+ */
+export function getGlobalContext(): ChatContext {
+  return {
+    ...globalContext,
+    previousActivity: [...recentActivities]
+  };
+}
+
+/**
+ * Set tab-specific context
+ */
+export function setTabContext(tabId: string, context: Partial<ChatContext>): void {
+  // Get existing context or create new one
+  const existingContext = tabContexts.get(tabId) || {};
   
-  // Persist to storage
-  persistMessages();
-}
-
-/**
- * Get recent messages for context
- */
-export function getRecentMessages(
-  count: number = DEFAULT_CONTEXT_SIZE,
-  tabContext?: string
-): ChatMessage[] {
-  // Filter by tab context if provided
-  const filteredMessages = tabContext 
-    ? messageCache.filter(m => !m.tabContext || m.tabContext === tabContext)
-    : messageCache;
+  // Merge contexts
+  const newContext = {
+    ...existingContext,
+    ...context,
+    tabId
+  };
   
-  // Return most recent N messages
-  return filteredMessages.slice(-count);
+  // Store context
+  tabContexts.set(tabId, newContext);
 }
 
 /**
- * Clear all messages from context
+ * Get tab-specific context
  */
-export function clearChatContext(): void {
-  messageCache = [];
-  persistMessages();
+export function getTabContext(tabId: string): ChatContext | undefined {
+  return tabContexts.get(tabId);
 }
 
 /**
- * Persist messages to storage
+ * Get the combined context for a tab
  */
-async function persistMessages(): Promise<void> {
+export function getCombinedContextForTab(tabId: string): ChatContext {
+  // Get tab-specific context
+  const tabContext = tabContexts.get(tabId) || {};
+  
+  // Combine with global context
+  return {
+    ...globalContext,
+    ...tabContext,
+    tabId,
+    previousActivity: [...recentActivities]
+  };
+}
+
+/**
+ * Clear tab context
+ */
+export function clearTabContext(tabId: string): void {
+  tabContexts.delete(tabId);
+}
+
+/**
+ * Clear all contexts
+ */
+export function clearAllContexts(): void {
+  globalContext = {};
+  tabContexts.clear();
+  recentActivities.length = 0;
+}
+
+/**
+ * Load user context from storage
+ */
+export async function loadUserContext(userId: string): Promise<void> {
   try {
-    // Try to save to Firebase if available
     const firebase = getFirebaseInstance();
-    const userId = firebase?.getCurrentUserId();
     
-    if (firebase && userId) {
-      await firebase.saveChatContext(userId, messageCache);
+    if (!firebase) {
+      throw new Error('Firebase is not initialized');
     }
     
-    // Always save to localStorage as fallback
-    localStorage.setItem('chatMessages', JSON.stringify(messageCache));
+    const context = await firebase.loadUserContext(userId);
+    
+    if (context) {
+      globalContext = context;
+      
+      // Load recent activities if available
+      if (context.previousActivity && Array.isArray(context.previousActivity)) {
+        recentActivities.length = 0;
+        recentActivities.push(...context.previousActivity.slice(0, MAX_RECENT_ACTIVITIES));
+      }
+    }
   } catch (error) {
-    console.error('Error persisting chat messages:', error);
-    // Fallback to localStorage
-    localStorage.setItem('chatMessages', JSON.stringify(messageCache));
+    console.error('Error loading user context:', error);
   }
 }
 
 /**
- * Export message cache for debugging
+ * Track tab change
  */
-export function exportChatContext(): ChatMessage[] {
-  return [...messageCache];
+export function trackTabChange(tabId: string, tabName: string): void {
+  // Add activity
+  addUserActivity(`Viewed ${tabName} tab`);
+  
+  // Set tab context
+  setTabContext(tabId, { tabName });
+}
+
+/**
+ * Track coin view
+ */
+export function trackCoinView(coinId: string, coinName: string, tabId?: string): void {
+  // Add activity
+  addUserActivity(`Viewed ${coinName} (${coinId})`);
+  
+  // Set global context
+  setGlobalContext({ currentCoin: coinName });
+  
+  // Set tab context if tabId provided
+  if (tabId) {
+    setTabContext(tabId, { currentCoin: coinName });
+  }
+}
+
+/**
+ * Track chart interaction
+ */
+export function trackChartInteraction(
+  chartType: string, 
+  period: string,
+  coinId?: string,
+  tabId?: string
+): void {
+  // Add activity
+  addUserActivity(`Viewed ${chartType} chart (${period})${coinId ? ` for ${coinId}` : ''}`);
+  
+  // Update tab context if tabId provided
+  if (tabId) {
+    const tabContext = getTabContext(tabId) || {};
+    setTabContext(tabId, { 
+      ...tabContext,
+      sourceData: {
+        ...tabContext.sourceData,
+        chartType,
+        period
+      }
+    });
+  }
+}
+
+/**
+ * Track search query
+ */
+export function trackSearchQuery(query: string, tabId?: string): void {
+  // Add activity
+  addUserActivity(`Searched for "${query}"`);
+  
+  // Update tab context if tabId provided
+  if (tabId) {
+    const tabContext = getTabContext(tabId) || {};
+    setTabContext(tabId, { 
+      ...tabContext,
+      sourceData: {
+        ...tabContext.sourceData,
+        searchQuery: query
+      }
+    });
+  }
 }
