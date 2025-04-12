@@ -1,103 +1,109 @@
 /**
- * Firebase Synchronization Service
+ * Firebase Sync Service
  * 
- * Provides cross-device synchronization for user data, chat history,
- * preferences, and other application state using Firebase.
+ * Manages Firebase integration for cross-device synchronization,
+ * user authentication, and data persistence.
  */
 
-import { initializeApp } from "firebase/app";
-import { 
-  getAuth, 
-  signInWithPopup, 
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  signInWithPopup,
   GoogleAuthProvider,
   onAuthStateChanged,
-  User 
-} from "firebase/auth";
-import { 
-  getFirestore, 
-  doc, 
-  setDoc, 
-  getDoc, 
+  User
+} from 'firebase/auth';
+import {
+  getFirestore,
   collection,
-  addDoc,
+  doc,
+  setDoc,
+  getDoc,
   updateDoc,
-  serverTimestamp,
+  deleteDoc,
   query,
+  where,
   orderBy,
   limit,
-  getDocs
-} from "firebase/firestore";
-import { ChatMessage } from "../utils/chatContextManager";
+  getDocs,
+  Timestamp,
+  serverTimestamp
+} from 'firebase/firestore';
+import { ChatMessage, ChatContext } from './contextAwareChatService';
 
 // Singleton instance
-let instance: FirebaseSync | null = null;
+let firebaseInstance: FirebaseSync | null = null;
 
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
+  messagingSenderId: '',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
+};
+
+/**
+ * Firebase Sync Class
+ */
 class FirebaseSync {
   private app;
   private auth;
   private db;
-  private user: User | null = null;
-  private isInitialized = false;
-  
+  private currentUser: User | null = null;
+  private initialized: boolean = false;
+
   constructor() {
-    // Check for Firebase configuration
-    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-    const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
-    const appId = import.meta.env.VITE_FIREBASE_APP_ID;
-    
-    if (!apiKey || !projectId || !appId) {
-      console.warn('Firebase configuration missing. Cross-device sync will be disabled.');
-      return;
-    }
-    
     try {
-      // Initialize Firebase
-      const firebaseConfig = {
-        apiKey,
-        authDomain: `${projectId}.firebaseapp.com`,
-        projectId,
-        storageBucket: `${projectId}.appspot.com`,
-        messagingSenderId: '',  // Not required for our use case
-        appId
-      };
-      
+      // Initialize Firebase app
       this.app = initializeApp(firebaseConfig);
       this.auth = getAuth(this.app);
       this.db = getFirestore(this.app);
       
-      // Set up auth state change listener
+      // Setup auth state listener
       onAuthStateChanged(this.auth, (user) => {
-        this.user = user;
-        console.log(user ? `Firebase user logged in: ${user.displayName}` : 'Firebase user logged out');
+        this.currentUser = user;
       });
       
-      this.isInitialized = true;
+      this.initialized = true;
       console.log('Firebase initialized successfully');
     } catch (error) {
       console.error('Error initializing Firebase:', error);
+      this.initialized = false;
     }
   }
   
   /**
-   * Check if Firebase is initialized
+   * Check if Firebase is ready
    */
   isReady(): boolean {
-    return this.isInitialized;
+    return this.initialized;
+  }
+  
+  /**
+   * Get current user
+   */
+  getCurrentUser(): User | null {
+    return this.currentUser;
   }
   
   /**
    * Sign in with Google
    */
-  async signInWithGoogle(): Promise<User | null> {
-    if (!this.isInitialized) return null;
+  async signInWithGoogle(): Promise<User> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
     
+    const provider = new GoogleAuthProvider();
     try {
-      const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(this.auth, provider);
+      this.currentUser = result.user;
       return result.user;
     } catch (error) {
       console.error('Error signing in with Google:', error);
-      return null;
+      throw error;
     }
   }
   
@@ -105,232 +111,364 @@ class FirebaseSync {
    * Sign out
    */
   async signOut(): Promise<void> {
-    if (!this.isInitialized) return;
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
     
     try {
       await this.auth.signOut();
+      this.currentUser = null;
     } catch (error) {
       console.error('Error signing out:', error);
+      throw error;
     }
   }
   
   /**
-   * Get current user
+   * Save user context
    */
-  getCurrentUser(): User | null {
-    return this.user;
-  }
-  
-  /**
-   * Get current user ID
-   */
-  getCurrentUserId(): string | null {
-    return this.user?.uid || null;
-  }
-  
-  /**
-   * Save user preferences
-   */
-  async saveUserPreferences(userId: string, preferences: any): Promise<boolean> {
-    if (!this.isInitialized) return false;
+  async saveUserContext(userId: string, context: ChatContext): Promise<void> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
     
     try {
-      const userRef = doc(this.db, 'users', userId);
-      await setDoc(userRef, {
-        preferences,
+      await setDoc(doc(this.db, 'userContext', userId), {
+        ...context,
         updatedAt: serverTimestamp()
       }, { merge: true });
-      
-      return true;
     } catch (error) {
-      console.error('Error saving user preferences:', error);
-      return false;
+      console.error('Error saving user context:', error);
+      throw error;
     }
   }
   
   /**
-   * Load user preferences
+   * Load user context
    */
-  async loadUserPreferences(userId: string): Promise<any | null> {
-    if (!this.isInitialized) return null;
+  async loadUserContext(userId: string): Promise<ChatContext | null> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
     
     try {
-      const userRef = doc(this.db, 'users', userId);
-      const userDoc = await getDoc(userRef);
+      const docRef = doc(this.db, 'userContext', userId);
+      const docSnap = await getDoc(docRef);
       
-      if (userDoc.exists()) {
-        return userDoc.data().preferences;
+      if (docSnap.exists()) {
+        return docSnap.data() as ChatContext;
       }
       
       return null;
     } catch (error) {
-      console.error('Error loading user preferences:', error);
-      return null;
+      console.error('Error loading user context:', error);
+      throw error;
     }
   }
   
   /**
-   * Save chat context
+   * Save conversation
    */
-  async saveChatContext(userId: string, messages: ChatMessage[]): Promise<boolean> {
-    if (!this.isInitialized) return false;
-    
-    try {
-      const userRef = doc(this.db, 'users', userId);
-      await setDoc(userRef, {
-        chatContext: messages,
-        chatUpdatedAt: serverTimestamp()
-      }, { merge: true });
-      
-      return true;
-    } catch (error) {
-      console.error('Error saving chat context:', error);
-      return false;
-    }
-  }
-  
-  /**
-   * Load chat context
-   */
-  async loadChatContext(userId: string): Promise<ChatMessage[] | null> {
-    if (!this.isInitialized) return null;
-    
-    try {
-      const userRef = doc(this.db, 'users', userId);
-      const userDoc = await getDoc(userRef);
-      
-      if (userDoc.exists() && userDoc.data().chatContext) {
-        return userDoc.data().chatContext;
-      }
-      
-      return [];
-    } catch (error) {
-      console.error('Error loading chat context:', error);
-      return null;
-    }
-  }
-  
-  /**
-   * Log user behavior for analytics
-   */
-  async logBehavior(
+  async saveConversation(
     userId: string,
-    action: string,
-    details: any = {},
-    tabContext?: string
+    conversationId: string,
+    messages: ChatMessage[],
+    context?: ChatContext
   ): Promise<void> {
-    if (!this.isInitialized) return;
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
     
     try {
-      const behaviorRef = collection(this.db, 'users', userId, 'behaviors');
-      await addDoc(behaviorRef, {
-        action,
-        details,
-        tabContext,
-        timestamp: serverTimestamp()
+      // Convert message timestamps to Firestore timestamps
+      const firestoreMessages = messages.map(msg => ({
+        ...msg,
+        timestamp: Timestamp.fromMillis(msg.timestamp)
+      }));
+      
+      // Save conversation
+      await setDoc(doc(this.db, 'users', userId, 'conversations', conversationId), {
+        messages: firestoreMessages,
+        context: context || null,
+        updatedAt: serverTimestamp()
+      });
+      
+      // Update conversation index for quick access
+      await setDoc(doc(this.db, 'users', userId, 'conversationIndex', conversationId), {
+        preview: messages.length > 0 ? messages[messages.length - 1].content.slice(0, 100) : '',
+        updatedAt: serverTimestamp()
       });
     } catch (error) {
-      console.error('Error logging user behavior:', error);
+      console.error('Error saving conversation:', error);
+      throw error;
     }
   }
   
   /**
-   * Get recent behaviors for a user
+   * Load conversation
    */
-  async getRecentBehaviors(
+  async loadConversation(
     userId: string,
-    count: number = 10
-  ): Promise<any[]> {
-    if (!this.isInitialized) return [];
+    conversationId: string
+  ): Promise<{ messages: ChatMessage[], context?: ChatContext } | null> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
     
     try {
-      const behaviorsRef = collection(this.db, 'users', userId, 'behaviors');
+      const docRef = doc(this.db, 'users', userId, 'conversations', conversationId);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        
+        // Convert Firestore timestamps to milliseconds
+        const messages = data.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: msg.timestamp.toMillis()
+        }));
+        
+        return {
+          messages,
+          context: data.context || undefined
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Delete conversation
+   */
+  async deleteConversation(userId: string, conversationId: string): Promise<void> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
+    
+    try {
+      // Delete conversation
+      await deleteDoc(doc(this.db, 'users', userId, 'conversations', conversationId));
+      
+      // Delete from index
+      await deleteDoc(doc(this.db, 'users', userId, 'conversationIndex', conversationId));
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Get recent conversations
+   */
+  async getRecentConversations(
+    userId: string,
+    limit_: number = 10
+  ): Promise<{ id: string, preview: string, timestamp: number }[]> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
+    
+    try {
       const q = query(
-        behaviorsRef,
-        orderBy('timestamp', 'desc'),
-        limit(count)
+        collection(this.db, 'users', userId, 'conversationIndex'),
+        orderBy('updatedAt', 'desc'),
+        limit(limit_)
       );
       
       const querySnapshot = await getDocs(q);
-      const behaviors: any[] = [];
       
-      querySnapshot.forEach((doc) => {
-        behaviors.push({
-          id: doc.id,
-          ...doc.data()
-        });
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        preview: doc.data().preview || '',
+        timestamp: doc.data().updatedAt ? doc.data().updatedAt.toMillis() : 0
+      }));
+    } catch (error) {
+      console.error('Error getting recent conversations:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Track user behavior
+   */
+  async trackBehavior(
+    userId: string,
+    action: string,
+    details?: any,
+    tabContext?: string
+  ): Promise<string> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
+    
+    try {
+      const behaviorRef = doc(collection(this.db, 'users', userId, 'behaviors'));
+      
+      await setDoc(behaviorRef, {
+        action,
+        details: details || null,
+        tabContext: tabContext || null,
+        timestamp: serverTimestamp()
       });
       
-      return behaviors;
+      return behaviorRef.id;
+    } catch (error) {
+      console.error('Error tracking behavior:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Get recent behaviors
+   */
+  async getRecentBehaviors(
+    userId: string,
+    limit_: number = 100
+  ): Promise<any[]> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
+    
+    try {
+      const q = query(
+        collection(this.db, 'users', userId, 'behaviors'),
+        orderBy('timestamp', 'desc'),
+        limit(limit_)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
     } catch (error) {
       console.error('Error getting recent behaviors:', error);
-      return [];
+      throw error;
     }
   }
   
   /**
-   * Sync tab state
+   * Save preference
    */
-  async syncTabState(
+  async savePreference(
     userId: string,
-    tabId: string,
-    state: any
-  ): Promise<boolean> {
-    if (!this.isInitialized) return false;
+    key: string,
+    value: any
+  ): Promise<void> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
     
     try {
-      const tabRef = doc(this.db, 'users', userId, 'tabs', tabId);
-      await setDoc(tabRef, {
-        state,
+      await setDoc(doc(this.db, 'users', userId, 'preferences', key), {
+        value,
         updatedAt: serverTimestamp()
-      }, { merge: true });
-      
-      return true;
+      });
     } catch (error) {
-      console.error('Error syncing tab state:', error);
-      return false;
+      console.error('Error saving preference:', error);
+      throw error;
     }
   }
   
   /**
-   * Get tab state
+   * Load preference
    */
-  async getTabState(
+  async loadPreference(
     userId: string,
-    tabId: string
+    key: string
   ): Promise<any | null> {
-    if (!this.isInitialized) return null;
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
     
     try {
-      const tabRef = doc(this.db, 'users', userId, 'tabs', tabId);
-      const tabDoc = await getDoc(tabRef);
+      const docRef = doc(this.db, 'users', userId, 'preferences', key);
+      const docSnap = await getDoc(docRef);
       
-      if (tabDoc.exists()) {
-        return tabDoc.data().state;
+      if (docSnap.exists()) {
+        return docSnap.data().value;
       }
       
       return null;
     } catch (error) {
-      console.error('Error getting tab state:', error);
-      return null;
+      console.error('Error loading preference:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Save device info
+   */
+  async saveDeviceInfo(
+    userId: string,
+    deviceId: string,
+    deviceInfo: any
+  ): Promise<void> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
+    
+    try {
+      await setDoc(doc(this.db, 'users', userId, 'devices', deviceId), {
+        ...deviceInfo,
+        lastSeen: serverTimestamp()
+      }, { merge: true });
+    } catch (error) {
+      console.error('Error saving device info:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Get user devices
+   */
+  async getUserDevices(userId: string): Promise<any[]> {
+    if (!this.initialized) {
+      throw new Error('Firebase is not initialized');
+    }
+    
+    try {
+      const q = query(
+        collection(this.db, 'users', userId, 'devices'),
+        orderBy('lastSeen', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error('Error getting user devices:', error);
+      throw error;
     }
   }
 }
 
 /**
- * Get the Firebase sync instance
+ * Get Firebase instance
  */
 export function getFirebaseInstance(): FirebaseSync | null {
-  if (!instance) {
-    instance = new FirebaseSync();
-    
-    // If initialization failed, return null
-    if (!instance.isReady()) {
-      instance = null;
-    }
+  // Skip initialization if Firebase keys are missing
+  if (!import.meta.env.VITE_FIREBASE_API_KEY || 
+      !import.meta.env.VITE_FIREBASE_PROJECT_ID ||
+      !import.meta.env.VITE_FIREBASE_APP_ID) {
+    console.warn('Firebase configuration is missing');
+    return null;
   }
   
-  return instance;
+  // Create instance if it doesn't exist
+  if (!firebaseInstance) {
+    firebaseInstance = new FirebaseSync();
+  }
+  
+  return firebaseInstance;
 }
 
 /**
@@ -339,3 +477,5 @@ export function getFirebaseInstance(): FirebaseSync | null {
 export function initializeFirebase(): FirebaseSync | null {
   return getFirebaseInstance();
 }
+
+export default FirebaseSync;
