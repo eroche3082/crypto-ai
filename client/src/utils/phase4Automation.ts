@@ -1,394 +1,313 @@
 /**
  * Phase 4 Automation Utilities
  * 
- * Provides utilities for AI-driven recommendations, self-optimization,
- * and adaptive user experience based on behavior patterns.
+ * Provides tools for AI-powered recommendation system, user behavior tracking,
+ * and interface optimization based on usage patterns.
  */
 
+import { getFirebaseInstance } from '@/services/firebaseSync';
 import { v4 as uuidv4 } from 'uuid';
-import { getFirebaseInstance } from '../services/firebaseSync';
-import { getCombinedContextForTab } from './chatContextManager';
 
-// Recommendation priority
+// Recommendation priority levels
 export type RecommendationPriority = 'low' | 'medium' | 'high';
 
-// Recommendation type
-export type RecommendationType = 'content' | 'action' | 'notification';
+// Recommendation categories
+export type RecommendationCategory = 
+  | 'portfolio' 
+  | 'trading' 
+  | 'news' 
+  | 'education' 
+  | 'security' 
+  | 'feature'
+  | 'action'
+  | 'system';
 
-// AI Recommendation
+// Recommendation interaction types
+export type RecommendationInteraction = 'view' | 'click' | 'dismiss';
+
+// Recommendation interface
 export interface AIRecommendation {
   id: string;
   title: string;
   message: string;
   priority: RecommendationPriority;
-  type: RecommendationType;
-  dismissed?: boolean;
-  actionUrl?: string;
-  category?: string;
-  icon?: string;
+  category?: RecommendationCategory;
   timestamp?: number;
+  icon?: string;
+  actionUrl?: string;
+  dismissed?: boolean;
+  source?: string;
+  tabContext?: string;
+  metadata?: Record<string, any>;
 }
 
-// Behavior pattern
-interface BehaviorPattern {
+// Behavior pattern interface
+export interface BehaviorPattern {
+  id: string;
+  userId: string;
   pattern: string;
   frequency: number;
-  lastSeen: number;
-  firstSeen: number;
-  confidence: number;
+  lastDetected: number;
+  metadata?: Record<string, any>;
 }
 
-// Cache for user behavior patterns
-const userBehaviorPatterns: Record<string, BehaviorPattern[]> = {};
+// User preference interface
+export interface UserPreference {
+  id: string;
+  userId: string;
+  category: string;
+  value: any;
+  confidence: number;
+  lastUpdated: number;
+}
 
-// Cache for AI recommendations
-const userRecommendations: Record<string, AIRecommendation[]> = {};
-
-// Default recommendations (used when no user-specific recommendations are available)
-const defaultRecommendations: AIRecommendation[] = [
-  {
-    id: 'default-1',
-    title: 'Explore the CryptoBot AI',
-    message: 'Ask me anything about cryptocurrencies, market trends, or trading strategies. I\'m here to help!',
-    priority: 'medium',
-    type: 'content',
-    actionUrl: '#chatbot'
-  },
-  {
-    id: 'default-2',
-    title: 'Set Up Price Alerts',
-    message: 'Never miss important price movements. Configure alerts for your favorite coins.',
-    priority: 'medium',
-    type: 'action',
-    actionUrl: '/alerts',
-    category: 'feature',
-    icon: '🔔'
-  },
-  {
-    id: 'default-3',
-    title: 'Enable Cross-Device Sync',
-    message: 'Keep your data synchronized across all your devices by connecting with your Google account.',
-    priority: 'high',
-    type: 'action',
-    actionUrl: '/settings/sync',
-    category: 'account',
-    icon: '🔄'
-  }
-];
+// Session context interface
+export interface SessionContext {
+  id: string;
+  userId: string;
+  startTime: number;
+  lastActive: number;
+  device: string;
+  browser: string;
+  behaviors: string[];
+}
 
 /**
- * Get AI recommendations for a user
+ * Generate a recommendation based on behavior and context
  */
-export async function getAIRecommendations(
+export async function generateRecommendation(
   userId: string,
-  count: number = 3
-): Promise<AIRecommendation[]> {
+  currentContext: string,
+  behaviors: any[] = []
+): Promise<AIRecommendation | null> {
   try {
-    // Return cached recommendations if available
-    if (userRecommendations[userId] && userRecommendations[userId].length >= count) {
-      return userRecommendations[userId].slice(0, count);
-    }
-    
-    // Get Firebase instance
     const firebase = getFirebaseInstance();
+    if (!firebase) return null;
     
-    if (!firebase) {
-      // Return default recommendations if Firebase is not available
-      return defaultRecommendations.slice(0, count);
-    }
+    // Get user preferences
+    const preferences = await firebase.getUserPreferences(userId);
     
-    // Load user preferences and behavior patterns
-    const preferredTopics = await firebase.loadPreference(userId, 'preferredTopics') || [];
-    const favoriteCoins = await firebase.loadPreference(userId, 'favoriteCoins') || [];
-    const recentBehaviors = await firebase.getRecentBehaviors(userId, 50);
+    // Get existing recommendations
+    const existingRecommendations = await firebase.getUserRecommendations(userId);
     
-    // Analyze behaviors to find patterns
-    const patterns = analyzeBehaviorPatterns(recentBehaviors);
-    userBehaviorPatterns[userId] = patterns;
-    
-    // Generate personalized recommendations based on patterns
-    const recommendations = generateRecommendations(
-      patterns,
-      preferredTopics,
-      favoriteCoins
+    // Generate new recommendation based on context, behaviors, and preferences
+    const recommendation = await createContextualRecommendation(
+      userId,
+      currentContext,
+      behaviors,
+      preferences,
+      existingRecommendations
     );
     
-    // Cache recommendations
-    userRecommendations[userId] = recommendations;
+    if (recommendation) {
+      // Save the recommendation
+      await firebase.saveRecommendation(userId, recommendation);
+      return recommendation;
+    }
     
-    // Return the requested number of recommendations
-    return recommendations.slice(0, count);
+    return null;
   } catch (error) {
-    console.error('Error getting AI recommendations:', error);
-    
-    // Return default recommendations if there's an error
-    return defaultRecommendations.slice(0, count);
+    console.error('Error generating recommendation:', error);
+    return null;
   }
 }
 
 /**
- * Get context-aware recommendations for a specific tab
+ * Create a contextual recommendation
  */
-export async function getTabRecommendations(
+export async function createContextualRecommendation(
   userId: string,
-  tabId: string,
-  count: number = 3
-): Promise<AIRecommendation[]> {
+  currentContext: string,
+  behaviors: any[],
+  preferences: UserPreference[],
+  existingRecommendations: AIRecommendation[]
+): Promise<AIRecommendation | null> {
   try {
-    // Get general recommendations
-    const recommendations = await getAIRecommendations(userId, count * 2);
+    // Get context-specific recommendation strategies
+    const strategies = getRecommendationStrategies(currentContext);
     
-    // Get tab context
-    const context = getCombinedContextForTab(tabId);
+    // Filter out strategies that have already been recommended
+    const freshStrategies = strategies.filter(strategy => {
+      return !existingRecommendations.some(
+        rec => rec.source === strategy.id && rec.dismissed !== true
+      );
+    });
     
-    // Filter recommendations based on tab context
-    let filteredRecommendations = recommendations;
-    
-    if (context.tabName) {
-      // Filter by tab name (simple matching)
-      const tabNameLower = context.tabName.toLowerCase();
-      
-      // Prioritize recommendations related to this tab
-      filteredRecommendations = recommendations.sort((a, b) => {
-        const aMatchesTab = 
-          a.title.toLowerCase().includes(tabNameLower) || 
-          a.message.toLowerCase().includes(tabNameLower) ||
-          (a.category && a.category.toLowerCase().includes(tabNameLower));
-        
-        const bMatchesTab = 
-          b.title.toLowerCase().includes(tabNameLower) || 
-          b.message.toLowerCase().includes(tabNameLower) ||
-          (b.category && b.category.toLowerCase().includes(tabNameLower));
-        
-        if (aMatchesTab && !bMatchesTab) return -1;
-        if (!aMatchesTab && bMatchesTab) return 1;
-        return 0;
-      });
+    if (freshStrategies.length === 0) {
+      return null;
     }
     
-    if (context.currentCoin) {
-      // Prioritize recommendations related to current coin
-      const coinNameLower = context.currentCoin.toLowerCase();
+    // Choose the highest priority strategy
+    const strategy = freshStrategies.sort((a, b) => {
+      const priorityValues = {
+        high: 3,
+        medium: 2,
+        low: 1
+      };
       
-      filteredRecommendations = filteredRecommendations.sort((a, b) => {
-        const aMatchesCoin = 
-          a.title.toLowerCase().includes(coinNameLower) || 
-          a.message.toLowerCase().includes(coinNameLower);
-        
-        const bMatchesCoin = 
-          b.title.toLowerCase().includes(coinNameLower) || 
-          b.message.toLowerCase().includes(coinNameLower);
-        
-        if (aMatchesCoin && !bMatchesCoin) return -1;
-        if (!aMatchesCoin && bMatchesCoin) return 1;
-        return 0;
-      });
-    }
+      return priorityValues[b.priority] - priorityValues[a.priority];
+    })[0];
     
-    // Take the top items after filtering
-    return filteredRecommendations.slice(0, count);
+    // Create recommendation from strategy
+    return {
+      id: uuidv4(),
+      title: strategy.title,
+      message: strategy.message,
+      priority: strategy.priority,
+      category: strategy.category,
+      timestamp: Date.now(),
+      icon: strategy.icon,
+      actionUrl: strategy.actionUrl,
+      dismissed: false,
+      source: strategy.id,
+      tabContext: currentContext,
+      metadata: {
+        strategy: strategy.id,
+        rules: strategy.rules
+      }
+    };
   } catch (error) {
-    console.error('Error getting tab recommendations:', error);
-    
-    // Return default recommendations if there's an error
-    return defaultRecommendations.slice(0, count);
+    console.error('Error creating contextual recommendation:', error);
+    return null;
   }
 }
 
 /**
- * Analyze behavior patterns
+ * Get recommendation strategies for a specific context
  */
-function analyzeBehaviorPatterns(behaviors: any[]): BehaviorPattern[] {
-  // Simple pattern detection for common user actions
-  const patterns: Record<string, BehaviorPattern> = {};
-  
-  // Count occurrences of each action
-  for (const behavior of behaviors) {
-    const action = behavior.action;
-    const timestamp = behavior.timestamp.toDate ? behavior.timestamp.toDate().getTime() : behavior.timestamp;
-    
-    if (!patterns[action]) {
-      patterns[action] = {
-        pattern: action,
-        frequency: 1,
-        lastSeen: timestamp,
-        firstSeen: timestamp,
-        confidence: 0.5 // Initial confidence
-      };
-    } else {
-      patterns[action].frequency += 1;
-      patterns[action].lastSeen = Math.max(patterns[action].lastSeen, timestamp);
-      patterns[action].firstSeen = Math.min(patterns[action].firstSeen, timestamp);
-      
-      // Increase confidence with repeated observations
-      patterns[action].confidence = Math.min(0.95, patterns[action].confidence + 0.05);
-    }
-  }
-  
-  // Look for tab sequences (common navigation paths)
-  const tabSequences: Record<string, number> = {};
-  for (let i = 0; i < behaviors.length - 1; i++) {
-    if (behaviors[i].action === 'tab_change' && behaviors[i+1].action === 'tab_change') {
-      const sequence = `${behaviors[i].tabContext} → ${behaviors[i+1].tabContext}`;
-      tabSequences[sequence] = (tabSequences[sequence] || 0) + 1;
-    }
-  }
-  
-  // Add tab sequence patterns
-  Object.entries(tabSequences).forEach(([sequence, count]) => {
-    if (count >= 2) { // Only include sequences that occur multiple times
-      patterns[`sequence_${sequence}`] = {
-        pattern: `tab_sequence:${sequence}`,
-        frequency: count,
-        lastSeen: behaviors[0].timestamp.toDate ? behaviors[0].timestamp.toDate().getTime() : behaviors[0].timestamp,
-        firstSeen: behaviors[behaviors.length - 1].timestamp.toDate ? 
-          behaviors[behaviors.length - 1].timestamp.toDate().getTime() : 
-          behaviors[behaviors.length - 1].timestamp,
-        confidence: Math.min(0.9, 0.5 + (count / 10))
-      };
-    }
-  });
-  
-  // Convert to array and sort by frequency
-  return Object.values(patterns).sort((a, b) => b.frequency - a.frequency);
-}
-
-/**
- * Generate recommendations based on behavior patterns
- */
-function generateRecommendations(
-  patterns: BehaviorPattern[],
-  preferredTopics: string[] = [],
-  favoriteCoins: string[] = []
-): AIRecommendation[] {
-  const recommendations: AIRecommendation[] = [];
-  
-  // Add recommendations based on behavior patterns
-  for (const pattern of patterns) {
-    if (pattern.frequency >= 3) {
-      if (pattern.pattern.startsWith('tab_sequence:')) {
-        // Tab sequence recommendation
-        const sequence = pattern.pattern.replace('tab_sequence:', '');
-        const [fromTab, toTab] = sequence.split(' → ');
-        
-        recommendations.push({
-          id: uuidv4(),
-          title: `Optimize Your Workflow`,
-          message: `We noticed you frequently navigate from ${fromTab} to ${toTab}. Would you like to create a custom dashboard with both?`,
-          priority: 'medium',
-          type: 'action',
-          actionUrl: '/settings/custom-dashboard',
-          category: 'user_experience',
-          icon: '📊',
-          timestamp: Date.now()
-        });
-      } else if (pattern.pattern === 'search') {
-        // Search recommendation
-        recommendations.push({
-          id: uuidv4(),
-          title: 'Improve Your Search Experience',
-          message: 'You search often. Create saved searches for quick access to your common queries.',
-          priority: 'medium',
-          type: 'action',
-          actionUrl: '/settings/saved-searches',
-          category: 'user_experience',
-          icon: '🔍',
-          timestamp: Date.now()
-        });
-      } else if (pattern.pattern === 'view_chart') {
-        // Chart recommendation
-        recommendations.push({
-          id: uuidv4(),
-          title: 'Enhanced Charts',
-          message: 'Enable advanced chart indicators for more detailed market analysis.',
-          priority: 'medium',
-          type: 'action',
-          actionUrl: '/settings/charts',
-          category: 'feature',
-          icon: '📈',
-          timestamp: Date.now()
-        });
-      } else if (pattern.pattern === 'favorite_coin') {
-        // Favorite recommendation
-        recommendations.push({
-          id: uuidv4(),
-          title: 'Favorite Coins Management',
-          message: 'Organize your favorite coins into watchlist groups for better portfolio monitoring.',
-          priority: 'high',
-          type: 'action',
-          actionUrl: '/portfolio/watchlists',
-          category: 'feature',
-          icon: '⭐',
-          timestamp: Date.now()
-        });
-      }
-    }
-  }
-  
-  // Add recommendations based on preferred topics
-  if (preferredTopics.includes('defi')) {
-    recommendations.push({
-      id: uuidv4(),
-      title: 'DeFi Opportunities',
-      message: 'Check out the latest DeFi protocols with high yield opportunities.',
-      priority: 'medium',
-      type: 'content',
-      actionUrl: '/defi/opportunities',
-      category: 'defi',
-      icon: '💸',
-      timestamp: Date.now()
-    });
-  }
-  
-  if (preferredTopics.includes('nft')) {
-    recommendations.push({
-      id: uuidv4(),
-      title: 'NFT Market Trends',
-      message: 'Explore the latest trending NFT collections and market analytics.',
-      priority: 'medium',
-      type: 'content',
-      actionUrl: '/nft/trends',
-      category: 'nft',
-      icon: '🖼️',
-      timestamp: Date.now()
-    });
-  }
-  
-  // Add recommendations based on favorite coins
-  if (favoriteCoins.length > 0) {
-    recommendations.push({
-      id: uuidv4(),
-      title: 'Portfolio Insights',
-      message: 'Get AI-powered insights on your favorite coins and optimal portfolio allocation.',
-      priority: 'high',
-      type: 'content',
-      actionUrl: '/portfolio/insights',
-      category: 'portfolio',
+function getRecommendationStrategies(context: string): any[] {
+  const globalStrategies = [
+    {
+      id: 'global_portfolio_diversification',
+      title: 'Diversify Your Portfolio',
+      message: 'Your portfolio appears heavily concentrated in a few assets. Consider diversifying to reduce risk.',
+      priority: 'medium' as RecommendationPriority,
+      category: 'portfolio' as RecommendationCategory,
       icon: '📊',
-      timestamp: Date.now()
-    });
-  }
-  
-  // Add default recommendations if we don't have enough
-  if (recommendations.length < 3) {
-    for (const defaultRec of defaultRecommendations) {
-      if (!recommendations.some(r => r.title === defaultRec.title)) {
-        recommendations.push({
-          ...defaultRec,
-          id: uuidv4(),
-          timestamp: Date.now()
-        });
-      }
-      
-      if (recommendations.length >= 5) break;
+      actionUrl: '/portfolio',
+      rules: ['portfolio_concentration > 0.7']
+    },
+    {
+      id: 'global_security_check',
+      title: 'Security Check Recommended',
+      message: 'It\'s been over 30 days since your last security review. Take a moment to verify your account security.',
+      priority: 'high' as RecommendationPriority,
+      category: 'security' as RecommendationCategory,
+      icon: '🔒',
+      actionUrl: '/settings/security',
+      rules: ['days_since_security_check > 30']
+    },
+    {
+      id: 'global_crypto_news',
+      title: 'Market Insight Available',
+      message: 'Major market movements detected. Check the latest news for investment opportunities.',
+      priority: 'medium' as RecommendationPriority,
+      category: 'news' as RecommendationCategory,
+      icon: '📰',
+      actionUrl: '/news',
+      rules: ['market_volatility > 0.2']
+    },
+    {
+      id: 'global_trending_assets',
+      title: 'Trending Assets',
+      message: 'Several assets are gaining significant attention. Explore trending cryptocurrencies.',
+      priority: 'low' as RecommendationPriority,
+      category: 'trading' as RecommendationCategory,
+      icon: '🔥',
+      actionUrl: '/market/trending',
+      rules: ['trending_assets_count > 5']
     }
-  }
+  ];
   
-  // Sort by priority
-  return recommendations.sort((a, b) => {
-    const priorityOrder = { high: 3, medium: 2, low: 1 };
-    return priorityOrder[b.priority] - priorityOrder[a.priority];
-  });
+  // Context-specific strategies
+  const contextStrategies: Record<string, any[]> = {
+    dashboard: [
+      {
+        id: 'dashboard_portfolio_alert',
+        title: 'Portfolio Alert',
+        message: 'One of your assets has increased by over 5% in the last 24 hours.',
+        priority: 'medium' as RecommendationPriority,
+        category: 'portfolio' as RecommendationCategory,
+        icon: '📈',
+        actionUrl: '/portfolio',
+        rules: ['portfolio_asset_increase > 0.05']
+      },
+      {
+        id: 'dashboard_market_summary',
+        title: 'Market Summary',
+        message: 'View your personalized market summary with key metrics and insights.',
+        priority: 'low' as RecommendationPriority,
+        category: 'trading' as RecommendationCategory,
+        icon: '📊',
+        actionUrl: '/market/summary',
+        rules: ['dashboard_visits > 5']
+      }
+    ],
+    portfolio: [
+      {
+        id: 'portfolio_rebalance',
+        title: 'Portfolio Rebalance',
+        message: 'Your portfolio allocation has drifted from your targets. Consider rebalancing.',
+        priority: 'medium' as RecommendationPriority,
+        category: 'portfolio' as RecommendationCategory,
+        icon: '⚖️',
+        actionUrl: '/portfolio/rebalance',
+        rules: ['portfolio_drift > 0.1']
+      },
+      {
+        id: 'portfolio_tax_loss_harvesting',
+        title: 'Tax Loss Harvesting',
+        message: 'You may have opportunities for tax loss harvesting in your portfolio.',
+        priority: 'medium' as RecommendationPriority,
+        category: 'portfolio' as RecommendationCategory,
+        icon: '💰',
+        actionUrl: '/portfolio/tax',
+        rules: ['unrealized_losses > 1000']
+      }
+    ],
+    news: [
+      {
+        id: 'news_saved_articles',
+        title: 'Saved Articles',
+        message: 'You have unread saved articles. Continue where you left off.',
+        priority: 'low' as RecommendationPriority,
+        category: 'news' as RecommendationCategory,
+        icon: '📑',
+        actionUrl: '/news/saved',
+        rules: ['unread_saved_articles > 0']
+      }
+    ],
+    education: [
+      {
+        id: 'education_course_progress',
+        title: 'Continue Learning',
+        message: 'You\'re 75% through your current course. Complete it to earn your certificate.',
+        priority: 'medium' as RecommendationPriority,
+        category: 'education' as RecommendationCategory,
+        icon: '🎓',
+        actionUrl: '/education/courses/current',
+        rules: ['course_completion > 0.5', 'course_completion < 1.0']
+      }
+    ],
+    settings: [
+      {
+        id: 'settings_notification_preferences',
+        title: 'Update Notifications',
+        message: 'You have unoptimized notification settings. Customize them for better alerts.',
+        priority: 'low' as RecommendationPriority,
+        category: 'system' as RecommendationCategory,
+        icon: '🔔',
+        actionUrl: '/settings/notifications',
+        rules: ['notification_settings_unchanged']
+      }
+    ]
+  };
+  
+  // Return context-specific strategies plus global strategies
+  return [
+    ...(contextStrategies[context] || []),
+    ...globalStrategies
+  ];
 }
 
 /**
@@ -397,111 +316,333 @@ function generateRecommendations(
 export async function trackRecommendationInteraction(
   userId: string,
   recommendationId: string,
-  action: 'view' | 'dismiss' | 'click'
+  interactionType: RecommendationInteraction
 ): Promise<void> {
   try {
     const firebase = getFirebaseInstance();
+    if (!firebase) return;
     
-    if (!firebase) {
-      return;
-    }
+    // Log the interaction
+    await firebase.logUserInteraction(userId, 'recommendation_interaction', {
+      recommendationId,
+      interactionType,
+      timestamp: Date.now()
+    });
     
-    // Track interaction with the recommendation
-    await firebase.trackBehavior(
-      userId,
-      'recommendation_interaction',
-      {
-        recommendationId,
-        action
-      }
-    );
-    
-    // Update user recommendations if recommendation was dismissed
-    if (action === 'dismiss' && userRecommendations[userId]) {
-      userRecommendations[userId] = userRecommendations[userId].filter(r => r.id !== recommendationId);
+    // If dismissed, update recommendation
+    if (interactionType === 'dismiss') {
+      await firebase.updateRecommendation(userId, recommendationId, {
+        dismissed: true
+      });
     }
   } catch (error) {
     console.error('Error tracking recommendation interaction:', error);
+    throw error;
   }
 }
 
 /**
- * Optimize user experience based on behavior patterns
+ * Detect behavior patterns from user actions
  */
-export async function optimizeUserExperience(
-  userId: string
-): Promise<{
-  optimizations: string[];
-  applied: boolean;
-}> {
+export async function detectBehaviorPatterns(
+  userId: string,
+  recentBehaviors: any[]
+): Promise<BehaviorPattern[]> {
+  try {
+    // Detect patterns in user behavior
+    const patterns: BehaviorPattern[] = [];
+    
+    // Frequency analysis
+    const actionCounts: Record<string, number> = {};
+    const tabCounts: Record<string, number> = {};
+    const timeCounts: Record<number, number> = {};
+    
+    recentBehaviors.forEach(behavior => {
+      // Count actions
+      actionCounts[behavior.action] = (actionCounts[behavior.action] || 0) + 1;
+      
+      // Count tabs
+      if (behavior.tabContext) {
+        tabCounts[behavior.tabContext] = (tabCounts[behavior.tabContext] || 0) + 1;
+      }
+      
+      // Count activity times
+      if (behavior.timestamp) {
+        const date = new Date(behavior.timestamp);
+        const hour = date.getHours();
+        timeCounts[hour] = (timeCounts[hour] || 0) + 1;
+      }
+    });
+    
+    // Detect frequent actions
+    Object.entries(actionCounts).forEach(([action, count]) => {
+      if (count >= 5) {
+        patterns.push({
+          id: uuidv4(),
+          userId,
+          pattern: `frequent_action_${action}`,
+          frequency: count,
+          lastDetected: Date.now(),
+          metadata: { action }
+        });
+      }
+    });
+    
+    // Detect preferred tabs
+    Object.entries(tabCounts).forEach(([tab, count]) => {
+      if (count >= 3) {
+        patterns.push({
+          id: uuidv4(),
+          userId,
+          pattern: `preferred_tab_${tab}`,
+          frequency: count,
+          lastDetected: Date.now(),
+          metadata: { tab }
+        });
+      }
+    });
+    
+    // Detect active hours
+    Object.entries(timeCounts).forEach(([hour, count]) => {
+      if (count >= 3) {
+        patterns.push({
+          id: uuidv4(),
+          userId,
+          pattern: `active_hour_${hour}`,
+          frequency: count,
+          lastDetected: Date.now(),
+          metadata: { hour: parseInt(hour) }
+        });
+      }
+    });
+    
+    // Detect sequences (e.g., dashboard -> portfolio -> trade)
+    const sequences = detectActionSequences(recentBehaviors);
+    sequences.forEach(seq => {
+      patterns.push({
+        id: uuidv4(),
+        userId,
+        pattern: `sequence_${seq.sequence.join('_')}`,
+        frequency: seq.count,
+        lastDetected: Date.now(),
+        metadata: { sequence: seq.sequence }
+      });
+    });
+    
+    // Save detected patterns
+    const firebase = getFirebaseInstance();
+    if (firebase) {
+      for (const pattern of patterns) {
+        await firebase.saveBehaviorPattern(userId, pattern);
+      }
+    }
+    
+    return patterns;
+  } catch (error) {
+    console.error('Error detecting behavior patterns:', error);
+    return [];
+  }
+}
+
+/**
+ * Detect common action sequences in user behavior
+ */
+function detectActionSequences(behaviors: any[]): Array<{sequence: string[], count: number}> {
+  // Sequences to detect
+  const sequences = [
+    { sequence: ['view_dashboard', 'view_portfolio', 'view_trade'], count: 0 },
+    { sequence: ['view_dashboard', 'view_news', 'view_portfolio'], count: 0 },
+    { sequence: ['view_portfolio', 'view_asset_details', 'add_to_watchlist'], count: 0 },
+    { sequence: ['search_asset', 'view_asset_details', 'view_trade'], count: 0 },
+    { sequence: ['view_education', 'start_course', 'complete_lesson'], count: 0 }
+  ];
+  
+  // Check for each sequence in the behavior history
+  sequences.forEach(seq => {
+    for (let i = 0; i <= behaviors.length - seq.sequence.length; i++) {
+      let match = true;
+      
+      for (let j = 0; j < seq.sequence.length; j++) {
+        if (behaviors[i + j]?.action !== seq.sequence[j]) {
+          match = false;
+          break;
+        }
+      }
+      
+      if (match) {
+        seq.count++;
+      }
+    }
+  });
+  
+  // Return only sequences that occurred at least once
+  return sequences.filter(seq => seq.count > 0);
+}
+
+/**
+ * Update user interface preferences based on behavior
+ */
+export async function updateInterfacePreferences(
+  userId: string,
+  patterns: BehaviorPattern[]
+): Promise<void> {
   try {
     const firebase = getFirebaseInstance();
+    if (!firebase) return;
     
-    if (!firebase) {
-      return {
-        optimizations: [],
-        applied: false
-      };
+    const preferences: UserPreference[] = [];
+    
+    // Convert patterns to preferences
+    patterns.forEach(pattern => {
+      // Preferred tab
+      if (pattern.pattern.startsWith('preferred_tab_')) {
+        const tab = pattern.metadata?.tab;
+        if (tab) {
+          preferences.push({
+            id: uuidv4(),
+            userId,
+            category: 'default_tab',
+            value: tab,
+            confidence: Math.min(0.9, pattern.frequency / 10),
+            lastUpdated: Date.now()
+          });
+        }
+      }
+      
+      // Active hours
+      if (pattern.pattern.startsWith('active_hour_')) {
+        const hour = pattern.metadata?.hour;
+        if (hour !== undefined) {
+          preferences.push({
+            id: uuidv4(),
+            userId,
+            category: 'active_hours',
+            value: hour,
+            confidence: Math.min(0.9, pattern.frequency / 10),
+            lastUpdated: Date.now()
+          });
+        }
+      }
+      
+      // Sequence preferences
+      if (pattern.pattern.startsWith('sequence_')) {
+        const sequence = pattern.metadata?.sequence;
+        if (sequence && sequence.includes('view_trade')) {
+          preferences.push({
+            id: uuidv4(),
+            userId,
+            category: 'trading_frequency',
+            value: 'active',
+            confidence: Math.min(0.8, pattern.frequency / 5),
+            lastUpdated: Date.now()
+          });
+        }
+      }
+    });
+    
+    // Save preferences
+    for (const preference of preferences) {
+      await firebase.saveUserPreference(userId, preference);
     }
-    
-    // Get recent behaviors
-    const recentBehaviors = await firebase.getRecentBehaviors(userId, 100);
-    
-    // Analyze patterns
-    const patterns = analyzeBehaviorPatterns(recentBehaviors);
-    
-    // Apply optimizations based on patterns
-    const optimizations: string[] = [];
-    
-    // Only optimize if we have enough data
-    if (patterns.length < 3 || patterns[0].frequency < 5) {
-      return {
-        optimizations: [],
-        applied: false
-      };
-    }
-    
-    // Check for frequently used features
-    const frequentFeatures = patterns
-      .filter(p => p.frequency >= 5)
-      .map(p => p.pattern);
-    
-    if (frequentFeatures.includes('view_chart')) {
-      // Optimize chart settings
-      await firebase.savePreference(userId, 'optimizedCharts', true);
-      optimizations.push('Enhanced chart loading speed');
-    }
-    
-    if (frequentFeatures.includes('search')) {
-      // Optimize search experience
-      await firebase.savePreference(userId, 'searchHistoryEnabled', true);
-      optimizations.push('Enabled search history for faster results');
-    }
-    
-    if (frequentFeatures.includes('tab_change')) {
-      // Optimize tab switching
-      await firebase.savePreference(userId, 'tabPreloading', true);
-      optimizations.push('Enabled tab preloading for smoother navigation');
-    }
-    
-    // Apply any tab sequence optimizations
-    const sequencePatterns = patterns.filter(p => p.pattern.startsWith('tab_sequence:'));
-    if (sequencePatterns.length > 0) {
-      await firebase.savePreference(userId, 'commonSequences', 
-        sequencePatterns.map(p => p.pattern.replace('tab_sequence:', ''))
-      );
-      optimizations.push('Optimized navigation for your common workflows');
-    }
-    
-    return {
-      optimizations,
-      applied: optimizations.length > 0
-    };
   } catch (error) {
-    console.error('Error optimizing user experience:', error);
-    return {
-      optimizations: [],
-      applied: false
-    };
+    console.error('Error updating interface preferences:', error);
   }
+}
+
+/**
+ * Initialize Phase 4 automation for a user
+ */
+export async function initializePhase4Automation(userId: string): Promise<boolean> {
+  try {
+    const firebase = getFirebaseInstance();
+    if (!firebase) return false;
+    
+    // Log initialization
+    await firebase.logSystemEvent('phase4_automation_initialized', {
+      userId,
+      timestamp: Date.now(),
+      version: '1.0.0'
+    });
+    
+    // Get device info
+    const deviceInfo = {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      language: navigator.language,
+      deviceId: await getOrCreateDeviceId(),
+      isDesktop: !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+    };
+    
+    // Initialize session context
+    const sessionId = uuidv4();
+    const sessionContext: SessionContext = {
+      id: sessionId,
+      userId,
+      startTime: Date.now(),
+      lastActive: Date.now(),
+      device: deviceInfo.deviceId,
+      browser: getBrowserName(),
+      behaviors: []
+    };
+    
+    // Save session context
+    await firebase.saveSessionContext(userId, sessionContext);
+    
+    // Set initialization flag in local storage
+    localStorage.setItem('phase4_initialized', 'true');
+    localStorage.setItem('current_session_id', sessionId);
+    
+    return true;
+  } catch (error) {
+    console.error('Error initializing Phase 4 automation:', error);
+    return false;
+  }
+}
+
+/**
+ * Get or create a unique device ID
+ */
+async function getOrCreateDeviceId(): Promise<string> {
+  let deviceId = localStorage.getItem('device_id');
+  
+  if (!deviceId) {
+    deviceId = uuidv4();
+    localStorage.setItem('device_id', deviceId);
+  }
+  
+  return deviceId;
+}
+
+/**
+ * Get browser name from user agent
+ */
+function getBrowserName(): string {
+  const userAgent = navigator.userAgent;
+  
+  if (userAgent.indexOf('Firefox') > -1) {
+    return 'Firefox';
+  } else if (userAgent.indexOf('SamsungBrowser') > -1) {
+    return 'Samsung Browser';
+  } else if (userAgent.indexOf('Opera') > -1 || userAgent.indexOf('OPR') > -1) {
+    return 'Opera';
+  } else if (userAgent.indexOf('Trident') > -1) {
+    return 'Internet Explorer';
+  } else if (userAgent.indexOf('Edge') > -1) {
+    return 'Edge';
+  } else if (userAgent.indexOf('Chrome') > -1) {
+    return 'Chrome';
+  } else if (userAgent.indexOf('Safari') > -1) {
+    return 'Safari';
+  } else {
+    return 'Unknown';
+  }
+}
+
+/**
+ * Reset Phase 4 automation for testing
+ */
+export function resetPhase4Automation(): void {
+  localStorage.removeItem('phase4_initialized');
+  localStorage.removeItem('current_session_id');
+  localStorage.removeItem('device_id');
 }

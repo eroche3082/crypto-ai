@@ -1,165 +1,223 @@
 /**
  * Phase 4 Initializer Component
  * 
- * Bootstrap component that initializes Phase 4 features on application startup,
- * handling cross-device synchronization, context restoration, and automatic optimization.
+ * This component initializes Phase 4 automation features including:
+ * 1. User behavior tracking
+ * 2. Cross-device synchronization
+ * 3. AI recommendation system
+ * 4. Self-optimization features
  */
 
 import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { initializeFirebase, getFirebaseInstance } from '../services/firebaseSync';
-import { loadUserContext, addUserActivity } from '../utils/chatContextManager';
-import { optimizeUserExperience } from '../utils/phase4Automation';
+import { getFirebaseInstance } from '@/services/firebaseSync';
+import { initializePhase4Automation, detectBehaviorPatterns, updateInterfacePreferences } from '@/utils/phase4Automation';
+import { AIRecommendation } from '@/components/ai/AIRecommendation';
+import { useToast } from '@/hooks/use-toast';
 
 // Props interface
 interface Phase4InitializerProps {
   userId?: string;
-  onInitialized?: (success: boolean, features: string[]) => void;
-  onOptimized?: (optimizations: string[]) => void;
 }
 
 /**
- * Browser fingerprint for device identification
+ * Phase 4 Initializer Component
  */
-function getBrowserFingerprint(): string {
-  const fingerprint = [
-    navigator.userAgent,
-    navigator.language,
-    screen.width,
-    screen.height,
-    new Date().getTimezoneOffset(),
-    navigator.platform
-  ].join('|');
-  
-  // Generate deterministic device ID from fingerprint
-  let hash = 0;
-  for (let i = 0; i < fingerprint.length; i++) {
-    hash = ((hash << 5) - hash) + fingerprint.charCodeAt(i);
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  
-  return Math.abs(hash).toString(16);
-}
-
-/**
- * Phase4Initializer component
- */
-export function Phase4Initializer({
-  userId,
-  onInitialized,
-  onOptimized
-}: Phase4InitializerProps) {
+export function Phase4Initializer({ userId }: Phase4InitializerProps) {
   // Initialization state
-  const [initialized, setInitialized] = useState(false);
-  const [initializedFeatures, setInitializedFeatures] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+  // Recommendations state
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  // Toast for notifications
+  const { toast } = useToast();
   
-  // Initialize Phase 4 features
+  // Initialize Phase 4 automation
   useEffect(() => {
-    let isMounted = true;
-    
     const initialize = async () => {
-      const features: string[] = [];
-      let success = true;
+      // Skip if already initialized or no user ID
+      if (isInitialized || !userId) return;
       
-      try {
-        // Initialize Firebase
-        const firebase = initializeFirebase();
-        if (firebase) {
-          features.push('firebase');
-          
-          // Register device if user is logged in
-          if (userId) {
-            // Get or generate device ID
-            let deviceId = localStorage.getItem('deviceId');
-            if (!deviceId) {
-              deviceId = `${getBrowserFingerprint()}-${uuidv4().slice(0, 8)}`;
-              localStorage.setItem('deviceId', deviceId);
-            }
-            
-            // Register this device
-            await firebase.saveDeviceInfo(userId, deviceId, {
-              userAgent: navigator.userAgent,
-              language: navigator.language,
-              screenSize: `${screen.width}x${screen.height}`,
-              platform: navigator.platform,
-              lastActive: new Date().toISOString()
-            });
-            
-            features.push('cross-device-sync');
-            
-            // Load user context
-            await loadUserContext(userId);
-            features.push('context-restoration');
-            
-            // Track session start
-            await firebase.trackBehavior(userId, 'session_start', {
-              deviceId,
-              timestamp: new Date().toISOString()
-            });
-            
-            features.push('behavior-tracking');
-            
-            // Add session start activity
-            addUserActivity('Started new session');
-            
-            // Run user experience optimization
-            setTimeout(async () => {
-              try {
-                const optimizationResult = await optimizeUserExperience(userId);
-                
-                if (optimizationResult.applied && onOptimized && isMounted) {
-                  onOptimized(optimizationResult.optimizations);
-                }
-              } catch (error) {
-                console.error('Error optimizing user experience:', error);
-              }
-            }, 5000); // Delay optimization to not block initial loading
-          }
-        } else {
-          console.warn('Firebase initialization skipped or failed');
-        }
-      } catch (error) {
-        console.error('Error initializing Phase 4 features:', error);
-        success = false;
+      // Check if Phase 4 is already initialized in local storage
+      const isAlreadyInitialized = localStorage.getItem('phase4_initialized') === 'true';
+      
+      if (isAlreadyInitialized) {
+        console.log('Phase 4 automation already initialized');
+        setIsInitialized(true);
+        return;
       }
       
-      // Mark as initialized
-      if (isMounted) {
-        setInitialized(true);
-        setInitializedFeatures(features);
-        onInitialized?.(success, features);
+      try {
+        // Initialize Phase 4 automation
+        const success = await initializePhase4Automation(userId);
+        
+        if (success) {
+          console.log('Phase 4 automation initialized successfully');
+          setIsInitialized(true);
+          
+          // Show toast notification
+          toast({
+            title: 'Enhanced Features Activated',
+            description: 'AI-driven personalization and cross-device sync are now active.',
+          });
+          
+          // Schedule first behavior analysis
+          setTimeout(() => {
+            analyzeUserBehavior(userId);
+          }, 60000); // After 1 minute
+        } else {
+          console.error('Failed to initialize Phase 4 automation');
+        }
+      } catch (error) {
+        console.error('Error initializing Phase 4 automation:', error);
       }
     };
     
     initialize();
-    
-    // Cleanup function
-    return () => {
-      isMounted = false;
-    };
-  }, [userId, onInitialized, onOptimized]);
+  }, [userId, isInitialized, toast]);
   
-  // Handle session end on unmount
+  // Setup periodic behavior analysis
   useEffect(() => {
+    if (!isInitialized || !userId) return;
+    
+    // Analyze user behavior periodically
+    const intervalId = setInterval(() => {
+      analyzeUserBehavior(userId);
+    }, 300000); // Every 5 minutes
+    
+    // Set up device sync
+    const syncIntervalId = setInterval(() => {
+      syncAcrossDevices(userId);
+    }, 600000); // Every 10 minutes
+    
+    // Cleanup intervals on unmount
     return () => {
-      if (userId) {
-        const firebase = getFirebaseInstance();
-        if (firebase) {
-          const deviceId = localStorage.getItem('deviceId');
-          
-          firebase.trackBehavior(userId, 'session_end', {
-            deviceId,
-            timestamp: new Date().toISOString()
-          }).catch(error => {
-            console.error('Error tracking session end:', error);
-          });
-        }
-      }
+      clearInterval(intervalId);
+      clearInterval(syncIntervalId);
     };
-  }, [userId]);
+  }, [isInitialized, userId]);
   
-  // This component doesn't render anything
-  return null;
+  // Load recommendations on initialization
+  useEffect(() => {
+    if (!isInitialized || !userId) return;
+    
+    loadRecommendations(userId);
+  }, [isInitialized, userId]);
+  
+  /**
+   * Analyze user behavior
+   */
+  const analyzeUserBehavior = async (userId: string) => {
+    try {
+      // Get firebase instance
+      const firebase = getFirebaseInstance();
+      if (!firebase) return;
+      
+      // Get recent behaviors
+      const recentBehaviors = await firebase.getRecentBehaviors(userId, 100);
+      
+      // Skip if not enough behaviors
+      if (recentBehaviors.length < 5) return;
+      
+      // Detect behavior patterns
+      const patterns = await detectBehaviorPatterns(userId, recentBehaviors);
+      
+      // Skip if no patterns detected
+      if (patterns.length === 0) return;
+      
+      // Update interface preferences based on behavior
+      await updateInterfacePreferences(userId, patterns);
+      
+      // Generate recommendations if needed
+      setTimeout(() => {
+        loadRecommendations(userId);
+      }, 5000);
+      
+      console.log('User behavior analyzed:', patterns.length, 'patterns detected');
+    } catch (error) {
+      console.error('Error analyzing user behavior:', error);
+    }
+  };
+  
+  /**
+   * Sync across devices
+   */
+  const syncAcrossDevices = async (userId: string) => {
+    try {
+      // Get firebase instance
+      const firebase = getFirebaseInstance();
+      if (!firebase) return;
+      
+      // Sync data between devices
+      const success = await firebase.syncDataBetweenDevices(userId);
+      
+      if (success) {
+        console.log('Data synced across devices');
+      }
+    } catch (error) {
+      console.error('Error syncing across devices:', error);
+    }
+  };
+  
+  /**
+   * Load recommendations
+   */
+  const loadRecommendations = async (userId: string) => {
+    try {
+      // Get firebase instance
+      const firebase = getFirebaseInstance();
+      if (!firebase) return;
+      
+      // Get user recommendations
+      const userRecommendations = await firebase.getUserRecommendations(userId);
+      
+      // Set recommendations state
+      setRecommendations(userRecommendations);
+    } catch (error) {
+      console.error('Error loading recommendations:', error);
+    }
+  };
+  
+  /**
+   * Handle recommendation action
+   */
+  const handleRecommendationAction = (recommendation: any) => {
+    // Track the action (already handled in AIRecommendation component)
+    console.log('Recommendation action:', recommendation.title);
+    
+    // Remove from UI
+    setRecommendations(prev => prev.filter(rec => rec.id !== recommendation.id));
+  };
+  
+  /**
+   * Handle recommendation dismiss
+   */
+  const handleRecommendationDismiss = (recommendation: any) => {
+    // Track the dismiss (already handled in AIRecommendation component)
+    console.log('Recommendation dismissed:', recommendation.title);
+    
+    // Remove from UI
+    setRecommendations(prev => prev.filter(rec => rec.id !== recommendation.id));
+  };
+  
+  // Early return if not initialized or no recommendations
+  if (!isInitialized || recommendations.length === 0) {
+    return null;
+  }
+  
+  // Return recommendations
+  return (
+    <div className="fixed bottom-4 right-4 max-w-xs z-50 space-y-2">
+      {recommendations.slice(0, 1).map(recommendation => (
+        <AIRecommendation
+          key={recommendation.id}
+          recommendation={recommendation}
+          userId={userId}
+          onAction={handleRecommendationAction}
+          onDismiss={handleRecommendationDismiss}
+          compact={true}
+        />
+      ))}
+    </div>
+  );
 }
 
 export default Phase4Initializer;

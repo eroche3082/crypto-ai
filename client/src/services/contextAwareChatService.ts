@@ -1,323 +1,388 @@
 /**
  * Context-Aware Chat Service
  * 
- * Client-side service for interacting with the multi-provider chat system,
- * managing chat history, and providing context-enhanced conversations.
+ * Provides a unified interface for interacting with AI models 
+ * while maintaining context awareness across tabs and sessions.
+ * Features:
+ * 1. Intelligent routing to appropriate AI models
+ * 2. Automatic fallback between providers
+ * 3. Context persistence across tabs and sessions
+ * 4. Memory management and context pruning
  */
 
-import { v4 as uuidv4 } from 'uuid';
-import { getFirebaseInstance } from './firebaseSync';
+import { 
+  generateContextAwarePrompt,
+  addMessageToContext,
+  addMemoryItem,
+  ChatMessage,
+  MessageRole
+} from '@/utils/chatContextManager';
 
-// Chat message type
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
+// Import AI provider services
+import { apiRequest } from '@/lib/queryClient';
+
+// Message for requesting a response
+export interface ChatRequestMessage {
+  role: MessageRole;
   content: string;
-  timestamp: number;
 }
 
-// Chat context type
-export interface ChatContext {
-  tabId?: string;
-  tabName?: string;
-  currentCoin?: string;
-  sourceData?: any;
-  previousActivity?: string[];
+// Chat completion request config
+export interface ChatCompletionRequest {
+  messages: ChatRequestMessage[];
+  maxTokens?: number;
+  temperature?: number;
+  provider?: 'gemini' | 'anthropic' | 'openai' | 'auto';
+  stream?: boolean;
 }
 
-// Chat provider type
-export type ChatProvider = 'openai' | 'anthropic' | 'gemini' | 'vertexai';
-
-// Chat providers info type
-export interface ChatProvidersInfo {
-  providers: ChatProvider[];
-  capabilities: {
-    text: ChatProvider[];
-    image: ChatProvider[];
-    audio: ChatProvider[];
+// Chat completion response
+export interface ChatCompletionResponse {
+  id: string;
+  content: string;
+  provider: string;
+  finishReason?: string;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
   };
-  features: {
-    contextAwareChat: boolean;
-    imageGeneration: boolean;
-    imageAnalysis: boolean;
-    translation: boolean;
-    sentimentAnalysis: boolean;
-  };
+  error?: string;
 }
 
-// Available providers cache
-let providersCache: ChatProvidersInfo | null = null;
-let providersCacheTimestamp: number = 0;
+// Provider status
+export type ProviderStatus = 'available' | 'unavailable' | 'unknown';
 
-/**
- * Get available chat providers
- */
-export async function getAvailableProviders(): Promise<ChatProvider[]> {
-  try {
-    // Use cache if available and less than 5 minutes old
-    if (providersCache && (Date.now() - providersCacheTimestamp < 5 * 60 * 1000)) {
-      return providersCache.providers;
-    }
-    
-    // Fetch providers from server
-    const response = await fetch('/chat/providers');
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch providers: ${response.statusText}`);
-    }
-    
-    const data: ChatProvidersInfo = await response.json();
-    
-    // Update cache
-    providersCache = data;
-    providersCacheTimestamp = Date.now();
-    
-    return data.providers;
-  } catch (error) {
-    console.error('Error fetching available providers:', error);
-    return [];
-  }
+// Provider status state
+interface ProviderStatusState {
+  gemini: ProviderStatus;
+  anthropic: ProviderStatus;
+  openai: ProviderStatus;
+  lastUpdated: number;
 }
 
-/**
- * Get provider capabilities
- */
-export async function getProviderCapabilities(): Promise<ChatProvidersInfo['capabilities']> {
-  try {
-    // Ensure providers are loaded
-    await getAvailableProviders();
-    
-    return providersCache?.capabilities || {
-      text: [],
-      image: [],
-      audio: []
-    };
-  } catch (error) {
-    console.error('Error fetching provider capabilities:', error);
-    return {
-      text: [],
-      image: [],
-      audio: []
-    };
-  }
-}
+// Global provider status state
+let providerStatus: ProviderStatusState = {
+  gemini: 'unknown',
+  anthropic: 'unknown',
+  openai: 'unknown',
+  lastUpdated: 0
+};
 
 /**
- * Get available features
+ * Generate a chat completion with context awareness
  */
-export async function getAvailableFeatures(): Promise<ChatProvidersInfo['features']> {
+export async function generateChatCompletion(
+  userId: string,
+  tabContext: string,
+  prompt: string,
+  options: {
+    provider?: 'gemini' | 'anthropic' | 'openai' | 'auto',
+    maxTokens?: number,
+    temperature?: number,
+    stream?: boolean
+  } = {}
+): Promise<ChatCompletionResponse> {
   try {
-    // Ensure providers are loaded
-    await getAvailableProviders();
+    // Set default provider
+    const provider = options.provider || 'auto';
     
-    return providersCache?.features || {
-      contextAwareChat: false,
-      imageGeneration: false,
-      imageAnalysis: false,
-      translation: false,
-      sentimentAnalysis: false
-    };
-  } catch (error) {
-    console.error('Error fetching available features:', error);
-    return {
-      contextAwareChat: false,
-      imageGeneration: false,
-      imageAnalysis: false,
-      translation: false,
-      sentimentAnalysis: false
-    };
-  }
-}
-
-/**
- * Send a message to the context-aware chat system
- */
-export async function sendChatMessage(
-  message: string,
-  conversationId: string,
-  context?: ChatContext,
-  previousMessages: ChatMessage[] = [],
-  provider?: ChatProvider
-): Promise<{ response: ChatMessage, provider: ChatProvider }> {
-  try {
-    // Format messages for API
-    const formattedMessages = previousMessages.map(msg => ({
+    // Generate context-aware prompts
+    const promptMessages = await generateContextAwarePrompt(
+      userId,
+      tabContext,
+      prompt
+    );
+    
+    // Convert to chat request format
+    const requestMessages: ChatRequestMessage[] = promptMessages.map(msg => ({
       role: msg.role,
       content: msg.content
     }));
     
-    // Add new user message
-    formattedMessages.push({
-      role: 'user' as const,
-      content: message
-    });
-    
-    // Prepare request
-    const requestBody = {
-      messages: formattedMessages,
-      context,
+    // Create chat completion request
+    const request: ChatCompletionRequest = {
+      messages: requestMessages,
+      maxTokens: options.maxTokens,
+      temperature: options.temperature,
       provider,
-      conversationId
+      stream: options.stream
     };
     
-    // Send request to server
-    const response = await fetch('/api/ai/context-chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    });
+    // Get chat completion from appropriate provider
+    const response = await getChatCompletionFromProvider(request);
     
-    if (!response.ok) {
-      throw new Error(`Failed to send message: ${response.statusText}`);
+    // Save the assistant's response to context
+    if (!response.error) {
+      await addMessageToContext(
+        userId,
+        'assistant',
+        response.content,
+        tabContext,
+        { provider: response.provider }
+      );
+      
+      // Add important information to memory
+      extractAndStoreMemory(userId, prompt, response.content, tabContext);
     }
     
+    return response;
+  } catch (error) {
+    console.error('Error generating chat completion:', error);
+    
+    // Return error response
+    return {
+      id: crypto.randomUUID(),
+      content: 'I apologize, but I encountered an error processing your request. Please try again later.',
+      provider: 'error',
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Get chat completion from appropriate provider
+ */
+async function getChatCompletionFromProvider(
+  request: ChatCompletionRequest
+): Promise<ChatCompletionResponse> {
+  const provider = request.provider || 'auto';
+  
+  try {
+    if (provider === 'auto') {
+      // Try providers in order of preference
+      return await tryProvidersInOrder(request);
+    } else {
+      // Use specified provider
+      return await requestFromProvider(provider, request);
+    }
+  } catch (error) {
+    console.error(`Error getting chat completion from provider ${provider}:`, error);
+    
+    // If specific provider fails, try others if auto
+    if (provider === 'auto') {
+      // Already tried all providers, return error
+      return {
+        id: crypto.randomUUID(),
+        content: 'I apologize, but all AI service providers are currently unavailable. Please try again later.',
+        provider: 'error',
+        error: 'All providers unavailable'
+      };
+    } else {
+      // Try auto as fallback
+      console.log(`Falling back to auto provider selection after ${provider} failed`);
+      return await tryProvidersInOrder({
+        ...request,
+        provider: 'auto'
+      });
+    }
+  }
+}
+
+/**
+ * Try providers in order of preference
+ */
+async function tryProvidersInOrder(
+  request: ChatCompletionRequest
+): Promise<ChatCompletionResponse> {
+  // Get current provider status
+  await updateProviderStatus();
+  
+  // Define provider order based on availability
+  const providerOrder = ['gemini', 'anthropic', 'openai']
+    .filter(provider => providerStatus[provider] !== 'unavailable')
+    .sort((a, b) => {
+      // Prioritize known available providers
+      if (providerStatus[a] === 'available' && providerStatus[b] !== 'available') {
+        return -1;
+      }
+      if (providerStatus[a] !== 'available' && providerStatus[b] === 'available') {
+        return 1;
+      }
+      return 0;
+    });
+  
+  // If no providers are available, try all
+  if (providerOrder.length === 0) {
+    providerOrder.push('gemini', 'anthropic', 'openai');
+  }
+  
+  // Try each provider in order
+  for (const provider of providerOrder) {
+    try {
+      const response = await requestFromProvider(provider, request);
+      return response;
+    } catch (error) {
+      console.error(`Provider ${provider} failed:`, error);
+      
+      // Mark provider as unavailable
+      providerStatus[provider] = 'unavailable';
+      
+      // Try next provider
+      continue;
+    }
+  }
+  
+  // If all providers fail, return error
+  return {
+    id: crypto.randomUUID(),
+    content: 'I apologize, but all AI service providers are currently unavailable. Please try again later.',
+    provider: 'error',
+    error: 'All providers unavailable'
+  };
+}
+
+/**
+ * Request from specific provider
+ */
+async function requestFromProvider(
+  provider: string,
+  request: ChatCompletionRequest
+): Promise<ChatCompletionResponse> {
+  // Map to appropriate endpoint
+  const endpoint = `/api/ai/${provider}/chat`;
+  
+  // Make request
+  const response = await apiRequest('POST', endpoint, {
+    messages: request.messages,
+    max_tokens: request.maxTokens,
+    temperature: request.temperature,
+    stream: request.stream
+  });
+  
+  // Parse response
+  const data = await response.json();
+  
+  // Update provider status
+  providerStatus[provider] = 'available';
+  providerStatus.lastUpdated = Date.now();
+  
+  // Return mapped response
+  return {
+    id: data.id || crypto.randomUUID(),
+    content: data.content || data.message?.content || data.choices?.[0]?.message?.content || '',
+    provider,
+    finishReason: data.finish_reason || data.choices?.[0]?.finish_reason || 'stop',
+    usage: data.usage
+  };
+}
+
+/**
+ * Update provider status
+ */
+async function updateProviderStatus(): Promise<void> {
+  // Skip if recently updated
+  if (Date.now() - providerStatus.lastUpdated < 60000) { // 1 minute
+    return;
+  }
+  
+  try {
+    // Get status from API
+    const response = await apiRequest('GET', '/api/system/status');
     const data = await response.json();
     
-    // Create response message
-    const responseMessage: ChatMessage = {
-      id: uuidv4(),
-      role: 'assistant',
-      content: data.message,
-      timestamp: Date.now()
-    };
-    
-    return {
-      response: responseMessage,
-      provider: data.provider
-    };
+    // Update provider status
+    if (data.providers) {
+      providerStatus = {
+        gemini: data.providers.gemini ? 'available' : 'unavailable',
+        anthropic: data.providers.anthropic ? 'available' : 'unavailable',
+        openai: data.providers.openai ? 'available' : 'unavailable',
+        lastUpdated: Date.now()
+      };
+    }
   } catch (error) {
-    console.error('Error sending chat message:', error);
-    
-    // Create error response
-    const errorMessage: ChatMessage = {
-      id: uuidv4(),
-      role: 'assistant',
-      content: `I'm sorry, I encountered an error: ${error.message}. Please try again later.`,
-      timestamp: Date.now()
-    };
-    
-    return {
-      response: errorMessage,
-      provider: 'openai'
-    };
+    console.error('Error updating provider status:', error);
   }
 }
 
 /**
- * Create a new conversation
+ * Extract and store memory from conversations
  */
-export function createNewConversation(
-  userId?: string,
-  initialContext?: ChatContext
-): { conversationId: string, messages: ChatMessage[] } {
-  const conversationId = uuidv4();
-  const welcomeMessage: ChatMessage = {
-    id: uuidv4(),
-    role: 'system',
-    content: 'Welcome to CryptoBot AI! How can I assist you with cryptocurrency today?',
-    timestamp: Date.now()
-  };
-  
-  // Save to Firebase if user is logged in
-  if (userId) {
-    const firebase = getFirebaseInstance();
-    if (firebase) {
-      firebase.saveConversation(userId, conversationId, [welcomeMessage], initialContext);
-    }
+function extractAndStoreMemory(
+  userId: string,
+  userMessage: string,
+  aiResponse: string,
+  tabContext: string
+): void {
+  // Skip if any parameter is missing
+  if (!userId || !userMessage || !aiResponse || !tabContext) {
+    return;
   }
   
-  return {
-    conversationId,
-    messages: [welcomeMessage]
-  };
-}
-
-/**
- * Load a conversation from storage
- */
-export async function loadConversation(
-  userId: string,
-  conversationId: string
-): Promise<{ messages: ChatMessage[], context?: ChatContext } | null> {
+  // TODO: Implement AI-based memory extraction
+  // For now, just store factual responses using a simple heuristic
+  
   try {
-    const firebase = getFirebaseInstance();
+    // Check if the response contains factual information
+    const factualIndicators = [
+      'according to',
+      'research shows',
+      'studies indicate',
+      'data suggests',
+      'statistics show',
+      'as of',
+      'in the year',
+      'approximately',
+      'estimated',
+      'percent',
+      'bitcoin is',
+      'ethereum is',
+      'blockchain',
+      'crypto',
+      'market cap'
+    ];
     
-    if (!firebase) {
-      throw new Error('Firebase is not initialized');
+    // Check if any indicator is present
+    const isFactual = factualIndicators.some(indicator => 
+      aiResponse.toLowerCase().includes(indicator.toLowerCase())
+    );
+    
+    // Store facts with higher importance
+    if (isFactual) {
+      // For fact storage, use the first 100 characters as a summary
+      const factSummary = aiResponse.length > 100 
+        ? aiResponse.substring(0, 100) + '...' 
+        : aiResponse;
+      
+      addMemoryItem(
+        userId,
+        factSummary,
+        tabContext,
+        'fact',
+        0.8 // High importance for facts
+      );
     }
     
-    return await firebase.loadConversation(userId, conversationId);
-  } catch (error) {
-    console.error('Error loading conversation:', error);
-    return null;
-  }
-}
-
-/**
- * Save a conversation to storage
- */
-export async function saveConversation(
-  userId: string,
-  conversationId: string,
-  messages: ChatMessage[],
-  context?: ChatContext
-): Promise<boolean> {
-  try {
-    const firebase = getFirebaseInstance();
+    // Check if the user mentioned preferences
+    const preferenceIndicators = [
+      'i prefer',
+      'i like',
+      'i don\'t like',
+      'i hate',
+      'i love',
+      'i want',
+      'i need',
+      'favorite',
+      'interested in',
+      'invest in'
+    ];
     
-    if (!firebase) {
-      throw new Error('Firebase is not initialized');
+    // Check if any preference indicator is present in user message
+    const hasPreference = preferenceIndicators.some(indicator => 
+      userMessage.toLowerCase().includes(indicator.toLowerCase())
+    );
+    
+    // Store preferences with high importance
+    if (hasPreference) {
+      addMemoryItem(
+        userId,
+        userMessage,
+        tabContext,
+        'preference',
+        0.9 // Very high importance for preferences
+      );
     }
-    
-    await firebase.saveConversation(userId, conversationId, messages, context);
-    return true;
   } catch (error) {
-    console.error('Error saving conversation:', error);
-    return false;
-  }
-}
-
-/**
- * Delete a conversation
- */
-export async function deleteConversation(
-  userId: string,
-  conversationId: string
-): Promise<boolean> {
-  try {
-    const firebase = getFirebaseInstance();
-    
-    if (!firebase) {
-      throw new Error('Firebase is not initialized');
-    }
-    
-    await firebase.deleteConversation(userId, conversationId);
-    return true;
-  } catch (error) {
-    console.error('Error deleting conversation:', error);
-    return false;
-  }
-}
-
-/**
- * Get recent conversations
- */
-export async function getRecentConversations(
-  userId: string,
-  limit: number = 10
-): Promise<{ id: string, preview: string, timestamp: number }[]> {
-  try {
-    const firebase = getFirebaseInstance();
-    
-    if (!firebase) {
-      throw new Error('Firebase is not initialized');
-    }
-    
-    return await firebase.getRecentConversations(userId, limit);
-  } catch (error) {
-    console.error('Error fetching recent conversations:', error);
-    return [];
+    console.error('Error extracting and storing memory:', error);
   }
 }
