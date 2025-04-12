@@ -4,6 +4,7 @@ import {
   ArrowRight,
   ArrowUp,
   BarChart,
+  Box,
   Brain,
   Camera,
   Calendar,
@@ -16,7 +17,6 @@ import {
   Copy,
   Cpu,
   CreditCard,
-  Cube,
   File,
   FileText,
   HelpCircle,
@@ -99,5 +99,5 @@ export const Icons = {
   code: Code,
   volumeOn: Volume2,
   volumeOff: VolumeX,
-  cube: Cube, // For VR/AR
+  cube: Box, // For VR/AR
 }

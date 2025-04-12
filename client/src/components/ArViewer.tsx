@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, RotateCw, Plus, Minus, Cube } from 'lucide-react';
+import { X, RotateCw, Plus, Minus, Box } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ArViewerProps {
@@ -143,7 +143,7 @@ const ArViewer: React.FC<ArViewerProps> = ({
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center p-4 border-b">
         <div className="flex items-center">
-          <Cube className="w-5 h-5 mr-2" />
+          <Box className="w-5 h-5 mr-2" />
           <h2 className="text-lg font-semibold">Crypto AR Viewer</h2>
         </div>
         <Button 
@@ -287,7 +287,7 @@ const ArViewer: React.FC<ArViewerProps> = ({
           {isAugmentedMode && (
             <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
               <div className="text-center p-8 max-w-md">
-                <Cube className="h-16 w-16 mx-auto mb-4 text-primary" />
+                <Box className="h-16 w-16 mx-auto mb-4 text-primary" />
                 <h3 className="text-xl font-bold mb-2 text-white">AR Experience Simulation</h3>
                 <p className="mb-4 text-gray-300">
                   In a real implementation, this would use WebXR to place the 3D crypto model in your physical environment.
