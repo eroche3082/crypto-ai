@@ -34,6 +34,16 @@ interface Message {
   };
 }
 
+// Define user profile interface
+export interface UserProfile {
+  name: string;
+  interests: string[];
+  goals: string;
+  experience: 'beginner' | 'intermediate' | 'advanced';
+  preferredCurrencies?: string[];
+  riskTolerance?: 'low' | 'medium' | 'high';
+}
+
 interface ZoomStyleChatProps {
   initialOpen?: boolean;
   defaultLanguage?: string;

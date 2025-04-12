@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ZoomStyleChat } from './ZoomStyleChat';
+import { ZoomStyleChat, UserProfile } from './ZoomStyleChat';
 import { ChatbotOnboarding } from './ChatbotOnboarding';
 import { getOnboardingQuestions } from '@/lib/onboardingFlow';
 import { SubscriberProfile } from '@/lib/subscriberSchema';
@@ -130,8 +130,9 @@ export const UniversalChatbot: React.FC<UniversalChatbotProps> = ({
           />
         ) : (
           <ZoomStyleChat
-            userProfile={userProfile}
-            onRestartOnboarding={handleRestartOnboarding}
+            userProfile={userProfile as UserProfile}
+            initialOpen={true}
+            defaultLanguage="en"
           />
         )}
       </div>

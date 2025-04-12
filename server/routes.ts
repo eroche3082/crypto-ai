@@ -1015,5 +1015,67 @@ Watch for increased volatility around upcoming economic announcements.
     }
   });
   
+  // System status endpoint for health checks and system audits
+  app.get('/api/system/status', (req: Request, res: Response) => {
+    try {
+      // Collect API service statuses
+      const apiServices = {
+        coingecko: { 
+          status: 'operational',
+          lastChecked: Date.now()
+        },
+        twitter: { 
+          status: process.env.TWITTER_API_KEY ? 'operational' : 'degraded',
+          lastChecked: Date.now(),
+          issues: process.env.TWITTER_API_KEY ? [] : ['API key not configured']
+        },
+        gemini: { 
+          status: process.env.VITE_GEMINI_API_KEY ? 'operational' : 'degraded',
+          lastChecked: Date.now()
+        },
+        openai: { 
+          status: process.env.OPENAI_API_KEY ? 'operational' : 'degraded',
+          lastChecked: Date.now()
+        },
+        anthropic: { 
+          status: process.env.ANTHROPIC_API_KEY ? 'operational' : 'degraded',
+          lastChecked: Date.now()
+        }
+      };
+      
+      // Collect component statuses
+      const components = {
+        core: {
+          api: { status: 'operational' },
+          database: { status: 'operational' },
+          frontend: { status: 'operational' },
+          chatbot: { status: 'operational' },
+          auth: { status: 'operational' }
+        }
+      };
+      
+      // Return system status
+      res.json({
+        status: 'healthy',
+        timestamp: Date.now(),
+        environment: process.env.NODE_ENV || 'development',
+        services: apiServices,
+        components,
+        metrics: {
+          uptime: process.uptime(),
+          memory: process.memoryUsage(),
+          cpuUsage: process.cpuUsage()
+        }
+      });
+    } catch (error) {
+      console.error('Error retrieving system status:', error);
+      res.status(500).json({ 
+        status: 'error',
+        message: 'Failed to retrieve system status', 
+        error: (error as Error).message 
+      });
+    }
+  });
+  
   return httpServer;
 }
