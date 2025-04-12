@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Wallet, Lock, Send, Search, Plus, User, CheckCircle2, Clock, X } from 'lucide-react';
+import { Wallet, Lock, Send, Search, Plus, User, CheckCircle2, Clock, X, MessageSquare } from 'lucide-react';
 
 // Define interfaces for messaging components
 interface Message {
@@ -452,21 +452,5 @@ const WalletMessaging: React.FC<WalletMessagingProps> = ({ userWalletAddress, on
     </div>
   );
 };
-
-// Icon for the message square
-const MessageSquare = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
-);
 
 export default WalletMessaging;
