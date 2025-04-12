@@ -205,8 +205,15 @@ export class DatabaseStorage implements IStorage {
   
   // Favorites methods
   async getFavorites(userId: number): Promise<Favorite[]> {
+    // Use explicit column selection to avoid issues with schema differences
     return await db
-      .select()
+      .select({
+        id: favorites.id,
+        userId: favorites.userId,
+        symbol: favorites.symbol,
+        name: favorites.name,
+        createdAt: favorites.createdAt
+      })
       .from(favorites)
       .where(eq(favorites.userId, userId));
   }
@@ -214,8 +221,18 @@ export class DatabaseStorage implements IStorage {
   async createFavorite(favorite: InsertFavorite): Promise<Favorite> {
     const [newFavorite] = await db
       .insert(favorites)
-      .values(favorite)
-      .returning();
+      .values({
+        userId: favorite.userId,
+        symbol: favorite.symbol,
+        name: favorite.name
+      })
+      .returning({
+        id: favorites.id,
+        userId: favorites.userId,
+        symbol: favorites.symbol,
+        name: favorites.name,
+        createdAt: favorites.createdAt
+      });
     return newFavorite;
   }
   
@@ -228,7 +245,7 @@ export class DatabaseStorage implements IStorage {
   
   async checkFavorite(userId: number, symbol: string): Promise<boolean> {
     const result = await db
-      .select()
+      .select({ id: favorites.id })
       .from(favorites)
       .where(
         and(
