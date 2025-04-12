@@ -139,4 +139,15 @@ apiRouter.get('/twitter/trends/:woeid?', getTrendingTopics);
 apiRouter.get('/twitter/profile/:username', getUserProfile);
 apiRouter.get('/twitter/sentiment/:symbol', analyzeCryptoSentiment);
 
+// Tax Simulator endpoints
+import {
+  calculateTaxes,
+  getTaxInfo,
+  getAvailableCountries
+} from './tax/simulator';
+
+apiRouter.post('/tax/calculate', calculateTaxes);
+apiRouter.get('/tax/info/:country?', getTaxInfo);
+apiRouter.get('/tax/countries', getAvailableCountries);
+
 export default apiRouter;
