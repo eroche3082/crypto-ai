@@ -1,390 +1,297 @@
 /**
- * System Audit Utilities
- * Used to check the health and functionality of all system components
+ * System Audit and Diagnostic Utilities
+ * Provides data structures and helper functions for system audits and diagnostic reports
  */
 
-// System components to check
-const COMPONENTS = {
-  core: [
-    'dashboard',
-    'favorites',
-    'portfolio',
-    'chatbot',
-    'websocket',
-  ],
-  features: [
-    'nft-gallery',
-    'token-tracker',
-    'twitter-analysis',
-    'tax-simulator',
-    'gamification',
-    'investment-advisor',
-    'watchlist',
-    'wallet-messaging',
-    'education',
-    'news',
-    'alerts',
-    'converter',
-    'analysis',
-  ],
-  apis: [
-    'coingecko',
-    'twitter',
-    'moralis',
-    'gemini',
-    'openai',
-    'claude',
-  ]
-};
+// Phase item status types
+export type PhaseItemStatus = '✅' | '⚠️' | '❌';
 
-// API endpoints to check
-const API_ENDPOINTS = {
-  crypto: [
-    '/api/crypto/coins/markets',
-    '/api/crypto/coins/trending',
-  ],
-  ai: [
-    '/api/ai/gemini',
-    '/api/ai/openai',
-    '/api/ai/claude',
-  ],
-  data: [
-    '/api/user/profile',
-    '/api/system/status',
-  ]
-};
+// Phase item interface
+export interface PhaseItem {
+  id: string;
+  label: string;
+  status: PhaseItemStatus;
+}
 
-// Check health of an API endpoint
-const checkApiHealth = async (endpoint: string): Promise<any> => {
-  try {
-    const start = performance.now();
-    const response = await fetch(endpoint);
-    const end = performance.now();
-    const latency = Math.round(end - start);
+// Phase interface with items and metadata
+export interface Phase {
+  id: string;
+  title: string;
+  status: 'complete' | 'in-progress' | 'pending';
+  items: Record<string, PhaseItemStatus>;
+  suggestions: string[];
+}
+
+// Diagnostic report interface
+export interface DiagnosticReport {
+  phases: Record<string, Phase>;
+  current_phase: string;
+  next_focus: string;
+  priority_actions: string[];
+  system_status: 'OK' | 'WARNING' | 'ERROR';
+  status_reason: string;
+}
+
+/**
+ * Get the current system diagnostic report
+ * This would typically fetch from API or Firebase in production
+ */
+export function getSystemDiagnosticReport(): DiagnosticReport {
+  return {
+    phases: {
+      phase_0_initialization: {
+        id: 'phase_0_initialization',
+        title: 'PHASE 0: Initialization',
+        status: 'complete',
+        items: {
+          app_skeleton_created: '✅',
+          env_and_secrets_loaded: '✅',
+          firebase_connected: '✅',
+          replit_initialized: '✅',
+          github_repo_linked: '❌'
+        },
+        suggestions: [
+          'Link GitHub repo for better version control and CI/CD integration',
+          'Implement automatic environment variable validation on startup'
+        ]
+      },
+      
+      phase_1_layout_and_ui_base: {
+        id: 'phase_1_layout_and_ui_base',
+        title: 'PHASE 1: Layout & UI Base',
+        status: 'complete',
+        items: {
+          header_navbar: '✅',
+          side_panel_menu: '✅',
+          footer_with_admin_panel: '✅',
+          responsive_layout: '⚠️',
+          route_navigation: '✅'
+        },
+        suggestions: [
+          'Add dark mode toggle in header for accessibility',
+          'Optimize responsive layout for small mobile devices',
+          'Implement smooth transitions between routes'
+        ]
+      },
+      
+      phase_2_chatbot_core: {
+        id: 'phase_2_chatbot_core',
+        title: 'PHASE 2: Chatbot System Core',
+        status: 'complete',
+        items: {
+          chatbot_floating_icon: '✅',
+          fullpage_chatbot: '✅',
+          vertex_ai_connected: '✅', 
+          audio_input_output: '✅',
+          multilingual_support: '✅',
+          firebase_context_memory: '⚠️',
+          onboarding_flow: '✅',
+          dashboard_user_responses: '✅'
+        },
+        suggestions: [
+          'Add loading animations during AI response generation',
+          'Implement message history export functionality',
+          'Complete Firebase context memory for multi-session continuity',
+          'Add typing indicators during AI response generation'
+        ]
+      },
+      
+      phase_3_tab_modules: {
+        id: 'phase_3_tab_modules',
+        title: 'PHASE 3: Tab-by-Tab Module Integration',
+        status: 'in-progress',
+        items: {
+          dashboard_ui: '✅',
+          dashboard_backend_api: '✅',
+          dashboard_charts: '✅',
+          favorites_functionality: '✅',
+          portfolio_management: '✅',
+          portfolio_analysis: '✅',
+          nft_gallery: '✅',
+          token_tracker: '✅',
+          twitter_analysis: '✅',
+          tax_simulator: '⚠️',
+          gamification: '✅',
+          risk_watchlist: '✅',
+          education_resources: '⚠️',
+          news_feed: '⚠️'
+        },
+        suggestions: [
+          'Complete Tax Simulator calculation engine',
+          'Connect news API with sentiment analyzer',
+          'Finalize structure of educational content',
+          'Group similar tabs into collapsible categories for easier navigation'
+        ]
+      },
+      
+      phase_4_user_personalization: {
+        id: 'phase_4_user_personalization',
+        title: 'PHASE 4: User Personalization',
+        status: 'in-progress',
+        items: {
+          subscriber_profile: '✅',
+          firebase_user_data: '✅',
+          personalized_dashboard: '✅',
+          chatbot_personalization: '✅',
+          ai_recommendations: '⚠️'
+        },
+        suggestions: [
+          'Add preference settings UI for fine-tuning personalization',
+          'Implement AI-driven content recommendations based on usage patterns',
+          'Create user achievement badges for engagement',
+          'Add custom theme selection options'
+        ]
+      },
+      
+      phase_5_external_integrations: {
+        id: 'phase_5_external_integrations',
+        title: 'PHASE 5: External Integrations',
+        status: 'in-progress',
+        items: {
+          google_apis: '✅',
+          coingecko_api: '✅',
+          twitter_api: '✅',
+          moralis_api: '✅',
+          anthropic_claude: '✅',
+          openai_integration: '✅',
+          stripe_payment: '⚠️'
+        },
+        suggestions: [
+          'Create API status monitoring dashboard',
+          'Add fallback strategies for API rate limiting',
+          'Implement more payment options beyond Stripe',
+          'Add data source preference options for users'
+        ]
+      },
+      
+      phase_6_testing_qa: {
+        id: 'phase_6_testing_qa',
+        title: 'PHASE 6: Testing & QA',
+        status: 'in-progress',
+        items: {
+          mobile_testing: '⚠️',
+          tablet_testing: '⚠️',
+          multibrowser_testing: '⚠️',
+          error_state_handling: '✅',
+          chatbot_tab_testing: '✅'
+        },
+        suggestions: [
+          'Implement automated testing framework',
+          'Create comprehensive error reporting system',
+          'Add user feedback mechanism for issue reporting',
+          'Develop performance benchmarking tools'
+        ]
+      },
+      
+      phase_7_admin_tools: {
+        id: 'phase_7_admin_tools',
+        title: 'PHASE 7: Admin Tools',
+        status: 'in-progress',
+        items: {
+          admin_dashboard: '✅',
+          subscriber_management: '⚠️',
+          manual_onboarding: '❌',
+          ai_prompt_tester: '✅',
+          system_diagnostics: '✅',
+          phase_checklist: '✅'
+        },
+        suggestions: [
+          'Implement admin authentication/authorization',
+          'Add user action logging for compliance',
+          'Create API usage analytics dashboard',
+          'Add system notification center for critical issues'
+        ]
+      },
+      
+      phase_8_prelaunch: {
+        id: 'phase_8_prelaunch',
+        title: 'PHASE 8: Pre-Launch Prep',
+        status: 'pending',
+        items: {
+          seo_basics: '❌',
+          privacy_terms: '❌',
+          social_links: '❌',
+          contact_form: '❌'
+        },
+        suggestions: [
+          'Draft privacy policy and terms of service pages',
+          'Implement basic SEO metadata',
+          'Add social media sharing capabilities',
+          'Create a simple contact/support form'
+        ]
+      },
+      
+      phase_9_deployment: {
+        id: 'phase_9_deployment',
+        title: 'PHASE 9: Deployment',
+        status: 'pending',
+        items: {
+          firebase_hosting: '❌',
+          custom_domain: '❌',
+          ssl_active: '❌',
+          post_deploy_testing: '❌',
+          final_checklist: '❌'
+        },
+        suggestions: [
+          'Configure Firebase hosting deployment pipeline',
+          'Set up custom domain and DNS configuration',
+          'Create post-deployment smoke tests',
+          'Prepare launch announcement materials'
+        ]
+      }
+    },
+    current_phase: "PHASE 3 – Tab-by-Tab Module Integration",
+    next_focus: "PHASE 4 – Complete User Personalization",
+    priority_actions: [
+      "Complete Tax Simulator module",
+      "Finish Education Resources section",
+      "Implement News Integrated Feed"
+    ],
+    system_status: "WARNING",
+    status_reason: "Multiple core modules have partial implementation. While most infrastructure is stable, several key modules in Phase 3 are incomplete or missing. User experience is affected until resolved."
+  };
+}
+
+/**
+ * Update SystemDiagnosticReport component to use this data
+ * This would typically be a Firebase function in production
+ */
+export function updateSystemDiagnosticReport(report: DiagnosticReport): Promise<void> {
+  // This would typically save to Firebase or database
+  console.log('Updating system diagnostic report', report);
+  // For demo purposes, just return a resolved promise
+  return Promise.resolve();
+}
+
+/**
+ * Generate phase cards for specified phases
+ * This helps create task cards for the next steps
+ */
+export function generatePhaseCards(phases: string[]): Record<string, any> {
+  const report = getSystemDiagnosticReport();
+  
+  return phases.reduce((cards, phaseId) => {
+    const phase = report.phases[phaseId];
+    if (!phase) return cards;
+    
+    // Find incomplete items
+    const incompleteItems = Object.entries(phase.items)
+      .filter(([_, status]) => status !== '✅')
+      .map(([key, status]) => ({
+        id: `${phaseId}_${key}`,
+        name: key.split('_').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' '),
+        status: status === '⚠️' ? 'in-progress' : 'pending'
+      }));
     
     return {
-      status: response.ok ? 'operational' : 'degraded',
-      url: endpoint,
-      statusCode: response.status,
-      latency,
-      lastChecked: Date.now()
+      ...cards,
+      [phaseId]: {
+        title: phase.title,
+        items: incompleteItems,
+        suggestions: phase.suggestions
+      }
     };
-  } catch (error) {
-    return {
-      status: 'outage',
-      url: endpoint,
-      issues: ['Connection failed'],
-      lastChecked: Date.now()
-    };
-  }
-};
-
-// Check component status
-const checkComponentStatus = (component: string): any => {
-  // This is a simplified implementation. In a real application,
-  // you would have more sophisticated checks for each component.
-  
-  // Mock implementation based on component name
-  const randomStatus = Math.random();
-  let status = 'unknown';
-  
-  if (randomStatus > 0.8) {
-    status = 'degraded';
-  } else if (randomStatus > 0.2) {
-    status = 'operational';
-  } else {
-    status = 'outage';
-  }
-  
-  // Components we know are fully implemented
-  const implementedComponents = [
-    'dashboard',
-    'favorites',
-    'portfolio',
-    'chatbot',
-    'nft-gallery',
-    'token-tracker',
-    'gamification',
-    'twitter-analysis',
-  ];
-  
-  if (implementedComponents.includes(component)) {
-    status = 'operational';
-  }
-  
-  return {
-    status,
-    description: `${component.charAt(0).toUpperCase() + component.slice(1)} component`,
-    lastChecked: Date.now(),
-    issues: status === 'outage' ? ['Service not responding'] : [],
-    details: {
-      loaded: status !== 'outage',
-      implementation: implementedComponents.includes(component) ? 'complete' : 'in-progress'
-    }
-  };
-};
-
-// Check AI model status
-const checkAiModelStatus = (model: string): any => {
-  // This is a simplified implementation
-  const modelStatus: { [key: string]: any } = {
-    'gemini': {
-      status: 'operational',
-      provider: 'Google',
-      version: '1.5 Pro'
-    },
-    'openai': {
-      status: 'operational',
-      provider: 'OpenAI',
-      version: 'gpt-4-turbo'
-    },
-    'claude': {
-      status: 'operational',
-      provider: 'Anthropic',
-      version: 'claude-3-sonnet'
-    }
-  };
-  
-  return modelStatus[model] || {
-    status: 'unknown',
-    provider: 'Unknown',
-    version: 'N/A'
-  };
-};
-
-/**
- * Check system status - quick summary
- */
-export const checkSystemStatus = async (): Promise<any> => {
-  // Check all API endpoints
-  const apiChecks: { [key: string]: any } = {};
-  for (const category in API_ENDPOINTS) {
-    apiChecks[category] = {};
-    for (const endpoint of API_ENDPOINTS[category as keyof typeof API_ENDPOINTS]) {
-      apiChecks[category][endpoint] = await checkApiHealth(endpoint);
-    }
-  }
-  
-  // Check all components
-  const componentChecks: { [key: string]: any } = {};
-  for (const category in COMPONENTS) {
-    componentChecks[category] = {};
-    for (const component of COMPONENTS[category as keyof typeof COMPONENTS]) {
-      componentChecks[category][component] = checkComponentStatus(component);
-    }
-  }
-  
-  // Check AI models
-  const aiChecks: { [key: string]: any } = {
-    'gemini': checkAiModelStatus('gemini'),
-    'openai': checkAiModelStatus('openai'),
-    'claude': checkAiModelStatus('claude')
-  };
-  
-  // Compute summary metrics
-  let operational = 0;
-  let degraded = 0;
-  let outage = 0;
-  let unknown = 0;
-  let total = 0;
-  
-  // Count component statuses
-  for (const category in componentChecks) {
-    for (const component in componentChecks[category]) {
-      total++;
-      const status = componentChecks[category][component].status;
-      if (status === 'operational') operational++;
-      else if (status === 'degraded') degraded++;
-      else if (status === 'outage') outage++;
-      else unknown++;
-    }
-  }
-  
-  // Count API statuses
-  let apiOperational = 0;
-  let apiTotal = 0;
-  for (const category in apiChecks) {
-    for (const endpoint in apiChecks[category]) {
-      apiTotal++;
-      if (apiChecks[category][endpoint].status === 'operational') {
-        apiOperational++;
-      }
-    }
-  }
-  
-  // Generate critical issues list
-  const issues = [];
-  if (outage > 0) {
-    issues.push({
-      title: 'Component Outages Detected',
-      description: `${outage} components are currently experiencing outages.`,
-      severity: 'critical'
-    });
-  }
-  
-  if (apiTotal - apiOperational > 2) {
-    issues.push({
-      title: 'Multiple API Failures',
-      description: `${apiTotal - apiOperational} out of ${apiTotal} APIs are not responding.`,
-      severity: 'critical'
-    });
-  }
-  
-  // Return the consolidated status
-  return {
-    timestamp: Date.now(),
-    status: outage > 0 ? 'degraded' : 'healthy',
-    summary: {
-      operational,
-      degraded,
-      outage,
-      unknown,
-      total,
-      apis: {
-        operational: apiOperational,
-        total: apiTotal
-      }
-    },
-    components: componentChecks,
-    apis: apiChecks,
-    ai: aiChecks,
-    issues,
-    features: {
-      core: {
-        'dashboard': {
-          status: 'operational',
-          description: 'Main dashboard with cryptocurrency data',
-          issues: []
-        },
-        'favorites': {
-          status: 'operational',
-          description: 'Cryptocurrency favorites list',
-          issues: []
-        },
-        'portfolio': {
-          status: 'operational',
-          description: 'Portfolio tracking and management',
-          issues: []
-        },
-        'chatbot': {
-          status: 'operational',
-          description: 'AI assistant for crypto information',
-          issues: []
-        }
-      },
-      multimodal: {
-        'image analysis': {
-          status: 'operational',
-          description: 'Support for image analysis in chatbot',
-          issues: []
-        },
-        'voice input': {
-          status: 'operational',
-          description: 'Voice input for chatbot interaction',
-          issues: []
-        }
-      },
-      utility: {
-        'risk watchlist': {
-          status: 'operational',
-          description: 'Monitoring high-risk cryptocurrencies',
-          issues: []
-        },
-        'market alerts': {
-          status: 'operational',
-          description: 'Notifications for market changes',
-          issues: []
-        },
-        'converter': {
-          status: 'operational',
-          description: 'Currency conversion calculator',
-          issues: []
-        }
-      },
-      ai: {
-        'gemini integration': {
-          status: 'operational',
-          description: 'Google Gemini AI integration',
-          issues: []
-        },
-        'claude integration': {
-          status: 'operational',
-          description: 'Anthropic Claude AI integration',
-          issues: []
-        },
-        'openai integration': {
-          status: 'operational',
-          description: 'OpenAI GPT integration',
-          issues: []
-        },
-        'sentiment analysis': {
-          status: 'operational',
-          description: 'Text sentiment analysis for crypto news',
-          issues: []
-        }
-      },
-      innovation: {
-        'nft gallery': {
-          status: 'operational',
-          description: 'NFT collection browser and analytics',
-          issues: []
-        },
-        'token tracker': {
-          status: 'operational',
-          description: 'Token tracking and notifications',
-          issues: []
-        },
-        'twitter analysis': {
-          status: 'operational',
-          description: 'Crypto sentiment from Twitter data',
-          issues: []
-        },
-        'tax simulator': {
-          status: 'degraded',
-          description: 'Cryptocurrency tax calculation tool',
-          issues: ['Incomplete implementation']
-        }
-      }
-    },
-    performance: {
-      score: 85,
-      metrics: {
-        apiResponseTime: 'Good',
-        uiResponsiveness: 'Excellent',
-        dataFreshness: 'Good'
-      }
-    }
-  };
-};
-
-/**
- * Run a full system audit
- */
-export const runSystemAudit = async (): Promise<any> => {
-  // For now, reuse the system status check
-  // In a real implementation, this would be a more comprehensive audit
-  const status = await checkSystemStatus();
-  
-  // Add more detailed information for the audit report
-  return {
-    ...status,
-    auditId: `audit-${Date.now()}`,
-    auditVersion: '1.0',
-    fullSystemCheck: true,
-    // These details would come from more in-depth checks in a real implementation
-    securityChecks: {
-      authenticationStatus: 'secure',
-      dataEncryption: 'enabled',
-      apiSecurity: 'verified'
-    },
-    dataIntegrityChecks: {
-      databaseConsistency: 'verified',
-      dataBackups: 'current'
-    },
-    environmentInfo: {
-      environment: 'production',
-      serverLocation: 'us-east',
-      version: '1.0.4'
-    }
-  };
-};
+  }, {});
+}

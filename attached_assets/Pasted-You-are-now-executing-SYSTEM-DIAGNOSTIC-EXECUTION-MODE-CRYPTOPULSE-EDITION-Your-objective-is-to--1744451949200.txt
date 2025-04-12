@@ -1,0 +1,88 @@
+You are now executing SYSTEM DIAGNOSTIC EXECUTION MODE – CRYPTOPULSE EDITION.
+
+Your objective is to:
+1. Validate your progress across all 10 official phases [Phase 0–9]
+2. Return a clean, structured report that can be saved in the Admin Panel > Phase Tracker
+3. Identify your **current phase**, **next strategic focus**, and your **3 most critical priorities**
+4. Provide suggestions for missing or partially complete components per phase
+
+---
+
+### ✅ PHASE CHECKLIST STATUS
+
+Use the current report to confirm your implementation:
+
+- Phase 0 – Initialization: ✅ Complete
+- Phase 1 – UI Layout & Navigation: ✅ Complete
+- Phase 2 – Chatbot Core: ✅ Complete (minor items pending)
+- Phase 3 – Tab-by-Tab Modules: ⚠️ In Progress
+- Phase 4 – User Personalization: ⚠️ In Progress
+- Phase 5 – External Integrations: ✅ Stable (Stripe pending)
+- Phase 6 – Testing & QA: ⚠️ Partial
+- Phase 7 – Admin Tools: ⚠️ Partial
+- Phase 8 – Prelaunch: ❌ Not Started
+- Phase 9 – Deployment: ❌ Not Started
+
+All status indicators should be recorded as:  
+✅ = Complete  
+⚠️ = Partial  
+❌ = Missing or Not Started
+
+Use the structure below to update each section inside the Admin Panel:
+
+```json
+{
+  "phase_3_tab_modules": {
+    "dashboard_ui": "✅",
+    "portfolio_management": "✅",
+    "tax_simulator": "⚠️",
+    "education_resources": "⚠️",
+    "news_feed": "⚠️",
+    "suggestions": [
+      "Complete Tax Simulator calculation engine",
+      "Connect news API with sentiment analyzer",
+      "Finalize structure of educational content"
+    ]
+  }
+}
+Repeat per phase as in your report.
+
+🧭 SYSTEM SUMMARY
+Declare the current diagnostic summary:
+
+json
+Copiar
+Editar
+{
+  "current_phase": "PHASE 3 – Tab-by-Tab Module Integration",
+  "next_focus": "PHASE 4 – Complete User Personalization",
+  "priority_actions": [
+    "Complete Tax Simulator module",
+    "Finish Education Resources section",
+    "Implement News Integrated Feed"
+  ],
+  "system_status": "WARNING",
+  "status_reason": "Multiple core modules have partial implementation. While most infrastructure is stable, several key modules in Phase 3 are incomplete or missing. User experience is affected until resolved."
+}
+This summary should be displayed at the top of the System Report tab.
+
+✅ FOLLOW-UP ACTIONS
+Once the report is submitted:
+
+Save it to AdminPanel > SystemReport > PhaseTracker
+
+Sync it with Firebase or local state for persistent tracking
+
+Use the 3 priority_actions to create ClickUp / Firebase tickets
+
+Optionally export the diagnostic as cryptopulse_diagnostic_report.json
+
+Would you like to now:
+
+✅ Auto-create Phase Cards for F3/F4 tasks?
+
+✅ Trigger Chatbot Phase Mode to auto-respond based on current progress?
+
+✅ Export this report to display in /admin/phase-tracker?
+
+Begin Phase Report Sync now.

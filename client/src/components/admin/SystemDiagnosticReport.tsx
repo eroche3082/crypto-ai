@@ -13,10 +13,11 @@ import {
   BarChart
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getSystemDiagnosticReport, updateSystemDiagnosticReport, type PhaseItemStatus } from '@/utils/systemAudit';
 
 // Phase diagnostic data types
 interface PhaseItem {
-  status: '✅' | '❌' | '⚠️';
+  status: PhaseItemStatus;
   label: string;
 }
 
@@ -32,6 +33,7 @@ interface DiagnosticReport {
   next_focus: string;
   priority_actions: string[];
   status: 'OK' | 'WARNING' | 'ERROR';
+  status_reason?: string;
 }
 
 export const SystemDiagnosticReport = () => {
@@ -39,6 +41,8 @@ export const SystemDiagnosticReport = () => {
   const [activeTab, setActiveTab] = useState<string>('report');
   const [diagnosticData, setDiagnosticData] = useState<DiagnosticReport | null>(null);
   const { toast } = useToast();
+
+  // Use utility functions to get system diagnostic report
 
   // Generate diagnostic report data
   useEffect(() => {
@@ -48,147 +52,11 @@ export const SystemDiagnosticReport = () => {
   const generateDiagnosticReport = async () => {
     setLoading(true);
     try {
-      // In a real implementation, this would fetch data from the backend
-      // For now, we'll simulate the report generation
+      // In a real implementation, this would fetch from an API
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      const reportData: DiagnosticReport = {
-        phases: {
-          phase_0_initialization: {
-            title: "PHASE 0: Initialization",
-            items: {
-              app_skeleton_created: "✅",
-              env_and_secrets_loaded: "✅",
-              firebase_connected: "✅",
-              replit_initialized: "✅",
-              github_repo_linked: "❌"
-            },
-            suggestions: ["Link GitHub repo for backup and automation"]
-          },
-          phase_1_ui_layout: {
-            title: "PHASE 1: Layout & UI Base",
-            items: {
-              header_navbar: "✅",
-              side_panel_tabs: "✅",
-              footer_with_admin_panel: "✅",
-              responsive_layout: "⚠️",
-              route_navigation: "✅"
-            },
-            suggestions: ["Add dark mode switch in navbar", "Optimize mobile layout for small screens"]
-          },
-          phase_2_chatbot_core: {
-            title: "PHASE 2: Chatbot System Core",
-            items: {
-              chatbot_visible: "✅",
-              fullpage_chatbot: "✅",
-              vertex_ai_connected: "✅",
-              voice_input_output: "✅",
-              multilingual_support: "✅",
-              firebase_context_memory: "⚠️",
-              onboarding_flow_active: "✅",
-              dashboard_linked_to_profile: "✅",
-            },
-            suggestions: ["Add loading animation during onboarding", "Implement chatbot message history export"]
-          },
-          phase_3_tab_modules: {
-            title: "PHASE 3: Tab-by-Tab Module Integration",
-            items: {
-              dashboard_tab: "✅",
-              dashboard_backend_api: "✅",
-              dashboard_charts: "✅",
-              favorites_functionality: "✅",
-              portfolio_management: "✅",
-              portfolio_analysis: "✅",
-              nft_gallery: "✅",
-              token_tracker: "✅", 
-              twitter_analysis: "✅",
-              tax_simulator: "⚠️",
-              gamification: "✅",
-              risk_watchlist: "✅",
-              education_resources: "⚠️",
-              news_feed: "⚠️"
-            },
-            suggestions: ["Group tabs into collapsible sections", "Add tab-specific settings"]
-          },
-          phase_4_user_personalization: {
-            title: "PHASE 4: User Personalization",
-            items: {
-              subscriber_profile: "✅",
-              firebase_user_data: "✅",
-              personalized_dashboard: "✅",
-              chatbot_personalization: "✅",
-              ai_recommendations: "⚠️"
-            },
-            suggestions: ["Add user preference settings UI", "Implement AI-driven content recommendations"]
-          },
-          phase_5_external_integrations: {
-            title: "PHASE 5: External Integrations",
-            items: {
-              google_apis: "✅",
-              coingecko_api: "✅",
-              twitter_api: "✅",
-              moralis_api: "✅",
-              anthropic_claude: "✅",
-              openai_integration: "✅",
-              stripe_connected: "⚠️"
-            },
-            suggestions: ["Add more payment options", "Implement API status monitoring dashboard"]
-          },
-          phase_6_testing_qa: {
-            title: "PHASE 6: Testing & QA",
-            items: {
-              mobile_testing: "⚠️",
-              tablet_testing: "⚠️",
-              multibrowser_testing: "⚠️",
-              error_state_handling: "✅",
-              chatbot_tab_testing: "✅"
-            },
-            suggestions: ["Implement automated testing", "Add error reporting system"]
-          },
-          phase_7_admin_tools: {
-            title: "PHASE 7: Admin Tools",
-            items: {
-              admin_dashboard: "✅",
-              subscriber_management: "⚠️",
-              manual_onboarding: "❌",
-              ai_prompt_tester: "✅",
-              system_diagnostics: "✅",
-              phase_checklist: "✅"
-            },
-            suggestions: ["Add user action logging", "Implement admin authentication/authorization"]
-          },
-          phase_8_prelaunch: {
-            title: "PHASE 8: Pre-Launch Prep",
-            items: {
-              seo_basics: "❌",
-              privacy_terms: "❌",
-              social_links: "❌",
-              contact_form: "❌"
-            },
-            suggestions: ["Prepare SEO strategy", "Draft privacy policy and terms"]
-          },
-          phase_9_deployment: {
-            title: "PHASE 9: Deployment",
-            items: {
-              firebase_hosting: "❌",
-              custom_domain: "❌",
-              ssl_active: "❌",
-              post_deploy_testing: "❌",
-              final_checklist: "❌"
-            },
-            suggestions: ["Set up CI/CD pipeline", "Prepare domain configuration"]
-          }
-        },
-        current_phase: "PHASE 3 – Tab-by-Tab Module Integration",
-        next_focus: "PHASE 4 – Complete User Personalization",
-        priority_actions: [
-          "Complete Tax Simulator module", 
-          "Finish Education Resources section",
-          "Implement News Integrated Feed", 
-          "Set up AI recommendations engine"
-        ],
-        status: "WARNING"
-      };
+      // Get diagnostic report from the utility function
+      const reportData = getSystemDiagnosticReport();
       
       setDiagnosticData(reportData);
     } catch (error) {
