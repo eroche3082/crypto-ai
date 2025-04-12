@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WalletIcon, ArrowLeftIcon, Star, Image } from 'lucide-react';
 import { TokenTracker } from '@/components/nft/TokenTracker';
-import NFTGallery from '@/components/nft/NFTGallery';
+import { NFTGallery } from '@/components/nft/NFTGallery';
 import Header from "@/components/Header";
 import { useTranslation } from "react-i18next";
 

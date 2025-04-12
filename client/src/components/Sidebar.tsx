@@ -40,12 +40,31 @@ const Sidebar = () => {
   const navItems = [
     { path: "/", icon: <LayoutDashboard size={20} />, label: t("dashboard.title", "Dashboard") },
     { path: "/favorites", icon: <Star size={20} />, label: t("favorites.title", "Favorites") },
-    { path: "/portfolio", icon: <BarChart3 size={20} />, label: t("portfolio.title", "Portfolio") },
-    { path: "/portfolio-analysis", icon: <Brain size={20} />, label: t("portfolioAnalysis.title", "Portfolio AI") },
+    
+    // Unified Portfolio section with tag
+    { 
+      path: "/unified-portfolio", 
+      icon: <BarChart3 size={20} />, 
+      label: t("portfolio.title", "Portfolio"),
+      tag: "New"
+    },
+    
+    // Unified Digital Assets section with tag
+    {
+      path: "/unified-digital-assets",
+      icon: <Image size={20} />,
+      label: t("digitalAssets.title", "Digital Assets"),
+      tag: "New"
+    },
+    
+    // Legacy portfolio sections
+    // { path: "/portfolio", icon: <BarChart3 size={20} />, label: t("portfolio.title", "Portfolio") },
+    // { path: "/portfolio-analysis", icon: <Brain size={20} />, label: t("portfolioAnalysis.title", "Portfolio AI") },
+    // { path: "/nft-gallery", icon: <Image size={20} />, label: t("nftGallery.title", "NFT Gallery") },
+    // { path: "/token-tracker", icon: <Coins size={20} />, label: t("tokenTracker.title", "Token Tracker") },
+    
     { path: "/watchlist", icon: <ShieldAlert size={20} />, label: t("watchlist.title", "Risk Watchlist") },
     { path: "/wallet-messaging", icon: <LockKeyhole size={20} />, label: t("walletMessaging.title", "Wallet Messaging") },
-    { path: "/nft-gallery", icon: <Image size={20} />, label: t("nftGallery.title", "NFT Gallery") },
-    { path: "/token-tracker", icon: <Coins size={20} />, label: t("tokenTracker.title", "Token Tracker") },
     { path: "/investment-advisor", icon: <Sparkles size={20} />, label: t("investmentAdvisor.title", "Investment Advisor") },
     { path: "/twitter-sentiment", icon: <MessageCircle size={20} />, label: t("twitterSentiment.title", "Twitter Analysis") },
     { path: "/tax-simulator", icon: <Calculator size={20} />, label: t("taxSimulator.title", "Tax Simulator") },
@@ -87,6 +106,11 @@ const Sidebar = () => {
             >
               {item.icon}
               <span className="text-sm">{item.label}</span>
+              {item.tag && (
+                <span className="ml-auto text-xs bg-green-500/20 text-green-500 rounded-full px-1.5 py-0.5">
+                  {item.tag}
+                </span>
+              )}
             </div>
           </Link>
         ))}

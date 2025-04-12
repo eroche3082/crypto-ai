@@ -656,7 +656,8 @@ export async function getUserProfile(req: Request, res: Response) {
       username: users.username,
       email: users.email,
       experiencePoints: users.experience_points,
-      level: users.level,
+      // Removed level field as it doesn't exist in the db yet
+      // Using default level calculation instead
       profileImage: users.profile_image
     })
     .from(users)
@@ -693,9 +694,15 @@ export async function getUserProfile(req: Request, res: Response) {
     .from(activityLogs)
     .where(eq(activityLogs.user_id, parseInt(userId)));
     
+    // Calculate level from experience points
+    let calculatedLevel = 1;
+    while (calculateXpForLevel(calculatedLevel + 1) <= userData.experiencePoints) {
+      calculatedLevel++;
+    }
+    
     // Calculate next level requirement
-    const nextLevelXp = calculateXpForNextLevel(userData.level);
-    const currentLevelXp = calculateXpForLevel(userData.level);
+    const nextLevelXp = calculateXpForNextLevel(calculatedLevel);
+    const currentLevelXp = calculateXpForLevel(calculatedLevel);
     const xpProgress = Math.min(100, Math.floor(((userData.experiencePoints - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100));
     
     return res.status(200).json({
@@ -714,7 +721,7 @@ export async function getUserProfile(req: Request, res: Response) {
           total: pointsData.totalPoints || 0
         },
         levelProgress: {
-          currentLevel: userData.level,
+          currentLevel: calculatedLevel,
           experiencePoints: userData.experiencePoints,
           nextLevelXp,
           currentLevelXp,
@@ -849,11 +856,10 @@ function calculateXpForNextLevel(currentLevel: number): number {
 // Check if user leveled up and update if needed
 async function checkForLevelUp(userId: number): Promise<boolean> {
   try {
-    // Get user current XP and level
+    // Get user current XP
     const [userData] = await db.select({
       id: users.id,
-      experiencePoints: users.experience_points,
-      currentLevel: users.level
+      experiencePoints: users.experience_points
     })
     .from(users)
     .where(eq(users.id, userId))
@@ -861,8 +867,14 @@ async function checkForLevelUp(userId: number): Promise<boolean> {
     
     if (!userData) return false;
     
-    // Calculate the new level based on XP
-    let newLevel = userData.currentLevel;
+    // Calculate the current level based on XP
+    let currentLevel = 1;
+    while (calculateXpForLevel(currentLevel + 1) <= userData.experiencePoints) {
+      currentLevel++;
+    }
+    
+    // Calculate the new level based on XP after the XP update
+    let newLevel = currentLevel;
     let leveledUp = false;
     
     // Keep checking levels until we find the appropriate level for current XP
@@ -885,7 +897,7 @@ async function checkForLevelUp(userId: number): Promise<boolean> {
           description: `Leveled up to level ${newLevel}`,
           points_earned: 0,
           metadata: {
-            old_level: userData.currentLevel,
+            old_level: currentLevel,
             new_level: newLevel
           }
         });

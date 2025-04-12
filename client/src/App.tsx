@@ -23,6 +23,9 @@ import GamificationPage from "./pages/GamificationPage";
 import SystemCheck from "./pages/admin/SystemCheck";
 import AdminPanel from "./pages/admin/AdminPanel";
 import NotFound from "@/pages/not-found";
+// Unified pages
+import UnifiedPortfolio from "./pages/UnifiedPortfolio";
+import UnifiedDigitalAssets from "./pages/UnifiedDigitalAssets";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -169,7 +172,17 @@ function App() {
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Switch>
                   <Route path="/" component={Dashboard} />
+                  {/* Legacy routes - to be replaced with unified versions */}
                   <Route path="/portfolio" component={Portfolio} />
+                  <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
+                  <Route path="/nft-gallery" component={NFTGalleryPage} />
+                  <Route path="/token-tracker" component={TokenTrackerPage} />
+                  
+                  {/* Unified routes */}
+                  <Route path="/unified-portfolio" component={UnifiedPortfolio} />
+                  <Route path="/unified-digital-assets" component={UnifiedDigitalAssets} />
+                  
+                  {/* Other routes */}
                   <Route path="/favorites" component={Favorites} />
                   <Route path="/alerts" component={Alerts} />
                   <Route path="/converter" component={Converter} />
@@ -182,9 +195,6 @@ function App() {
                   <Route path="/twitter-sentiment" component={TwitterSentiment} />
                   <Route path="/tax-simulator" component={TaxSimulator} />
                   <Route path="/wallet-messaging" component={WalletMessaging} />
-                  <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
-                  <Route path="/nft-gallery" component={NFTGalleryPage} />
-                  <Route path="/token-tracker" component={TokenTrackerPage} />
                   <Route path="/gamification" component={GamificationPage} />
                   <Route path="/admin/system-check" component={SystemCheck} />
                   <Route path="/admin/panel" component={AdminPanel} />
