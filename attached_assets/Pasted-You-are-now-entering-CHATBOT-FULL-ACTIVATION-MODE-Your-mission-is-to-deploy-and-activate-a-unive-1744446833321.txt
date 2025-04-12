@@ -1,0 +1,110 @@
+You are now entering CHATBOT FULL ACTIVATION MODE.
+
+Your mission is to deploy and activate a **universal AI chatbot interface** for this Agent, outside of the Main Page layout, and ensure it appears on **every page** of the platform. This chatbot must be:
+
+- Fully visible and interactive
+- Expandable into full-screen mode
+- Persistent across all routes/pages
+- Docked on the side by default, or floating
+- Not interfering with the core UI layout
+
+---
+
+### ✅ CHATBOT FUNCTIONALITY – CORE FEATURES
+
+Activate the following features in the chatbot:
+
+1. **Voice Interaction**
+   - Text-to-Speech (Google TTS / ElevenLabs)
+   - Speech-to-Text (Google STT / Whisper)
+   - Option to toggle voice on/off
+
+2. **AI Chat Memory**
+   - Conversation memory per session
+   - Option to reset or export conversation
+   - Context-aware by tab, route, or Agent identity
+
+3. **Icons + Action Menu**
+   - Display icons for each of the following actions:
+     - Microphone (voice input)
+     - Image Upload (for Vision API)
+     - QR Scan (via webcam)
+     - VR Mode
+     - AR Mode
+     - Copy / Share
+     - Settings
+     - Collapse / Expand
+   - Each icon must trigger the correct logic and component
+
+4. **Multimodal Capabilities**
+   - Accept input in text, voice, image (camera/upload), and code
+   - Return responses in text, image, QR, voice, video, and links
+
+5. **QR Code Generator**
+   - On request or trigger, allow generation of dynamic QR codes linked to:
+     - Profiles
+     - Promotions
+     - Reports
+     - Products
+     - NFT or Wallets
+
+6. **Augmented Reality Integration**
+   - Activate AR viewer via WebXR or similar libraries
+   - Trigger 3D models or camera overlays via commands or context
+
+7. **Virtual Reality Viewer**
+   - Launch immersive mode for 3D visualizations, metaverse, or guided tours
+   - Option to enter VR when context involves “space”, “product demo”, “travel” etc.
+
+---
+
+### ✅ TECH & API INTEGRATIONS (REQUIRED)
+
+Ensure the chatbot is connected to:
+
+- Google Gemini Flash (primary)
+- OpenAI (fallback)
+- Vertex AI (for contextual data)
+- Google Vision API (image input)
+- Google TTS / STT (audio)
+- Firebase (session context or conversation logs)
+- Stripe (if shopping/checkout triggered)
+- HubSpot (optional CRM trigger)
+- QR Code Generator API
+- WebXR / Three.js / AR.js (for VR/AR)
+
+---
+
+### ✅ VISUAL DESIGN & LAYOUT
+
+- Must appear as a floating or docked button in **all pages**
+- Expandable to full screen
+- Match the Agent’s branding theme (e.g. ShopAI, JetAI, CryptoAI)
+- Must not conflict with navigation bars or side panels
+- Icons must be animated and clickable
+
+---
+
+### ✅ OUTPUT EXAMPLE (Test Case)
+
+- User clicks chatbot icon → opens full-screen overlay
+- User speaks: "Show me a travel plan" → AI responds with map, timeline, buttons
+- User clicks QR → bot generates downloadable QR code
+- User uploads image → Vision API interprets and responds
+- User says: “Activate AR mode” → WebAR opens 3D overlay
+
+---
+
+### FINAL CHECKLIST
+
+- [ ] Chatbot visible on all pages
+- [ ] Voice & text input enabled
+- [ ] Multimodal response handling active
+- [ ] Icons fully functional
+- [ ] QR, VR, AR capabilities enabled
+- [ ] Chat context matches Agent identity
+- [ ] Mobile & Desktop responsive
+- [ ] AI integration successful (Gemini, OpenAI fallback)
+- [ ] Clear console logs or debug panel for errors
+
+You are now authorized to deploy the Global AI Chatbot on this Agent. Begin implementation now.
