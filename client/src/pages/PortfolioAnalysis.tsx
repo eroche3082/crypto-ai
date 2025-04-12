@@ -1,73 +1,93 @@
-import React from 'react';
-import PortfolioAnalyzer from '@/components/portfolio/PortfolioAnalyzer';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  BarChart, 
-  PieChart, 
-  Brain, 
-  Sparkles
-} from "lucide-react";
+import PortfolioAnalyzer from "@/components/portfolio/PortfolioAnalyzer";
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { Brain, EyeIcon, RefreshCcw, Settings, Upload } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import Header from "@/components/Header";
 
 export default function PortfolioAnalysis() {
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState("analysis");
+
   return (
-    <div className="container mx-auto p-4 md:p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Portfolio AI Analysis</h1>
-        <p className="text-muted-foreground">
-          Advanced analysis and recommendations for your crypto portfolio powered by AI
-        </p>
+    <>
+      <Header />
+      <div className="p-4">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Brain size={24} className="text-primary" />
+            {t("portfolioAnalysis.title", "AI Portfolio Analysis")}
+          </h1>
+          <p className="text-muted-foreground max-w-[600px]">
+            {t("portfolioAnalysis.description", "Advanced AI-powered analysis of your cryptocurrency portfolio with personalized insights and recommendations.")}
+          </p>
+        </div>
+        
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab} 
+          className="space-y-4"
+        >
+          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+            <TabsTrigger value="analysis" className="flex items-center gap-2">
+              <Brain size={16} />
+              {t("portfolioAnalysis.aiAnalysis", "AI Analysis")}
+            </TabsTrigger>
+            <TabsTrigger value="vision" className="flex items-center gap-2">
+              <EyeIcon size={16} />
+              {t("portfolioAnalysis.marketVision", "Market Vision")}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="analysis" className="space-y-4">
+            <PortfolioAnalyzer />
+          </TabsContent>
+
+          <TabsContent value="vision" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("portfolioAnalysis.marketVision", "Market Vision")}</CardTitle>
+                <CardDescription>
+                  {t("portfolioAnalysis.marketVisionDescription", "Upload financial charts or market data for AI-powered analysis and pattern recognition.")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-border rounded-lg bg-card/50 text-center">
+                  <Upload size={40} className="text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    {t("portfolioAnalysis.uploadTitle", "Upload Chart or Image")}
+                  </h3>
+                  <p className="text-muted-foreground max-w-md mb-4">
+                    {t("portfolioAnalysis.uploadDescription", "Drag and drop market charts, technical analysis screenshots, or financial data visualizations for AI interpretation.")}
+                  </p>
+                  <Button className="mt-2">
+                    {t("portfolioAnalysis.selectFile", "Select File")}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("portfolioAnalysis.recentAnalyses", "Recent Chart Analyses")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center text-muted-foreground py-8">
+                  {t("portfolioAnalysis.noRecentAnalyses", "You haven't analyzed any charts yet. Upload a chart to get started.")}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+        
+        <div className="mt-6 text-xs text-muted-foreground text-center border-t border-border pt-4">
+          {t("portfolioAnalysis.disclaimer", "The analysis and recommendations provided are for informational purposes only and do not constitute financial advice.")}
+        </div>
       </div>
-      
-      <Tabs defaultValue="analysis" className="space-y-6">
-        <TabsList className="grid grid-cols-3 w-full max-w-md">
-          <TabsTrigger value="analysis" className="flex items-center gap-1">
-            <PieChart className="h-4 w-4" />
-            <span>Analysis</span>
-          </TabsTrigger>
-          <TabsTrigger value="insights" className="flex items-center gap-1">
-            <Brain className="h-4 w-4" />
-            <span>Insights</span>
-          </TabsTrigger>
-          <TabsTrigger value="strategies" className="flex items-center gap-1">
-            <Sparkles className="h-4 w-4" />
-            <span>Strategies</span>
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="analysis" className="space-y-6">
-          <PortfolioAnalyzer />
-        </TabsContent>
-        
-        <TabsContent value="insights" className="space-y-6">
-          <div className="rounded-lg border p-6 bg-card/50 text-center">
-            <div className="flex flex-col items-center justify-center mb-6">
-              <Brain className="h-12 w-12 text-primary opacity-50 mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Deep Portfolio Insights</h2>
-              <p className="text-muted-foreground max-w-md">
-                Advanced AI-powered insights for optimizing your crypto portfolio performance.
-              </p>
-            </div>
-            <p className="italic text-muted-foreground mb-4">
-              This feature will be available in the next update.
-            </p>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="strategies" className="space-y-6">
-          <div className="rounded-lg border p-6 bg-card/50 text-center">
-            <div className="flex flex-col items-center justify-center mb-6">
-              <Sparkles className="h-12 w-12 text-primary opacity-50 mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Custom Trading Strategies</h2>
-              <p className="text-muted-foreground max-w-md">
-                AI-generated trading strategies tailored to your risk profile and market conditions.
-              </p>
-            </div>
-            <p className="italic text-muted-foreground mb-4">
-              This feature will be available in the next update.
-            </p>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+    </>
   );
 }
