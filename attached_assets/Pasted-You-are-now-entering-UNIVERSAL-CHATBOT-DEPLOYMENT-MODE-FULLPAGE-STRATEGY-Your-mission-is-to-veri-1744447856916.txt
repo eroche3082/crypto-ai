@@ -1,0 +1,119 @@
+You are now entering UNIVERSAL CHATBOT DEPLOYMENT MODE – FULLPAGE STRATEGY.
+
+Your mission is to verify and deploy the **AI Chatbot** system globally across this Agent with **FullPage capabilities, persistent availability, and modular intelligence**. This is not a basic widget. This is the AI core of the platform.
+
+---
+
+### ✅ GLOBAL VISIBILITY & POSITIONING
+
+1. The chatbot must be:
+   - **Available on all pages and routes** of the application
+   - Represented by a **floating icon button (bottom-right or left)**
+   - When clicked, it must **expand to FullPage mode**
+   - Return to floating mode on command or minimize
+
+2. This behavior must persist regardless of:
+   - Layout changes
+   - Route transitions
+   - Tab or section context
+
+---
+
+### ✅ FULLPAGE EXPERIENCE & CAPABILITIES
+
+When expanded, the chatbot must open in **FULLSCREEN MODE** with the following:
+
+- **A left Side Panel / Menu** with:
+  - Profile or Avatar section
+  - Navigation to chatbot-specific tools or views
+  - Button shortcuts (e.g. “Create QR”, “Open AR”, “Upload File”, “History”)
+
+- **Main conversation area** (full width/height):
+  - Multimodal interface (text, voice, image)
+  - Display of responses with smart formatting (code blocks, images, charts, buttons)
+  - Context-aware memory for personalized suggestions
+
+- **Action Toolbar (icons)** with:
+  - Microphone (STT)
+  - Speaker (TTS)
+  - Image Upload
+  - QR Generator
+  - QR Scanner
+  - AR Viewer
+  - VR Viewer
+  - Copy / Share
+  - Multilingual Toggle
+  - Fullscreen / Minimize
+
+---
+
+### ✅ FUNCTIONAL INTEGRATIONS REQUIRED
+
+Chatbot must be connected to:
+
+- **Primary AI Model:** Vertex AI (Gemini Flash or Chat)
+- **Fallback AI Models:** OpenAI, Anthropic Claude
+- **Audio:**
+  - Speech-to-Text: Google STT / Whisper
+  - Text-to-Speech: Google TTS / ElevenLabs
+- **Vision/Image Analysis:** Google Vision API
+- **Translation:** Google Cloud Translation API
+- **Storage & Logs:** Firebase (Firestore or Realtime DB)
+- **Session Context:** Firebase Auth or Memory Engine
+- **Optional CRM / Trigger Logic:** HubSpot, Stripe, Zapier
+
+---
+
+### ✅ UI/UX BEHAVIOR
+
+- Chat must feel like a **dedicated experience**, not a mini-widget
+- On mobile: full screen modal with bottom-safe UI
+- On desktop: split layout with collapsible side menu
+- The floating icon must never be obstructive and always accessible
+
+---
+
+### ✅ LANGUAGE & RESPONSE MODE
+
+- Default language: English
+- Recognize and respond in: Spanish, French, Portuguese
+- Respect session language or allow toggle
+- Use accurate voice playback if voice mode is enabled
+
+---
+
+### ✅ MANDATORY TEST CASES
+
+Run the following actions as part of the verification:
+
+- Open chatbot from homepage → expands to FullPage
+- Switch tab → chatbot remains accessible
+- Send voice input → chatbot transcribes and responds
+- Upload image → chatbot responds with analysis
+- Say: “Create QR for my profile” → chatbot generates QR
+- Say: “Activate AR mode” → AR viewer launches
+- Translate “Hola, ¿cómo estás?” → returns English translation
+- Minimize → returns to floating icon with chat memory preserved
+
+---
+
+### ✅ REPORT FORMAT
+
+Return the following after completion:
+
+```json
+{
+  "chatbot_fullpage_status": "OK / Broken / Missing Features",
+  "voice_input": true,
+  "voice_output": true,
+  "multilingual": ["en", "es", "fr", "pt"],
+  "vision_api_connected": true,
+  "qr_generation": true,
+  "ar_mode": true,
+  "vr_mode": true,
+  "side_menu": true,
+  "persistent_floating_button": true,
+  "session_context_storage": "Firebase",
+  "AI_model": "Vertex AI",
+  "issues": []
+}
