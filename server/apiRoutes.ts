@@ -15,6 +15,7 @@ import {
   getWalletConversation,
   updateMessageStatus 
 } from './features/wallet/messaging';
+import { analyzePortfolio } from './portfolio/analyzer';
 
 // Create router
 const apiRouter = Router();
@@ -91,5 +92,8 @@ apiRouter.get('/wallet/messages/:walletAddress', getWalletMessages);
 apiRouter.post('/wallet/messages', sendWalletMessage);
 apiRouter.get('/wallet/messages/conversation/:wallet1/:wallet2', getWalletConversation);
 apiRouter.patch('/wallet/messages/:messageId/status', updateMessageStatus);
+
+// Portfolio Analysis endpoints
+apiRouter.get('/portfolio/analysis', analyzePortfolio);
 
 export default apiRouter;

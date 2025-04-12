@@ -1,35 +1,16 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  BarChart, 
-  PieChart, 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
-  Activity, 
-  Award, 
-  BarChart4, 
-  Brain, 
-  DollarSign,
-  PercentIcon
-} from "lucide-react";
-import { apiRequest } from '@/lib/queryClient';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Pie } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
-
-// Types for portfolio data
-interface AssetAllocation {
-  type: string;
-  percentage: number;
-  value: number;
-  color: string;
-}
+import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, AlertTriangle, TrendingUp, XCircle, PieChart, BarChart3, BarChart, Brain, Sparkles, Shield } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
+import { useQuery } from '@tanstack/react-query';
+import { PieChart as RechartsSimplePieChart, Pie as RechartsPie, Cell, ResponsiveContainer, Tooltip, Legend, XAxis, YAxis, CartesianGrid, Bar, BarChart as RechartsBarChart } from 'recharts';
 
 interface RiskMetric {
   name: string;
@@ -38,13 +19,20 @@ interface RiskMetric {
   status: 'low' | 'medium' | 'high';
 }
 
-interface PortfolioInsight {
+interface Allocation {
+  type: string;
+  percentage: number;
+  value: number;
+  color: string;
+}
+
+interface Insight {
   type: 'strength' | 'weakness' | 'opportunity' | 'threat';
   title: string;
   description: string;
 }
 
-interface PortfolioRecommendation {
+interface Recommendation {
   title: string;
   description: string;
   impact: 'low' | 'medium' | 'high';
@@ -59,487 +47,302 @@ interface PortfolioAnalysis {
     monthly: number;
     yearly: number;
   };
-  allocation: AssetAllocation[];
+  allocation: Allocation[];
   riskMetrics: RiskMetric[];
-  insights: PortfolioInsight[];
-  recommendations: PortfolioRecommendation[];
+  insights: Insight[];
+  recommendations: Recommendation[];
   aiSummary: string;
   lastUpdated: string;
 }
 
-// Status color mapping
-const getStatusColor = (status: 'low' | 'medium' | 'high', isRisk: boolean = true): string => {
-  if (isRisk) {
-    return {
-      low: 'bg-green-500',
-      medium: 'bg-orange-500',
-      high: 'bg-red-500'
-    }[status];
-  } else {
-    return {
-      low: 'bg-blue-500',
-      medium: 'bg-purple-500',
-      high: 'bg-green-500'
-    }[status];
-  }
-};
-
-const getReturnStatusClass = (value: number): string => {
-  if (value > 0) return 'text-green-500';
-  if (value < 0) return 'text-red-500';
-  return 'text-gray-500';
-};
-
-// Mock data for demo purposes
-const MOCK_PORTFOLIO_ANALYSIS: PortfolioAnalysis = {
-  totalValue: 25438.92,
-  returns: {
-    daily: 1.2,
-    weekly: -0.5,
-    monthly: 4.8,
-    yearly: 12.3
-  },
-  allocation: [
-    { type: 'Bitcoin', percentage: 42, value: 10684.35, color: 'bg-orange-500' },
-    { type: 'Ethereum', percentage: 28, value: 7122.90, color: 'bg-blue-500' },
-    { type: 'Stablecoins', percentage: 15, value: 3815.84, color: 'bg-green-500' },
-    { type: 'DeFi Tokens', percentage: 10, value: 2543.89, color: 'bg-purple-500' },
-    { type: 'Other Altcoins', percentage: 5, value: 1271.94, color: 'bg-gray-500' }
-  ],
-  riskMetrics: [
-    { 
-      name: 'Volatility', 
-      value: 0.72, 
-      description: 'Portfolio exhibits high price fluctuations compared to the market average.',
-      status: 'high' 
-    },
-    { 
-      name: 'Concentration', 
-      value: 0.68, 
-      description: 'Assets are somewhat concentrated in a few cryptocurrencies.',
-      status: 'medium' 
-    },
-    { 
-      name: 'Correlation', 
-      value: 0.85, 
-      description: 'High correlation between assets may increase overall portfolio risk.',
-      status: 'high' 
-    },
-    { 
-      name: 'Liquidity', 
-      value: 0.25, 
-      description: 'Portfolio consists largely of highly liquid assets.',
-      status: 'low' 
-    }
-  ],
-  insights: [
-    {
-      type: 'strength',
-      title: 'Strong Bitcoin Position',
-      description: 'Your significant Bitcoin allocation has been beneficial during recent market conditions.'
-    },
-    {
-      type: 'weakness',
-      title: 'High Correlation Risk',
-      description: 'Your portfolio assets tend to move in the same direction, increasing downside risk.'
-    },
-    {
-      type: 'opportunity',
-      title: 'DeFi Yield Potential',
-      description: 'Your DeFi holdings could be deployed to generate yield through lending protocols.'
-    },
-    {
-      type: 'threat',
-      title: 'Regulatory Uncertainty',
-      description: 'Potential regulatory changes could impact certain assets in your portfolio.'
-    }
-  ],
-  recommendations: [
-    {
-      title: 'Diversify into Ethereum L2s',
-      description: 'Consider allocating 5-10% into Ethereum layer 2 projects to reduce concentration risk.',
-      impact: 'medium',
-      timeframe: 'medium'
-    },
-    {
-      title: 'Increase Stablecoin Reserve',
-      description: 'Increase stablecoin position to 20-25% to provide safety and buying opportunity reserves.',
-      impact: 'high',
-      timeframe: 'short'
-    },
-    {
-      title: 'Explore Liquid Staking',
-      description: 'Utilize liquid staking derivatives to generate yield while maintaining liquidity.',
-      impact: 'medium',
-      timeframe: 'short'
-    },
-    {
-      title: 'Consider Bitcoin ETF Allocation',
-      description: 'Explore allocating a portion of Bitcoin exposure to spot ETFs for reduced security risks.',
-      impact: 'medium',
-      timeframe: 'long'
-    }
-  ],
-  aiSummary: "Your portfolio shows strong performance with good exposure to blue-chip cryptocurrencies. The 12.3% yearly return is commendable, though volatility and correlation between assets present notable risks. Consider greater diversification across different blockchain ecosystems and increasing your stablecoin allocation to improve resilience against market downturns. DeFi yield strategies could optimize returns from your existing holdings. Regular rebalancing is recommended to maintain your target allocations as the market evolves.",
-  lastUpdated: "2025-04-11T08:30:00Z"
-};
-
-// Main Portfolio Analyzer Component
-const PortfolioAnalyzer: React.FC = () => {
+const PortfolioAnalyzer = () => {
+  const { t } = useTranslation();
   const { toast } = useToast();
-  const [analysisType, setAnalysisType] = useState<'basic' | 'advanced'>('basic');
   
-  // We would normally fetch real data from the API here
-  const { data: analysis, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<{status: string, data: PortfolioAnalysis}>({
     queryKey: ['/api/portfolio/analysis'],
-    queryFn: async () => {
-      // In a real implementation, we would call the API
-      // const response = await apiRequest('GET', '/api/portfolio/analysis');
-      // return response.json();
-      
-      // For demo, use mock data with a delay to simulate loading
-      return new Promise<PortfolioAnalysis>((resolve) => {
-        setTimeout(() => resolve(MOCK_PORTFOLIO_ANALYSIS), 1000);
-      });
-    }
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
-  
-  const generateAIAnalysis = async () => {
-    toast({
-      title: "AI Analysis Started",
-      description: "Generating in-depth portfolio insights...",
-    });
-    
-    // In a real implementation, this would trigger a more complex analysis
-    setTimeout(() => {
-      setAnalysisType('advanced');
-      toast({
-        title: "AI Analysis Complete",
-        description: "Your personalized portfolio insights are ready.",
-      });
-    }, 2000);
-  };
-  
+
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-12 w-3/4" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-        </div>
-        <Skeleton className="h-64" />
-      </div>
-    );
+    return <PortfolioAnalysisLoading />;
   }
-  
-  if (error || !analysis) {
-    return (
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="text-destructive flex items-center">
-            <AlertTriangle className="mr-2 h-5 w-5" />
-            Error Loading Portfolio Analysis
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Unable to load your portfolio analysis. Please try again later.</p>
-        </CardContent>
-        <CardFooter>
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            Retry
-          </Button>
-        </CardFooter>
-      </Card>
-    );
+
+  if (error) {
+    toast({
+      title: t('error.title', "Error"),
+      description: t('portfolioAnalysis.error', "Failed to load portfolio analysis."),
+      variant: "destructive",
+    });
+    return <PortfolioAnalysisError />;
   }
-  
-  // Format date string
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
-  
+
+  const analysis = data?.data;
+
+  if (!analysis) {
+    return <PortfolioAnalysisError />;
+  }
+
+  const lastUpdated = new Date(analysis.lastUpdated).toLocaleString();
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold">Portfolio Intelligence</h2>
-          <p className="text-muted-foreground">
-            AI-powered insights and recommendations for your crypto portfolio
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant={analysisType === 'advanced' ? 'default' : 'outline'}
-            className="flex items-center gap-2"
-            onClick={generateAIAnalysis}
-          >
-            <Brain className="h-4 w-4" />
-            <span>Run AI Analysis</span>
-          </Button>
-          <Badge variant="outline" className="gap-1 px-2">
-            <span>Last updated:</span>
-            <span className="font-normal">{formatDate(analysis.lastUpdated)}</span>
-          </Badge>
-        </div>
+      <div className="flex flex-col md:flex-row gap-6">
+        <Card className="flex-1">
+          <CardHeader className="pb-3">
+            <CardTitle>{t('portfolioAnalysis.totalValue', 'Total Portfolio Value')}</CardTitle>
+            <CardDescription>{t('portfolioAnalysis.lastUpdated', 'Last updated')}: {lastUpdated}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">${analysis.totalValue.toLocaleString()}</div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+              <ReturnMetric
+                label={t('portfolioAnalysis.daily', 'Daily')}
+                value={analysis.returns.daily}
+                positive={analysis.returns.daily > 0}
+              />
+              <ReturnMetric
+                label={t('portfolioAnalysis.weekly', 'Weekly')}
+                value={analysis.returns.weekly}
+                positive={analysis.returns.weekly > 0}
+              />
+              <ReturnMetric
+                label={t('portfolioAnalysis.monthly', 'Monthly')}
+                value={analysis.returns.monthly}
+                positive={analysis.returns.monthly > 0}
+              />
+              <ReturnMetric
+                label={t('portfolioAnalysis.yearly', 'Yearly')}
+                value={analysis.returns.yearly}
+                positive={analysis.returns.yearly > 0}
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      {/* AI Summary */}
+      <Card className="relative overflow-hidden">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Brain size={18} /> 
+              {t('portfolioAnalysis.aiSummary', 'AI Portfolio Analysis')}
+            </CardTitle>
+            <Badge variant="outline" className="px-3 py-1 bg-primary/10">
+              <Sparkles size={14} className="mr-1" />
+              {t('portfolioAnalysis.powered', 'Powered by Gemini')}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="p-4 rounded-lg bg-card/50 border mb-4">
+            {analysis.aiSummary}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Portfolio Allocation */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <DollarSign className="mr-2 h-4 w-4 text-primary" />
-              Total Value
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2">
+              <PieChart size={16} /> 
+              {t('portfolioAnalysis.allocation', 'Portfolio Allocation')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
-              ${analysis.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <div className="h-[240px] mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsSimplePieChart>
+                  <RechartsPie
+                    data={analysis.allocation}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="percentage"
+                  >
+                    {analysis.allocation.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        // Remove bg- prefix for Recharts colors
+                        fill={entry.color.replace('bg-', '')}
+                      />
+                    ))}
+                  </RechartsPie>
+                  <Tooltip 
+                    formatter={(value: number, name: string, props: any) => [`${value}%`, props.payload.type]} 
+                    labelFormatter={() => ''} 
+                  />
+                  <Legend />
+                </RechartsSimplePieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              {analysis.allocation.map((asset, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${asset.color}`}></div>
+                    <span>{asset.type}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">${asset.value.toLocaleString()}</span>
+                    <Badge variant="outline" className="px-1.5 py-0.5">
+                      {asset.percentage}%
+                    </Badge>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
-        
+
+        {/* Risk Analysis */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <BarChart4 className="mr-2 h-4 w-4 text-primary" />
-              Performance
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2">
+              <Shield size={16} />
+              {t('portfolioAnalysis.riskAnalysis', 'Risk Analysis')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <div className="text-xs text-muted-foreground">Daily</div>
-                <div className={`text-sm font-medium ${getReturnStatusClass(analysis.returns.daily)}`}>
-                  {analysis.returns.daily > 0 ? '+' : ''}{analysis.returns.daily}%
-                </div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Weekly</div>
-                <div className={`text-sm font-medium ${getReturnStatusClass(analysis.returns.weekly)}`}>
-                  {analysis.returns.weekly > 0 ? '+' : ''}{analysis.returns.weekly}%
-                </div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Monthly</div>
-                <div className={`text-sm font-medium ${getReturnStatusClass(analysis.returns.monthly)}`}>
-                  {analysis.returns.monthly > 0 ? '+' : ''}{analysis.returns.monthly}%
-                </div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Yearly</div>
-                <div className={`text-sm font-medium ${getReturnStatusClass(analysis.returns.yearly)}`}>
-                  {analysis.returns.yearly > 0 ? '+' : ''}{analysis.returns.yearly}%
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Activity className="mr-2 h-4 w-4 text-primary" />
-              Risk Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {analysis.riskMetrics.slice(0, 2).map((metric) => (
-                <div key={metric.name} className="flex justify-between items-center">
-                  <div className="text-sm">{metric.name}</div>
-                  <Badge className={getStatusColor(metric.status)}>
-                    {metric.status.toUpperCase()}
-                  </Badge>
+            <div className="space-y-6">
+              {analysis.riskMetrics.map((metric, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex justify-between mb-1">
+                    <div className="font-medium">{metric.name}</div>
+                    <Badge 
+                      variant={metric.status === 'low' ? 'outline' : (metric.status === 'medium' ? 'secondary' : 'destructive')}
+                      className="px-1.5 py-0.5"
+                    >
+                      {metric.status}
+                    </Badge>
+                  </div>
+                  <Progress value={metric.value * 100} className="h-2" />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {metric.description}
+                  </p>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
       </div>
-      
-      {/* Main Analysis Tabs */}
-      <Tabs defaultValue="allocation" className="w-full">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full">
-          <TabsTrigger value="allocation">
-            <PieChart className="h-4 w-4 mr-2" />
-            Allocation
-          </TabsTrigger>
-          <TabsTrigger value="risk">
-            <AlertTriangle className="h-4 w-4 mr-2" />
-            Risk Analysis
-          </TabsTrigger>
-          <TabsTrigger value="insights">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Insights
-          </TabsTrigger>
-          <TabsTrigger value="recommendations">
-            <Award className="h-4 w-4 mr-2" />
-            Recommendations
-          </TabsTrigger>
-        </TabsList>
-        
-        {/* Allocation Tab */}
-        <TabsContent value="allocation">
-          <Card>
-            <CardHeader>
-              <CardTitle>Asset Allocation</CardTitle>
-              <CardDescription>
-                Breakdown of your portfolio by cryptocurrency type
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {analysis.allocation.map((asset) => (
-                  <div key={asset.type} className="space-y-1">
-                    <div className="flex justify-between items-center">
-                      <div className="font-medium">{asset.type}</div>
-                      <div className="text-sm text-muted-foreground">
-                        ${asset.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        <span className="ml-2">({asset.percentage}%)</span>
-                      </div>
-                    </div>
-                    <Progress value={asset.percentage} className={asset.color} />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Risk Analysis Tab */}
-        <TabsContent value="risk">
-          <Card>
-            <CardHeader>
-              <CardTitle>Risk Metrics</CardTitle>
-              <CardDescription>
-                Detailed analysis of your portfolio risk factors
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {analysis.riskMetrics.map((metric) => (
-                  <div key={metric.name} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <div className="font-medium">{metric.name}</div>
-                      <Badge className={getStatusColor(metric.status)}>
-                        {metric.status.toUpperCase()}
-                      </Badge>
-                    </div>
-                    <Progress value={metric.value * 100} className={getStatusColor(metric.status)} />
-                    <p className="text-sm text-muted-foreground">{metric.description}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Insights Tab */}
-        <TabsContent value="insights">
-          <Card>
-            <CardHeader>
-              <CardTitle>Portfolio Insights</CardTitle>
-              <CardDescription>
-                SWOT analysis of your current portfolio
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {analysis.insights.map((insight, index) => {
-                  const isStrength = insight.type === 'strength';
-                  const isWeakness = insight.type === 'weakness';
-                  const isOpportunity = insight.type === 'opportunity';
-                  const isThreat = insight.type === 'threat';
-                  
-                  return (
-                    <div key={index} className="border rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        {isStrength && <Award className="h-5 w-5 text-green-500" />}
-                        {isWeakness && <TrendingDown className="h-5 w-5 text-red-500" />}
-                        {isOpportunity && <TrendingUp className="h-5 w-5 text-blue-500" />}
-                        {isThreat && <AlertTriangle className="h-5 w-5 text-orange-500" />}
-                        
-                        <h3 className="font-medium">
-                          {insight.type.charAt(0).toUpperCase() + insight.type.slice(1)}: {insight.title}
-                        </h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{insight.description}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Recommendations Tab */}
-        <TabsContent value="recommendations">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI Recommendations</CardTitle>
-              <CardDescription>
-                Personalized suggestions to optimize your portfolio
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {analysis.recommendations.map((recommendation, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium">{recommendation.title}</h3>
-                      <div className="flex gap-2">
-                        <Badge className={getStatusColor(recommendation.impact, false)}>
-                          {recommendation.impact} impact
-                        </Badge>
-                        <Badge variant="outline">
-                          {recommendation.timeframe} term
-                        </Badge>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{recommendation.description}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-      
-      {/* AI Summary Section */}
-      <Card className={analysisType === 'advanced' ? 'border-primary' : 'border-muted'}>
-        <CardHeader className="flex flex-row items-center gap-2">
-          <Brain className={`h-5 w-5 ${analysisType === 'advanced' ? 'text-primary' : 'text-muted-foreground'}`} />
-          <div>
-            <CardTitle>AI Summary</CardTitle>
-            <CardDescription>
-              {analysisType === 'advanced' 
-                ? 'Advanced AI analysis of your portfolio' 
-                : 'Basic portfolio summary'}
-            </CardDescription>
-          </div>
+
+      {/* Insights */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle>{t('portfolioAnalysis.insights', 'Portfolio Insights')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className={`p-4 rounded-lg ${analysisType === 'advanced' ? 'bg-primary/10 border border-primary/20' : 'bg-muted'}`}>
-            <p className="italic">{analysis.aiSummary}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {analysis.insights.map((insight, i) => (
+              <Card key={i} className="border border-border bg-card/60">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      {insight.type === 'strength' && <CheckCircle size={18} className="text-green-500" />}
+                      {insight.type === 'weakness' && <AlertTriangle size={18} className="text-amber-500" />}
+                      {insight.type === 'opportunity' && <TrendingUp size={18} className="text-blue-500" />}
+                      {insight.type === 'threat' && <XCircle size={18} className="text-red-500" />}
+                    </div>
+                    <div className="space-y-1">
+                      <div className="font-medium">{insight.title}</div>
+                      <p className="text-sm text-muted-foreground">{insight.description}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <div className="text-xs text-muted-foreground">
-            Analysis powered by CryptoBot AI
-          </div>
-          {analysisType !== 'advanced' && (
-            <Button size="sm" variant="outline" onClick={generateAIAnalysis} className="gap-2">
-              <Brain className="h-4 w-4" />
-              <span>Run Advanced Analysis</span>
-            </Button>
-          )}
-        </CardFooter>
       </Card>
+
+      {/* Recommendations */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle>{t('portfolioAnalysis.recommendations', 'Recommendations')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {analysis.recommendations.map((rec, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border">
+                <div className="mt-1">
+                  {rec.impact === 'high' ? (
+                    <Badge variant="destructive" className="px-1.5">!</Badge>
+                  ) : rec.impact === 'medium' ? (
+                    <Badge variant="secondary" className="px-1.5">+</Badge>
+                  ) : (
+                    <Badge variant="outline" className="px-1.5">•</Badge>
+                  )}
+                </div>
+                <div className="space-y-1 flex-1">
+                  <div className="font-medium">{rec.title}</div>
+                  <p className="text-sm text-muted-foreground">{rec.description}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge variant="outline" className="px-1.5 py-0.5">
+                      {rec.impact} impact
+                    </Badge>
+                    <Badge variant="outline" className="px-1.5 py-0.5">
+                      {rec.timeframe} term
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Helper component for return metrics
+const ReturnMetric = ({ label, value, positive }) => {
+  return (
+    <div className="flex flex-col items-center p-3 rounded-lg bg-card/50 border">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className={`text-lg font-semibold ${positive ? 'text-green-500' : 'text-red-500'}`}>
+        {positive ? '+' : ''}{value}%
+      </span>
+    </div>
+  );
+};
+
+// Loading state
+const PortfolioAnalysisLoading = () => {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-[200px] w-full" />
+      <Skeleton className="h-[150px] w-full" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Skeleton className="h-[300px] w-full" />
+        <Skeleton className="h-[300px] w-full" />
+      </div>
+      <Skeleton className="h-[300px] w-full" />
+    </div>
+  );
+};
+
+// Error state
+const PortfolioAnalysisError = () => {
+  const { t } = useTranslation();
+  
+  return (
+    <div className="flex items-center justify-center p-10 border rounded-lg">
+      <div className="text-center">
+        <XCircle size={40} className="text-destructive mx-auto mb-4" />
+        <h3 className="text-lg font-bold mb-2">
+          {t('portfolioAnalysis.errorTitle', 'Portfolio Analysis Unavailable')}
+        </h3>
+        <p className="text-muted-foreground">
+          {t('portfolioAnalysis.errorMsg', 'Unable to load your portfolio analysis at this time. Please try again later.')}
+        </p>
+      </div>
     </div>
   );
 };
