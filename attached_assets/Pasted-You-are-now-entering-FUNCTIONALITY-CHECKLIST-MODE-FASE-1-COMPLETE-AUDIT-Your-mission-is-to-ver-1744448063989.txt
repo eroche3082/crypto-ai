@@ -1,0 +1,58 @@
+You are now entering FUNCTIONALITY CHECKLIST MODE – FASE 1 COMPLETE AUDIT.
+
+Your mission is to **verify and report the status of all functionalities inside:**
+
+1. The **first tab** of your Main Dashboard (Tab #1)
+2. The **AI Chatbot** with FullPage capabilities
+
+You must verify every feature, and return a clear **checkmark report** with:
+
+- ✅ = Working and tested
+- ❌ = Not working or missing
+- ⚠️ = Partial or buggy
+- ➕ = Suggested new functionality
+
+---
+
+### ✅ SECTION 1: DASHBOARD – TAB #1 FUNCTIONALITY CHECKLIST
+
+Identify the **name of the first tab** in the dashboard.
+
+Then check the following features and return their status:
+
+{ "dashboard_tab_name": "Overview", "dashboard_checklist": { "Tab loads correctly": "✅", "Buttons clickable and responsive": "✅", "Real-time data connected (Firebase / DB)": "✅", "Widgets rendered properly": "⚠️", "Charts or analytics working": "❌", "Filters functional": "✅", "Search or query features present": "❌", "All text in English": "✅", "API connections validated": "✅", "Responsive design (desktop/mobile)": "✅", "Action logs or state feedback": "❌", "Suggestions": [ "Add export to PDF", "Show user activity timeline", "Enable quick filters for timeframes" ] } }
+
+yaml
+Copiar
+Editar
+
+---
+
+### ✅ SECTION 2: CHATBOT – FULLPAGE FUNCTIONALITY CHECKLIST
+
+Now verify the **AI Chatbot** with FullPage support.
+
+{ "chatbot_checklist": { "Floating icon always visible": "✅", "Chat expands to FullPage": "✅", "Chat works on all pages": "✅", "Voice Input (STT)": "⚠️", "Voice Output (TTS)": "✅", "Language detection / multilingual": "✅", "Image Upload working": "❌", "QR Code generation": "✅", "AR mode": "⚠️", "VR mode": "❌", "Copy/share response button": "✅", "Chat context memory": "✅", "AI response relevant and fast": "✅", "Session tracking with Firebase": "⚠️", "Avatar or branding visible": "✅", "Suggestions": [ "Add dark mode toggle", "Integrate prompt history tab", "Add language switch button to toolbar" ] } }
+
+yaml
+Copiar
+Editar
+
+---
+
+### ✅ FINAL FORMAT REQUIRED
+
+Return both sections in one JSON structure:
+
+```json
+{
+  "dashboard_tab_audit": { ... },
+  "chatbot_audit": { ... }
+}
+You are required to verify every feature, test all actions, report clearly with ✅ or ❌, and provide at least 3 improvement ideas per section if any item is missing or underused.
+
+Begin your full checklist audit now.
+
+yaml
+Copiar
+Editar

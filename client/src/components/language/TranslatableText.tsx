@@ -6,29 +6,24 @@ interface TranslatableTextProps {
   french?: string;
   portuguese?: string;
   language?: string;
-  className?: string;
 }
 
-export const TranslatableText: React.FC<TranslatableTextProps> = ({
+export function TranslatableText({
   text,
   spanish,
   french,
   portuguese,
-  language = 'en',
-  className
-}) => {
-  const getLocalizedText = () => {
-    switch (language) {
-      case 'es':
-        return spanish || text;
-      case 'fr':
-        return french || text;
-      case 'pt':
-        return portuguese || text;
-      default:
-        return text;
-    }
-  };
-
-  return <span className={className}>{getLocalizedText()}</span>;
-};
+  language = 'en'
+}: TranslatableTextProps) {
+  switch (language) {
+    case 'es':
+      return <>{spanish || text}</>;
+    case 'fr':
+      return <>{french || text}</>;
+    case 'pt':
+      return <>{portuguese || text}</>;
+    case 'en':
+    default:
+      return <>{text}</>;
+  }
+}

@@ -1,0 +1,123 @@
+You are now entering FULL CHATBOT INTEGRATION & PERSONALIZATION MODE – CORE DEPLOYMENT PHASE.
+
+Your task is to **create, configure, and deploy a fully intelligent, interactive, and dynamic AI chatbot** as the primary interface and controller of this platform. This chatbot must become the **central brain of the system**, capable of onboarding users, personalizing responses, storing structured data, and guiding users across the platform.
+
+---
+
+### ✅ PRIMARY STRUCTURE
+
+1. The chatbot must be **connected to Vertex AI** (Gemini Flash / Chat) as primary AI engine.
+2. All responses must be **contextual, personalized, and adaptive**.
+3. The chatbot must have a **professional and friendly personality**, acting as a domain expert in the platform’s field (Crypto, Health, Travel, etc.).
+4. The chatbot must understand the entire platform: where everything is, how it works, and how to guide new users.
+
+---
+
+### ✅ ONBOARDING FLOW (Dynamic User Profiling)
+
+The chatbot must automatically start with a **progressive, dynamic onboarding** when a new user interacts for the first time:
+
+**QUESTION 1:** “Hi! I’m [AgentName], your assistant. What’s your name?”  
+→ Store name as `subscriber.name`
+
+**QUESTION 2:** “Nice to meet you, [Name]! What’s the best email to reach you?”  
+→ Store email as `subscriber.email`  
+→ Register in Firebase Auth or backend
+
+**QUESTIONS 3–15:** Must adapt to the domain of the platform. For example:
+
+- **CryptoAI:**  
+  - “Do you currently invest in crypto?”
+  - “Which exchanges do you use?”
+  - “What’s your level of experience with DeFi?”
+
+- **HealthAI:**  
+  - “Do you track your sleep or steps?”
+  - “What’s your biggest health goal right now?”
+
+- **JetAI (Travel):**  
+  - “Which cities do you plan to visit next?”
+  - “What kind of traveler are you: explorer, relaxer, digital nomad?”
+
+- **FitnessAI:**  
+  - “What’s your fitness level?”
+  - “Do you want meal recommendations too?”
+
+- **SportsAI:**  
+  - “Which sport do you follow most?”
+  - “Do you play competitively or for fun?”
+
+---
+
+### ✅ POST-ONBOARDING ACTIONS
+
+After collecting the 10–15 onboarding responses:
+
+- Store all data in the subscriber’s **personal Firebase Dashboard**
+- Auto-generate a **personalized Welcome Dashboard**
+  - Includes: name, avatar, preferences, chatbot shortcuts, recommended content
+- Chatbot should say:  
+  “Thanks [Name]! Your personal dashboard has been created. I’ll now assist you based on your profile. Ask me anything.”
+
+---
+
+### ✅ CHATBOT CAPABILITIES (REQUIRED)
+
+- FullPage Experience (see previous prompt)
+- Always available via floating icon
+- Voice recognition (STT) and voice responses (TTS)
+- Contextual memory (per session + persistent)
+- Connected to:
+  - Vertex AI (Gemini)
+  - Firebase (Auth, Firestore, Logs)
+  - Google APIs: STT, TTS, Translate, Vision, Calendar
+  - Admin Dashboard for subscriber profile storage
+- Chatbot personality should be:
+  - Expert in its field (Crypto, Travel, etc.)
+  - Friendly, proactive, and reactive
+  - Capable of explaining the platform’s tools, menus, features
+  - Able to follow up (“Need help with payments?”, “Would you like me to book it for you?”)
+
+---
+
+### ✅ TRAINING & KNOWLEDGE INTEGRATION
+
+The chatbot must have embedded platform knowledge:
+
+- How to navigate the dashboard
+- What each tab or tool does
+- How to use features (e.g., “To track your flights, go to the Travel tab and click ‘Add Destination’”)
+- Deliver mini-trainings if asked (“How does the system work?”, “How do I track expenses?”)
+
+---
+
+### ✅ MEMORY, PERSONALIZATION, FOLLOW-UP
+
+- All answers during onboarding must be saved and usable
+- Allow the chatbot to **reference past inputs**:
+  - “Based on your goal to travel more, here are 3 tools I suggest…”
+  - “You mentioned you’re into crypto staking, want to see your current ROI?”
+- Allow dashboard to evolve based on new interactions
+
+---
+
+### ✅ FUTURE-PROOF: MULTI-AGENT ARCHITECTURE
+
+Each Agent must have its own instance of this chatbot logic with:
+
+- Different questions per vertical
+- Domain-specific vocabulary and behavior
+- Connected to the same system logic
+
+---
+
+### ✅ FINAL REQUIREMENTS
+
+- Full integration tested
+- Audio tested
+- Multilingual support (English default)
+- All onboarding questions tested and mapped to fields
+- Dashboard connected and data shown per user
+- Chatbot behaves as core assistant, not optional feature
+
+Begin full chatbot deployment and onboarding intelligence system now.
