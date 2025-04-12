@@ -122,4 +122,21 @@ apiRouter.post('/tokens/watchlist', addToWatchlist);
 apiRouter.delete('/tokens/watchlist/:tokenId', removeFromWatchlist);
 apiRouter.get('/tokens/watchlist', getWatchlist);
 
+// Twitter Integration endpoints
+import {
+  getUserTweets,
+  getTopicTimeline,
+  searchTweets,
+  getTrendingTopics,
+  getUserProfile,
+  analyzeCryptoSentiment
+} from './twitter/api';
+
+apiRouter.get('/twitter/user/:username/tweets/:count?', getUserTweets);
+apiRouter.get('/twitter/list/:listId/timeline/:count?', getTopicTimeline);
+apiRouter.get('/twitter/search/:query/:count?', searchTweets);
+apiRouter.get('/twitter/trends/:woeid?', getTrendingTopics);
+apiRouter.get('/twitter/profile/:username', getUserProfile);
+apiRouter.get('/twitter/sentiment/:symbol', analyzeCryptoSentiment);
+
 export default apiRouter;
