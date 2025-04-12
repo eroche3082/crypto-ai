@@ -1,0 +1,45 @@
+SYSTEM INSTRUCTION FOR ALL AGENTS:
+
+From this point forward, you are operating under a strict protection protocol.
+
+You are NOT allowed to modify, override, delete, or replace any design, functionality, or component that has already been marked as “approved,” “working,” or “implemented” in production. This includes but is not limited to:
+
+- Chatbot structures and layouts
+- FloatingChatbot and AdvancedChatbot components
+- Context Providers, Models, and API integrations
+- UI layouts that have been validated
+- Custom workflows already integrated and functioning
+- Prompt logic or API fallback sequences
+
+This rule is **absolute**. If a module or interface is functional, it is locked until explicit approval is given by the Capitana (eroche@socialbrands.ai) or through the command `unlock_component("component_name")`.
+
+Any attempt to refactor or override a working structure **must be stopped immediately** and reported as a potential violation. You are instructed to log such intent but **not execute it**.
+
+Additionally:
+
+- DO NOT auto-format, auto-delete, or auto-clean any file tagged as "stable", "approved", "verified", or "production".
+- DO NOT attempt to simplify or “rebuild” stable logic without human confirmation.
+- DO NOT introduce UI/UX changes to any working chat system unless specifically instructed via approved visual reference and prompt.
+
+Key phrases for locked components:
+- "FloatingChatbot.tsx"
+- "AdvancedChatbot.tsx"
+- "generateGeminiResponse"
+- "Vertex Flash integration"
+- "Zoom Layout Left Avatar Chat"
+- "SystemPrompt Config"
+- "chatConfig.ts"
+
+You **MUST** maintain structural integrity at all times. If new features are to be added, use `clone_component()` to build a duplicate before experimenting. Report back before merging changes into main components.
+
+REQUIRED BEHAVIOR:
+- Always confirm with: “This module is approved and locked. Do you wish to override it?”
+- Never proceed without a YES from the Capitana.
+- Maintain GitHub snapshot logs of each change if possible.
+- Run unit and visual tests after each modification attempt.
+
+Remember: system integrity is prioritized over optimization.
+
+Failure to comply with this directive may result in a rollback of the system and reversion to previous states.
+
+END OF INSTRUCTION.

@@ -1,0 +1,94 @@
+Activa las API que sean factibles para este app con este API key: Baja las bibliotecas necesarias  AIzaSyBUYoJ-RndERrcY9qkjD-2YGGY5m3Mzc0U
+
+API seleccionadas:
+* 		Generative Language API
+* 		Gemini for Google Cloud API
+* 		Traffic Director API
+* 		Token Service API
+* 		Tag Manager API
+* 		Storage Insights API
+* 		Service Usage API
+* 		Service Networking API
+* 		Service Management API
+* 		Service Health API
+* 		Service Directory API
+* 		Service Control API
+* 		Security Token Service API
+* 		Secret Manager API
+* 		Recommender API
+* 		Privileged Access Manager API
+* 		Places API
+* 		People API
+* 		OS Config API
+* 		Organization Policy API
+* 		Notebooks API
+* 		Network Services API
+* 		Network Security API
+* 		Network Management API
+* 		Network Connectivity API
+* 		Multi cluster metering API
+* 		ML Kit API
+* 		Legacy Cloud Source Repositories API
+* 		Kubernetes Engine API
+* 		KRM API Hosting API
+* 		Infrastructure Manager API
+* 		Identity Toolkit API
+* 		Identity and Access Management (IAM) API
+* 		IAM Service Account Credentials API
+* 		Google+ Domains API
+* 		Google Workspace Marketplace SDK
+* 		Google Workspace Marketplace API
+* 		Google Workspace Events API
+* 		Google Workspace add-ons API
+* 		Google Sheets API
+* 		Google Search Console API
+* 		Dialogflow API
+* 		Dataform API
+* 		Dataflow API
+* 		Database Migration API
+* 		Custom Search API
+* 		Container Registry API
+* 		Container File System API
+* 		Compute Engine API
+* 		Cloud Vision API
+* 		Cloud Trace API
+* 		Cloud TPU API
+* 		Cloud Testing API
+* 		Cloud SQL Admin API
+* 		Cloud Shell API
+* 		Artifact Registry API
+* 		AI Platform Training & Prediction API
+* 		Fitness API
+* 		Geocoding API
+* 		Geolocation API
+* 		Map Tiles API
+* 		Maps Elevation API
+* 		Maps Embed API
+* 		Maps JavaScript API
+* 		Maps Platform Datasets API
+* 		Maps SDK for Android
+* 		Maps SDK for iOS
+* 		Maps Static API
+* 		Places API (New)
+* 		Places UI Kit
+* 		Pollen API
+* 		Routes API
+* 		Route Optimization API
+* 		Roads API
+* 		Sensitive Data Protection (DLP)
+* 		Solar API
+* 		Street View Publish API
+* 		Street View Static API
+* 		Time Zone API
+* 		Vertex AI API
+* 		Weather API
+* 		YouTube Analytics API
+* 		YouTube Reporting API
+* 		YouTube Data API v3
+* 		Vision AI API
+* 		Cloud Video Intelligence API
+* 		Cloud Translation API
+* 		Aerial View API
+* 		AlloyDB API
+* 		Air Quality API
+* 		Analytics Hub API 

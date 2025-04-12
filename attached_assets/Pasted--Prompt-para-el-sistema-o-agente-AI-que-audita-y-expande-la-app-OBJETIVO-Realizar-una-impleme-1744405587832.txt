@@ -1,0 +1,82 @@
+// Prompt para el sistema o agente AI que audita y expande la app
+
+🧩 OBJETIVO:
+Realizar una implementación avanzada de las funcionalidades faltantes en CryptoBot, incluyendo nuevas herramientas AI, APIs, seguridad, visualización y experiencia de usuario.
+
+🎯 TAREAS A EJECUTAR:
+
+1. Verifica todos los módulos ya funcionales e identifica si están completos:
+   - Dashboard de criptomonedas
+   - Favorites
+   - Alerts
+   - Token Risk Watchlist
+   - Wallet Connection
+   - Education Hub
+   - AI Chat Assistant
+   - WebSocket Communication
+   - Portfolio Simulator (si existe)
+
+2. Devuelve una tabla de estado por módulo con columnas:
+   - Módulo
+   - Archivo o ruta
+   - Estado actual (✅, ⚠️, ❌)
+   - Comentario técnico
+
+3. Revisa e imprime una tabla de todas las API Keys usadas en la plataforma:
+   - Nombre
+   - Función
+   - Archivo origen
+   - Estado actual
+   - Requiere actualización (sí/no)
+
+4. Activa o sugiere implementación para las siguientes funciones:
+
+🔮 IA:
+- Twitter/X Sentiment Analysis
+- AI Portfolio Advisor
+- AI Whitepaper Summarizer
+- Price Prediction AI
+- On-chain Data Analyzer (Glassnode u otros)
+
+💰 Finanzas:
+- Crypto Tax Calculator
+- DCA Strategy Planner
+- Trading Simulator
+- Exchange API Integration (Binance, Coinbase)
+- NFT Tracker (opcional)
+
+🔐 Seguridad:
+- 2FA Activation
+- Backup y encriptación de claves privadas
+- Rug Pull Detection AI
+- Historial de actividad sospechosa
+
+🎮 UX y Visual:
+- Gamification (puntos, badges, retos)
+- Chat Enhancer (quick tools: QR, Camera, Audio)
+- Multi-language support con flags y detección automática
+- Dashboard con widgets customizables
+- Crypto Glossary integrado
+- Mobile-first optimization (PWA-ready)
+
+📲 Push Notifications:
+- Telegram Bot para alertas de precios
+- Web Push para alertas críticas
+- Email para seguimiento semanal del portafolio
+
+🗂️ Monetización:
+- Stripe Full Flow (planes, suscripciones, webhooks)
+- Firebase Auth Completo (login, perfil, recuperación)
+- Admin Dashboard para monitoreo global
+- White Label configurador visual
+
+📌 AL FINAL:
+✅ Devuelve 3 listas:
+- ✔️ Lista de todo lo que ya está implementado
+- 🔧 Lista priorizada de lo que falta
+- 💡 20 nuevas ideas de expansión para llevar CryptoBot al siguiente nivel
+
+✨ Personaliza la experiencia del chat AI con:
+- Personalidad: "Crypto Strategist & Analyst"
+- Rol: "Tu asesor virtual para decisiones estratégicas, riesgo, oportunidades y educación"
+
