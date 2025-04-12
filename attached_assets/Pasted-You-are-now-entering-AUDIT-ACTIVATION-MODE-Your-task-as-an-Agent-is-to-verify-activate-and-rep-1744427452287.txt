@@ -1,0 +1,124 @@
+You are now entering AUDIT & ACTIVATION MODE.
+
+Your task as an Agent is to verify, activate, and report on every component of your assigned application. Perform a **deep audit** of the entire system.
+
+**1. API KEY VERIFICATION (CURRENT STATUS)**
+
+→ List all API Keys currently integrated and in use, including:
+- Gemini API
+- Google API Keys (Group 1, 2, 3)
+- Stripe API
+- Firebase API
+- Plaid / Yodlee / MX (for finance)
+- ElevenLabs (if used)
+- Whisper / OpenAI / Anthropic Claude
+- RapidAPI (if used)
+- YouTube / Discord / Canva / HubSpot / Zapier / other 3rd party APIs
+
+→ For each key:
+- Confirm its presence
+- Confirm that it is being called correctly
+- Confirm it is returning responses without errors
+
+**2. MISSING API KEYS OR SERVICES**
+
+→ List all API Keys or services that are:
+- Referenced but not implemented
+- Needed but not yet configured
+- Partially connected or throwing errors
+
+**3. RECOMMENDED FUTURE INTEGRATIONS (20 SUGGESTIONS)**
+
+→ Suggest up to 20 AI-powered or external services that would enhance the current app. These could include:
+- Google Calendar Sync
+- Real-time Weather API
+- AI Scheduling Assistant
+- Multi-user Collaboration Layer
+- Voice Authentication
+- QR Code Generator
+- SMS Alerts (Twilio)
+- Web3 Wallet
+- Rewards Engine
+- User Heatmap Analytics
+- NLP Sentiment Analyzer
+- Real-time Notifications
+- Version Control Sync (GitHub/GitLab)
+- Payment Splitting API
+- Crypto Conversion & Tracker
+- Language Switching Engine
+- AI-Powered Text Summarizer
+- Custom Avatar Personalization Engine
+- Document AI for contracts/receipts
+- AI-based Pricing Optimization
+
+**4. INTERFACE & COMPONENT CHECK**
+
+→ Check the **Main Menu** and verify:
+- Every tab is active and visible
+- Every tab has functional and relevant content
+- No broken links, null views, or 404s
+
+→ Check that:
+- All buttons are clickable and trigger their assigned actions
+- All modals and transitions work properly
+- All tabs match the current language and context
+
+**5. CHATBOT DIAGNOSTIC**
+
+→ The chatbot must:
+- Be active and fully connected to Gemini or OpenAI
+- Support full-screen view
+- Handle text, voice, and (optionally) image prompts
+- Be responsive across devices
+- Clearly indicate when it is processing and replying
+- Respond based on the Agent’s tone and role
+- Support multi-language (or provide fallback)
+- Show its current version and status
+
+**6. LANGUAGE UNIFICATION**
+
+→ Confirm the entire app is in one default language (English by default).
+→ Identify and list any parts of the app still in another language or with inconsistent labels.
+→ Ensure multi-language toggle or translation support is active (if applicable).
+
+**7. ENDPOINTS & CONNECTIONS**
+
+→ Test every internal and external endpoint:
+- Server API routes
+- Firebase Functions
+- Gemini/Vertex integrations
+- DB connections (PostgreSQL/Firebase)
+- Webhook triggers
+- Third-party callbacks
+
+→ All must return valid responses (200 OK or equivalent).
+
+**8. STATUS & PHASE REPORT**
+
+→ Indicate:
+- What phase of development the Agent is currently in
+- What is fully complete
+- What needs revision or completion
+- What can be optimized or replaced
+
+**9. FINAL SYSTEM CHECK**
+
+→ Once the above audit is complete:
+- Confirm all modules are connected
+- Confirm authentication is working
+- Confirm all pages and routes are functioning
+- Confirm frontend and backend are in sync
+- Trigger a final system health check
+- Report SUCCESS or list failures with location and log
+
+**IMPORTANT:** All results should be returned in clear format:
+- ✅ = OK
+- ❌ = Error / Missing
+- ⚠️ = Partial or Needs Review
+
+Activate report in: `console.log`, `UI debug window`, or via endpoint `/agent-status`
+
+Language: **English only**  
+All modules must be fully operational or reported as broken/missing.
+
+You are now in FULL SYSTEM SYNC & AUDIT MODE. Begin.
