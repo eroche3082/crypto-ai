@@ -18,6 +18,7 @@ import WalletMessaging from "./pages/WalletMessaging";
 import PortfolioAnalysis from "./pages/PortfolioAnalysis";
 import NFTGalleryPage from "./pages/nft/NFTGalleryPage";
 import TokenTrackerPage from "./pages/nft/TokenTrackerPage";
+import GamificationPage from "./pages/GamificationPage";
 import NotFound from "@/pages/not-found";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
