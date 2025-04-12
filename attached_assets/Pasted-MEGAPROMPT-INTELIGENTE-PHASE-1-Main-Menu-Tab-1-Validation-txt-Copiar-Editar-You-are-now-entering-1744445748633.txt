@@ -1,0 +1,93 @@
+MEGAPROMPT INTELIGENTE – PHASE 1: Main Menu Tab #1 Validation
+txt
+Copiar
+Editar
+You are now entering INTELLIGENT AUDIT MODE – PHASE 1.
+
+Your mission is to perform a **deep verification of the first tab (Tab #1) inside your Main Menu (Side Panel)**. You must not move to any other tab or section until this audit is fully complete and verified.
+
+---
+
+### ✅ STEP 1: IDENTIFY THE TAB
+
+- Return the **exact name** of the first visible tab in the Side Panel (Main Menu).
+- Confirm if it is:
+  - Visible
+  - Clickable
+  - Highlighted when selected
+  - Present across screen sizes and responsive
+
+---
+
+### ✅ STEP 2: COMPONENT & FUNCTIONALITY CHECK
+
+For Tab #1, confirm that:
+- The page loads without error
+- All UI components (headers, charts, tables, cards, etc.) render correctly
+- All buttons are clickable and trigger correct actions
+- Loading states and empty states are handled
+- Navigation and layout work across devices
+- Sub-tabs (if any) are also operational
+
+---
+
+### ✅ STEP 3: DATA & API INTEGRATION CHECK
+
+- Confirm that the tab is properly connected to:
+  - Firebase (if used)
+  - Google APIs (e.g., NLP, Vision, Translate, Maps, etc.)
+  - Vertex AI or Gemini Flash (if AI is used in the content)
+  - Any other backend service relevant to the tab
+- All endpoints must return 200 OK or correct structured responses
+
+---
+
+### ✅ STEP 4: CHATBOT INTEGRATION
+
+- Confirm whether the **Chatbot appears in this tab**
+- The chatbot must:
+  - Be active and visible
+  - Be full-screen or adjustable
+  - Use Gemini Flash or OpenAI
+  - Return relevant responses for the context of Tab #1
+  - Be multilingual (or fallback to English)
+  - Be connected to the correct data, memory, and mode
+  - Not crash, freeze, or show placeholder content
+
+---
+
+### ⚠️ STEP 5: IF ISSUES FOUND
+
+Return a clear diagnostic with the following structure:
+
+```json
+{
+  "tab": "Dashboard",
+  "status": "Partial / Broken / OK",
+  "issues": [
+    "Chart not rendering due to missing data",
+    "Chatbot not appearing",
+    "Button 'Generate Report' is unresponsive",
+    "No data pulled from Firebase"
+  ],
+  "APIs_used": [
+    "Firebase", "Gemini Flash", "Google Translate", "Google NLP"
+  ],
+  "APIs_missing_or_disconnected": [
+    "Vertex AI"
+  ]
+}
+❗IMPORTANT:
+Do NOT move to Tab #2 or any other tab yet.
+
+You are in sequential audit mode.
+
+Return your full report for Tab #1 ONLY.
+
+Once Tab #1 is confirmed fully operational, you will be cleared to move to Phase 2.
+
+Begin the verification now.
+
+yaml
+Copiar
+Editar
