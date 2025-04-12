@@ -130,16 +130,17 @@ export async function searchTweets(req: Request, res: Response) {
 
     try {
       // Call Twitter API to search tweets
-      // For this endpoint, we're using a different host from the RapidAPI collection
+      // Updated to use a valid endpoint from the Twitter AIO collection
       const response = await axios.get(
-        'https://twitter-api47.p.rapidapi.com/v1/search',
+        `${TWITTER_AIO_API_URL}/search/home`,
         {
           params: {
-            query,
-            limit: count
+            q: query,
+            count: count,
+            result_type: 'recent'
           },
           headers: {
-            'x-rapidapi-host': 'twitter-api47.p.rapidapi.com',
+            'x-rapidapi-host': 'twitter-aio.p.rapidapi.com',
             'x-rapidapi-key': RAPIDAPI_KEY
           }
         }
@@ -296,22 +297,24 @@ export async function analyzeCryptoSentiment(req: Request, res: Response) {
     }
 
     try {
-      // First, get tweets about this cryptocurrency
+      // First, get tweets about this cryptocurrency using a valid endpoint
       const searchResponse = await axios.get(
-        'https://twitter-api47.p.rapidapi.com/v1/search',
+        `${TWITTER_AIO_API_URL}/search/home`,
         {
           params: {
-            query: `#${symbol.toLowerCase()} OR ${symbol.toUpperCase()} crypto`,
-            limit: 100
+            q: `#${symbol.toLowerCase()} OR ${symbol.toUpperCase()} crypto`,
+            count: 100,
+            result_type: 'recent'
           },
           headers: {
-            'x-rapidapi-host': 'twitter-api47.p.rapidapi.com',
+            'x-rapidapi-host': 'twitter-aio.p.rapidapi.com',
             'x-rapidapi-key': RAPIDAPI_KEY
           }
         }
       );
 
-      const tweets = searchResponse.data?.data?.tweets || [];
+      // Extraer tweets de la respuesta (ajustado para el formato de respuesta de Twitter AIO)
+      const tweets = searchResponse.data?.statuses || [];
       
       if (tweets.length === 0) {
         return res.status(200).json({
