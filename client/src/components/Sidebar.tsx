@@ -26,7 +26,8 @@ import {
   Brain,
   Image,
   Coins,
-  Trophy
+  Trophy,
+  CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +56,7 @@ const Sidebar = () => {
     { path: "/analysis", icon: <BrainCircuit size={20} />, label: t("analysis.title", "AI Analysis") },
     { path: "/education", icon: <GraduationCap size={20} />, label: t("education.title", "Education") },
     { path: "/locations", icon: <MapPin size={20} />, label: t("locations.title", "Locations") },
+    { path: "/admin/system-check", icon: <CheckCircle2 size={20} />, label: t("admin.systemCheck", "System Check") },
   ];
 
   const toggleLanguageSwitcher = () => {

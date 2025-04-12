@@ -11,7 +11,7 @@ import { Icons } from "@/components/ui/icons";
 import { v4 as uuidv4 } from 'uuid';
 import CameraInput from '../multimodal/CameraInput';
 import AudioInput from '../multimodal/AudioInput';
-import { UserProfile } from './ChatbotOnboarding';
+import { SubscriberProfile } from '@/lib/subscriberSchema';
 
 // Define message types
 interface Message {
@@ -607,4 +607,5 @@ As CryptoBot, I'm here to help you with your ${userProfile.goals} goals. How may
 
 ZoomStyleChat.displayName = 'ZoomStyleChat';
 
+export { ZoomStyleChat };
 export default ZoomStyleChat;

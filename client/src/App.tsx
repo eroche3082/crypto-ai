@@ -19,6 +19,7 @@ import PortfolioAnalysis from "./pages/PortfolioAnalysis";
 import NFTGalleryPage from "./pages/nft/NFTGalleryPage";
 import TokenTrackerPage from "./pages/nft/TokenTrackerPage";
 import GamificationPage from "./pages/GamificationPage";
+import SystemCheck from "./pages/admin/SystemCheck";
 import NotFound from "@/pages/not-found";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
@@ -183,6 +184,7 @@ function App() {
                   <Route path="/nft-gallery" component={NFTGalleryPage} />
                   <Route path="/token-tracker" component={TokenTrackerPage} />
                   <Route path="/gamification" component={GamificationPage} />
+                  <Route path="/admin/system-check" component={SystemCheck} />
                   <Route component={NotFound} />
                 </Switch>
               </div>
