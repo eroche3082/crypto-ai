@@ -4,17 +4,44 @@ import { useCryptoData } from "@/hooks/useCryptoData";
 import CryptoCard from "@/components/CryptoCard";
 import Header from "@/components/Header";
 import PriceChart from "@/components/PriceChart";
-import { RefreshCw } from "lucide-react";
+import CryptoConverter from "@/components/CryptoConverter";
+import { RefreshCw, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
 import { CryptoData } from "@/lib/cryptoApi";
 
 const Dashboard = () => {
   const { t } = useTranslation();
   const [timeFilter, setTimeFilter] = useState("24h");
+  const [fromCrypto, setFromCrypto] = useState("btc");
+  const [toCrypto, setToCrypto] = useState("usdt");
+  const [amount, setAmount] = useState("1");
   const { data, isLoading, error, refetch } = useCryptoData({ timeFilter });
   
   const handleTimeFilterChange = (filter: string) => {
     setTimeFilter(filter);
+  };
+
+  // Calculate crypto conversion result based on current prices
+  const calculateConversion = () => {
+    if (!data) return "0";
+    
+    const fromCryptoData = data.find(c => c.symbol === fromCrypto);
+    const toCryptoData = data.find(c => c.symbol === toCrypto);
+    
+    if (!fromCryptoData || !toCryptoData || !amount) return "0";
+    
+    const fromValueInUSD = fromCryptoData.current_price * parseFloat(amount);
+    const toAmount = fromValueInUSD / toCryptoData.current_price;
+    
+    return toAmount.toFixed(8);
   };
   
   return (
@@ -194,8 +221,80 @@ const Dashboard = () => {
           </div>
           
           <div className="bg-card rounded-lg p-4">
-            <div className="flex items-center justify-center h-28">
-              <p className="text-muted-foreground">Currency converter would be displayed here</p>
+            {/* Simplified version of the converter for the dashboard */}
+            {data && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <label className="text-sm text-muted-foreground block">
+                    {t("converter.quickConvert", "Quick Convert")}
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Select 
+                      value={fromCrypto} 
+                      onValueChange={setFromCrypto}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {data.slice(0, 10).map((crypto) => (
+                          <SelectItem key={crypto.id} value={crypto.symbol}>
+                            {crypto.symbol.toUpperCase()} - {crypto.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input 
+                      type="number" 
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0.00" 
+                      min="0"
+                      step="0.0001"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-sm text-muted-foreground block">
+                    {t("converter.to", "To")}
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Select 
+                      value={toCrypto}
+                      onValueChange={setToCrypto}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {data.slice(0, 10).map((crypto) => (
+                          <SelectItem key={crypto.id} value={crypto.symbol}>
+                            {crypto.symbol.toUpperCase()} - {crypto.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input 
+                      type="text"
+                      value={calculateConversion()}
+                      readOnly 
+                      className="bg-secondary/30"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="flex justify-end mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/converter'}
+                className="flex items-center gap-1 text-sm"
+              >
+                <span>{t("converter.fullConverter", "Go to full converter")}</span>
+                <ArrowRight size={14} />
+              </Button>
             </div>
           </div>
         </div>
