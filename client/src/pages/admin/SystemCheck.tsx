@@ -19,17 +19,17 @@ export function SystemCheck() {
         await updateSystemDiagnosticReport(report);
         
         // Redirect to admin panel with diagnostic tab active
-        navigate('/admin?tab=diagnostic');
+        setLocation('/admin/panel?tab=diagnostic');
       } catch (error) {
         console.error('Error running diagnostic:', error);
         // Still redirect to admin panel even if there's an error
-        navigate('/admin?tab=diagnostic');
+        setLocation('/admin/panel?tab=diagnostic');
       }
     };
     
     // Run the diagnostic check
     runDiagnostic();
-  }, [navigate]);
+  }, [setLocation]);
   
   return (
     <div className="flex items-center justify-center h-screen">
