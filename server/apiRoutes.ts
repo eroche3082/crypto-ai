@@ -150,4 +150,36 @@ apiRouter.post('/tax/calculate', calculateTaxes);
 apiRouter.get('/tax/info/:country?', getTaxInfo);
 apiRouter.get('/tax/countries', getAvailableCountries);
 
+// Gamification endpoints
+import {
+  listAchievements,
+  getUserAchievements,
+  unlockAchievement,
+  updateAchievementProgress,
+  listChallenges,
+  getUserChallenges,
+  startChallenge,
+  updateChallengeProgress,
+  getUserActivity,
+  getUserProfile as getGamificationUserProfile,
+  getLeaderboards,
+  getLeaderboardEntries
+} from './gamification/controller';
+
+apiRouter.get('/gamification/achievements', listAchievements);
+apiRouter.get('/gamification/achievements/user/:userId', getUserAchievements);
+apiRouter.post('/gamification/achievements/user/:userId/:achievementId/unlock', unlockAchievement);
+apiRouter.patch('/gamification/achievements/user/:userId/:achievementId/progress', updateAchievementProgress);
+
+apiRouter.get('/gamification/challenges', listChallenges);
+apiRouter.get('/gamification/challenges/user/:userId', getUserChallenges);
+apiRouter.post('/gamification/challenges/user/:userId/:challengeId/start', startChallenge);
+apiRouter.patch('/gamification/challenges/user/:userId/:challengeId/progress', updateChallengeProgress);
+
+apiRouter.get('/gamification/activity/:userId', getUserActivity);
+apiRouter.get('/gamification/profile/:userId', getGamificationUserProfile);
+
+apiRouter.get('/gamification/leaderboards', getLeaderboards);
+apiRouter.get('/gamification/leaderboards/:leaderboardId/entries', getLeaderboardEntries);
+
 export default apiRouter;

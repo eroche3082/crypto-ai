@@ -1,438 +1,539 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, uniqueIndex } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import {
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  integer,
+  boolean,
+  json,
+  uuid,
+  unique,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Base User schema
+// Users table
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email"),
-  displayName: text("display_name"),
-  photoURL: text("photo_url"),
-  createdAt: timestamp("created_at").defaultNow(),
-  lastLogin: timestamp("last_login"),
-  preferences: jsonb("preferences")
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+  language: text("language").default("en"),
+  theme: text("theme").default("dark"),
+  settings: json("settings"),
+  profile_image: text("profile_image"),
+  stripe_customer_id: text("stripe_customer_id"),
+  stripe_subscription_id: text("stripe_subscription_id"),
+  experience_points: integer("experience_points").default(0),
+  level: integer("level").default(1),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  email: true,
-  displayName: true,
-  photoURL: true
-});
-
-// Portfolio assets schema
-export const portfolioAssets = pgTable("portfolio_assets", {
+// Achievements table
+export const achievements = pgTable("achievements", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  symbol: text("symbol").notNull(),
-  amount: text("amount").notNull(),
-  buyPrice: text("buy_price"),
-  buyDate: timestamp("buy_date"),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow()
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon"),
+  category: text("category").notNull(),
+  points: integer("points").notNull(),
+  requirements: json("requirements").notNull(),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
-export const insertPortfolioAssetSchema = createInsertSchema(portfolioAssets).pick({
-  userId: true,
-  symbol: true,
-  amount: true,
-  buyPrice: true,
-  buyDate: true,
-  notes: true
-});
+// User Achievements table (many-to-many)
+export const userAchievements = pgTable(
+  "user_achievements",
+  {
+    id: serial("id").primaryKey(),
+    user_id: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    achievement_id: integer("achievement_id")
+      .notNull()
+      .references(() => achievements.id, { onDelete: "cascade" }),
+    unlocked_at: timestamp("unlocked_at").defaultNow(),
+    progress: integer("progress").default(0),
+    completed: boolean("completed").default(false),
+  },
+  (table) => {
+    return {
+      unique_user_achievement: unique().on(
+        table.user_id,
+        table.achievement_id
+      ),
+    };
+  }
+);
 
-// Price alerts schema
-export const priceAlerts = pgTable("price_alerts", {
+// Challenges table
+export const challenges = pgTable("challenges", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  symbol: text("symbol").notNull(),
-  price: text("price").notNull(),
-  type: text("type").notNull(), // "above" or "below"
-  active: boolean("active").default(true),
-  triggered: boolean("triggered").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  triggeredAt: timestamp("triggered_at")
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  difficulty: text("difficulty").notNull(), // easy, medium, hard
+  category: text("category").notNull(),
+  points: integer("points").notNull(),
+  requirements: json("requirements").notNull(),
+  start_date: timestamp("start_date"),
+  end_date: timestamp("end_date"),
+  is_active: boolean("is_active").default(true),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
-export const insertPriceAlertSchema = createInsertSchema(priceAlerts).pick({
-  userId: true,
-  symbol: true,
-  price: true,
-  type: true,
-  active: true
+// User Challenges table (many-to-many)
+export const userChallenges = pgTable(
+  "user_challenges",
+  {
+    id: serial("id").primaryKey(),
+    user_id: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    challenge_id: integer("challenge_id")
+      .notNull()
+      .references(() => challenges.id, { onDelete: "cascade" }),
+    started_at: timestamp("started_at").defaultNow(),
+    completed_at: timestamp("completed_at"),
+    progress: integer("progress").default(0),
+    completed: boolean("completed").default(false),
+  },
+  (table) => {
+    return {
+      unique_user_challenge: unique().on(table.user_id, table.challenge_id),
+    };
+  }
+);
+
+// Trading Simulation table
+export const tradingSimulations = pgTable("trading_simulations", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  starting_balance: integer("starting_balance").notNull(),
+  current_balance: integer("current_balance").notNull(),
+  risk_level: text("risk_level").notNull(), // low, medium, high
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+  is_active: boolean("is_active").default(true),
 });
 
-// Chat history schema
+// Quiz Questions table
+export const quizQuestions = pgTable("quiz_questions", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  options: json("options").notNull(), // array of options
+  correct_answer: text("correct_answer").notNull(),
+  explanation: text("explanation"),
+  difficulty: text("difficulty").notNull(), // easy, medium, hard
+  category: text("category").notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// User Quiz Responses table
+export const userQuizResponses = pgTable("user_quiz_responses", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  question_id: integer("question_id")
+    .notNull()
+    .references(() => quizQuestions.id, { onDelete: "cascade" }),
+  selected_answer: text("selected_answer").notNull(),
+  is_correct: boolean("is_correct").notNull(),
+  response_time: integer("response_time"), // in seconds
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// Leaderboard table
+export const leaderboards = pgTable("leaderboards", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // daily, weekly, monthly, all-time
+  category: text("category").notNull(), // points, trading, quiz
+  start_date: timestamp("start_date"),
+  end_date: timestamp("end_date"),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// Leaderboard Entries table
+export const leaderboardEntries = pgTable(
+  "leaderboard_entries",
+  {
+    id: serial("id").primaryKey(),
+    leaderboard_id: integer("leaderboard_id")
+      .notNull()
+      .references(() => leaderboards.id, { onDelete: "cascade" }),
+    user_id: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    score: integer("score").notNull(),
+    rank: integer("rank"),
+    updated_at: timestamp("updated_at").defaultNow(),
+  },
+  (table) => {
+    return {
+      unique_leaderboard_user: unique().on(
+        table.leaderboard_id,
+        table.user_id
+      ),
+    };
+  }
+);
+
+// Activity Log table
+export const activityLogs = pgTable("activity_logs", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  activity_type: text("activity_type").notNull(),
+  description: text("description").notNull(),
+  points_earned: integer("points_earned").default(0),
+  metadata: json("metadata"),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// Define relations
+export const usersRelations = relations(users, ({ many }) => ({
+  userAchievements: many(userAchievements),
+  userChallenges: many(userChallenges),
+  tradingSimulations: many(tradingSimulations),
+  userQuizResponses: many(userQuizResponses),
+  leaderboardEntries: many(leaderboardEntries),
+  activityLogs: many(activityLogs),
+  chatHistory: many(chatHistory),
+  portfolioAssets: many(portfolioAssets),
+  priceAlerts: many(priceAlerts),
+  favorites: many(favorites),
+}));
+
+export const achievementsRelations = relations(achievements, ({ many }) => ({
+  userAchievements: many(userAchievements),
+}));
+
+export const userAchievementsRelations = relations(userAchievements, ({ one }) => ({
+  user: one(users, {
+    fields: [userAchievements.user_id],
+    references: [users.id],
+  }),
+  achievement: one(achievements, {
+    fields: [userAchievements.achievement_id],
+    references: [achievements.id],
+  }),
+}));
+
+export const challengesRelations = relations(challenges, ({ many }) => ({
+  userChallenges: many(userChallenges),
+}));
+
+export const userChallengesRelations = relations(userChallenges, ({ one }) => ({
+  user: one(users, {
+    fields: [userChallenges.user_id],
+    references: [users.id],
+  }),
+  challenge: one(challenges, {
+    fields: [userChallenges.challenge_id],
+    references: [challenges.id],
+  }),
+}));
+
+export const tradingSimulationsRelations = relations(tradingSimulations, ({ one }) => ({
+  user: one(users, {
+    fields: [tradingSimulations.user_id],
+    references: [users.id],
+  }),
+}));
+
+export const quizQuestionsRelations = relations(quizQuestions, ({ many }) => ({
+  userQuizResponses: many(userQuizResponses),
+}));
+
+export const userQuizResponsesRelations = relations(userQuizResponses, ({ one }) => ({
+  user: one(users, {
+    fields: [userQuizResponses.user_id],
+    references: [users.id],
+  }),
+  question: one(quizQuestions, {
+    fields: [userQuizResponses.question_id],
+    references: [quizQuestions.id],
+  }),
+}));
+
+export const leaderboardsRelations = relations(leaderboards, ({ many }) => ({
+  leaderboardEntries: many(leaderboardEntries),
+}));
+
+export const leaderboardEntriesRelations = relations(leaderboardEntries, ({ one }) => ({
+  leaderboard: one(leaderboards, {
+    fields: [leaderboardEntries.leaderboard_id],
+    references: [leaderboards.id],
+  }),
+  user: one(users, {
+    fields: [leaderboardEntries.user_id],
+    references: [users.id],
+  }),
+}));
+
+export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [activityLogs.user_id],
+    references: [users.id],
+  }),
+}));
+
+// Chat History table
 export const chatHistory = pgTable("chat_history", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  role: text("role").notNull(), // "user" or "bot"
+  user_id: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  role: text("role").notNull(), // 'user' or 'assistant'
   content: text("content").notNull(),
-  timestamp: timestamp("timestamp").defaultNow()
+  model: text("model"),
+  timestamp: timestamp("timestamp").defaultNow(),
+  metadata: json("metadata"),
 });
 
-export const insertChatHistorySchema = createInsertSchema(chatHistory).pick({
-  userId: true,
-  role: true,
-  content: true
+// Chat History relations
+export const chatHistoryRelations = relations(chatHistory, ({ one }) => ({
+  user: one(users, {
+    fields: [chatHistory.user_id],
+    references: [users.id],
+  }),
+}));
+
+// Portfolio Assets table
+export const portfolioAssets = pgTable("portfolio_assets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  symbol: text("symbol").notNull(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // crypto, stock, etc.
+  quantity: text("quantity").notNull(),
+  purchasePrice: text("purchase_price").notNull(),
+  purchaseDate: timestamp("purchase_date").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Favorite cryptocurrencies schema
+// Price Alerts table
+export const priceAlerts = pgTable("price_alerts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  symbol: text("symbol").notNull(),
+  targetPrice: text("target_price").notNull(),
+  condition: text("condition").notNull(), // above, below
+  active: boolean("active").default(true),
+  triggered: boolean("triggered").default(false),
+  triggeredAt: timestamp("triggered_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Favorites table
 export const favorites = pgTable("favorites", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   symbol: text("symbol").notNull(),
-  createdAt: timestamp("created_at").defaultNow()
+  name: text("name"),
+  type: text("type").default("crypto"), // crypto, stock, etc.
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertFavoriteSchema = createInsertSchema(favorites).pick({
-  userId: true,
-  symbol: true
+// Wallet Messages table
+export const walletMessages = pgTable("wallet_messages", {
+  id: serial("id").primaryKey(),
+  sender_wallet: text("sender_wallet").notNull(),
+  recipient_wallet: text("recipient_wallet").notNull(),
+  message: text("message").notNull(),
+  is_encrypted: boolean("is_encrypted").default(false),
+  is_read: boolean("is_read").default(false),
+  created_at: timestamp("created_at").defaultNow(),
+  read_at: timestamp("read_at"),
+  signature: text("signature"),
+  metadata: json("metadata"),
 });
 
-// Type definitions
+// Token Watchlist table
+export const tokenWatchlist = pgTable("token_watchlist", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  contract_address: text("contract_address").notNull(),
+  token_id: text("token_id"),
+  chain: text("chain").notNull(),
+  name: text("name"),
+  description: text("description"),
+  image_url: text("image_url"),
+  collection_name: text("collection_name"),
+  floor_price: text("floor_price"),
+  last_price: text("last_price"),
+  risk_score: integer("risk_score"),
+  notes: text("notes"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Relations for new tables
+export const portfolioAssetsRelations = relations(portfolioAssets, ({ one }) => ({
+  user: one(users, {
+    fields: [portfolioAssets.userId],
+    references: [users.id],
+  }),
+}));
+
+export const priceAlertsRelations = relations(priceAlerts, ({ one }) => ({
+  user: one(users, {
+    fields: [priceAlerts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const favoritesRelations = relations(favorites, ({ one }) => ({
+  user: one(users, {
+    fields: [favorites.userId],
+    references: [users.id],
+  }),
+}));
+
+export const tokenWatchlistRelations = relations(tokenWatchlist, ({ one }) => ({
+  user: one(users, {
+    fields: [tokenWatchlist.user_id],
+    references: [users.id],
+  }),
+}));
+
+// Zod schemas for validation
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-export type InsertPortfolioAsset = z.infer<typeof insertPortfolioAssetSchema>;
-export type PortfolioAsset = typeof portfolioAssets.$inferSelect;
-
-export type InsertPriceAlert = z.infer<typeof insertPriceAlertSchema>;
-export type PriceAlert = typeof priceAlerts.$inferSelect;
-
+export const insertChatHistorySchema = createInsertSchema(chatHistory).omit({
+  id: true,
+  timestamp: true,
+});
 export type InsertChatHistory = z.infer<typeof insertChatHistorySchema>;
 export type ChatHistory = typeof chatHistory.$inferSelect;
 
+export const insertPortfolioAssetSchema = createInsertSchema(portfolioAssets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertPortfolioAsset = z.infer<typeof insertPortfolioAssetSchema>;
+export type PortfolioAsset = typeof portfolioAssets.$inferSelect;
+
+export const insertPriceAlertSchema = createInsertSchema(priceAlerts).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertPriceAlert = z.infer<typeof insertPriceAlertSchema>;
+export type PriceAlert = typeof priceAlerts.$inferSelect;
+
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
+  id: true,
+  createdAt: true,
+});
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type Favorite = typeof favorites.$inferSelect;
 
-// 1. Wallet-to-Wallet Messaging system
-export const walletMessages = pgTable("wallet_messages", {
-  id: serial("id").primaryKey(),
-  senderId: text("sender_id").notNull(), // wallet address
-  recipientId: text("recipient_id").notNull(), // wallet address
-  content: text("content").notNull(),
-  encryptionType: text("encryption_type").default("pgp"),
-  status: text("status").default("sent"), // sent, delivered, read
-  timestamp: timestamp("timestamp").defaultNow(),
-  metadata: jsonb("metadata")
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  created_at: true,
 });
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Achievement = typeof achievements.$inferSelect;
 
-export const insertWalletMessageSchema = createInsertSchema(walletMessages).pick({
-  senderId: true,
-  recipientId: true,
-  content: true,
-  encryptionType: true,
-  metadata: true
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  unlocked_at: true,
 });
+export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
+export type UserAchievement = typeof userAchievements.$inferSelect;
 
+export const insertChallengeSchema = createInsertSchema(challenges).omit({
+  id: true,
+  created_at: true,
+});
+export type InsertChallenge = z.infer<typeof insertChallengeSchema>;
+export type Challenge = typeof challenges.$inferSelect;
+
+export const insertUserChallengeSchema = createInsertSchema(userChallenges).omit({
+  id: true,
+  started_at: true,
+});
+export type InsertUserChallenge = z.infer<typeof insertUserChallengeSchema>;
+export type UserChallenge = typeof userChallenges.$inferSelect;
+
+export const insertTradingSimulationSchema = createInsertSchema(tradingSimulations).omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
+export type InsertTradingSimulation = z.infer<typeof insertTradingSimulationSchema>;
+export type TradingSimulation = typeof tradingSimulations.$inferSelect;
+
+export const insertQuizQuestionSchema = createInsertSchema(quizQuestions).omit({
+  id: true,
+  created_at: true,
+});
+export type InsertQuizQuestion = z.infer<typeof insertQuizQuestionSchema>;
+export type QuizQuestion = typeof quizQuestions.$inferSelect;
+
+export const insertUserQuizResponseSchema = createInsertSchema(userQuizResponses).omit({
+  id: true,
+  created_at: true,
+});
+export type InsertUserQuizResponse = z.infer<typeof insertUserQuizResponseSchema>;
+export type UserQuizResponse = typeof userQuizResponses.$inferSelect;
+
+export const insertLeaderboardSchema = createInsertSchema(leaderboards).omit({
+  id: true,
+  created_at: true,
+});
+export type InsertLeaderboard = z.infer<typeof insertLeaderboardSchema>;
+export type Leaderboard = typeof leaderboards.$inferSelect;
+
+export const insertLeaderboardEntrySchema = createInsertSchema(leaderboardEntries).omit({
+  id: true,
+  updated_at: true,
+});
+export type InsertLeaderboardEntry = z.infer<typeof insertLeaderboardEntrySchema>;
+export type LeaderboardEntry = typeof leaderboardEntries.$inferSelect;
+
+export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({
+  id: true,
+  created_at: true,
+});
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+export type ActivityLog = typeof activityLogs.$inferSelect;
+
+export const insertWalletMessageSchema = createInsertSchema(walletMessages).omit({
+  id: true,
+  created_at: true,
+  read_at: true,
+});
 export type InsertWalletMessage = z.infer<typeof insertWalletMessageSchema>;
 export type WalletMessage = typeof walletMessages.$inferSelect;
 
-// 2. Multi-Chain Portfolio Tracker
-export const walletAssets = pgTable("wallet_assets", {
-  id: serial("id").primaryKey(),
-  walletAddress: text("wallet_address").notNull(),
-  userId: integer("user_id").references(() => users.id),
-  chain: text("chain").notNull(), // ethereum, solana, etc.
-  asset: text("asset").notNull(),
-  balance: text("balance").notNull(),
-  usdValue: text("usd_value"),
-  lastUpdated: timestamp("last_updated").defaultNow()
+export const insertTokenWatchlist = createInsertSchema(tokenWatchlist).omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
 });
-
-export const insertWalletAssetSchema = createInsertSchema(walletAssets).pick({
-  walletAddress: true,
-  userId: true,
-  chain: true,
-  asset: true,
-  balance: true,
-  usdValue: true
-});
-
-export type InsertWalletAsset = z.infer<typeof insertWalletAssetSchema>;
-export type WalletAsset = typeof walletAssets.$inferSelect;
-
-// 3. Gas Fee Optimizer
-export const gasFeeEstimates = pgTable("gas_fee_estimates", {
-  id: serial("id").primaryKey(),
-  chain: text("chain").notNull(),
-  fast: text("fast").notNull(),
-  average: text("average").notNull(),
-  slow: text("slow").notNull(),
-  timestamp: timestamp("timestamp").defaultNow(),
-  historicalData: jsonb("historical_data")
-});
-
-export const insertGasFeeEstimateSchema = createInsertSchema(gasFeeEstimates).pick({
-  chain: true,
-  fast: true,
-  average: true,
-  slow: true,
-  historicalData: true
-});
-
-export type InsertGasFeeEstimate = z.infer<typeof insertGasFeeEstimateSchema>;
-export type GasFeeEstimate = typeof gasFeeEstimates.$inferSelect;
-
-// 4. AI Trading Assistant
-export const tradingSuggestions = pgTable("trading_suggestions", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  symbol: text("symbol").notNull(),
-  suggestion: text("suggestion").notNull(), // buy, sell, hold
-  confidence: text("confidence").notNull(), // 0-100
-  reasoning: text("reasoning"),
-  timestamp: timestamp("timestamp").defaultNow(),
-  priceAtSuggestion: text("price_at_suggestion")
-});
-
-export const insertTradingSuggestionSchema = createInsertSchema(tradingSuggestions).pick({
-  userId: true,
-  symbol: true,
-  suggestion: true,
-  confidence: true,
-  reasoning: true,
-  priceAtSuggestion: true
-});
-
-export type InsertTradingSuggestion = z.infer<typeof insertTradingSuggestionSchema>;
-export type TradingSuggestion = typeof tradingSuggestions.$inferSelect;
-
-// 5. Pattern Recognition Scanner
-export const chartPatterns = pgTable("chart_patterns", {
-  id: serial("id").primaryKey(),
-  symbol: text("symbol").notNull(),
-  pattern: text("pattern").notNull(), // head and shoulders, double top, etc.
-  confidence: text("confidence").notNull(),
-  timeframe: text("timeframe").notNull(), // 1h, 4h, 1d, etc.
-  detectedAt: timestamp("detected_at").defaultNow(),
-  priceAtDetection: text("price_at_detection"),
-  screenshot: text("screenshot") // URL to pattern screenshot
-});
-
-export const insertChartPatternSchema = createInsertSchema(chartPatterns).pick({
-  symbol: true,
-  pattern: true,
-  confidence: true,
-  timeframe: true,
-  priceAtDetection: true,
-  screenshot: true
-});
-
-export type InsertChartPattern = z.infer<typeof insertChartPatternSchema>;
-export type ChartPattern = typeof chartPatterns.$inferSelect;
-
-// 6. Sentiment Radar
-export const marketSentiments = pgTable("market_sentiments", {
-  id: serial("id").primaryKey(),
-  sector: text("sector").notNull(), // DeFi, NFT, L1, L2, etc.
-  overallSentiment: text("overall_sentiment").notNull(), // very negative, negative, neutral, positive, very positive
-  score: integer("score").notNull(), // -100 to 100
-  sources: jsonb("sources"), // Twitter, Reddit, Discord, etc.
-  timestamp: timestamp("timestamp").defaultNow()
-});
-
-export const insertMarketSentimentSchema = createInsertSchema(marketSentiments).pick({
-  sector: true,
-  overallSentiment: true,
-  score: true,
-  sources: true
-});
-
-export type InsertMarketSentiment = z.infer<typeof insertMarketSentimentSchema>;
-export type MarketSentiment = typeof marketSentiments.$inferSelect;
-
-// 7. Crypto Academy
-export const courses = pgTable("courses", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  difficulty: text("difficulty").notNull(), // beginner, intermediate, advanced
-  modules: jsonb("modules").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at")
-});
-
-export const userCourseProgress = pgTable("user_course_progress", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  courseId: integer("course_id").notNull().references(() => courses.id),
-  progress: integer("progress").notNull().default(0), // percentage
-  completed: boolean("completed").default(false),
-  startedAt: timestamp("started_at").defaultNow(),
-  completedAt: timestamp("completed_at")
-});
-
-export const insertCourseSchema = createInsertSchema(courses).pick({
-  title: true,
-  description: true,
-  difficulty: true,
-  modules: true
-});
-
-export const insertUserCourseProgressSchema = createInsertSchema(userCourseProgress).pick({
-  userId: true,
-  courseId: true,
-  progress: true,
-  completed: true
-});
-
-export type InsertCourse = z.infer<typeof insertCourseSchema>;
-export type Course = typeof courses.$inferSelect;
-
-export type InsertUserCourseProgress = z.infer<typeof insertUserCourseProgressSchema>;
-export type UserCourseProgress = typeof userCourseProgress.$inferSelect;
-
-// 8. Paper Trading Arena
-export const paperTradingAccounts = pgTable("paper_trading_accounts", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  balance: text("balance").notNull().default("10000"), // USD
-  createdAt: timestamp("created_at").defaultNow(),
-  resetCount: integer("reset_count").default(0)
-});
-
-export const paperTrades = pgTable("paper_trades", {
-  id: serial("id").primaryKey(),
-  accountId: integer("account_id").notNull().references(() => paperTradingAccounts.id),
-  symbol: text("symbol").notNull(),
-  type: text("type").notNull(), // buy, sell
-  amount: text("amount").notNull(),
-  price: text("price").notNull(),
-  timestamp: timestamp("timestamp").defaultNow(),
-  status: text("status").default("executed"), // pending, executed, canceled
-  profit: text("profit") // profit/loss if closed
-});
-
-export const insertPaperTradingAccountSchema = createInsertSchema(paperTradingAccounts).pick({
-  userId: true,
-  balance: true
-});
-
-export const insertPaperTradeSchema = createInsertSchema(paperTrades).pick({
-  accountId: true,
-  symbol: true,
-  type: true,
-  amount: true,
-  price: true,
-  status: true
-});
-
-export type InsertPaperTradingAccount = z.infer<typeof insertPaperTradingAccountSchema>;
-export type PaperTradingAccount = typeof paperTradingAccounts.$inferSelect;
-
-export type InsertPaperTrade = z.infer<typeof insertPaperTradeSchema>;
-export type PaperTrade = typeof paperTrades.$inferSelect;
-
-// 9. Token Economics Visualizer - no additional database tables needed
-
-// 10. DAO Governance Hub
-export const daoProposals = pgTable("dao_proposals", {
-  id: serial("id").primaryKey(),
-  daoName: text("dao_name").notNull(),
-  proposalId: text("proposal_id").notNull(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  status: text("status").notNull(), // active, passed, rejected
-  votingEnds: timestamp("voting_ends"),
-  link: text("link").notNull(),
-  createdAt: timestamp("created_at").defaultNow()
-});
-
-export const userDaoSubscriptions = pgTable("user_dao_subscriptions", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  daoName: text("dao_name").notNull(),
-  createdAt: timestamp("created_at").defaultNow()
-});
-
-export const insertDaoProposalSchema = createInsertSchema(daoProposals).pick({
-  daoName: true,
-  proposalId: true,
-  title: true,
-  description: true,
-  status: true,
-  votingEnds: true,
-  link: true
-});
-
-export const insertUserDaoSubscriptionSchema = createInsertSchema(userDaoSubscriptions).pick({
-  userId: true,
-  daoName: true
-});
-
-export type InsertDaoProposal = z.infer<typeof insertDaoProposalSchema>;
-export type DaoProposal = typeof daoProposals.$inferSelect;
-
-export type InsertUserDaoSubscription = z.infer<typeof insertUserDaoSubscriptionSchema>;
-export type UserDaoSubscription = typeof userDaoSubscriptions.$inferSelect;
-
-// 11-20: Additional tables will be added based on implementation
-// 11. Crypto Events Calendar
-export const cryptoEvents = pgTable("crypto_events", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  eventType: text("event_type").notNull(), // fork, launch, update, etc.
-  date: timestamp("date").notNull(),
-  projects: text("projects").array().notNull(),
-  source: text("source"),
-  createdAt: timestamp("created_at").defaultNow()
-});
-
-export const userEventReminders = pgTable("user_event_reminders", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  eventId: integer("event_id").notNull().references(() => cryptoEvents.id),
-  reminderTime: timestamp("reminder_time").notNull(),
-  createdAt: timestamp("created_at").defaultNow()
-});
-
-export const insertCryptoEventSchema = createInsertSchema(cryptoEvents).pick({
-  title: true,
-  description: true,
-  eventType: true,
-  date: true,
-  projects: true,
-  source: true
-});
-
-export const insertUserEventReminderSchema = createInsertSchema(userEventReminders).pick({
-  userId: true,
-  eventId: true,
-  reminderTime: true
-});
-
-export type InsertCryptoEvent = z.infer<typeof insertCryptoEventSchema>;
-export type CryptoEvent = typeof cryptoEvents.$inferSelect;
-
-export type InsertUserEventReminder = z.infer<typeof insertUserEventReminderSchema>;
-export type UserEventReminder = typeof userEventReminders.$inferSelect;
-
-// Token Watchlist schema
-export const tokenWatchlist = pgTable('token_watchlist', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => users.id),
-  tokenId: text('token_id').notNull(),
-  symbol: text('symbol').notNull(),
-  name: text('name').notNull(),
-  contractAddress: text('contract_address'),
-  chain: text('chain').default('ethereum'),
-  createdAt: timestamp('created_at').defaultNow(),
-});
-
-export const insertTokenWatchlistSchema = createInsertSchema(tokenWatchlist).pick({
-  userId: true,
-  tokenId: true,
-  symbol: true,
-  name: true,
-  contractAddress: true,
-  chain: true
-});
-
+export type InsertTokenWatchlist = z.infer<typeof insertTokenWatchlist>;
 export type TokenWatchlist = typeof tokenWatchlist.$inferSelect;
-export type InsertTokenWatchlist = z.infer<typeof insertTokenWatchlistSchema>;
