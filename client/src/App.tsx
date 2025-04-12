@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Switch, Route } from "wouter";
 import Sidebar from "./components/Sidebar";
+import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
 import Portfolio from "./pages/Portfolio";
 import Alerts from "./pages/Alerts";
@@ -20,6 +21,7 @@ import NFTGalleryPage from "./pages/nft/NFTGalleryPage";
 import TokenTrackerPage from "./pages/nft/TokenTrackerPage";
 import GamificationPage from "./pages/GamificationPage";
 import SystemCheck from "./pages/admin/SystemCheck";
+import AdminPanel from "./pages/admin/AdminPanel";
 import NotFound from "@/pages/not-found";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
@@ -185,8 +187,10 @@ function App() {
                   <Route path="/token-tracker" component={TokenTrackerPage} />
                   <Route path="/gamification" component={GamificationPage} />
                   <Route path="/admin/system-check" component={SystemCheck} />
+                  <Route path="/admin/panel" component={AdminPanel} />
                   <Route component={NotFound} />
                 </Switch>
+                <Footer />
               </div>
               <FloatingChatbot />
             </div>

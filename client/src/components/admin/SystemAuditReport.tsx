@@ -1,360 +1,348 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code } from "@/components/ui/code";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Copy, Download, ClipboardCheck, RefreshCw } from "lucide-react";
-import { runSystemAudit } from "@/utils/systemAudit";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { 
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle, 
+  RefreshCw,
+  Server,
+  Database,
+  Zap,
+  Box,
+  Activity,
+  Clock
+} from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 /**
- * System Audit Report Component
- * Displays comprehensive audit of the application
+ * System audit report component
+ * Displays real-time system status for services and components
  */
 export function SystemAuditReport() {
-  const [loading, setLoading] = useState(true);
-  const [audit, setAudit] = useState<any>(null);
-  const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState('summary');
+  const [activeTab, setActiveTab] = useState('status');
+  
+  // Fetch system status data
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['/api/system/status'],
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
 
-  useEffect(() => {
-    fetchAuditData();
-  }, []);
-
-  const fetchAuditData = async () => {
-    setLoading(true);
-    try {
-      const results = await runSystemAudit();
-      setAudit(results);
-    } catch (error) {
-      console.error('Error fetching audit data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatTimestamp = (timestamp: number) => {
+  // Format date for display
+  const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleString();
   };
 
-  const copyToClipboard = () => {
-    if (audit) {
-      navigator.clipboard.writeText(JSON.stringify(audit, null, 2));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  // Convert bytes to MB for memory usage
+  const formatMemory = (bytes: number) => {
+    return Math.round(bytes / (1024 * 1024));
+  };
+
+  // Helper to get appropriate icon for status
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'operational':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'degraded':
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+      case 'down':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <AlertCircle className="h-4 w-4 text-gray-500" />;
     }
   };
 
-  const downloadAudit = () => {
-    if (audit) {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(audit, null, 2));
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", `cryptobot-audit-${new Date().toISOString()}.json`);
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
+  // Get badge for status
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'operational':
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            Operational
+          </Badge>
+        );
+      case 'degraded':
+        return (
+          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+            Degraded
+          </Badge>
+        );
+      case 'down':
+        return (
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+            Down
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+            Unknown
+          </Badge>
+        );
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="text-xl font-semibold">System Audit Report</h3>
-          <p className="text-muted-foreground">Detailed report of all system components and functionality</p>
+          <h2 className="text-2xl font-bold tracking-tight">System Verification</h2>
+          <p className="text-muted-foreground">
+            Monitor system status and verify API connections
+          </p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={copyToClipboard}
-            className="flex items-center gap-2"
-            disabled={loading || !audit}
-          >
-            {copied ? (
-              <>
-                <ClipboardCheck className="h-4 w-4" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="h-4 w-4" />
-                Copy JSON
-              </>
-            )}
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={downloadAudit}
-            className="flex items-center gap-2"
-            disabled={loading || !audit}
-          >
-            <Download className="h-4 w-4" />
-            Download
-          </Button>
-          <Button 
-            onClick={fetchAuditData} 
-            disabled={loading}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-        </div>
+        
+        <Button
+          onClick={() => refetch()}
+          variant="outline"
+          className="flex items-center gap-2"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <RefreshCw className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="h-4 w-4" />
+          )}
+          Refresh Status
+        </Button>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="flex flex-col items-center gap-2">
+      {error ? (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            Failed to fetch system status. Please try again later.
+          </AlertDescription>
+        </Alert>
+      ) : isLoading ? (
+        <div className="py-12 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
             <RefreshCw className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Generating audit report...</p>
+            <p className="text-muted-foreground">Fetching system status...</p>
           </div>
         </div>
-      ) : audit ? (
-        <>
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Audit Overview</CardTitle>
-                  <CardDescription>System audit generated {formatTimestamp(audit.timestamp)}</CardDescription>
+      ) : (
+        <div className="space-y-6">
+          {/* System overview */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Server className="h-4 w-4 text-primary" />
+                  System Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {data?.status === 'healthy' ? (
+                    <span className="text-green-500">Healthy</span>
+                  ) : (
+                    <span className="text-yellow-500">Degraded</span>
+                  )}
                 </div>
-                <Badge variant={audit.status === 'healthy' ? 'success' : 'destructive'}>
-                  {audit.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium text-sm text-muted-foreground mb-2">System Status</h4>
-                  <p className="text-2xl font-bold">{audit.summary.operational} / {audit.summary.total}</p>
-                  <p className="text-muted-foreground text-sm">Components Operational</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last updated: {formatDate(data?.timestamp)}
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-primary" />
+                  Environment
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold capitalize">
+                  {data?.environment || 'Development'}
                 </div>
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium text-sm text-muted-foreground mb-2">API Health</h4>
-                  <p className="text-2xl font-bold">{audit.summary.apis.operational} / {audit.summary.apis.total}</p>
-                  <p className="text-muted-foreground text-sm">APIs Responding</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Application environment
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  Uptime
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {Math.floor((data?.metrics?.uptime || 0) / 60 / 60)} hours
                 </div>
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium text-sm text-muted-foreground mb-2">Performance</h4>
-                  <p className="text-2xl font-bold">{audit.performance?.score || 'N/A'}/100</p>
-                  <p className="text-muted-foreground text-sm">Performance Score</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Server uptime
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Box className="h-4 w-4 text-primary" />
+                  Memory Usage
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {data?.metrics?.memory ? 
+                    formatMemory(data.metrics.memory.heapUsed) : 0} MB
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 mb-6">
-              <TabsTrigger value="summary">Summary</TabsTrigger>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {data?.metrics?.memory ? 
+                    `of ${formatMemory(data.metrics.memory.heapTotal)} MB allocated` : ''}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="status">Service Status</TabsTrigger>
               <TabsTrigger value="components">Components</TabsTrigger>
-              <TabsTrigger value="api">API Status</TabsTrigger>
-              <TabsTrigger value="json">Raw JSON</TabsTrigger>
+              <TabsTrigger value="metrics">Metrics</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="summary">
+            
+            <TabsContent value="status">
               <Card>
                 <CardHeader>
-                  <CardTitle>System Summary</CardTitle>
-                  <CardDescription>Overview of system health and components</CardDescription>
+                  <CardTitle>API Services</CardTitle>
+                  <CardDescription>
+                    Status of connected external services and APIs
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="font-semibold mb-2">Status Summary</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="border rounded p-3">
-                          <p className="text-sm text-muted-foreground">Operational</p>
-                          <p className="text-2xl font-bold text-green-500">{audit.summary.operational}</p>
+                  <div className="space-y-4">
+                    {data?.services && Object.entries(data.services).map(([name, serviceData]: any) => (
+                      <div key={name} className="flex items-center justify-between py-3 border-b last:border-0">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(serviceData.status)}
+                          <div>
+                            <div className="font-medium capitalize">{name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              Last checked: {formatDate(serviceData.lastChecked)}
+                            </div>
+                          </div>
                         </div>
-                        <div className="border rounded p-3">
-                          <p className="text-sm text-muted-foreground">Degraded</p>
-                          <p className="text-2xl font-bold text-yellow-500">{audit.summary.degraded}</p>
-                        </div>
-                        <div className="border rounded p-3">
-                          <p className="text-sm text-muted-foreground">Outage</p>
-                          <p className="text-2xl font-bold text-red-500">{audit.summary.outage}</p>
-                        </div>
-                        <div className="border rounded p-3">
-                          <p className="text-sm text-muted-foreground">Unknown</p>
-                          <p className="text-2xl font-bold text-gray-500">{audit.summary.unknown}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {audit.issues && audit.issues.length > 0 && (
-                      <div>
-                        <h3 className="font-semibold mb-2">Critical Issues</h3>
-                        <div className="space-y-2">
-                          {audit.issues.map((issue: any, index: number) => (
-                            <Alert key={index} variant={issue.severity === 'critical' ? 'destructive' : 'default'}>
-                              <div className="flex flex-col">
-                                <div className="font-medium">{issue.title}</div>
-                                <AlertDescription className="mt-1">{issue.description}</AlertDescription>
-                              </div>
-                            </Alert>
-                          ))}
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(serviceData.status)}
+                          {serviceData.issues && serviceData.issues.length > 0 && (
+                            <Badge variant="outline" className="ml-2 bg-red-50 text-red-700 border-red-200">
+                              {serviceData.issues.length} {serviceData.issues.length === 1 ? 'issue' : 'issues'}
+                            </Badge>
+                          )}
                         </div>
                       </div>
-                    )}
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-
+            
             <TabsContent value="components">
               <Card>
                 <CardHeader>
-                  <CardTitle>Component Audit</CardTitle>
-                  <CardDescription>Detailed status of all application components</CardDescription>
+                  <CardTitle>System Components</CardTitle>
+                  <CardDescription>
+                    Internal application components status
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {audit.components && Object.entries(audit.components).map(([category, items]: [string, any]) => (
-                      <div key={category}>
-                        <h3 className="font-semibold text-lg mb-3 capitalize">{category}</h3>
-                        <div className="space-y-3">
-                          {Object.entries(items).map(([name, details]: [string, any]) => (
-                            <div key={name} className="border rounded-lg p-4">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h4 className="font-medium">{name}</h4>
-                                  <p className="text-sm text-muted-foreground mt-1">{details.description}</p>
-                                </div>
-                                <Badge 
-                                  variant={
-                                    details.status === 'operational' ? 'success' :
-                                    details.status === 'degraded' ? 'warning' : 'destructive'
-                                  }
-                                >
-                                  {details.status}
-                                </Badge>
-                              </div>
-                              
-                              {details.details && (
-                                <div className="mt-4">
-                                  <Separator className="my-2" />
-                                  <div className="text-sm">
-                                    <div className="grid grid-cols-2 gap-2 text-muted-foreground">
-                                      {Object.entries(details.details).map(([key, value]: [string, any]) => (
-                                        <div key={key} className="flex flex-col">
-                                          <span className="font-medium capitalize">{key.replace(/_/g, ' ')}</span>
-                                          <span className="text-foreground">{String(value)}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              
-                              {details.issues && details.issues.length > 0 && (
-                                <div className="mt-4">
-                                  <Separator className="my-2" />
-                                  <h5 className="font-medium text-sm text-red-500 mb-2">Issues</h5>
-                                  <ul className="text-sm list-disc list-inside text-muted-foreground">
-                                    {details.issues.map((issue: string, i: number) => (
-                                      <li key={i}>{issue}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                  <div className="space-y-4">
+                    {data?.components?.core && Object.entries(data.components.core).map(([name, componentData]: any) => (
+                      <div key={name} className="flex items-center justify-between py-3 border-b last:border-0">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(componentData.status)}
+                          <div className="font-medium capitalize">{name}</div>
                         </div>
+                        <div>{getStatusBadge(componentData.status)}</div>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-
-            <TabsContent value="api">
+            
+            <TabsContent value="metrics">
               <Card>
                 <CardHeader>
-                  <CardTitle>API Status</CardTitle>
-                  <CardDescription>Health check of all API endpoints</CardDescription>
+                  <CardTitle>System Metrics</CardTitle>
+                  <CardDescription>
+                    Performance metrics and resource utilization
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {audit.apis && Object.entries(audit.apis).map(([category, endpoints]: [string, any]) => (
-                      <div key={category}>
-                        <h3 className="font-semibold text-lg mb-3 capitalize">{category}</h3>
-                        <div className="grid gap-3">
-                          {Object.entries(endpoints).map(([endpoint, details]: [string, any]) => (
-                            <div key={endpoint} className="border rounded-lg p-4">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h4 className="font-medium">{endpoint}</h4>
-                                  <p className="text-sm text-muted-foreground mt-1">{details.url || 'N/A'}</p>
-                                </div>
-                                <div className="flex flex-col items-end gap-1">
-                                  <Badge 
-                                    variant={
-                                      details.status === 'operational' ? 'success' :
-                                      details.status === 'degraded' ? 'warning' : 'destructive'
-                                    }
-                                  >
-                                    {details.status}
-                                  </Badge>
-                                  {details.latency && (
-                                    <span className="text-xs text-muted-foreground">
-                                      {details.latency}ms
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              
-                              {details.lastChecked && (
-                                <div className="mt-2 text-sm text-muted-foreground">
-                                  Last checked: {formatTimestamp(details.lastChecked)}
-                                </div>
-                              )}
-                              
-                              {details.issues && details.issues.length > 0 && (
-                                <div className="mt-4">
-                                  <Separator className="my-2" />
-                                  <h5 className="font-medium text-sm text-red-500 mb-2">Issues</h5>
-                                  <ul className="text-sm list-disc list-inside text-muted-foreground">
-                                    {details.issues.map((issue: string, i: number) => (
-                                      <li key={i}>{issue}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                  {data?.metrics ? (
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-medium mb-2">Memory Utilization</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <div className="text-sm font-medium">Heap Used</div>
+                            <div className="text-xl">{formatMemory(data.metrics.memory.heapUsed)} MB</div>
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">Heap Total</div>
+                            <div className="text-xl">{formatMemory(data.metrics.memory.heapTotal)} MB</div>
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">RSS</div>
+                            <div className="text-xl">{formatMemory(data.metrics.memory.rss)} MB</div>
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">External</div>
+                            <div className="text-xl">{formatMemory(data.metrics.memory.external)} MB</div>
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="json">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Raw Audit Data</CardTitle>
-                  <CardDescription>Complete JSON audit report</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Code>
-                    <pre className="text-xs overflow-auto max-h-[500px] p-4">
-                      {JSON.stringify(audit, null, 2)}
-                    </pre>
-                  </Code>
+                      
+                      <div>
+                        <h3 className="font-medium mb-2">CPU Usage</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <div className="text-sm font-medium">User CPU Time</div>
+                            <div className="text-xl">{data.metrics.cpuUsage.user} µs</div>
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">System CPU Time</div>
+                            <div className="text-xl">{data.metrics.cpuUsage.system} µs</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="font-medium mb-2">Uptime</h3>
+                        <div className="grid grid-cols-1 gap-2">
+                          <div>
+                            <div className="text-sm font-medium">Total Uptime</div>
+                            <div className="text-xl">
+                              {Math.floor(data.metrics.uptime / 60 / 60)} hours, {' '}
+                              {Math.floor(data.metrics.uptime / 60) % 60} minutes, {' '}
+                              {Math.floor(data.metrics.uptime) % 60} seconds
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-muted-foreground">
+                      No metrics data available
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
-        </>
-      ) : (
-        <Alert>
-          <AlertDescription>No audit data available. Please click Refresh to generate a new report.</AlertDescription>
-        </Alert>
+        </div>
       )}
     </div>
   );
