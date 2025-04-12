@@ -20,7 +20,9 @@ import {
   Briefcase,
   Sparkles,
   MessageCircle,
-  Calculator
+  Calculator,
+  Wallet,
+  LockKeyhole
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +37,7 @@ const Sidebar = () => {
     { path: "/favorites", icon: <Star size={20} />, label: t("favorites.title", "Favorites") },
     { path: "/portfolio", icon: <BarChart3 size={20} />, label: t("portfolio.title", "Portfolio") },
     { path: "/watchlist", icon: <ShieldAlert size={20} />, label: t("watchlist.title", "Risk Watchlist") },
+    { path: "/wallet-messaging", icon: <LockKeyhole size={20} />, label: t("walletMessaging.title", "Wallet Messaging") },
     { path: "/investment-advisor", icon: <Sparkles size={20} />, label: t("investmentAdvisor.title", "Investment Advisor") },
     { path: "/twitter-sentiment", icon: <MessageCircle size={20} />, label: t("twitterSentiment.title", "Twitter Analysis") },
     { path: "/tax-simulator", icon: <Calculator size={20} />, label: t("taxSimulator.title", "Tax Simulator") },

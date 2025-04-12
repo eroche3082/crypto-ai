@@ -14,6 +14,7 @@ import Watchlist from "./pages/Watchlist";
 import InvestmentAdvisor from "./pages/InvestmentAdvisor";
 import TwitterSentiment from "./pages/TwitterSentiment";
 import TaxSimulator from "./pages/TaxSimulator";
+import WalletMessaging from "./pages/WalletMessaging";
 import NotFound from "@/pages/not-found";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
@@ -171,6 +172,7 @@ function App() {
                 <Route path="/investment-advisor" component={InvestmentAdvisor} />
                 <Route path="/twitter-sentiment" component={TwitterSentiment} />
                 <Route path="/tax-simulator" component={TaxSimulator} />
+                <Route path="/wallet-messaging" component={WalletMessaging} />
                 <Route component={NotFound} />
               </Switch>
             </div>
