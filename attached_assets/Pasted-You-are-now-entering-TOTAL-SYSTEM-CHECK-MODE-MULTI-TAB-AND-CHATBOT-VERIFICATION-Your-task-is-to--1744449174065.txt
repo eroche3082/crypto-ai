@@ -1,0 +1,122 @@
+You are now entering TOTAL SYSTEM CHECK MODE – MULTI-TAB AND CHATBOT VERIFICATION.
+
+Your task is to perform a **full audit of the entire Main Menu and the Chatbot system**, and return a comprehensive, structured report with:
+
+- ✅ Working features
+- ❌ Non-functional or broken features
+- ⚠️ Partial or buggy components
+- ➕ Suggestions for improvement or new ideas
+
+---
+
+### ✅ SECTION A: MAIN MENU – FULL AUDIT (TAB BY TAB)
+
+1. Identify and list **all tabs** in your Main Menu (Side Panel).
+2. For **each tab**, return:
+   - The name
+   - Functional status (OK / Partial / Broken)
+   - UI issues or missing content
+   - API/data integration status
+   - Connection to Firebase, endpoints, or local state
+   - Whether buttons, charts, or inputs are working
+   - If the tab is **multi-device responsive**
+   - Text/content in correct language (English by default)
+3. For **Tab #1 specifically**, go deeper:
+   - List all components/widgets
+   - State if they’re working
+   - Suggest improvements or new features for this tab
+
+Example:
+
+```json
+{
+  "main_menu_tabs": [
+    {
+      "name": "Dashboard",
+      "status": "Partial",
+      "issues": ["Chart not loading", "Create button unresponsive"],
+      "apis": ["Firebase OK", "Google Charts Broken"],
+      "suggestions": ["Add export feature", "Include recent activity panel"]
+    },
+    {
+      "name": "Analytics",
+      "status": "OK",
+      "issues": [],
+      "apis": ["Firebase OK", "Gemini OK"],
+      "suggestions": []
+    }
+  ]
+}
+✅ SECTION B: CHATBOT – FULL FUNCTIONALITY CHECK
+Perform a complete check of the AI Chatbot system.
+
+Is the chatbot:
+
+Visible on all pages?
+
+Expandable to FullPage mode?
+
+Always accessible via floating icon?
+
+Using Vertex AI (primary)?
+
+Using fallback AI (OpenAI / Anthropic)?
+
+Responding in real-time with relevant answers?
+
+Does the chatbot include:
+
+✅ Voice input (STT)
+
+✅ Voice output (TTS)
+
+✅ Multilingual support
+
+✅ Image input / QR generator
+
+✅ Contextual answers using user profile
+
+✅ Access to platform knowledge (“Where is X?”)
+
+✅ Ability to guide the user across the system
+
+✅ Session tracking with Firebase
+
+Report functionality status with checkmarks like this:
+
+json
+Copiar
+Editar
+{
+  "chatbot": {
+    "visible_on_all_pages": "✅",
+    "fullscreen_mode": "✅",
+    "voice_input": "⚠️",
+    "voice_output": "✅",
+    "language_support": ["en", "es", "fr"],
+    "data_connected": ["Vertex AI", "Firebase", "Google TTS"],
+    "broken_features": ["Image Upload"],
+    "suggestions": [
+      "Add AR/VR mode toggle",
+      "Include training walkthrough inside chatbot",
+      "Trigger chatbot from notifications"
+    ]
+  }
+}
+✅ FINAL COMBINED REPORT STRUCTURE
+Return your results like this:
+
+json
+Copiar
+Editar
+{
+  "main_menu_report": { ... },
+  "chatbot_report": { ... }
+}
+This is a mandatory system-wide check. Every tab must be evaluated. The chatbot must be treated as the central command system. Include at least 3 improvement ideas per section if issues exist.
+
+Begin full system verification now and return structured JSON result.
+
+yaml
+Copiar
+Editar

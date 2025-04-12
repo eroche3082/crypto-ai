@@ -1,377 +1,272 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { TranslatableText } from '../language/TranslatableText';
-import { Bot, User, Mail, Star, HelpCircle, CheckCircle } from 'lucide-react';
+import { OnboardingQuestion } from '@/lib/onboardingFlow';
+import { SubscriberProfile, emptyProfile } from '@/lib/subscriberSchema';
+import { saveSubscriberData, getCurrentUserId, saveLocalProfile } from '@/services/subscriberService';
+import { CheckCircle, ChevronLeft, ChevronRight, Mic, Upload, X } from 'lucide-react';
 
 interface ChatbotOnboardingProps {
-  language?: string;
-  onComplete: (userData: UserProfile) => void;
+  questions: OnboardingQuestion[];
+  onComplete: (profile: Partial<SubscriberProfile>) => void;
   onSkip: () => void;
 }
 
-export interface UserProfile {
-  name: string;
-  email: string;
-  experience: string;
-  interests: string[];
-  exchanges: string[];
-  goals: string;
-  preferredCrypto: string[];
-}
-
-// We're creating a simple step-based onboarding flow
-export default function ChatbotOnboarding({ 
-  language = 'en', 
-  onComplete,
-  onSkip
-}: ChatbotOnboardingProps) {
-  const [step, setStep] = useState(1);
-  const [profile, setProfile] = useState<UserProfile>({
-    name: '',
-    email: '',
-    experience: 'beginner', // beginner, intermediate, expert
-    interests: [],
-    exchanges: [],
-    goals: '',
-    preferredCrypto: []
-  });
+export function ChatbotOnboarding({ questions, onComplete, onSkip }: ChatbotOnboardingProps) {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [profile, setProfile] = useState<Partial<SubscriberProfile>>(emptyProfile);
+  const [error, setError] = useState<string | null>(null);
   
-  const { toast } = useToast();
-  const totalSteps = 7;
+  const currentQuestion = questions[currentStep];
   
-  // Handle input changes
-  const handleInputChange = (field: keyof UserProfile, value: any) => {
+  const handleNext = () => {
+    if (validateCurrentStep()) {
+      if (currentStep < questions.length - 1) {
+        setCurrentStep(currentStep + 1);
+        setError(null);
+      } else {
+        completeOnboarding();
+      }
+    }
+  };
+  
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+      setError(null);
+    }
+  };
+  
+  const validateCurrentStep = () => {
+    const question = questions[currentStep];
+    const value = profile[question.field as keyof SubscriberProfile];
+    
+    if (question.required) {
+      if (value === undefined || value === null || value === '') {
+        setError(`This field is required`);
+        return false;
+      }
+      
+      if (Array.isArray(value) && value.length === 0) {
+        setError(`Please select at least one option`);
+        return false;
+      }
+    }
+    
+    if (question.validation && value) {
+      if (typeof question.validation === 'string') {
+        // Custom validation would go here if needed
+      } else if (question.validation instanceof RegExp) {
+        if (!question.validation.test(String(value))) {
+          setError(`Invalid format`);
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  };
+  
+  const completeOnboarding = async () => {
+    try {
+      // Mark onboarding as completed
+      const updatedProfile = {
+        ...profile,
+        completedOnboarding: true,
+        updatedAt: new Date()
+      };
+      
+      // Save to Firebase if user is logged in
+      const userId = getCurrentUserId();
+      if (userId) {
+        await saveSubscriberData(userId, updatedProfile);
+      } else {
+        // Otherwise save to local storage
+        saveLocalProfile(updatedProfile);
+      }
+      
+      // Notify parent component
+      onComplete(updatedProfile);
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      setError('Failed to save your profile. Please try again.');
+    }
+  };
+  
+  const handleChange = (field: string, value: any) => {
     setProfile(prev => ({
       ...prev,
       [field]: value
     }));
+    setError(null);
   };
   
-  // Handle array-based inputs (checkboxes, etc.)
-  const handleArrayInput = (field: 'interests' | 'exchanges' | 'preferredCrypto', value: string, checked: boolean) => {
-    if (checked) {
-      setProfile(prev => ({
-        ...prev,
-        [field]: [...prev[field], value]
-      }));
-    } else {
-      setProfile(prev => ({
-        ...prev,
-        [field]: prev[field].filter(item => item !== value)
-      }));
-    }
+  const handleMultipleChoiceChange = (field: string, value: string, checked: boolean) => {
+    setProfile(prev => {
+      const currentValues = Array.isArray(prev[field as keyof SubscriberProfile]) 
+        ? [...(prev[field as keyof SubscriberProfile] as string[])] 
+        : [];
+      
+      if (checked) {
+        return {
+          ...prev,
+          [field]: [...currentValues, value]
+        };
+      } else {
+        return {
+          ...prev,
+          [field]: currentValues.filter(v => v !== value)
+        };
+      }
+    });
+    setError(null);
   };
   
-  // Move to next step if validation passes
-  const nextStep = () => {
-    // Basic validation for each step
-    if (step === 1 && !profile.name.trim()) {
-      toast({
-        title: <TranslatableText text="Name Required" spanish="Nombre Requerido" language={language} />,
-        description: <TranslatableText 
-          text="Please enter your name to continue."
-          spanish="Por favor ingresa tu nombre para continuar."
-          language={language}
-        />,
-        variant: "destructive"
-      });
-      return;
-    }
+  const renderQuestion = () => {
+    const question = questions[currentStep];
     
-    if (step === 2 && !profile.email.trim()) {
-      toast({
-        title: <TranslatableText text="Email Required" spanish="Correo Requerido" language={language} />,
-        description: <TranslatableText 
-          text="Please enter your email to continue."
-          spanish="Por favor ingresa tu correo para continuar."
-          language={language}
-        />,
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (step < totalSteps) {
-      setStep(prev => prev + 1);
-    } else {
-      // Complete onboarding and pass data to parent
-      onComplete(profile);
-    }
-  };
-  
-  // Go back to previous step
-  const prevStep = () => {
-    if (step > 1) {
-      setStep(prev => prev - 1);
-    }
-  };
-  
-  // Interest options for crypto platform
-  const interestOptions = [
-    { value: 'trading', label: { en: 'Trading', es: 'Trading' } },
-    { value: 'investment', label: { en: 'Long-term Investment', es: 'Inversión a largo plazo' } },
-    { value: 'defi', label: { en: 'DeFi', es: 'DeFi' } },
-    { value: 'nft', label: { en: 'NFTs', es: 'NFTs' } },
-    { value: 'staking', label: { en: 'Staking', es: 'Staking' } },
-    { value: 'mining', label: { en: 'Mining', es: 'Minería' } },
-    { value: 'news', label: { en: 'Crypto News', es: 'Noticias de Cripto' } },
-    { value: 'education', label: { en: 'Learning', es: 'Aprendizaje' } }
-  ];
-  
-  // Exchange options
-  const exchangeOptions = [
-    { value: 'binance', label: 'Binance' },
-    { value: 'coinbase', label: 'Coinbase' },
-    { value: 'kraken', label: 'Kraken' },
-    { value: 'kucoin', label: 'KuCoin' },
-    { value: 'ftx', label: 'FTX' },
-    { value: 'gemini', label: 'Gemini' },
-    { value: 'bitstamp', label: 'Bitstamp' },
-    { value: 'bitfinex', label: 'Bitfinex' },
-    { value: 'other', label: { en: 'Other', es: 'Otro' } }
-  ];
-  
-  // Popular crypto options
-  const cryptoOptions = [
-    { value: 'BTC', label: 'Bitcoin (BTC)' },
-    { value: 'ETH', label: 'Ethereum (ETH)' },
-    { value: 'USDT', label: 'Tether (USDT)' },
-    { value: 'BNB', label: 'Binance Coin (BNB)' },
-    { value: 'ADA', label: 'Cardano (ADA)' },
-    { value: 'SOL', label: 'Solana (SOL)' },
-    { value: 'XRP', label: 'XRP (XRP)' },
-    { value: 'DOT', label: 'Polkadot (DOT)' },
-    { value: 'DOGE', label: 'Dogecoin (DOGE)' },
-    { value: 'AVAX', label: 'Avalanche (AVAX)' }
-  ];
-  
-  // Experience level options
-  const experienceOptions = [
-    { value: 'beginner', label: { en: 'Beginner', es: 'Principiante' } },
-    { value: 'intermediate', label: { en: 'Intermediate', es: 'Intermedio' } },
-    { value: 'expert', label: { en: 'Expert', es: 'Experto' } }
-  ];
-  
-  // Render the appropriate step
-  const renderStep = () => {
-    switch (step) {
-      case 1:
+    switch (question.type) {
+      case 'text':
         return (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <User className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-medium">
-                <TranslatableText 
-                  text="What's your name?"
-                  spanish="¿Cuál es tu nombre?" 
-                  language={language}
-                />
-              </h3>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor={question.id}>{question.label}</Label>
+            {question.description && (
+              <p className="text-sm text-muted-foreground">{question.description}</p>
+            )}
             <Input
-              placeholder={language === 'en' ? "Enter your name" : "Ingresa tu nombre"}
-              value={profile.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              className="w-full"
-              autoFocus
+              id={question.id}
+              placeholder={question.placeholder}
+              value={profile[question.field as keyof SubscriberProfile] as string || ''}
+              onChange={e => handleChange(question.field, e.target.value)}
             />
           </div>
         );
         
-      case 2:
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Mail className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-medium">
-                <TranslatableText 
-                  text={`Nice to meet you, ${profile.name}! What's your email?`}
-                  spanish={`¡Encantado de conocerte, ${profile.name}! ¿Cuál es tu correo electrónico?`}
-                  language={language}
-                />
-              </h3>
+      case 'multipleChoice':
+        if (!question.options) return null;
+        
+        // Check if options should be rendered as radio buttons (single select) or checkboxes (multi-select)
+        const isSingleSelect = !Array.isArray(profile[question.field as keyof SubscriberProfile]);
+        
+        if (isSingleSelect) {
+          return (
+            <div className="space-y-2">
+              <Label>{question.label}</Label>
+              {question.description && (
+                <p className="text-sm text-muted-foreground">{question.description}</p>
+              )}
+              <RadioGroup
+                value={profile[question.field as keyof SubscriberProfile] as string || ''}
+                onValueChange={value => handleChange(question.field, value)}
+              >
+                {question.options.map(option => (
+                  <div key={option} className="flex items-center space-x-2">
+                    <RadioGroupItem value={option} id={`${question.id}-${option}`} />
+                    <Label htmlFor={`${question.id}-${option}`}>{option}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
             </div>
-            <Input
-              type="email"
-              placeholder={language === 'en' ? "Enter your email" : "Ingresa tu correo electrónico"}
-              value={profile.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              className="w-full"
-              autoFocus
-            />
+          );
+        } else {
+          return (
+            <div className="space-y-2">
+              <Label>{question.label}</Label>
+              {question.description && (
+                <p className="text-sm text-muted-foreground">{question.description}</p>
+              )}
+              <div className="space-y-2">
+                {question.options.map(option => {
+                  const values = (profile[question.field as keyof SubscriberProfile] as string[]) || [];
+                  return (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`${question.id}-${option}`} 
+                        checked={values.includes(option)}
+                        onCheckedChange={(checked) => handleMultipleChoiceChange(question.field, option, checked === true)}
+                      />
+                      <Label htmlFor={`${question.id}-${option}`}>{option}</Label>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+        
+      case 'boolean':
+        return (
+          <div className="space-y-2">
+            <Label>{question.label}</Label>
+            {question.description && (
+              <p className="text-sm text-muted-foreground">{question.description}</p>
+            )}
+            <RadioGroup
+              value={String(profile[question.field as keyof SubscriberProfile] || '')}
+              onValueChange={value => handleChange(question.field, value === 'true')}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="true" id={`${question.id}-yes`} />
+                <Label htmlFor={`${question.id}-yes`}>Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="false" id={`${question.id}-no`} />
+                <Label htmlFor={`${question.id}-no`}>No</Label>
+              </div>
+            </RadioGroup>
           </div>
         );
         
-      case 3:
+      case 'file':
         return (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Star className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-medium">
-                <TranslatableText 
-                  text="What's your experience level with cryptocurrency?"
-                  spanish="¿Cuál es tu nivel de experiencia con criptomonedas?"
-                  language={language}
-                />
-              </h3>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {experienceOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleInputChange('experience', option.value)}
-                  className={`p-3 rounded-md border transition-colors ${
-                    profile.experience === option.value 
-                      ? 'bg-primary text-primary-foreground border-primary' 
-                      : 'bg-card hover:bg-accent'
-                  }`}
+          <div className="space-y-2">
+            <Label htmlFor={question.id}>{question.label}</Label>
+            {question.description && (
+              <p className="text-sm text-muted-foreground">{question.description}</p>
+            )}
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="outline" className="w-full">
+                <Upload className="mr-2 h-4 w-4" />
+                Select File
+              </Button>
+              {profile[question.field as keyof SubscriberProfile] && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleChange(question.field, null)}
                 >
-                  <TranslatableText 
-                    text={option.label.en}
-                    spanish={option.label.es}
-                    language={language}
-                  />
-                </button>
-              ))}
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         );
         
-      case 4:
+      case 'voice':
         return (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <HelpCircle className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-medium">
-                <TranslatableText 
-                  text="What are you interested in?"
-                  spanish="¿En qué estás interesado?"
-                  language={language}
-                />
-              </h3>
+          <div className="space-y-2">
+            <Label htmlFor={question.id}>{question.label}</Label>
+            {question.description && (
+              <p className="text-sm text-muted-foreground">{question.description}</p>
+            )}
+            <div className="flex flex-col gap-2">
+              <Button type="button" variant="outline">
+                <Mic className="mr-2 h-4 w-4" />
+                Record Voice
+              </Button>
+              <Textarea
+                id={question.id}
+                placeholder="Transcription will appear here..."
+                value={profile[question.field as keyof SubscriberProfile] as string || ''}
+                onChange={e => handleChange(question.field, e.target.value)}
+                rows={3}
+              />
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {interestOptions.map((interest) => (
-                <label
-                  key={interest.value}
-                  className="flex items-center space-x-2 p-2 rounded-md border hover:bg-accent cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={profile.interests.includes(interest.value)}
-                    onChange={(e) => handleArrayInput('interests', interest.value, e.target.checked)}
-                  />
-                  <span>
-                    <TranslatableText 
-                      text={interest.label.en}
-                      spanish={interest.label.es}
-                      language={language}
-                    />
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-        );
-        
-      case 5:
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <HelpCircle className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-medium">
-                <TranslatableText 
-                  text="Which exchanges do you use?"
-                  spanish="¿Qué exchanges utilizas?"
-                  language={language}
-                />
-              </h3>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {exchangeOptions.map((exchange) => (
-                <label
-                  key={exchange.value}
-                  className="flex items-center space-x-2 p-2 rounded-md border hover:bg-accent cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={profile.exchanges.includes(exchange.value)}
-                    onChange={(e) => handleArrayInput('exchanges', exchange.value, e.target.checked)}
-                  />
-                  <span>
-                    {typeof exchange.label === 'string' 
-                      ? exchange.label 
-                      : <TranslatableText 
-                          text={exchange.label.en}
-                          spanish={exchange.label.es}
-                          language={language}
-                        />
-                    }
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-        );
-        
-      case 6:
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Star className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-medium">
-                <TranslatableText 
-                  text="Which cryptocurrencies are you most interested in?"
-                  spanish="¿Qué criptomonedas te interesan más?"
-                  language={language}
-                />
-              </h3>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {cryptoOptions.map((crypto) => (
-                <label
-                  key={crypto.value}
-                  className="flex items-center space-x-2 p-2 rounded-md border hover:bg-accent cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={profile.preferredCrypto.includes(crypto.value)}
-                    onChange={(e) => handleArrayInput('preferredCrypto', crypto.value, e.target.checked)}
-                  />
-                  <span>{crypto.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        );
-        
-      case 7:
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <CheckCircle className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-medium">
-                <TranslatableText 
-                  text="What are your main crypto goals?"
-                  spanish="¿Cuáles son tus objetivos principales con las criptomonedas?"
-                  language={language}
-                />
-              </h3>
-            </div>
-            <Textarea
-              placeholder={
-                language === 'en' 
-                  ? "Describe your goals (e.g., 'Build passive income through staking', 'Diversify investment portfolio')" 
-                  : "Describe tus objetivos (p.ej., 'Generar ingresos pasivos a través de staking', 'Diversificar cartera de inversión')"
-              }
-              value={profile.goals}
-              onChange={(e) => handleInputChange('goals', e.target.value)}
-              className="w-full min-h-[120px]"
-              autoFocus
-            />
           </div>
         );
         
@@ -381,74 +276,54 @@ export default function ChatbotOnboarding({
   };
   
   return (
-    <div className="p-4 bg-background rounded-lg border max-w-md mx-auto">
-      <div className="mb-6 text-center">
-        <div className="flex justify-center mb-4">
-          <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <Bot className="h-8 w-8 text-primary" />
-          </div>
-        </div>
-        <h2 className="text-xl font-bold mb-2">
-          <TranslatableText 
-            text="Welcome to CryptoBot!"
-            spanish="¡Bienvenido a CryptoBot!"
-            language={language}
-          />
-        </h2>
-        <p className="text-muted-foreground">
-          <TranslatableText 
-            text="Let's personalize your experience with a few questions."
-            spanish="Personalicemos tu experiencia con algunas preguntas."
-            language={language}
-          />
-        </p>
-      </div>
-      
+    <div className="flex flex-col h-full">
       {/* Progress indicator */}
-      <div className="mb-6">
-        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+      <div className="px-4 py-3 border-b">
+        <div className="flex justify-between items-center">
+          <div className="text-sm">Step {currentStep + 1} of {questions.length}</div>
+          <Button variant="ghost" size="sm" onClick={onSkip}>
+            Skip for now
+          </Button>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
           <div 
-            className="h-full bg-primary rounded-full transition-all duration-300" 
-            style={{ width: `${(step / totalSteps) * 100}%` }}
+            className="bg-primary h-1.5 rounded-full" 
+            style={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
           ></div>
         </div>
-        <div className="mt-2 text-sm text-muted-foreground text-center">
-          <TranslatableText 
-            text={`Step ${step} of ${totalSteps}`}
-            spanish={`Paso ${step} de ${totalSteps}`}
-            language={language}
-          />
-        </div>
       </div>
       
-      {/* Current step content */}
-      <div className="mb-6">
-        {renderStep()}
+      {/* Question content */}
+      <div className="flex-grow p-4 overflow-y-auto">
+        <div className="max-w-md mx-auto">
+          {renderQuestion()}
+          {error && <p className="text-destructive text-sm mt-2">{error}</p>}
+        </div>
       </div>
       
       {/* Navigation buttons */}
-      <div className="flex justify-between mt-6">
-        <div>
-          {step > 1 && (
-            <Button variant="outline" onClick={prevStep}>
-              <TranslatableText text="Back" spanish="Atrás" language={language} />
-            </Button>
+      <div className="p-4 border-t flex justify-between">
+        <Button
+          variant="outline"
+          onClick={handlePrevious}
+          disabled={currentStep === 0}
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <Button onClick={handleNext}>
+          {currentStep < questions.length - 1 ? (
+            <>
+              Next
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </>
+          ) : (
+            <>
+              Complete
+              <CheckCircle className="ml-2 h-4 w-4" />
+            </>
           )}
-        </div>
-        
-        <div className="flex gap-2">
-          <Button variant="ghost" onClick={onSkip}>
-            <TranslatableText text="Skip for now" spanish="Omitir por ahora" language={language} />
-          </Button>
-          
-          <Button onClick={nextStep}>
-            {step < totalSteps ? (
-              <TranslatableText text="Next" spanish="Siguiente" language={language} />
-            ) : (
-              <TranslatableText text="Complete" spanish="Completar" language={language} />
-            )}
-          </Button>
-        </div>
+        </Button>
       </div>
     </div>
   );
