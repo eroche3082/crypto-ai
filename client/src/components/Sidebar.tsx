@@ -23,7 +23,9 @@ import {
   Calculator,
   Wallet,
   LockKeyhole,
-  Brain
+  Brain,
+  Image,
+  Coins
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +42,8 @@ const Sidebar = () => {
     { path: "/portfolio-analysis", icon: <Brain size={20} />, label: t("portfolioAnalysis.title", "Portfolio AI") },
     { path: "/watchlist", icon: <ShieldAlert size={20} />, label: t("watchlist.title", "Risk Watchlist") },
     { path: "/wallet-messaging", icon: <LockKeyhole size={20} />, label: t("walletMessaging.title", "Wallet Messaging") },
+    { path: "/nft-gallery", icon: <Image size={20} />, label: t("nftGallery.title", "NFT Gallery") },
+    { path: "/token-tracker", icon: <Coins size={20} />, label: t("tokenTracker.title", "Token Tracker") },
     { path: "/investment-advisor", icon: <Sparkles size={20} />, label: t("investmentAdvisor.title", "Investment Advisor") },
     { path: "/twitter-sentiment", icon: <MessageCircle size={20} />, label: t("twitterSentiment.title", "Twitter Analysis") },
     { path: "/tax-simulator", icon: <Calculator size={20} />, label: t("taxSimulator.title", "Tax Simulator") },
