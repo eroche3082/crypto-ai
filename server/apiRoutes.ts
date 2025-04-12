@@ -9,6 +9,12 @@ import { generateClaudeResponse, analyzeImageWithClaude } from './anthropic';
 import { generateAIResponse } from './gemini';
 import { analyzeSentiment } from './sentiment';
 import { getTwitterSentiment, getMarketSentiment } from './twitter';
+import { 
+  getWalletMessages, 
+  sendWalletMessage, 
+  getWalletConversation,
+  updateMessageStatus 
+} from './features/wallet/messaging';
 
 // Create router
 const apiRouter = Router();
@@ -79,5 +85,11 @@ apiRouter.post('/alerts/register-phone', services.registerPhoneForAlerts);
 apiRouter.post('/sentiment/analyze', analyzeSentiment);
 apiRouter.get('/sentiment/twitter/:symbol', getTwitterSentiment);
 apiRouter.get('/sentiment/market', getMarketSentiment);
+
+// Wallet-to-Wallet Messaging endpoints
+apiRouter.get('/wallet/messages/:walletAddress', getWalletMessages);
+apiRouter.post('/wallet/messages', sendWalletMessage);
+apiRouter.get('/wallet/messages/conversation/:wallet1/:wallet2', getWalletConversation);
+apiRouter.patch('/wallet/messages/:messageId/status', updateMessageStatus);
 
 export default apiRouter;
