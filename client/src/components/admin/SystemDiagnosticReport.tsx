@@ -1,309 +1,221 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 import { 
   CheckCircle2, 
   XCircle, 
   AlertTriangle, 
+  Download, 
   RefreshCw,
-  FileJson,
-  Download
+  Copy,
+  BarChart
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-// Define the phase data structure
+// Phase diagnostic data types
 interface PhaseItem {
-  id: string;
+  status: '✅' | '❌' | '⚠️';
   label: string;
-  status: 'completed' | 'not_started' | 'in_progress';
 }
 
-interface Phase {
-  id: string;
+interface PhaseDiagnostic {
   title: string;
-  items: PhaseItem[];
+  items: Record<string, PhaseItem['status']>;
   suggestions: string[];
 }
 
-// Initial phases data for diagnostic report
-const initialPhases: Phase[] = [
-  {
-    id: 'phase_0_initialization',
-    title: 'Phase 0: Initialization',
-    items: [
-      { id: 'app_skeleton_created', label: 'App skeleton created', status: 'completed' },
-      { id: 'env_and_secrets_loaded', label: 'Env and secrets loaded', status: 'completed' },
-      { id: 'firebase_connected', label: 'Firebase connected', status: 'completed' },
-      { id: 'replit_initialized', label: 'Replit initialized', status: 'completed' },
-      { id: 'github_repo_linked', label: 'GitHub repo linked', status: 'not_started' },
-    ],
-    suggestions: ['Link GitHub repo for backup and automation']
-  },
-  {
-    id: 'phase_1_ui_layout',
-    title: 'Phase 1: UI Layout',
-    items: [
-      { id: 'header_navbar', label: 'Header/navbar', status: 'completed' },
-      { id: 'side_panel_tabs', label: 'Side panel tabs', status: 'completed' },
-      { id: 'footer_with_admin_panel', label: 'Footer with admin panel', status: 'completed' },
-      { id: 'responsive_layout', label: 'Responsive layout', status: 'in_progress' },
-      { id: 'route_navigation', label: 'Route navigation', status: 'completed' },
-    ],
-    suggestions: ['Add dark mode switch in navbar', 'Improve mobile responsiveness']
-  },
-  {
-    id: 'phase_2_chatbot_core',
-    title: 'Phase 2: Chatbot Core',
-    items: [
-      { id: 'chatbot_visible', label: 'Chatbot visible', status: 'completed' },
-      { id: 'fullpage_chatbot', label: 'Fullpage chatbot', status: 'completed' },
-      { id: 'vertex_ai_connected', label: 'Vertex AI connected', status: 'completed' },
-      { id: 'voice_input_output', label: 'Voice input/output', status: 'completed' },
-      { id: 'multilingual_support', label: 'Multilingual support', status: 'completed' },
-      { id: 'firebase_context_memory', label: 'Firebase context memory', status: 'in_progress' },
-      { id: 'onboarding_flow_active', label: 'Onboarding flow active', status: 'completed' },
-      { id: 'dashboard_linked_to_profile', label: 'Dashboard linked to profile', status: 'not_started' },
-    ],
-    suggestions: ['Add loading animation during onboarding', 'Improve context retention between sessions']
-  },
-  {
-    id: 'phase_3_tab_modules',
-    title: 'Phase 3: Tab Modules',
-    items: [
-      { id: 'dashboard_tab', label: 'Dashboard tab', status: 'completed' },
-      { id: 'analytics_tab', label: 'Analytics tab', status: 'not_started' },
-      { id: 'favorites_tab', label: 'Favorites tab', status: 'completed' },
-      { id: 'portfolio_tab', label: 'Portfolio tab', status: 'completed' },
-      { id: 'nft_gallery_tab', label: 'NFT Gallery tab', status: 'completed' },
-      { id: 'token_tracker_tab', label: 'Token Tracker tab', status: 'completed' },
-      { id: 'twitter_sentiment_tab', label: 'Twitter Sentiment tab', status: 'completed' },
-      { id: 'tax_simulator_tab', label: 'Tax Simulator tab', status: 'in_progress' },
-      { id: 'gamification_tab', label: 'Gamification tab', status: 'completed' },
-      { id: 'profile_tab', label: 'Profile tab', status: 'in_progress' },
-      { id: 'explore_tab', label: 'Explore tab', status: 'not_started' },
-      { id: 'smart_tools_tab', label: 'Smart Tools tab', status: 'not_started' },
-    ],
-    suggestions: ['Group tabs into collapsible sections', 'Add tab search functionality']
-  },
-  {
-    id: 'phase_4_user_personalization',
-    title: 'Phase 4: User Personalization',
-    items: [
-      { id: 'subscriber_profile_system', label: 'Subscriber profile system', status: 'completed' },
-      { id: 'user_data_stored', label: 'User data stored', status: 'completed' },
-      { id: 'personalized_dashboard', label: 'Personalized dashboard', status: 'in_progress' },
-      { id: 'avatar_used_by_chatbot', label: 'Avatar used by chatbot', status: 'completed' },
-      { id: 'recommendations_engine', label: 'Recommendations engine', status: 'not_started' },
-    ],
-    suggestions: ['Add user preferences section', 'Implement AI-driven content personalization']
-  },
-  {
-    id: 'phase_5_external_integrations',
-    title: 'Phase 5: External Integrations',
-    items: [
-      { id: 'stripe_connected', label: 'Stripe connected', status: 'not_started' },
-      { id: 'news_api_youtube_maps', label: 'News API/YouTube/Maps working', status: 'in_progress' },
-      { id: 'google_apis', label: 'Google APIs (Vision, TTS, STT, Translate)', status: 'completed' },
-      { id: 'webhooks_third_party', label: 'Webhooks & third-party APIs', status: 'in_progress' },
-    ],
-    suggestions: ['Add payment flow testing tool', 'Create API monitoring dashboard']
-  },
-  {
-    id: 'phase_6_testing_qa',
-    title: 'Phase 6: Testing & QA',
-    items: [
-      { id: 'mobile_testing', label: 'Mobile testing', status: 'in_progress' },
-      { id: 'tablet_testing', label: 'Tablet testing', status: 'in_progress' },
-      { id: 'multibrowser_test', label: 'Multibrowser test', status: 'in_progress' },
-      { id: 'loading_error_states', label: 'Loading & error states verified', status: 'completed' },
-      { id: 'chatbot_tested_each_tab', label: 'Chatbot tested in each tab', status: 'completed' },
-    ],
-    suggestions: ['Implement automated testing', 'Create a user testing program']
-  },
-  {
-    id: 'phase_7_admin_tools',
-    title: 'Phase 7: Admin Tools',
-    items: [
-      { id: 'admin_dashboard', label: 'Admin dashboard with logs viewer', status: 'completed' },
-      { id: 'subscriber_list', label: 'Subscriber list', status: 'in_progress' },
-      { id: 'manual_onboarding_override', label: 'Manual onboarding override', status: 'not_started' },
-      { id: 'ai_prompt_tester', label: 'AI prompt tester', status: 'completed' },
-      { id: 'system_diagnostics', label: 'System diagnostics panel', status: 'completed' },
-      { id: 'phase_checklist', label: 'Phase checklist management', status: 'completed' },
-    ],
-    suggestions: ['Add user impersonation for debugging', 'Create analytics dashboard']
-  },
-  {
-    id: 'phase_8_prelaunch',
-    title: 'Phase 8: Pre-Launch Prep',
-    items: [
-      { id: 'seo_basics', label: 'SEO basics (title, meta)', status: 'not_started' },
-      { id: 'privacy_terms', label: 'Privacy + terms pages linked', status: 'not_started' },
-      { id: 'social_icons', label: 'Social icons/links added', status: 'not_started' },
-      { id: 'contact_form', label: 'Contact form or email integrated', status: 'not_started' },
-    ],
-    suggestions: ['Create a pre-launch checklist', 'Setup social sharing metadata']
-  },
-  {
-    id: 'phase_9_deployment',
-    title: 'Phase 9: Deployment',
-    items: [
-      { id: 'firebase_hosting', label: 'Firebase Hosting connected', status: 'not_started' },
-      { id: 'custom_domain', label: 'Custom domain linked', status: 'not_started' },
-      { id: 'ssl_active', label: 'SSL active', status: 'not_started' },
-      { id: 'post_deploy_test', label: 'Post-deploy test run completed', status: 'not_started' },
-      { id: 'final_checklist', label: 'Final admin checklist saved', status: 'not_started' },
-    ],
-    suggestions: ['Setup CI/CD pipeline', 'Create deployment documentation']
-  }
-];
+interface DiagnosticReport {
+  phases: Record<string, PhaseDiagnostic>;
+  current_phase: string;
+  next_focus: string;
+  priority_actions: string[];
+  status: 'OK' | 'WARNING' | 'ERROR';
+}
 
-/**
- * SystemDiagnosticReport Component
- * Generates a comprehensive system status report based on the phase model
- */
-export function SystemDiagnosticReport() {
-  const [phases, setPhases] = useState<Phase[]>(initialPhases);
-  const [activeTab, setActiveTab] = useState('report');
+export const SystemDiagnosticReport = () => {
   const [loading, setLoading] = useState(false);
-  const [expanded, setExpanded] = useState<string[]>(['phase_2_chatbot_core', 'phase_3_tab_modules']);
+  const [activeTab, setActiveTab] = useState<string>('report');
+  const [diagnosticData, setDiagnosticData] = useState<DiagnosticReport | null>(null);
   const { toast } = useToast();
 
-  // Calculate current phase and overall progress
-  const calculateCurrentPhase = () => {
-    // Find the highest phase with at least 50% completion
-    const phaseResults = phases.map(phase => {
-      const totalItems = phase.items.length;
-      const completedItems = phase.items.filter(item => item.status === 'completed').length;
-      const inProgressItems = phase.items.filter(item => item.status === 'in_progress').length;
-      const completionPercentage = (completedItems + (inProgressItems * 0.5)) / totalItems;
-      
-      return {
-        phaseId: phase.id,
-        title: phase.title,
-        completionPercentage
-      };
-    });
-    
-    // Sort phases by completion percentage (descending)
-    phaseResults.sort((a, b) => b.completionPercentage - a.completionPercentage);
-    
-    // Find the highest phase with at least 50% completion
-    const currentPhase = phaseResults.find(phase => phase.completionPercentage >= 0.5) || phaseResults[0];
-    
-    // Find the next focus (the next phase with < 100% completion)
-    const nextFocus = phases.find(phase => {
-      const completedItems = phase.items.filter(item => item.status === 'completed').length;
-      return completedItems < phase.items.length && phase.id !== currentPhase.phaseId;
-    });
-    
-    // Get priority actions from incomplete items in the current phase
-    const priorityActions = phases
-      .find(phase => phase.id === currentPhase.phaseId)
-      ?.items
-      .filter(item => item.status !== 'completed')
-      .map(item => item.label) || [];
-    
-    return {
-      currentPhase: currentPhase.title,
-      nextFocus: nextFocus ? nextFocus.title : 'All phases complete',
-      priorityActions: priorityActions.length > 0 ? priorityActions : ['Continue to next phase']
-    };
-  };
+  // Generate diagnostic report data
+  useEffect(() => {
+    generateDiagnosticReport();
+  }, []);
 
-  // Calculate completion stats for the report
-  const calculateStats = () => {
-    let totalItems = 0;
-    let completedItems = 0;
-    let inProgressItems = 0;
-    let notStartedItems = 0;
-    
-    phases.forEach(phase => {
-      phase.items.forEach(item => {
-        totalItems++;
-        if (item.status === 'completed') completedItems++;
-        else if (item.status === 'in_progress') inProgressItems++;
-        else notStartedItems++;
-      });
-    });
-    
-    const completionPercentage = Math.round((completedItems / totalItems) * 100);
-    
-    let systemStatus = 'error';
-    if (completionPercentage >= 80) systemStatus = 'ok';
-    else if (completionPercentage >= 40) systemStatus = 'warning';
-    
-    return {
-      totalItems,
-      completedItems,
-      inProgressItems,
-      notStartedItems,
-      completionPercentage,
-      systemStatus
-    };
-  };
-
-  // Generate JSON report of all phases
-  const generateJsonReport = () => {
-    const phaseReport: Record<string, any> = {};
-    
-    // Generate report for each phase
-    phases.forEach(phase => {
-      const phaseItems: Record<string, string> = {};
-      
-      // Map each item status to the appropriate emoji
-      phase.items.forEach(item => {
-        let statusEmoji = '❌'; // not started
-        if (item.status === 'completed') statusEmoji = '✅';
-        else if (item.status === 'in_progress') statusEmoji = '⚠️';
-        
-        // Convert camelCase or snake_case to readable form
-        const readableKey = item.id
-          .replace(/_/g, ' ')
-          .replace(/([A-Z])/g, ' $1')
-          .toLowerCase()
-          .replace(/^\w/, c => c.toUpperCase());
-        
-        phaseItems[item.id] = statusEmoji;
-      });
-      
-      // Add suggestions
-      phaseReport[phase.id] = {
-        ...phaseItems,
-        suggestions: phase.suggestions
-      };
-    });
-    
-    // Add summary section
-    const { currentPhase, nextFocus, priorityActions } = calculateCurrentPhase();
-    const summary = {
-      current_phase: currentPhase,
-      next_focus: nextFocus,
-      priority_actions: priorityActions
-    };
-    
-    // Calculate system status
-    const { systemStatus, completionPercentage } = calculateStats();
-    
-    // Final report
-    const finalReport = {
-      summary,
-      phases: phaseReport,
-      system_status: systemStatus,
-      completion_percentage: completionPercentage
-    };
-    
-    return JSON.stringify(finalReport, null, 2);
-  };
-
-  // Export report as JSON file
-  const handleExportJson = () => {
+  const generateDiagnosticReport = async () => {
+    setLoading(true);
     try {
-      const jsonReport = generateJsonReport();
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonReport);
+      // In a real implementation, this would fetch data from the backend
+      // For now, we'll simulate the report generation
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const reportData: DiagnosticReport = {
+        phases: {
+          phase_0_initialization: {
+            title: "PHASE 0: Initialization",
+            items: {
+              app_skeleton_created: "✅",
+              env_and_secrets_loaded: "✅",
+              firebase_connected: "✅",
+              replit_initialized: "✅",
+              github_repo_linked: "❌"
+            },
+            suggestions: ["Link GitHub repo for backup and automation"]
+          },
+          phase_1_ui_layout: {
+            title: "PHASE 1: Layout & UI Base",
+            items: {
+              header_navbar: "✅",
+              side_panel_tabs: "✅",
+              footer_with_admin_panel: "✅",
+              responsive_layout: "⚠️",
+              route_navigation: "✅"
+            },
+            suggestions: ["Add dark mode switch in navbar", "Optimize mobile layout for small screens"]
+          },
+          phase_2_chatbot_core: {
+            title: "PHASE 2: Chatbot System Core",
+            items: {
+              chatbot_visible: "✅",
+              fullpage_chatbot: "✅",
+              vertex_ai_connected: "✅",
+              voice_input_output: "✅",
+              multilingual_support: "✅",
+              firebase_context_memory: "⚠️",
+              onboarding_flow_active: "✅",
+              dashboard_linked_to_profile: "✅",
+            },
+            suggestions: ["Add loading animation during onboarding", "Implement chatbot message history export"]
+          },
+          phase_3_tab_modules: {
+            title: "PHASE 3: Tab-by-Tab Module Integration",
+            items: {
+              dashboard_tab: "✅",
+              dashboard_backend_api: "✅",
+              dashboard_charts: "✅",
+              favorites_functionality: "✅",
+              portfolio_management: "✅",
+              portfolio_analysis: "✅",
+              nft_gallery: "✅",
+              token_tracker: "✅", 
+              twitter_analysis: "✅",
+              tax_simulator: "⚠️",
+              gamification: "✅",
+              risk_watchlist: "✅",
+              education_resources: "⚠️",
+              news_feed: "⚠️"
+            },
+            suggestions: ["Group tabs into collapsible sections", "Add tab-specific settings"]
+          },
+          phase_4_user_personalization: {
+            title: "PHASE 4: User Personalization",
+            items: {
+              subscriber_profile: "✅",
+              firebase_user_data: "✅",
+              personalized_dashboard: "✅",
+              chatbot_personalization: "✅",
+              ai_recommendations: "⚠️"
+            },
+            suggestions: ["Add user preference settings UI", "Implement AI-driven content recommendations"]
+          },
+          phase_5_external_integrations: {
+            title: "PHASE 5: External Integrations",
+            items: {
+              google_apis: "✅",
+              coingecko_api: "✅",
+              twitter_api: "✅",
+              moralis_api: "✅",
+              anthropic_claude: "✅",
+              openai_integration: "✅",
+              stripe_connected: "⚠️"
+            },
+            suggestions: ["Add more payment options", "Implement API status monitoring dashboard"]
+          },
+          phase_6_testing_qa: {
+            title: "PHASE 6: Testing & QA",
+            items: {
+              mobile_testing: "⚠️",
+              tablet_testing: "⚠️",
+              multibrowser_testing: "⚠️",
+              error_state_handling: "✅",
+              chatbot_tab_testing: "✅"
+            },
+            suggestions: ["Implement automated testing", "Add error reporting system"]
+          },
+          phase_7_admin_tools: {
+            title: "PHASE 7: Admin Tools",
+            items: {
+              admin_dashboard: "✅",
+              subscriber_management: "⚠️",
+              manual_onboarding: "❌",
+              ai_prompt_tester: "✅",
+              system_diagnostics: "✅",
+              phase_checklist: "✅"
+            },
+            suggestions: ["Add user action logging", "Implement admin authentication/authorization"]
+          },
+          phase_8_prelaunch: {
+            title: "PHASE 8: Pre-Launch Prep",
+            items: {
+              seo_basics: "❌",
+              privacy_terms: "❌",
+              social_links: "❌",
+              contact_form: "❌"
+            },
+            suggestions: ["Prepare SEO strategy", "Draft privacy policy and terms"]
+          },
+          phase_9_deployment: {
+            title: "PHASE 9: Deployment",
+            items: {
+              firebase_hosting: "❌",
+              custom_domain: "❌",
+              ssl_active: "❌",
+              post_deploy_testing: "❌",
+              final_checklist: "❌"
+            },
+            suggestions: ["Set up CI/CD pipeline", "Prepare domain configuration"]
+          }
+        },
+        current_phase: "PHASE 3 – Tab-by-Tab Module Integration",
+        next_focus: "PHASE 4 – Complete User Personalization",
+        priority_actions: [
+          "Complete Tax Simulator module", 
+          "Finish Education Resources section",
+          "Implement News Integrated Feed", 
+          "Set up AI recommendations engine"
+        ],
+        status: "WARNING"
+      };
+      
+      setDiagnosticData(reportData);
+    } catch (error) {
+      console.error('Error generating diagnostic report:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to generate diagnostic report',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Export diagnostic data as JSON
+  const handleExport = () => {
+    try {
+      if (!diagnosticData) {
+        toast({
+          title: 'Export Failed',
+          description: 'No diagnostic data available',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(diagnosticData, null, 2));
       const downloadAnchorNode = document.createElement('a');
       downloadAnchorNode.setAttribute("href", dataStr);
       downloadAnchorNode.setAttribute("download", `cryptobot-diagnostic-${new Date().toISOString()}.json`);
@@ -312,81 +224,86 @@ export function SystemDiagnosticReport() {
       downloadAnchorNode.remove();
       
       toast({
-        title: 'Report Exported',
-        description: 'Diagnostic report has been exported as JSON',
+        title: 'Export Complete',
+        description: 'Diagnostic report exported as JSON',
       });
     } catch (error) {
-      console.error('Error exporting report:', error);
+      console.error('Error exporting data:', error);
       toast({
         title: 'Export Failed',
-        description: 'Could not export diagnostic report',
+        description: 'Could not export diagnostic data',
         variant: 'destructive',
       });
     }
   };
 
-  // Refresh the report data
-  const refreshReport = () => {
-    setLoading(true);
-    
-    setTimeout(() => {
-      // In a real implementation, we would fetch updated data here
-      // For now, we'll just simulate a refresh
-      setLoading(false);
+  // Copy JSON data to clipboard
+  const handleCopyJSON = () => {
+    try {
+      if (!diagnosticData) {
+        toast({
+          title: 'Copy Failed',
+          description: 'No diagnostic data available',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      navigator.clipboard.writeText(JSON.stringify(diagnosticData, null, 2));
       
       toast({
-        title: 'Report Refreshed',
-        description: 'Diagnostic data has been updated',
+        title: 'Copied',
+        description: 'Diagnostic data copied to clipboard',
       });
-    }, 1000);
-  };
-
-  // Get icon for item status
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'in_progress':
-        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'not_started':
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      default:
-        return null;
+    } catch (error) {
+      console.error('Error copying data:', error);
+      toast({
+        title: 'Copy Failed',
+        description: 'Could not copy diagnostic data',
+        variant: 'destructive',
+      });
     }
   };
 
-  // Get color class for status
-  const getStatusColorClass = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'text-green-500';
-      case 'in_progress':
-        return 'text-yellow-500';
-      case 'not_started':
-        return 'text-red-500';
-      default:
-        return '';
-    }
+  // Count item statuses
+  const countStatuses = () => {
+    if (!diagnosticData) return { completed: 0, partial: 0, missing: 0, total: 0 };
+    
+    let completed = 0;
+    let partial = 0;
+    let missing = 0;
+    let total = 0;
+    
+    Object.values(diagnosticData.phases).forEach(phase => {
+      Object.values(phase.items).forEach(status => {
+        total++;
+        if (status === '✅') completed++;
+        else if (status === '⚠️') partial++;
+        else if (status === '❌') missing++;
+      });
+    });
+    
+    return { completed, partial, missing, total };
   };
-
-  // Get status badge element
-  const getSystemStatusBadge = (status: string) => {
+  
+  // Get status badge component
+  const getStatusBadge = (status: DiagnosticReport['status']) => {
     switch (status) {
-      case 'ok':
+      case 'OK':
         return (
-          <Badge className="bg-green-500">
+          <Badge className="bg-green-500 hover:bg-green-600" variant="default">
             <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> System OK
           </Badge>
         );
-      case 'warning':
+      case 'WARNING':
         return (
-          <Badge className="bg-yellow-500">
+          <Badge className="bg-yellow-500 hover:bg-yellow-600" variant="default">
             <AlertTriangle className="h-3.5 w-3.5 mr-1" /> System Warning
           </Badge>
         );
-      case 'error':
+      case 'ERROR':
         return (
-          <Badge className="bg-red-500">
+          <Badge className="bg-red-500 hover:bg-red-600" variant="default">
             <XCircle className="h-3.5 w-3.5 mr-1" /> System Error
           </Badge>
         );
@@ -395,24 +312,55 @@ export function SystemDiagnosticReport() {
     }
   };
 
-  const stats = calculateStats();
-  const currentPhaseInfo = calculateCurrentPhase();
-  const jsonReport = generateJsonReport();
+  // Get item status icon
+  const getStatusIcon = (status: PhaseItem['status']) => {
+    switch (status) {
+      case '✅':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case '⚠️':
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case '❌':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return null;
+    }
+  };
 
+  const { completed, partial, missing, total } = countStatuses();
+  const completionPercentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+  
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">System Diagnostic</h2>
+          <h2 className="text-2xl font-bold tracking-tight">System Diagnostic Report</h2>
           <p className="text-muted-foreground">
-            Comprehensive platform diagnostic and phase analysis
+            Complete diagnostic of application status following the Phase Model [F0–F9]
           </p>
         </div>
         
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button 
-            onClick={refreshReport}
+            onClick={handleExport}
             variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+          >
+            <Download className="h-4 w-4" />
+            Export JSON
+          </Button>
+          <Button 
+            onClick={handleCopyJSON}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+          >
+            <Copy className="h-4 w-4" />
+            Copy JSON
+          </Button>
+          <Button 
+            onClick={generateDiagnosticReport}
+            variant="default"
             size="sm"
             className="flex items-center gap-1"
             disabled={loading}
@@ -422,218 +370,182 @@ export function SystemDiagnosticReport() {
             ) : (
               <RefreshCw className="h-4 w-4" />
             )}
-            Refresh
+            Refresh Report
           </Button>
-          <Button 
-            onClick={handleExportJson}
-            variant="default"
-            size="sm"
-            className="flex items-center gap-1"
-          >
-            <FileJson className="h-4 w-4" />
-            Export JSON
-          </Button>
+          
+          {diagnosticData && (
+            <div className="ml-2">
+              {getStatusBadge(diagnosticData.status)}
+            </div>
+          )}
         </div>
       </div>
       
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Platform Progress</CardTitle>
-              <CardDescription>
-                Overall completion: {stats.completionPercentage}%
-              </CardDescription>
+      {loading ? (
+        <Card>
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center justify-center text-center">
+              <RefreshCw className="h-12 w-12 text-primary animate-spin mb-4" />
+              <h3 className="text-xl font-semibold">Generating Diagnostic Report</h3>
+              <p className="text-muted-foreground max-w-md mt-2">
+                Analyzing system status across all phases and modules...
+              </p>
             </div>
-            <div>{getSystemStatusBadge(stats.systemStatus)}</div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className={`h-full ${stats.completionPercentage >= 80 ? 'bg-green-500' : stats.completionPercentage >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
-              style={{ width: `${stats.completionPercentage}%` }}
-            />
-          </div>
-          
-          <div className="grid grid-cols-4 gap-4 mt-4 text-center text-sm">
-            <div>
-              <div className="font-medium">Completed</div>
-              <div className="text-2xl font-bold text-green-500">
-                {stats.completedItems}
-                <span className="text-sm font-normal text-muted-foreground">/{stats.totalItems}</span>
-              </div>
+          </CardContent>
+        </Card>
+      ) : !diagnosticData ? (
+        <Card>
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center justify-center text-center">
+              <BarChart className="h-12 w-12 text-muted-foreground/50 mb-4" />
+              <h3 className="text-xl font-semibold">No Diagnostic Data</h3>
+              <p className="text-muted-foreground max-w-md mt-2">
+                Click the "Refresh Report" button to generate a diagnostic report.
+              </p>
             </div>
-            <div>
-              <div className="font-medium">In Progress</div>
-              <div className="text-2xl font-bold text-yellow-500">
-                {stats.inProgressItems}
-                <span className="text-sm font-normal text-muted-foreground">/{stats.totalItems}</span>
-              </div>
-            </div>
-            <div>
-              <div className="font-medium">Not Started</div>
-              <div className="text-2xl font-bold text-red-500">
-                {stats.notStartedItems}
-                <span className="text-sm font-normal text-muted-foreground">/{stats.totalItems}</span>
-              </div>
-            </div>
-            <div>
-              <div className="font-medium">Current Phase</div>
-              <div className="text-lg font-bold text-primary mt-1">
-                {currentPhaseInfo.currentPhase.split(':')[0]}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 mb-6 w-full md:w-auto">
-          <TabsTrigger value="report">Phase Report</TabsTrigger>
-          <TabsTrigger value="json">JSON Output</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="report">
+          </CardContent>
+        </Card>
+      ) : (
+        <>
           <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Current Status</CardTitle>
-              <CardDescription>
-                System phase evaluation and next steps
-              </CardDescription>
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>Project Status Overview</CardTitle>
+                  <CardDescription>
+                    Current phase: {diagnosticData.current_phase}
+                  </CardDescription>
+                </div>
+                {getStatusBadge(diagnosticData.status)}
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden mb-4">
+                <div 
+                  className="h-full bg-primary" 
+                  style={{ width: `${completionPercentage}%` }}
+                />
+              </div>
+              
+              <div className="grid grid-cols-4 gap-4 text-center text-sm">
                 <div>
-                  <div className="text-sm font-medium mb-1">Current Phase</div>
-                  <div className="text-lg font-semibold">{currentPhaseInfo.currentPhase}</div>
+                  <div className="font-medium">Completed</div>
+                  <div className="text-2xl font-bold text-green-500">
+                    {completed}
+                    <span className="text-sm font-normal text-muted-foreground">/{total}</span>
+                  </div>
                 </div>
+                <div>
+                  <div className="font-medium">In Progress</div>
+                  <div className="text-2xl font-bold text-yellow-500">
+                    {partial}
+                    <span className="text-sm font-normal text-muted-foreground">/{total}</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="font-medium">Missing</div>
+                  <div className="text-2xl font-bold text-red-500">
+                    {missing}
+                    <span className="text-sm font-normal text-muted-foreground">/{total}</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="font-medium">Completion</div>
+                  <div className="text-2xl font-bold text-primary">
+                    {completionPercentage}%
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 space-y-2">
+                <h4 className="font-medium">Next Focus</h4>
+                <p className="text-muted-foreground">{diagnosticData.next_focus}</p>
                 
-                <div>
-                  <div className="text-sm font-medium mb-1">Next Focus</div>
-                  <div className="text-lg font-semibold">{currentPhaseInfo.nextFocus}</div>
-                </div>
-                
-                <div>
-                  <div className="text-sm font-medium mb-1">Priority Actions</div>
-                  <ul className="space-y-1">
-                    {currentPhaseInfo.priorityActions.map((action, index) => (
-                      <li key={index} className="text-sm flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
-                        {action}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h4 className="font-medium mt-4">Priority Actions</h4>
+                <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                  {diagnosticData.priority_actions.map((action, index) => (
+                    <li key={index}>{action}</li>
+                  ))}
+                </ul>
               </div>
             </CardContent>
           </Card>
           
-          <Accordion
-            type="multiple"
-            value={expanded}
-            onValueChange={setExpanded}
-            className="space-y-4"
-          >
-            {phases.map((phase) => {
-              const totalItems = phase.items.length;
-              const completedItems = phase.items.filter(item => item.status === 'completed').length;
-              const percentComplete = Math.round((completedItems / totalItems) * 100);
-              
-              return (
-                <AccordionItem 
-                  key={phase.id} 
-                  value={phase.id}
-                  className="border rounded-lg overflow-hidden"
-                >
-                  <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-accent/10">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full text-left gap-2">
-                      <div className="font-semibold">{phase.title}</div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-sm text-muted-foreground">
-                          {completedItems}/{totalItems} ({percentComplete}%)
-                        </div>
-                        <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full ${percentComplete === 100 ? 'bg-green-500' : percentComplete > 50 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                            style={{ width: `${percentComplete}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-6 pb-4 pt-2">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        {phase.items.map((item) => (
-                          <div 
-                            key={item.id} 
-                            className="flex items-start gap-2 p-2 rounded"
-                          >
-                            {getStatusIcon(item.status)}
-                            <div className="leading-tight">
-                              <div className={`text-sm ${item.status === 'completed' ? 'font-medium' : ''}`}>
-                                {item.label}
-                              </div>
-                              <div className={`text-xs ${getStatusColorClass(item.status)}`}>
-                                {item.status === 'completed' ? 'Completed' : 
-                                 item.status === 'in_progress' ? 'In Progress' : 'Not Started'}
-                              </div>
-                            </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-2 mb-4">
+              <TabsTrigger value="report">Phase Report</TabsTrigger>
+              <TabsTrigger value="json">JSON Data</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="report">
+              <div className="space-y-4">
+                {Object.entries(diagnosticData.phases).map(([phaseKey, phase]) => (
+                  <Card key={phaseKey} className="overflow-hidden border-l-4" style={{
+                    borderLeftColor: getMostSevereColor(phase.items)
+                  }}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg">{phase.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+                        {Object.entries(phase.items).map(([itemKey, status]) => (
+                          <div key={itemKey} className="flex items-center gap-2">
+                            {getStatusIcon(status)}
+                            <span className="text-sm">
+                              {itemKey.split('_').map(word => 
+                                word.charAt(0).toUpperCase() + word.slice(1)
+                              ).join(' ')}
+                            </span>
                           </div>
                         ))}
                       </div>
                       
                       {phase.suggestions.length > 0 && (
-                        <div>
-                          <div className="text-sm font-medium mb-1">Suggestions</div>
-                          <ul className="space-y-1">
+                        <div className="mt-4">
+                          <h4 className="text-sm font-medium mb-2">Suggestions</h4>
+                          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                             {phase.suggestions.map((suggestion, index) => (
-                              <li key={index} className="text-sm flex items-start gap-2 text-muted-foreground">
-                                <span className="mt-1">•</span>
-                                {suggestion}
-                              </li>
+                              <li key={index}>{suggestion}</li>
                             ))}
                           </ul>
                         </div>
                       )}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              );
-            })}
-          </Accordion>
-        </TabsContent>
-        
-        <TabsContent value="json">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>JSON Diagnostic Report</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1"
-                  onClick={handleExportJson}
-                >
-                  <Download className="h-4 w-4" />
-                  Download
-                </Button>
-              </CardTitle>
-              <CardDescription>
-                Complete system diagnostic in JSON format
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <pre className="text-xs bg-muted p-4 rounded-md overflow-auto max-h-[60vh]">
-                {jsonReport}
-              </pre>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="json">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Raw JSON Report</CardTitle>
+                  <CardDescription>
+                    Complete diagnostic data in JSON format
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-muted p-4 rounded-md overflow-auto max-h-[500px]">
+                    <pre className="text-xs">
+                      {JSON.stringify(diagnosticData, null, 2)}
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </>
+      )}
     </div>
   );
+};
+
+// Helper function to determine the most severe status color in a phase
+function getMostSevereColor(items: Record<string, PhaseItem['status']>): string {
+  const statuses = Object.values(items);
+  if (statuses.includes('❌')) return 'rgb(239, 68, 68)'; // red-500
+  if (statuses.includes('⚠️')) return 'rgb(245, 158, 11)'; // yellow-500
+  return 'rgb(34, 197, 94)'; // green-500
 }
 
 export default SystemDiagnosticReport;
