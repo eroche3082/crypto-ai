@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SystemAuditReport } from "@/components/admin/SystemAuditReport";
 import { PhaseChecklist } from "@/components/admin/PhaseChecklist";
 import { SystemDiagnosticReport } from "@/components/admin/SystemDiagnosticReport";
+import TabStatusTracker from "@/components/admin/TabStatusTracker";
 import { 
   CheckCircle2, 
   ClipboardList, 
@@ -17,7 +18,8 @@ import {
   FileText,
   Activity,
   Download,
-  Save
+  Save,
+  LayoutGrid
 } from "lucide-react";
 
 /**
@@ -106,7 +108,7 @@ export function AdminPanel() {
         </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 mb-6 w-full bg-card/60 border border-border/30">
+        <TabsList className="grid grid-cols-5 mb-6 w-full bg-card/60 border border-border/30">
           <TabsTrigger value="phases" className="flex items-center gap-2 data-[state=active]:bg-background">
             <ClipboardList className="h-4 w-4" />
             Phase Checklist
@@ -118,6 +120,10 @@ export function AdminPanel() {
           <TabsTrigger value="diagnostic" className="flex items-center gap-2 data-[state=active]:bg-background">
             <FileText className="h-4 w-4" />
             System Diagnostic
+          </TabsTrigger>
+          <TabsTrigger value="tabstatus" className="flex items-center gap-2 data-[state=active]:bg-background">
+            <LayoutGrid className="h-4 w-4" />
+            Tab Status
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-background">
             <LineChart className="h-4 w-4" />
@@ -167,6 +173,10 @@ export function AdminPanel() {
         
         <TabsContent value="diagnostic">
           <SystemDiagnosticReport />
+        </TabsContent>
+        
+        <TabsContent value="tabstatus">
+          <TabStatusTracker />
         </TabsContent>
 
         <TabsContent value="analytics">
