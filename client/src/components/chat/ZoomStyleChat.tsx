@@ -11,6 +11,7 @@ import { Icons } from "@/components/ui/icons";
 import { v4 as uuidv4 } from 'uuid';
 import CameraInput from '../multimodal/CameraInput';
 import AudioInput from '../multimodal/AudioInput';
+import { UserProfile } from './ChatbotOnboarding';
 
 // Define message types
 interface Message {
@@ -36,6 +37,7 @@ interface Message {
 interface ZoomStyleChatProps {
   initialOpen?: boolean;
   defaultLanguage?: string;
+  userProfile?: UserProfile | null;
 }
 
 // Define the ref interface with exposed methods
@@ -48,7 +50,7 @@ const DEFAULT_HUMAN_AVATAR = '/assets/default-human-avatar.svg';
 const DEFAULT_BOT_AVATAR = '/assets/default-bot-avatar.svg';
 
 const ZoomStyleChat = forwardRef<ZoomStyleChatRef, ZoomStyleChatProps>(
-  ({ initialOpen = false, defaultLanguage = 'en' }, ref) => {
+  ({ initialOpen = false, defaultLanguage = 'en', userProfile = null }, ref) => {
     const [isOpen, setIsOpen] = useState(initialOpen);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -79,19 +81,37 @@ const ZoomStyleChat = forwardRef<ZoomStyleChatRef, ZoomStyleChatProps>(
       if (isOpen && messages.length === 0) {
         // Add initial greeting message
         setTimeout(() => {
+          let welcomeText = '';
+          
+          if (userProfile) {
+            // Personalized greeting
+            if (language === 'es') {
+              welcomeText = `¡Hola ${userProfile.name}! Bienvenido de nuevo. Veo que estás interesado en ${userProfile.interests.join(', ')}. 
+              
+Como CryptoBot, estoy aquí para ayudarte con tus objetivos de ${userProfile.goals}. ¿En qué puedo asistirte hoy?`;
+            } else {
+              welcomeText = `Hello ${userProfile.name}! Welcome back. I see you're interested in ${userProfile.interests.join(', ')}. 
+              
+As CryptoBot, I'm here to help you with your ${userProfile.goals} goals. How may I assist you today?`;
+            }
+          } else {
+            // Default greeting
+            welcomeText = language === 'es' 
+              ? '¡Hola! Soy CryptoBot, tu asistente de IA para información de criptomonedas. ¿En qué puedo ayudarte hoy?' 
+              : 'Hello! I am CryptoBot, your AI assistant for cryptocurrency information. How can I help you today?';
+          }
+          
           const botMessage: Message = {
             id: uuidv4(),
             sender: 'bot',
-            text: language === 'es' 
-              ? '¡Hola! Soy CryptoBot, tu asistente de IA para información de criptomonedas. ¿En qué puedo ayudarte hoy?' 
-              : 'Hello! I am CryptoBot, your AI assistant for cryptocurrency information. How can I help you today?',
+            text: welcomeText,
             timestamp: new Date(),
             aiProvider: 'Gemini'
           };
           setMessages([botMessage]);
         }, 500);
       }
-    }, [isOpen, messages.length, language]);
+    }, [isOpen, messages.length, language, userProfile]);
 
     useEffect(() => {
       // Scroll to the end whenever messages change
@@ -157,7 +177,8 @@ const ZoomStyleChat = forwardRef<ZoomStyleChatRef, ZoomStyleChatProps>(
           body: JSON.stringify({
             prompt: messageToSend,
             language,
-            model: aiProvider.toLowerCase()
+            model: aiProvider.toLowerCase(),
+            userProfile: userProfile || undefined // Include user profile if available
           }),
         });
         

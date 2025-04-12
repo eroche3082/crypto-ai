@@ -8,7 +8,7 @@ import { getSystemPrompt } from "./lib/systemPrompts";
  */
 export async function generateAIResponse(req: Request, res: Response) {
   try {
-    const { prompt, model = 'gemini-1.5-flash', language = 'en' } = req.body;
+    const { prompt, model = 'gemini-1.5-flash', language = 'en', userProfile } = req.body;
     
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
@@ -25,8 +25,8 @@ export async function generateAIResponse(req: Request, res: Response) {
     // Select appropriate model
     const modelId = selectGeminiModel(model);
     
-    // Create system instructions based on language
-    const systemInstruction = createSystemInstruction(language);
+    // Create system instructions based on language and user profile
+    const systemInstruction = createSystemInstruction(language, userProfile);
     
     // Make API request to Gemini
     const response = await callGeminiAPI(modelId, apiKey, systemInstruction, prompt);
@@ -62,11 +62,66 @@ function selectGeminiModel(requestedModel: string): string {
 }
 
 /**
- * Create system instructions based on language
+ * Create system instructions based on language and user profile
  */
-function createSystemInstruction(language: string): string {
-  // Use our central system prompt management
-  return getSystemPrompt('gemini', language);
+function createSystemInstruction(language: string, userProfile?: any): string {
+  // Get the base system prompt
+  let basePrompt = getSystemPrompt('gemini', language);
+  
+  // If user profile is available, enhance the prompt with personalization
+  if (userProfile) {
+    const personalizationPrompt = createPersonalizationPrompt(userProfile, language);
+    return `${basePrompt}\n\n${personalizationPrompt}`;
+  }
+  
+  // Otherwise return standard prompt
+  return basePrompt;
+}
+
+/**
+ * Create a personalization prompt based on user profile data
+ */
+function createPersonalizationPrompt(userProfile: any, language: string): string {
+  // Extract profile information
+  const { name, experience, interests, exchanges, goals, preferredCrypto } = userProfile;
+  
+  // Create English or Spanish personalization instructions
+  if (language === 'es') {
+    return `
+INFORMACIÓN DEL PERFIL DEL USUARIO:
+- Nombre: ${name || 'No disponible'}
+- Nivel de experiencia en criptomonedas: ${experience || 'No especificado'}
+- Intereses: ${interests?.join(', ') || 'No especificado'}
+- Exchanges preferidos: ${exchanges?.join(', ') || 'No especificado'}
+- Objetivos de inversión: ${goals || 'No especificado'}
+- Criptomonedas preferidas: ${preferredCrypto?.join(', ') || 'No especificado'}
+
+INSTRUCCIONES PARA PERSONALIZACIÓN:
+- Adapta tus respuestas al nivel de experiencia del usuario.
+- Prioriza información sobre sus intereses y criptomonedas preferidas.
+- Contextualiza tus respuestas en función de sus objetivos de inversión.
+- Haz referencias relevantes a los exchanges que utiliza.
+- Sé empático y personaliza el tono según el perfil del usuario.
+- Mantén un estilo conversacional y amigable.`;
+  }
+  
+  // Default to English
+  return `
+USER PROFILE INFORMATION:
+- Name: ${name || 'Not available'}
+- Cryptocurrency experience level: ${experience || 'Not specified'}
+- Interests: ${interests?.join(', ') || 'Not specified'}
+- Preferred exchanges: ${exchanges?.join(', ') || 'Not specified'}
+- Investment goals: ${goals || 'Not specified'}
+- Preferred cryptocurrencies: ${preferredCrypto?.join(', ') || 'Not specified'}
+
+PERSONALIZATION INSTRUCTIONS:
+- Adapt your responses to the user's experience level.
+- Prioritize information about their interests and preferred cryptocurrencies.
+- Contextualize your responses based on their investment goals.
+- Make relevant references to exchanges they use.
+- Be empathetic and personalize tone based on user profile.
+- Maintain a conversational and friendly style.`;
 }
 
 /**
