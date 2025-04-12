@@ -6,6 +6,7 @@ import { SystemAuditReport } from "@/components/admin/SystemAuditReport";
 import { PhaseChecklist } from "@/components/admin/PhaseChecklist";
 import { SystemDiagnosticReport } from "@/components/admin/SystemDiagnosticReport";
 import TabStatusTracker from "@/components/admin/TabStatusTracker";
+import VisualEnhancementTracker from "@/components/admin/VisualEnhancementTracker";
 import { 
   CheckCircle2, 
   ClipboardList, 
@@ -19,7 +20,8 @@ import {
   Activity,
   Download,
   Save,
-  LayoutGrid
+  LayoutGrid,
+  Palette
 } from "lucide-react";
 
 /**
@@ -108,7 +110,7 @@ export function AdminPanel() {
         </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 mb-6 w-full bg-card/60 border border-border/30">
+        <TabsList className="grid grid-cols-6 mb-6 w-full bg-card/60 border border-border/30">
           <TabsTrigger value="phases" className="flex items-center gap-2 data-[state=active]:bg-background">
             <ClipboardList className="h-4 w-4" />
             Phase Checklist
@@ -124,6 +126,10 @@ export function AdminPanel() {
           <TabsTrigger value="tabstatus" className="flex items-center gap-2 data-[state=active]:bg-background">
             <LayoutGrid className="h-4 w-4" />
             Tab Status
+          </TabsTrigger>
+          <TabsTrigger value="visualenhance" className="flex items-center gap-2 data-[state=active]:bg-background">
+            <Palette className="h-4 w-4" />
+            Visual Enhancements
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-background">
             <LineChart className="h-4 w-4" />
@@ -177,6 +183,10 @@ export function AdminPanel() {
         
         <TabsContent value="tabstatus">
           <TabStatusTracker />
+        </TabsContent>
+        
+        <TabsContent value="visualenhance">
+          <VisualEnhancementTracker />
         </TabsContent>
 
         <TabsContent value="analytics">

@@ -1,0 +1,78 @@
+You are now entering PHASE 3.2 – VISUAL ENHANCEMENTS & DYNAMIC DATA INTEGRATION.
+
+Your task is to enhance each **verified tab** in the Main Menu with dynamic functionality, visual responsiveness, and context-aware components. For **each tab marked as ✅ or ⚠️ in Prompt 3.1**, perform the following:
+
+---
+
+### ✅ Checklist Per Tab
+
+1. Add **loading states** or skeleton screens while fetching data.
+2. Validate that all UI elements are **responsive** across screen sizes.
+3. Integrate **real-time or simulated data** for visual components (charts, tables, widgets).
+4. Ensure buttons or actions trigger **correct backend/API** calls (or mock if needed).
+5. Connect each tab with the **chatbot context memory**, so it knows:
+   - What the tab is about
+   - What insights it can provide
+   - What actions the user can take
+6. Add **animations or transitions** for better experience (entry, hover, loading).
+7. Display **empty state visuals** (e.g., “No transactions yet” or “No bookings”).
+8. Add **semantic structure** for accessibility (aria-labels, roles).
+
+---
+
+### 📦 Response Format
+
+Submit a tab-by-tab enhancement summary like this:
+
+```json
+{
+  "tab": "Budget Planner",
+  "loading_state": "✅",
+  "data_integration": "✅ (using Firebase + mock API)",
+  "chatbot_context_linked": "✅",
+  "responsive_ui": "⚠️ (tablet overflow issue)",
+  "enhancements": [
+    "Added animated chart transitions",
+    "Implemented monthly goal bar widget",
+    "Context-aware chatbot can now suggest savings tips"
+  ],
+  "suggestions": [
+    "Fix padding issues on iOS Safari",
+    "Add tooltip explanations to budget categories"
+  ]
+}
+🎯 Target Tabs (Choose all that apply):
+Dashboard
+
+Analytics
+
+Transactions
+
+Explore / Marketplace
+
+Profile
+
+Travel Wallet
+
+Crypto Portfolio
+
+Shop
+
+Classes / Courses
+
+AI Tools / Smart Systems
+
+🔁 NEXT STEP AFTER THIS PROMPT
+Once completed, you will proceed to Prompt 3.3 – Conversational UI + Smart Tab Flows, where:
+
+The chatbot will adapt dynamically to the current tab
+
+The system will launch guided flows, like “Plan a Trip”, “Create a Budget”, or “Analyze Portfolio”
+
+Submit your tab enhancement report to Admin Panel > Visual Enhancements Tracker.
+
+Begin 3.2 enhancements now and confirm once done.
+
+yaml
+Copiar
+Editar
