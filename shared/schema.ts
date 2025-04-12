@@ -412,3 +412,27 @@ export type CryptoEvent = typeof cryptoEvents.$inferSelect;
 
 export type InsertUserEventReminder = z.infer<typeof insertUserEventReminderSchema>;
 export type UserEventReminder = typeof userEventReminders.$inferSelect;
+
+// Token Watchlist schema
+export const tokenWatchlist = pgTable('token_watchlist', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  tokenId: text('token_id').notNull(),
+  symbol: text('symbol').notNull(),
+  name: text('name').notNull(),
+  contractAddress: text('contract_address'),
+  chain: text('chain').default('ethereum'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const insertTokenWatchlistSchema = createInsertSchema(tokenWatchlist).pick({
+  userId: true,
+  tokenId: true,
+  symbol: true,
+  name: true,
+  contractAddress: true,
+  chain: true
+});
+
+export type TokenWatchlist = typeof tokenWatchlist.$inferSelect;
+export type InsertTokenWatchlist = z.infer<typeof insertTokenWatchlistSchema>;

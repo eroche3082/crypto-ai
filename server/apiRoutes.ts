@@ -96,4 +96,30 @@ apiRouter.patch('/wallet/messages/:messageId/status', updateMessageStatus);
 // Portfolio Analysis endpoints
 apiRouter.get('/portfolio/analysis', analyzePortfolio);
 
+// NFT Gallery endpoints
+import { getNFTsForWallet, getNFTCollection, getNFTDetails } from './nft/opensea';
+import { getMoralisNFTs, getMoralisNFTTransfers } from './nft/moralis';
+import { 
+  getTokenInfo, 
+  getTokenContract, 
+  getWalletTokens, 
+  addToWatchlist, 
+  removeFromWatchlist, 
+  getWatchlist 
+} from './nft/token-tracker';
+
+apiRouter.get('/nft/wallet/:walletAddress', getNFTsForWallet);
+apiRouter.get('/nft/collection/:collectionSlug', getNFTCollection);
+apiRouter.get('/nft/token/:contractAddress/:tokenId', getNFTDetails);
+apiRouter.get('/nft/moralis/wallet/:walletAddress', getMoralisNFTs);
+apiRouter.get('/nft/moralis/transfers/:walletAddress', getMoralisNFTTransfers);
+
+// Token Tracker endpoints
+apiRouter.get('/tokens/info/:tokenId', getTokenInfo);
+apiRouter.get('/tokens/contract/:chain/:contractAddress', getTokenContract);
+apiRouter.get('/tokens/wallet/:walletAddress', getWalletTokens);
+apiRouter.post('/tokens/watchlist', addToWatchlist);
+apiRouter.delete('/tokens/watchlist/:tokenId', removeFromWatchlist);
+apiRouter.get('/tokens/watchlist', getWatchlist);
+
 export default apiRouter;
