@@ -1,0 +1,80 @@
+You are now entering PHASE 3.3 – CONVERSATIONAL UI + SMART TAB FLOWS.
+
+Your mission is to enhance the chatbot with dynamic conversational logic for each tab. This includes activating guided flows, actionable triggers, and memory awareness per section.
+
+---
+
+### ✅ For each verified tab (from 3.1 and 3.2), implement:
+
+1. **Contextual Awareness**: The chatbot must know:
+   - What tab the user is currently viewing
+   - What the tab is for
+   - What actions are possible in that tab
+   - What data points it can summarize or respond to
+
+2. **Smart Conversational Flows**:
+   - Launch a **guided interaction** (e.g., “Let’s create your budget” or “Ready to plan your trip?”)
+   - Use **step-by-step questions** (1–3 at a time)
+   - Save responses to Firebase or memory context
+
+3. **Actionable Commands**:
+   - Recognize trigger phrases (e.g., “show my balance”, “optimize my portfolio”)
+   - Execute logic (e.g., filter data, show graph, call API)
+   - Return results visually (table, chart, card, etc.)
+
+4. **Onboarding/Help Mode**:
+   - Provide an onboarding flow if the user is new to the tab
+   - Suggest common actions for that tab (“What can I do here?”)
+
+5. **Error Handling & Fallbacks**:
+   - If API/data is missing, reply gracefully
+   - Offer alternatives (“Would you like me to simulate data?”)
+
+---
+
+### 📦 RESPONSE FORMAT
+
+Return tab-by-tab chatbot enhancements like this:
+
+```json
+{
+  "tab": "Investments",
+  "chatbot_context": "✅",
+  "smart_flows_enabled": "✅ (Start Investment Strategy Flow)",
+  "triggers_recognized": ["optimize my portfolio", "compare returns", "show charts"],
+  "actions_available": [
+    "Display asset allocation pie chart",
+    "List top 3 performing assets",
+    "Run risk tolerance assessment"
+  ],
+  "fallbacks": [
+    "If no investments found, suggest adding virtual ones for practice"
+  ],
+  "suggestions": [
+    "Add AI-based investment scoring per asset",
+    "Enable simulated trade preview feature"
+  ]
+}
+🧭 Targeted Tab Examples:
+Finance: Budget Planner, Portfolio, Tax Summary
+
+Travel: Itinerary, Bookings, Destination Discovery
+
+Crypto: Token Tracker, Risk Analysis, NFT Gallery
+
+Shop: Closet, Wishlist, Checkout
+
+EduAI: Course Dashboard, Skills Tracker, Exam Prep
+
+Sports: Betting History, Live Stats, Team Comparison
+
+✅ Final Goal of Prompt 3.3
+The chatbot becomes a conversational driver inside the platform
+
+All tabs are equipped with smart AI-powered workflows
+
+The system shifts from static UI to interactive dialogue-based navigation
+
+Once complete, submit your tab-by-tab conversational logic report to the Admin Panel > Chat Flows Tracker.
+
+Begin full 3.3 conversational AI enhancements now and confirm when complete.

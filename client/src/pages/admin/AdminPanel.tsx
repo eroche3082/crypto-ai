@@ -7,6 +7,7 @@ import { PhaseChecklist } from "@/components/admin/PhaseChecklist";
 import { SystemDiagnosticReport } from "@/components/admin/SystemDiagnosticReport";
 import TabStatusTracker from "@/components/admin/TabStatusTracker";
 import VisualEnhancementTracker from "@/components/admin/VisualEnhancementTracker";
+import ChatFlowsTracker from "@/components/admin/ChatFlowsTracker";
 import { 
   CheckCircle2, 
   ClipboardList, 
@@ -21,7 +22,8 @@ import {
   Download,
   Save,
   LayoutGrid,
-  Palette
+  Palette,
+  MessageCircle
 } from "lucide-react";
 
 /**
@@ -110,7 +112,7 @@ export function AdminPanel() {
         </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-6 mb-6 w-full bg-card/60 border border-border/30">
+        <TabsList className="grid grid-cols-7 mb-6 w-full bg-card/60 border border-border/30">
           <TabsTrigger value="phases" className="flex items-center gap-2 data-[state=active]:bg-background">
             <ClipboardList className="h-4 w-4" />
             Phase Checklist
@@ -130,6 +132,10 @@ export function AdminPanel() {
           <TabsTrigger value="visualenhance" className="flex items-center gap-2 data-[state=active]:bg-background">
             <Palette className="h-4 w-4" />
             Visual Enhancements
+          </TabsTrigger>
+          <TabsTrigger value="chatflows" className="flex items-center gap-2 data-[state=active]:bg-background">
+            <MessageCircle className="h-4 w-4" />
+            Chat Flows
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-background">
             <LineChart className="h-4 w-4" />
@@ -187,6 +193,10 @@ export function AdminPanel() {
         
         <TabsContent value="visualenhance">
           <VisualEnhancementTracker />
+        </TabsContent>
+        
+        <TabsContent value="chatflows">
+          <ChatFlowsTracker />
         </TabsContent>
 
         <TabsContent value="analytics">
