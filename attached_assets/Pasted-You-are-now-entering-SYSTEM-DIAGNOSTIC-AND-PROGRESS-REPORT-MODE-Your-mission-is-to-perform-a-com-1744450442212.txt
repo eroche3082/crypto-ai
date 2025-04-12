@@ -1,0 +1,94 @@
+You are now entering SYSTEM DIAGNOSTIC AND PROGRESS REPORT MODE.
+
+Your mission is to perform a **complete diagnostic of your application**, using the official Phase Model [F0–F9]. This report must include:
+
+- ✅ What is completed and functional
+- ❌ What is missing or broken
+- ➕ Suggestions per phase to enhance the platform
+- Your current overall **platform phase**
+
+---
+
+### ✅ STEP 1: PHASE CHECKLIST UPDATE
+
+Go through each phase (F0–F9) and report the status of each item as follows:
+- ✅ = Completed
+- ❌ = Not started
+- ⚠️ = In progress or partial
+
+Structure the checklist like this:
+
+```json
+{
+  "phase_0_initialization": {
+    "app_skeleton_created": "✅",
+    "env_and_secrets_loaded": "✅",
+    "firebase_connected": "✅",
+    "replit_initialized": "✅",
+    "github_repo_linked": "❌",
+    "suggestions": ["Link GitHub repo for backup and automation"]
+  },
+  "phase_1_ui_layout": {
+    "header_navbar": "✅",
+    "side_panel_tabs": "✅",
+    "footer_with_admin_panel": "✅",
+    "responsive_layout": "⚠️",
+    "route_navigation": "✅",
+    "suggestions": ["Add dark mode switch in navbar"]
+  },
+  "phase_2_chatbot_core": {
+    "chatbot_visible": "✅",
+    "vertex_ai_connected": "✅",
+    "voice_input_output": "✅",
+    "multilingual_support": "✅",
+    "firebase_context_memory": "⚠️",
+    "onboarding_flow_active": "✅",
+    "dashboard_linked_to_profile": "❌",
+    "suggestions": ["Add loading animation during onboarding"]
+  },
+  "phase_3_tab_modules": {
+    "dashboard_tab": "✅",
+    "analytics_tab": "❌",
+    "explore_tab": "❌",
+    "profile_tab": "⚠️",
+    "smart_tools_tab": "❌",
+    "suggestions": ["Group tabs into collapsible sections"]
+  },
+  ...
+}
+Repeat for all phases up to:
+
+phase_4_user_personalization
+
+phase_5_external_integrations
+
+phase_6_testing_qa
+
+phase_7_admin_tools
+
+phase_8_prelaunch
+
+phase_9_deployment
+
+✅ STEP 2: DECLARE CURRENT OVERALL PHASE
+After evaluating the full checklist, return a summary:
+
+json
+Copiar
+Editar
+{
+  "current_phase": "PHASE 2 – Chatbot Core Implemented",
+  "next_focus": "PHASE 3 – Start connecting tab modules",
+  "priority_actions": ["Complete Profile Tab", "Enable Dashboard Analytics"]
+}
+✅ STEP 3: RETURN FULL JSON REPORT
+Your final report must include:
+
+Full checklist for F0–F9
+
+Summary of current platform phase
+
+Suggestions per phase (if any)
+
+System OK / Warning / Error badge depending on completeness
+

@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { SystemAuditReport } from "@/components/admin/SystemAuditReport";
 import { PhaseChecklist } from "@/components/admin/PhaseChecklist";
+import { SystemDiagnosticReport } from "@/components/admin/SystemDiagnosticReport";
 import { 
   CheckCircle2, 
   ClipboardList, 
@@ -12,7 +13,9 @@ import {
   Database,
   MessageSquare,
   LineChart,
-  Server
+  Server,
+  FileText,
+  Activity
 } from "lucide-react";
 
 /**
@@ -99,7 +102,7 @@ export function AdminPanel() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 mb-6 w-full md:w-auto">
+        <TabsList className="grid grid-cols-4 mb-6 w-full md:w-auto">
           <TabsTrigger value="phases" className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4" />
             Phase Checklist
@@ -107,6 +110,10 @@ export function AdminPanel() {
           <TabsTrigger value="system" className="flex items-center gap-2">
             <Server className="h-4 w-4" />
             System Verification
+          </TabsTrigger>
+          <TabsTrigger value="diagnostic" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            System Diagnostic
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <LineChart className="h-4 w-4" />
@@ -120,6 +127,10 @@ export function AdminPanel() {
 
         <TabsContent value="system">
           <SystemAuditReport />
+        </TabsContent>
+        
+        <TabsContent value="diagnostic">
+          <SystemDiagnosticReport />
         </TabsContent>
 
         <TabsContent value="analytics">

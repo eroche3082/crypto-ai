@@ -109,8 +109,10 @@ window.addEventListener('unhandledrejection', (event) => {
 const WrappedApp = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <App />
-      <Toaster />
+      <React.StrictMode>
+        <App />
+        <Toaster />
+      </React.StrictMode>
     </QueryClientProvider>
   </ErrorBoundary>
 );
