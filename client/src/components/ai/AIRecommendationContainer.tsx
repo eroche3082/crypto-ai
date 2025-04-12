@@ -1,140 +1,130 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
-import { AnimatePresence, motion } from 'framer-motion';
-import { AIRecommendation } from './AIRecommendation';
-import { getRecommendationsForTab, AIRecommendation as AIRecommendationType } from '@/utils/phase4Automation';
-import { getCurrentTabContext } from '@/utils/chatContextManager';
-import { useToast } from "@/hooks/use-toast";
+/**
+ * AI Recommendation Container Component
+ * 
+ * Manages and displays AI recommendations, handling loading states,
+ * user interactions, and automated refreshing of recommendations.
+ */
 
+import { useState, useEffect, useCallback } from 'react';
+import { 
+  AIRecommendation as AIRecommendationType,
+  getAIRecommendations 
+} from '../../utils/phase4Automation';
+import AIRecommendation from './AIRecommendation';
+
+// Component props
 interface AIRecommendationContainerProps {
+  userId?: string;
+  count?: number;
+  refreshInterval?: number;
+  onAction?: (id: string, url?: string) => void;
   className?: string;
 }
 
-/**
- * Container for showing AI recommendations based on the current tab
- * Listens for new recommendations and displays them
- */
-export const AIRecommendationContainer: React.FC<AIRecommendationContainerProps> = ({
-  className = '',
-}) => {
-  const [location] = useLocation();
-  const [currentTab, setCurrentTab] = useState<string>('');
+// AIRecommendationContainer component
+export function AIRecommendationContainer({
+  userId,
+  count = 3,
+  refreshInterval = 300000,  // 5 minutes default
+  onAction,
+  className = ''
+}: AIRecommendationContainerProps) {
+  // Recommendations state
   const [recommendations, setRecommendations] = useState<AIRecommendationType[]>([]);
-  const { toast } = useToast();
+  // Loading state
+  const [loading, setLoading] = useState(false);
+  // Error state
+  const [error, setError] = useState<string | null>(null);
+  // Dismissed recommendations
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   
-  // Update the current tab when location changes
-  useEffect(() => {
-    const tab = getCurrentTabContext();
-    setCurrentTab(tab);
-  }, [location]);
-  
-  // Get recommendations for the current tab
-  useEffect(() => {
-    if (currentTab) {
-      // Get pending recommendations for the current tab
-      const tabRecommendations = getRecommendationsForTab(currentTab);
-      setRecommendations(tabRecommendations);
-    }
-  }, [currentTab]);
-  
-  // Listen for new recommendations
-  useEffect(() => {
-    const handleNewRecommendation = (event: CustomEvent) => {
-      const newRecommendation = event.detail as AIRecommendationType;
+  // Load recommendations
+  const loadRecommendations = useCallback(async () => {
+    // Skip if no user ID
+    if (!userId) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const newRecommendations = await getAIRecommendations(userId, count);
       
-      // Check if it's for the current tab
-      if (newRecommendation.tab === currentTab) {
-        // Add to the recommendations list
-        setRecommendations(prev => [...prev, newRecommendation]);
-      }
-    };
-    
-    // Add event listener
-    document.addEventListener('ai-recommendation', handleNewRecommendation as EventListener);
-    
-    // Cleanup
-    return () => {
-      document.removeEventListener('ai-recommendation', handleNewRecommendation as EventListener);
-    };
-  }, [currentTab]);
-  
-  // Limit to the most recent recommendation to avoid cluttering the UI
-  const visibleRecommendations = recommendations.slice(0, 1);
-  
-  // Handle recommendation actions
-  const handleAction = (recommendationId: string, actionType: string, params?: any) => {
-    console.log(`Action taken on recommendation ${recommendationId}: ${actionType}`, params);
-    
-    // Execute the action based on the action type
-    executeAction(actionType, params);
-    
-    // Remove the recommendation from the list
-    setRecommendations(prev => prev.filter(rec => rec.id !== recommendationId));
-  };
-  
-  // Handle recommendation close
-  const handleClose = (recommendationId: string) => {
-    // Remove the recommendation from the list
-    setRecommendations(prev => prev.filter(rec => rec.id !== recommendationId));
-  };
-  
-  // Execute an action based on the action type
-  const executeAction = (actionType: string, params?: any) => {
-    switch (actionType) {
-      case 'create_alert':
-        // Navigate to the alerts tab with pre-filled values
-        window.location.href = `/alerts/new?asset=${params?.asset || ''}&type=${params?.type || ''}`;
-        break;
-        
-      case 'customize_dashboard':
-        // Navigate to dashboard settings
-        window.location.href = '/dashboard/customize';
-        break;
-        
-      case 'show_rebalance_options':
-        // Navigate to portfolio rebalance view
-        window.location.href = '/portfolio/rebalance';
-        break;
-        
-      case 'dismiss':
-        // No action needed, just dismiss
-        break;
-        
-      default:
-        // Show a toast for custom actions
-        toast({
-          title: "Action",
-          description: `Executing action: ${actionType}`,
-        });
+      // Filter out dismissed recommendations
+      const filteredRecommendations = newRecommendations.filter(
+        rec => !dismissedIds.has(rec.id)
+      );
+      
+      setRecommendations(filteredRecommendations);
+    } catch (err) {
+      console.error('Error loading AI recommendations:', err);
+      setError('Failed to load personalized recommendations');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [userId, count, dismissedIds]);
   
-  if (visibleRecommendations.length === 0) {
+  // Initial load and refresh interval
+  useEffect(() => {
+    // Initial load
+    loadRecommendations();
+    
+    // Set up refresh interval
+    const intervalId = setInterval(loadRecommendations, refreshInterval);
+    
+    // Clean up interval on unmount
+    return () => clearInterval(intervalId);
+  }, [loadRecommendations, refreshInterval]);
+  
+  // Handle recommendation dismissal
+  const handleDismiss = useCallback((id: string) => {
+    setDismissedIds(prev => new Set([...prev, id]));
+    setRecommendations(prev => prev.filter(rec => rec.id !== id));
+  }, []);
+  
+  // Handle recommendation action
+  const handleAction = useCallback((id: string, url?: string) => {
+    onAction?.(id, url);
+    // Optionally dismiss after action
+    // handleDismiss(id);
+  }, [onAction]);
+  
+  // Don't render anything if there are no recommendations
+  if (!userId || (recommendations.length === 0 && !loading && !error)) {
     return null;
   }
   
   return (
-    <div className={`fixed bottom-20 right-4 z-40 w-80 ${className}`}>
-      <AnimatePresence>
-        {visibleRecommendations.map((recommendation) => (
-          <motion.div
-            key={recommendation.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="mb-2"
-          >
-            <AIRecommendation
-              recommendation={recommendation}
-              onAction={(actionType, params) => handleAction(recommendation.id, actionType, params)}
-              onClose={() => handleClose(recommendation.id)}
-            />
-          </motion.div>
-        ))}
-      </AnimatePresence>
+    <div className={`ai-recommendations ${className}`}>
+      <h3 className="text-md font-semibold mb-2">Personalized Insights</h3>
+      
+      {loading && recommendations.length === 0 && (
+        <div className="text-sm text-gray-500">
+          Generating personalized recommendations...
+        </div>
+      )}
+      
+      {error && (
+        <div className="text-sm text-red-500 mb-2">
+          {error}
+        </div>
+      )}
+      
+      {recommendations.map(recommendation => (
+        <AIRecommendation
+          key={recommendation.id}
+          recommendation={recommendation}
+          onDismiss={handleDismiss}
+          onAction={handleAction}
+        />
+      ))}
+      
+      {recommendations.length > 0 && (
+        <div className="text-xs text-gray-400 text-right mt-1">
+          Recommendations based on your activity
+        </div>
+      )}
     </div>
   );
-};
+}
 
 export default AIRecommendationContainer;

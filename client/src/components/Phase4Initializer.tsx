@@ -1,102 +1,113 @@
-import React, { useEffect, useState } from 'react';
-import { initializePhase4, Phase4Config } from '@/utils/phase4Automation';
-import { useToast } from "@/hooks/use-toast";
-import { initializeFirebaseSync } from '@/services/firebaseSync';
+/**
+ * Phase 4 Initializer Component
+ * 
+ * Initializes Phase 4 features including Firebase synchronization,
+ * behavior tracking, AI recommendations, and self-optimization.
+ */
 
+import { useEffect, useState } from 'react';
+import { initializeFirebase } from '../services/firebaseSync';
+import { initChatContextManager } from '../utils/chatContextManager';
+import { trackBehavior } from '../utils/phase4Automation';
+
+// Component props
 interface Phase4InitializerProps {
-  children: React.ReactNode;
-  config?: Partial<Phase4Config>;
+  userId?: string;
+  onInitialized?: () => void;
+  onError?: (error: Error) => void;
 }
 
-/**
- * Component to initialize Phase 4 features
- * This is placed high in the component tree to ensure Phase 4 features
- * are available throughout the application
- */
-export const Phase4Initializer: React.FC<Phase4InitializerProps> = ({
-  children,
-  config = {}
-}) => {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+// Component state
+interface InitState {
+  firebaseInitialized: boolean;
+  chatContextInitialized: boolean;
+  automationInitialized: boolean;
+}
+
+// Phase 4 initializer component
+export function Phase4Initializer({ 
+  userId,
+  onInitialized,
+  onError
+}: Phase4InitializerProps) {
+  // Initialization state
+  const [initState, setInitState] = useState<InitState>({
+    firebaseInitialized: false,
+    chatContextInitialized: false,
+    automationInitialized: false
+  });
   
-  // Initialize Phase 4 features on component mount
+  // Initialize Firebase
   useEffect(() => {
-    const initialize = async () => {
-      setIsLoading(true);
-      
+    const initFirebase = async () => {
       try {
-        console.log('Initializing Phase 4 features...');
-        
-        // Initialize Firebase sync first if enabled
-        if (config.firebaseSync !== false) {
-          try {
-            await initializeFirebaseSync();
-            console.log('Firebase sync initialized');
-          } catch (error) {
-            console.error('Failed to initialize Firebase sync:', error);
-            // Fall back to localStorage only
-            config.firebaseSync = false;
-          }
-        }
-        
-        // Default configuration
-        const defaultConfig: Phase4Config = {
-          userContext: true,
-          autoScheduling: true,
-          firebaseSync: !!config.firebaseSync,
-          aiRecommendationEngine: true,
-          crossTabAwareness: true,
-          voiceCommands: false
-        };
-        
-        // Merge with provided config
-        const finalConfig = { ...defaultConfig, ...config };
-        
-        // Initialize Phase 4
-        const success = await initializePhase4(finalConfig);
-        
-        if (success) {
-          console.log('Phase 4 features initialized successfully');
-          setIsInitialized(true);
-          
-          // Show success toast
-          toast({
-            title: "System Upgraded",
-            description: "CryptoBot AI has been enhanced with intelligent automation features",
-          });
-        } else {
-          console.error('Failed to initialize Phase 4 features');
-          
-          // Show error toast
-          toast({
-            title: "Partial Upgrade",
-            description: "Some CryptoBot AI features couldn't be initialized",
-            variant: "destructive",
-          });
-        }
+        const firebase = initializeFirebase();
+        setInitState(prev => ({ ...prev, firebaseInitialized: true }));
+        console.log('Firebase initialized:', !!firebase);
       } catch (error) {
-        console.error('Error initializing Phase 4:', error);
-        
-        // Show error toast
-        toast({
-          title: "System Upgrade Failed",
-          description: "Please contact support if the issue persists",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
+        console.error('Error initializing Firebase:', error);
+        onError?.(new Error('Failed to initialize Firebase'));
       }
     };
     
-    // Check if already initialized
-    if (!isInitialized && !isLoading) {
-      initialize();
-    }
-  }, [isInitialized, isLoading, config, toast]);
+    initFirebase();
+  }, [onError]);
   
-  return <>{children}</>;
-};
+  // Initialize chat context
+  useEffect(() => {
+    if (!initState.firebaseInitialized) return;
+    
+    const initChatContext = async () => {
+      try {
+        await initChatContextManager(userId);
+        setInitState(prev => ({ ...prev, chatContextInitialized: true }));
+        console.log('Chat context initialized');
+      } catch (error) {
+        console.error('Error initializing chat context:', error);
+        onError?.(new Error('Failed to initialize chat context'));
+      }
+    };
+    
+    initChatContext();
+  }, [initState.firebaseInitialized, userId, onError]);
+  
+  // Initialize automation
+  useEffect(() => {
+    if (!initState.chatContextInitialized) return;
+    
+    const initAutomation = async () => {
+      try {
+        // Track initialization
+        if (userId) {
+          await trackBehavior(userId, 'session_start', {
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent
+          });
+        }
+        
+        setInitState(prev => ({ ...prev, automationInitialized: true }));
+        console.log('Automation initialized');
+      } catch (error) {
+        console.error('Error initializing automation:', error);
+        onError?.(new Error('Failed to initialize automation'));
+      }
+    };
+    
+    initAutomation();
+  }, [initState.chatContextInitialized, userId, onError]);
+  
+  // Call onInitialized when everything is ready
+  useEffect(() => {
+    const { firebaseInitialized, chatContextInitialized, automationInitialized } = initState;
+    
+    if (firebaseInitialized && chatContextInitialized && automationInitialized) {
+      console.log('All Phase 4 features initialized');
+      onInitialized?.();
+    }
+  }, [initState, onInitialized]);
+  
+  // This is a utility component that doesn't render anything
+  return null;
+}
 
 export default Phase4Initializer;
