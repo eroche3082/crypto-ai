@@ -65,39 +65,7 @@ const UnifiedPortfolio = () => {
           </TabsContent>
 
           <TabsContent value="vision" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("portfolioAnalysis.marketVision", "Market Vision")}</CardTitle>
-                <CardDescription>
-                  {t("portfolioAnalysis.marketVisionDescription", "Upload financial charts or market data for AI-powered analysis and pattern recognition.")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-border rounded-lg bg-card/50 text-center">
-                  <Upload size={40} className="text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">
-                    {t("portfolioAnalysis.uploadTitle", "Upload Chart or Image")}
-                  </h3>
-                  <p className="text-muted-foreground max-w-md mb-4">
-                    {t("portfolioAnalysis.uploadDescription", "Drag and drop market charts, technical analysis screenshots, or financial data visualizations for AI interpretation.")}
-                  </p>
-                  <Button className="mt-2">
-                    {t("portfolioAnalysis.selectFile", "Select File")}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("portfolioAnalysis.recentAnalyses", "Recent Chart Analyses")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center text-muted-foreground py-8">
-                  {t("portfolioAnalysis.noRecentAnalyses", "You haven't analyzed any charts yet. Upload a chart to get started.")}
-                </div>
-              </CardContent>
-            </Card>
+            <MarketVision />
           </TabsContent>
         </Tabs>
         

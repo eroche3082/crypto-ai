@@ -93,7 +93,7 @@ const Sidebar = () => {
         </div>
       </Link>
       
-      <div className="flex-1 flex flex-col py-4">
+      <div className="flex-1 flex flex-col py-4 overflow-y-auto">
         {navItems.map((item) => (
           <Link key={item.path} href={item.path}>
             <div

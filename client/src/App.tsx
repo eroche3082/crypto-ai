@@ -12,7 +12,7 @@ import Favorites from "./pages/Favorites";
 import Locations from "./pages/Locations";
 import Analysis from "./pages/Analysis";
 import Watchlist from "./pages/Watchlist";
-import InvestmentAdvisor from "./pages/InvestmentAdvisor";
+import InvestmentAdvisorPage from "./pages/InvestmentAdvisorPage";
 import TwitterSentiment from "./pages/TwitterSentiment";
 import TaxSimulator from "./pages/TaxSimulator";
 import WalletMessaging from "./pages/WalletMessaging";
@@ -191,7 +191,7 @@ function App() {
                   <Route path="/locations" component={Locations} />
                   <Route path="/analysis" component={Analysis} />
                   <Route path="/watchlist" component={Watchlist} />
-                  <Route path="/investment-advisor" component={InvestmentAdvisor} />
+                  <Route path="/investment-advisor" component={InvestmentAdvisorPage} />
                   <Route path="/twitter-sentiment" component={TwitterSentiment} />
                   <Route path="/tax-simulator" component={TaxSimulator} />
                   <Route path="/wallet-messaging" component={WalletMessaging} />
