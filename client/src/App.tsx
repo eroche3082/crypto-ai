@@ -40,6 +40,10 @@ import { AuthProvider } from "./lib/auth";
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  // Authentication state (simplified for now)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [location] = useLocation();
+  const router = useRouter();
   
   // Handle WebSocket connection errors
   useEffect(() => {
@@ -163,11 +167,6 @@ function App() {
       </div>
     );
   }
-  
-  // Authentication state (simplified for now)
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [location] = useLocation();
-  const router = useRouter();
 
   // Check if user is on a public route
   const isPublicRoute = location === "/" || location === "/login";
