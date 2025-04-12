@@ -36,6 +36,8 @@ export default function UniversalChatbot({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [language, setLanguage] = useState(defaultLanguage);
   const [multimodalCapture, setMultimodalCapture] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { toast } = useToast();
   const chatRef = useRef<any>(null);
 
@@ -145,6 +147,38 @@ export default function UniversalChatbot({
     toast({
       title: 'Language Changed',
       description: `Interface language set to ${languages.find(l => l.code === code)?.name}`,
+    });
+  };
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = (userData: UserProfile) => {
+    setUserProfile(userData);
+    setShowOnboarding(false);
+    
+    // Show success toast
+    toast({
+      title: <TranslatableText text="Profile Saved" spanish="Perfil Guardado" language={language} />,
+      description: <TranslatableText 
+        text="Your preferences have been saved for a personalized experience!"
+        spanish="¡Tus preferencias han sido guardadas para una experiencia personalizada!"
+        language={language}
+      />,
+    });
+    
+    // Here we would typically send the profile data to the server
+    // for now, we just store it in local state
+  };
+  
+  // Handle onboarding skip
+  const handleOnboardingSkip = () => {
+    setShowOnboarding(false);
+    toast({
+      title: <TranslatableText text="Welcome!" spanish="¡Bienvenido!" language={language} />,
+      description: <TranslatableText 
+        text="You can personalize your experience later from the settings."
+        spanish="Puedes personalizar tu experiencia más tarde desde la configuración."
+        language={language}
+      />,
     });
   };
 
@@ -485,11 +519,24 @@ export default function UniversalChatbot({
               <div className="flex-1 overflow-hidden relative">
                 {/* Chat Interface */}
                 {activeTool === 'chat' && (
-                  <ZoomStyleChat 
-                    ref={chatRef}
-                    initialOpen={true}
-                    defaultLanguage={language}
-                  />
+                  <>
+                    {showOnboarding ? (
+                      <div className="flex-1 flex items-center justify-center p-4">
+                        <ChatbotOnboarding 
+                          language={language}
+                          onComplete={handleOnboardingComplete}
+                          onSkip={handleOnboardingSkip}
+                        />
+                      </div>
+                    ) : (
+                      <ZoomStyleChat 
+                        ref={chatRef}
+                        initialOpen={true}
+                        defaultLanguage={language}
+                        userProfile={userProfile}
+                      />
+                    )}
+                  </>
                 )}
                 
                 {/* QR Scanner */}
