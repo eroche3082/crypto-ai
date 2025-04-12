@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useCryptoData } from "@/hooks/useCryptoData";
 import CryptoCard from "@/components/CryptoCard";
 import Header from "@/components/Header";
+import PriceChart from "@/components/PriceChart";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CryptoData } from "@/lib/cryptoApi";
@@ -124,8 +125,18 @@ const Dashboard = () => {
               <Button variant="outline" size="sm">All</Button>
             </div>
             
-            <div className="h-64 bg-secondary/50 rounded-lg mb-4 flex items-center justify-center">
-              <p className="text-muted-foreground">Chart visualization would be displayed here</p>
+            <div className="h-64 bg-secondary/50 rounded-lg mb-4 overflow-hidden">
+              {data[0].sparkline_in_7d?.price ? (
+                <PriceChart 
+                  data={data[0].sparkline_in_7d.price}
+                  isPositive={data[0].price_change_percentage_24h >= 0}
+                  timeFilter="7d"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <p className="text-muted-foreground">No chart data available</p>
+                </div>
+              )}
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

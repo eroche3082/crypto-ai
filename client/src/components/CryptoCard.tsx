@@ -88,13 +88,21 @@ const CryptoCard = ({ crypto, timeFilter, onClick, active = false }: CryptoCardP
         </div>
       </div>
       
-      {/* Chart placeholder - in a real application this would be a proper chart component */}
-      <div className="h-12 w-full bg-card relative overflow-hidden">
-        <div 
-          className={`absolute inset-0 ${isPositive ? 'bg-success/10' : 'bg-error/10'} flex items-center justify-center`}
-        >
-          <div className={`h-px w-full ${isPositive ? 'bg-success/30' : 'bg-error/30'}`}></div>
-        </div>
+      {/* Using the actual PriceChart component */}
+      <div className="h-12 w-full overflow-hidden">
+        {crypto.sparkline_in_7d?.price ? (
+          <PriceChart 
+            data={crypto.sparkline_in_7d.price} 
+            isPositive={isPositive} 
+            timeFilter={timeFilter} 
+          />
+        ) : (
+          <div 
+            className={`h-full w-full ${isPositive ? 'bg-success/10' : 'bg-error/10'} flex items-center justify-center`}
+          >
+            <div className={`h-px w-full ${isPositive ? 'bg-success/30' : 'bg-error/30'}`}></div>
+          </div>
+        )}
       </div>
     </div>
   );
