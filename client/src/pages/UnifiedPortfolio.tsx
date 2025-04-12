@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import AIConfiguration from "@/components/AIConfiguration";
 import PortfolioSimulator from "@/components/PortfolioSimulator";
 import PortfolioAnalyzer from "@/components/portfolio/PortfolioAnalyzer";
+import MarketVision from "@/components/portfolio/MarketVision";
 
 /**
  * Unified Portfolio Page

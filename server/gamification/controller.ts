@@ -655,10 +655,9 @@ export async function getUserProfile(req: Request, res: Response) {
       id: users.id,
       username: users.username,
       email: users.email,
-      experiencePoints: users.experience_points,
-      // Removed level field as it doesn't exist in the db yet
-      // Using default level calculation instead
-      profileImage: users.profile_image
+      experiencePoints: users.experience_points
+      // Do not select profile_image as it may not exist in the database yet
+      // We'll add a default profile image later
     })
     .from(users)
     .where(eq(users.id, parseInt(userId)))
@@ -709,6 +708,8 @@ export async function getUserProfile(req: Request, res: Response) {
       status: 'success',
       data: {
         ...userData,
+        // Add default profile image
+        profileImage: '/assets/default-avatar.png',
         achievements: {
           total: achievementsCount.total || 0,
           completed: achievementsCount.completed || 0
@@ -802,7 +803,7 @@ export async function getLeaderboardEntries(req: Request, res: Response) {
       leaderboardId: leaderboardEntries.leaderboard_id,
       userId: leaderboardEntries.user_id,
       username: users.username,
-      profileImage: users.profile_image,
+      // Removed reference to users.profile_image
       score: leaderboardEntries.score,
       rank: leaderboardEntries.rank,
       updatedAt: leaderboardEntries.updated_at
@@ -814,11 +815,17 @@ export async function getLeaderboardEntries(req: Request, res: Response) {
     .limit(parseInt(limit as string))
     .offset(parseInt(offset as string));
     
+    // Add default profile image to each entry
+    const entriesWithDefaults = entries.map(entry => ({
+      ...entry,
+      profileImage: '/assets/default-avatar.png'
+    }));
+
     return res.status(200).json({
       status: 'success',
       data: {
         leaderboard: leaderboardData,
-        entries
+        entries: entriesWithDefaults
       }
     });
   } catch (error) {
