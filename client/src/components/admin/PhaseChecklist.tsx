@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -186,11 +185,33 @@ const initialPhases: Phase[] = [
   }
 ];
 
-export function PhaseChecklist() {
+export interface PhaseChecklistProps {
+  showHeader?: boolean;
+  ref?: React.Ref<{
+    exportJson: () => void;
+    exportPdf: () => void;
+    saveChanges: () => Promise<void>;
+  }>;
+}
+
+type PhaseChecklistRef = {
+  exportJson: () => void;
+  exportPdf: () => void;
+  saveChanges: () => Promise<void>;
+};
+
+export const PhaseChecklist = React.forwardRef<PhaseChecklistRef, PhaseChecklistProps>((props, ref) => {
   const [phases, setPhases] = useState<Phase[]>(initialPhases);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState<string[]>(['phase0', 'phase1']);
   const { toast } = useToast();
+  
+  // Expose methods to parent components
+  React.useImperativeHandle(ref, () => ({
+    exportJson: handleExport,
+    exportPdf: handleExportPDF,
+    saveChanges: handleSave
+  }));
 
   // Simulate loading phases data from Firebase
   useEffect(() => {
@@ -391,49 +412,6 @@ export function PhaseChecklist() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Development Phases</h2>
-          <p className="text-muted-foreground">
-            Track and update project development phases and tasks
-          </p>
-        </div>
-        
-        <div className="flex flex-wrap gap-2">
-          <Button 
-            onClick={handleExport}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1"
-          >
-            <Download className="h-4 w-4" />
-            Export JSON
-          </Button>
-          <Button 
-            onClick={handleExportPDF}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1"
-          >
-            <FileText className="h-4 w-4" />
-            Export PDF
-          </Button>
-          <Button 
-            onClick={handleSave}
-            variant="default"
-            size="sm"
-            className="flex items-center gap-1"
-            disabled={loading}
-          >
-            {loading ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            Save Changes
-          </Button>
-        </div>
-      </div>
       
       <Card>
         <CardHeader className="pb-3">
@@ -553,6 +531,4 @@ export function PhaseChecklist() {
       </Accordion>
     </div>
   );
-}
-
-export default PhaseChecklist;
+});
