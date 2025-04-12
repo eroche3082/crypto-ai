@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
-import { getSystemPrompt } from "../client/src/lib/systemPrompts";
+import { getSystemPrompt } from "./lib/systemPrompts";
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
