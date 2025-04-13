@@ -363,6 +363,26 @@ export const walletMessages = pgTable("wallet_messages", {
   metadata: json("metadata"),
 });
 
+// User Onboarding Profiles table
+export const userOnboardingProfiles = pgTable("user_onboarding_profiles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  crypto_experience_level: text("crypto_experience_level"),
+  investment_goals: json("investment_goals"), // array of goals
+  investment_timeframe: text("investment_timeframe"),
+  risk_tolerance: text("risk_tolerance"),
+  interests: json("interests"), // array of interests
+  initial_investment: text("initial_investment"),
+  preferred_cryptocurrencies: json("preferred_cryptocurrencies"), // array of cryptos
+  learning_preferences: json("learning_preferences"), // array of learning prefs
+  trading_frequency: text("trading_frequency"),
+  timezone: text("timezone"),
+  onboarding_completed: boolean("onboarding_completed").default(false),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
 // Token Watchlist table
 export const tokenWatchlist = pgTable("token_watchlist", {
   id: serial("id").primaryKey(),
@@ -537,3 +557,11 @@ export const insertTokenWatchlist = createInsertSchema(tokenWatchlist).omit({
 });
 export type InsertTokenWatchlist = z.infer<typeof insertTokenWatchlist>;
 export type TokenWatchlist = typeof tokenWatchlist.$inferSelect;
+
+export const insertUserOnboardingProfileSchema = createInsertSchema(userOnboardingProfiles).omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
+export type InsertUserOnboardingProfile = z.infer<typeof insertUserOnboardingProfileSchema>;
+export type UserOnboardingProfile = typeof userOnboardingProfiles.$inferSelect;

@@ -15,6 +15,8 @@ import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleGeminiChat } from "./chatbot";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
 import apiRouter from "./apiRoutes";
+import { db } from "./db";
+import { insertUserOnboardingProfileSchema, userOnboardingProfiles } from "../shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
