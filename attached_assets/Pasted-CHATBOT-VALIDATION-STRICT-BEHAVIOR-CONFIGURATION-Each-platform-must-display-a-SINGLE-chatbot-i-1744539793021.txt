@@ -1,0 +1,189 @@
+CHATBOT VALIDATION – STRICT BEHAVIOR & CONFIGURATION
+✅ Each platform must display a SINGLE chatbot icon at the bottom-right corner.
+
+✅ This icon must be clickable, expand into a floating chat window, and closable.
+
+❌ If there is more than one chatbot instance, REMOVE all duplicates.
+
+✅ Chatbot must open a structured onboarding flow, not a freestyle or broken prompt.
+
+✅ Chatbot must start with:
+
+“What’s your name?”
+
+“What’s your email?”
+
+Then proceed with 10–15 smart questions, based on platform category (fitness, finance, crypto, etc.) using multiple selection components.
+
+✅ Chatbot must not interfere with any page layout, content, or header/footer.
+
+✅ Must trigger "Login to Dashboard" action after onboarding is complete.
+
+✅ All responses must be saved to Firebase / Database.
+
+2. AI ENGINE VERIFICATION
+✅ Chatbot must be connected to Gemini Flash via Vertex AI SDK.
+
+✅ Confirm active connection to:
+
+GOOGLE_APPLICATION_CREDENTIALS global variable
+
+Correct project ID
+
+Google Cloud Console billing + API access
+
+✅ Gemini must respond in real time
+
+✅ Gemini response model must match conversational context and onboarding data
+
+3. DASHBOARD PERSONALIZATION
+✅ Users must be redirected to the pre-existing dashboard, NOT a newly generated one.
+
+✅ Within the existing dashboard, insert a customized tab or panel titled AI Dashboard or Personalized Assistant.
+
+✅ This dashboard should display:
+
+User name and email
+
+Summary of onboarding answers
+
+Personalized recommendations (content, products, plans, tasks)
+
+Links to activate additional services
+
+✅ Dashboard must maintain all previously implemented features (investment tracker, workout log, education content, etc.)
+
+4. UI & FRONTEND CHECK
+✅ Navigation bar should include:
+
+Home
+
+Features / AI Assistant
+
+Pricing or Membership
+
+About
+
+Login / Register
+
+✅ Footer must contain working links:
+
+Terms of Service
+
+Privacy Policy
+
+Social Media Icons
+
+Contact Page
+
+✅ All links must be verified and working.
+
+❌ No broken anchor links or dummy buttons allowed.
+
+5. SYSTEM-WIDE FUNCTIONALITY CHECKLIST
+Each agent team must provide:
+
+✅ AT LEAST 20 CONFIRMED ACTIVE & FUNCTIONAL COMPONENTS, such as:
+Chatbot icon visible and working
+
+Onboarding questions activate properly
+
+Multiple selection UI implemented
+
+Gemini Flash responses received
+
+Name/email captured and saved
+
+User added to lead list
+
+Dashboard login redirect working
+
+Dashboard personalized tab appears
+
+Recommendations rendered
+
+Admin Panel receives leads
+
+Firebase or Firestore write operations verified
+
+Membership pricing section live
+
+Stripe or payment button active (if applicable)
+
+Navigation buttons functional
+
+Footer links working
+
+Chatbot can be closed
+
+Chatbot respects mobile view
+
+Chatbot does not overlap buttons/content
+
+AI Features section exists and lists functions
+
+User sessions persist on refresh or login
+
+❌ AT LEAST 5 MISSING, NON-FUNCTIONAL, OR PENDING COMPONENTS, such as:
+Chatbot doesn’t open
+
+Chatbot sends but no response
+
+Not connected to Gemini
+
+Broken links in navbar or footer
+
+Missing membership plan connection
+
+No Firebase write on onboarding
+
+Leads not showing in Admin Panel
+
+Chatbot not closable
+
+Two chatbot components on page
+
+Gemini not returning real-time data
+
+6. FULL SYSTEM REFRESH & FORCED UPDATE
+After all changes and verifications are complete:
+
+✅ Run a full rebuild or hot reload of the system
+
+✅ Refresh frontend state (clear service worker cache if PWA)
+
+✅ Re-deploy or restart instance if required
+
+✅ Confirm browser reflects latest build by refreshing app with CTRL+SHIFT+R on Chrome
+
+7. REQUIRED REPORT FORMAT (ONE PER AGENT)
+markdown
+Copiar
+Editar
+### AGENT: [Platform Name]
+
+✅ Chatbot active and single-instance
+✅ Gemini Flash connected via Vertex AI
+✅ Onboarding flow (name, email, 10–15 questions)
+✅ Dashboard personalization injected
+✅ Admin Panel lead tracking operational
+✅ Navbar & Footer fully functional
+✅ Membership flow and pricing connected
+
+✅ 20 Confirmed Functional Components:
+1. ...
+2. ...
+...
+20. ...
+
+❌ 5 Missing/Non-functional Components:
+1. ...
+2. ...
+...
+5. ...
+
+Final Notes:
+- [Any bugs, requests, blockers, suggestions]
+NO PLATFORM MAY ADVANCE TO THE NEXT PHASE UNTIL THIS CHECKLIST IS COMPLETED.
+No new design updates, backend logic, or launches are allowed without submitting this audit.
+
