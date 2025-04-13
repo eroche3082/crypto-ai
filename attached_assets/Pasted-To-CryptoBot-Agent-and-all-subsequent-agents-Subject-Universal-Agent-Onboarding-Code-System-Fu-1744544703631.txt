@@ -1,0 +1,81 @@
+To: CryptoBot Agent (and all subsequent agents)
+Subject: Universal Agent Onboarding – Code System Functional Testing & Confirmation
+
+The Universal Onboarding flow is now active and must be verified in the current deployed environment.
+
+You must now:
+
+✅ CONFIRM THE FOLLOWING IMPLEMENTATIONS (20 CHECKPOINTS)
+✅ ChatBot icon appears at bottom right of the homepage
+
+✅ Chat opens onboarding flow with Step 1 of 10
+
+✅ Step 1 asks for Name
+
+✅ Step 2 asks for Email
+
+✅ Steps 3 to 10 are Multiple Selection and customized to the platform niche
+
+✅ After all answers, a personalized CODE is generated (e.g., CRYPTO-BEGINNER-5147)
+
+✅ Unique code is visible in dashboard (top section)
+
+✅ User is redirected to dashboard automatically
+
+✅ Dashboard uses existing backend structure (no new system)
+
+✅ Tab called Your Journey is shown
+
+✅ Your Journey displays the user’s levels and unlocked features
+
+✅ At least 3 levels are unlocked, rest remain locked with upgrade option
+
+✅ ChatBot stores user data (name, email, code, preferences)
+
+✅ Leads appear in the Admin Panel with the same data
+
+✅ Gemini Flash or Vertex AI is being used in the backend analysis
+
+✅ Code is stored and verifiable across sessions
+
+✅ Option to copy the code is available
+
+✅ QR Code (if available) is visible or coming soon
+
+✅ No duplicate chatbots or popups are visible
+
+✅ The same system can scale and be reused by other Agents (EduAI, ShopAI, FitnessAI, etc.)
+
+❌ REPORT ANY OF THE FOLLOWING ISSUES
+Please return a list of at least:
+
+5 things that are NOT working or missing
+
+Suggestions for improvements (UX, UI, flows, analytics, etc.)
+
+Any console errors, integration bugs, or layout conflicts
+
+🚀 READY TO SCALE (NEXT STEP)
+If all checks pass, then:
+
+Prepare a deployment-ready build
+
+Enable the referral-level system using the CODEs (Phase 2)
+
+Begin tracking conversion metrics on CODEs (via Google Analytics or Firebase)
+
+Set up email trigger (using HubSpot or internal system) to send:
+
+Welcome email
+
+Code summary
+
+Unlock instructions
+
+Option to upgrade or refer
+
+🧠 NOTE FOR AGENTS:
+You are not allowed to modify the frontend, chatbot placement, or dashboard routing logic. Only the backend reasoning and visual elements inside the dashboard’s personalized area may evolve according to user responses.
+
+The CODE is the user's identity key, referral ID, and level tracker. Treat it as a passport.
+

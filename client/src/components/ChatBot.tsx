@@ -452,16 +452,191 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
   };
   
   // Function to render onboarding question with options
+  // This function now returns the question text only
   const renderOnboardingQuestion = (index: number): string => {
     const question = onboardingQuestions[index];
     const multiSelectText = question.multiSelect ? 'Choose all that apply:' : 'Choose one:';
     
-    // Format the options as a numbered list
-    const optionsText = question.options.map((option, i) => 
-      `${i+1}. ${option}`
-    ).join('\n');
+    return `${question.question}\n\n${multiSelectText}`;
+  };
+  
+  // This will indicate if a message contains options that should be rendered as buttons
+  const hasOptionsForButtons = (questionIndex: number): boolean => {
+    return isOnboarding && !inLeadCapture && questionIndex <= onboardingQuestions.length - 1;
+  };
+  
+  // Handle selection of an option button
+  const handleOptionSelect = (option: string) => {
+    const currentQuestion = onboardingQuestions[currentQuestionIndex];
+    const isMultiSelect = currentQuestion.multiSelect;
     
-    return `${question.question}\n\n${multiSelectText}\n${optionsText}`;
+    // Update selected options
+    const updatedOptions = {...selectedOptions};
+    
+    if (isMultiSelect) {
+      // For multi-select, toggle the selection
+      if (!updatedOptions[currentQuestionIndex]) {
+        updatedOptions[currentQuestionIndex] = [option];
+      } else {
+        if (updatedOptions[currentQuestionIndex].includes(option)) {
+          // Remove option if already selected
+          updatedOptions[currentQuestionIndex] = updatedOptions[currentQuestionIndex].filter(opt => opt !== option);
+        } else {
+          // Add option if not selected
+          updatedOptions[currentQuestionIndex] = [...updatedOptions[currentQuestionIndex], option];
+        }
+      }
+      
+      setSelectedOptions(updatedOptions);
+    } else {
+      // For single-select, select the option and move to next question
+      updatedOptions[currentQuestionIndex] = [option];
+      setSelectedOptions(updatedOptions);
+      
+      // Add user message showing their selection
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'user',
+        content: option,
+        timestamp: new Date()
+      }]);
+      
+      // Move to next question or finish onboarding
+      handleContinueAfterSelection();
+    }
+  };
+
+  // Function to continue to the next question after option selection
+  const handleContinueAfterSelection = () => {
+    // Move to the next question or complete the onboarding
+    if (currentQuestionIndex < onboardingQuestions.length - 1) {
+      // Ask next question
+      const nextQuestionIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextQuestionIndex);
+      
+      // Add next question with options as a message
+      const questionContent = renderOnboardingQuestion(nextQuestionIndex);
+      
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: questionContent,
+        timestamp: new Date(),
+        model: 'vertex-flash'
+      }]);
+    } else {
+      // Onboarding complete
+      setIsOnboarding(false);
+      
+      // Show loading state while analyzing responses and generating code
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `Analyzing your responses and generating your personalized access code...`,
+        timestamp: new Date(),
+        model: 'vertex-flash'
+      }]);
+      
+      // Generate a unique code based on user profile
+      const generateUniqueCode = () => {
+        // Determine user level based on their responses
+        let userLevel = 'BEGINNER';
+        
+        // Check experience level
+        if (selectedOptions[0]?.[0] === 'Expert') {
+          userLevel = 'EXPERT';
+        } else if (selectedOptions[0]?.[0] === 'Intermediate') {
+          userLevel = 'INTER';
+        }
+        
+        // Check investment amount to potentially upgrade level
+        if (selectedOptions[3]?.[0] === '$1000+') {
+          if (userLevel !== 'EXPERT') userLevel = 'VIP';
+        }
+        
+        // Generate random alphanumeric part (4 digits)
+        const randomPart = Math.floor(1000 + Math.random() * 9000);
+        
+        // Final code format: CRYPTO-[LEVEL]-[RANDOM]
+        return `CRYPTO-${userLevel}-${randomPart}`;
+      };
+      
+      // Generate the code
+      const uniqueCode = generateUniqueCode();
+      
+      // Create complete profile data with the unique code
+      const profileData = {
+        name: leadCaptureData.name || '',
+        email: leadCaptureData.email || '',
+        crypto_experience_level: selectedOptions[0]?.[0] || '',
+        investor_type: selectedOptions[1] || [],
+        preferred_cryptocurrencies: selectedOptions[2] || [],
+        monthly_investment: selectedOptions[3]?.[0] || '',
+        used_platforms: selectedOptions[4] || [],
+        insight_preferences: selectedOptions[5] || [],
+        alert_preferences: selectedOptions[6]?.[0] || '',
+        risk_tolerance: selectedOptions[7]?.[0] || '',
+        nft_preferences: selectedOptions[8]?.[0] || '',
+        timezone: selectedOptions[9]?.[0] || '',
+        onboarding_completed: true,
+        unique_code: uniqueCode,
+        user_category: uniqueCode.split('-')[1],
+        created_at: new Date().toISOString()
+      };
+      
+      // Save to localStorage as fallback
+      localStorage.setItem('cryptoUserProfile', JSON.stringify(profileData));
+      localStorage.setItem('cryptoAccessCode', uniqueCode);
+      
+      // Send to backend API
+      fetch('/api/onboarding/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log('Onboarding profile saved to database');
+        } else {
+          console.error('Failed to save onboarding profile to database:', response.statusText);
+        }
+      })
+      .catch(error => {
+        console.error('Error saving onboarding profile to database:', error);
+      });
+      
+      // Show the unique code after a delay
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: `Your personalized dashboard is ready! Your unique access code is: **${uniqueCode}**\n\nThis code gives you access to our personalized dashboard with features unlocked based on your profile. You can also use it as a referral code to invite friends.`,
+          timestamp: new Date(),
+          model: 'vertex-flash'
+        }]);
+        
+        // Add the "Login to Dashboard" message after a brief delay
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            id: (Date.now() + 2).toString(),
+            role: 'assistant',
+            content: 'Login to Dashboard',
+            timestamp: new Date(),
+            model: 'vertex-flash'
+          }]);
+        }, 1500);
+      }, 2000);
+      
+      // Redirect to dashboard after a delay - we'll pass the code as a parameter
+      setTimeout(() => {
+        // Store the code in session storage for use in the dashboard
+        sessionStorage.setItem('cryptoAccessCode', uniqueCode);
+        // Redirect to dashboard
+        setLocation('/dashboard');
+      }, 6000);
+    }
   };
 
   const specialistFeatures = [
@@ -579,7 +754,51 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                                   <span className="text-xs">Thinking...</span>
                                 </div>
                               ) : (
-                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                <>
+                                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                  
+                                  {/* Add option buttons for onboarding questions */}
+                                  {isOnboarding && !inLeadCapture && message === messages[messages.length - 1] && message.role === 'assistant' && currentQuestionIndex < onboardingQuestions.length && (
+                                    <div className="mt-3 grid gap-2">
+                                      {onboardingQuestions[currentQuestionIndex].options.map((option, idx) => {
+                                        const isSelected = selectedOptions[currentQuestionIndex]?.includes(option);
+                                        return (
+                                          <button
+                                            key={idx}
+                                            onClick={() => handleOptionSelect(option)}
+                                            className={`text-sm text-left px-4 py-3 rounded-lg border transition-all ${
+                                              isSelected 
+                                                ? 'bg-primary/20 border-primary' 
+                                                : 'bg-background/80 border-border hover:border-primary/30 hover:bg-muted/50'
+                                            }`}
+                                          >
+                                            {option}
+                                          </button>
+                                        );
+                                      })}
+                                      
+                                      {/* Show continue button for multi-select options */}
+                                      {onboardingQuestions[currentQuestionIndex].multiSelect && selectedOptions[currentQuestionIndex]?.length > 0 && (
+                                        <button
+                                          onClick={handleContinueAfterSelection}
+                                          className="mt-1 flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80"
+                                        >
+                                          Continue <ArrowRight size={14} />
+                                        </button>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Add 'Login to Dashboard' button for the final message */}
+                                  {message.content === 'Login to Dashboard' && (
+                                    <Button 
+                                      className="mt-2 gap-2"
+                                      onClick={() => setLocation('/dashboard')}
+                                    >
+                                      Login to Dashboard <ArrowRight size={16} />
+                                    </Button>
+                                  )}
+                                </>
                               )}
                             </div>
                             <div className={`flex mt-1 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
