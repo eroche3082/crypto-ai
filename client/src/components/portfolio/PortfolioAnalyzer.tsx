@@ -135,20 +135,20 @@ const PortfolioAnalyzer = () => {
 
       {/* AI Summary */}
       <Card className="relative overflow-hidden">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+        <CardHeader className={isMobile ? "pb-2 px-3 pt-3" : "pb-3"}>
+          <div className={`flex ${isMobile ? 'flex-col items-start gap-2' : 'items-center justify-between'}`}>
             <CardTitle className="flex items-center gap-2">
-              <Brain size={18} /> 
+              <Brain size={isMobile ? 16 : 18} /> 
               {t('portfolioAnalysis.aiSummary', 'AI Portfolio Analysis')}
             </CardTitle>
-            <Badge variant="outline" className="px-3 py-1 bg-primary/10">
-              <Sparkles size={14} className="mr-1" />
+            <Badge variant="outline" className={`${isMobile ? 'px-2 py-0.5 text-xs' : 'px-3 py-1'} bg-primary/10`}>
+              <Sparkles size={isMobile ? 12 : 14} className="mr-1" />
               {t('portfolioAnalysis.powered', 'Powered by Gemini')}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="p-4 rounded-lg bg-card/50 border mb-4">
+        <CardContent className={isMobile ? "p-3" : ""}>
+          <div className={`${isMobile ? 'p-3 text-sm' : 'p-4'} rounded-lg bg-card/50 border mb-4`}>
             {analysis.aiSummary}
           </div>
         </CardContent>
@@ -157,13 +157,13 @@ const PortfolioAnalyzer = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Portfolio Allocation */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className={isMobile ? "pb-2 px-3 pt-3" : "pb-3"}>
             <CardTitle className="flex items-center gap-2">
-              <PieChart size={16} /> 
+              <PieChart size={isMobile ? 14 : 16} /> 
               {t('portfolioAnalysis.allocation', 'Portfolio Allocation')}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isMobile ? "px-3 pb-3" : ""}>
             <div className="h-[240px] mt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsSimplePieChart>
@@ -171,8 +171,8 @@ const PortfolioAnalyzer = () => {
                     data={analysis.allocation}
                     cx="50%"
                     cy="50%"
-                    innerRadius={window.innerWidth < 640 ? 40 : 60}
-                    outerRadius={window.innerWidth < 640 ? 60 : 80}
+                    innerRadius={isMobile ? 40 : 60}
+                    outerRadius={isMobile ? 60 : 80}
                     paddingAngle={2}
                     dataKey="percentage"
                   >
@@ -187,13 +187,21 @@ const PortfolioAnalyzer = () => {
                   <Tooltip 
                     formatter={(value: number, name: string, props: any) => [`${value}%`, props.payload.type]} 
                     labelFormatter={() => ''} 
-                    wrapperStyle={{ fontSize: window.innerWidth < 640 ? '10px' : '12px' }}
+                    wrapperStyle={{ 
+                      fontSize: isMobile ? '10px' : '12px',
+                      padding: isMobile ? '4px' : '8px',
+                      lineHeight: isMobile ? '1.2' : '1.5'
+                    }}
                   />
                   <Legend 
-                    layout={window.innerWidth < 640 ? "vertical" : "horizontal"}
-                    verticalAlign={window.innerWidth < 640 ? "bottom" : "middle"}
-                    align={window.innerWidth < 640 ? "center" : "right"}
-                    wrapperStyle={{ fontSize: window.innerWidth < 640 ? '10px' : '12px' }}
+                    layout={isMobile ? "vertical" : "horizontal"}
+                    verticalAlign={isMobile ? "bottom" : "middle"}
+                    align={isMobile ? "center" : "right"}
+                    wrapperStyle={{ 
+                      fontSize: isMobile ? '10px' : '12px', 
+                      marginTop: isMobile ? '10px' : '0',
+                      width: '100%'
+                    }}
                   />
                 </RechartsSimplePieChart>
               </ResponsiveContainer>
@@ -220,27 +228,27 @@ const PortfolioAnalyzer = () => {
 
         {/* Risk Analysis */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className={isMobile ? "pb-2 px-3 pt-3" : "pb-3"}>
             <CardTitle className="flex items-center gap-2">
-              <Shield size={16} />
+              <Shield size={isMobile ? 14 : 16} />
               {t('portfolioAnalysis.riskAnalysis', 'Risk Analysis')}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isMobile ? "px-3 pb-3" : ""}>
             <div className="space-y-6">
               {analysis.riskMetrics.map((metric, i) => (
                 <div key={i} className="space-y-1">
                   <div className="flex justify-between mb-1">
-                    <div className="font-medium">{metric.name}</div>
+                    <div className={`${isMobile ? 'text-sm' : ''} font-medium`}>{metric.name}</div>
                     <Badge 
                       variant={metric.status === 'low' ? 'outline' : (metric.status === 'medium' ? 'secondary' : 'destructive')}
-                      className="px-1.5 py-0.5"
+                      className={`${isMobile ? 'px-1 py-0 text-xs' : 'px-1.5 py-0.5'}`}
                     >
                       {metric.status}
                     </Badge>
                   </div>
                   <Progress value={metric.value * 100} className="h-2" />
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground mt-1`}>
                     {metric.description}
                   </p>
                 </div>
@@ -252,24 +260,30 @@ const PortfolioAnalyzer = () => {
 
       {/* Insights */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className={isMobile ? "pb-2 px-3 pt-3" : "pb-3"}>
           <CardTitle>{t('portfolioAnalysis.insights', 'Portfolio Insights')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className={isMobile ? "p-3" : ""}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {analysis.insights.map((insight, i) => (
               <Card key={i} className="border border-border bg-card/60">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      {insight.type === 'strength' && <CheckCircle size={18} className="text-green-500" />}
-                      {insight.type === 'weakness' && <AlertTriangle size={18} className="text-amber-500" />}
-                      {insight.type === 'opportunity' && <TrendingUp size={18} className="text-blue-500" />}
-                      {insight.type === 'threat' && <XCircle size={18} className="text-red-500" />}
+                <CardContent className={isMobile ? "p-3" : "pt-6"}>
+                  <div className="flex items-start gap-2">
+                    <div className={isMobile ? "mt-0.5" : "mt-1"}>
+                      {insight.type === 'strength' && 
+                        <CheckCircle size={isMobile ? 16 : 18} className="text-green-500" />}
+                      {insight.type === 'weakness' && 
+                        <AlertTriangle size={isMobile ? 16 : 18} className="text-amber-500" />}
+                      {insight.type === 'opportunity' && 
+                        <TrendingUp size={isMobile ? 16 : 18} className="text-blue-500" />}
+                      {insight.type === 'threat' && 
+                        <XCircle size={isMobile ? 16 : 18} className="text-red-500" />}
                     </div>
                     <div className="space-y-1">
-                      <div className="font-medium">{insight.title}</div>
-                      <p className="text-sm text-muted-foreground">{insight.description}</p>
+                      <div className={`${isMobile ? 'text-sm' : ''} font-medium`}>{insight.title}</div>
+                      <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
+                        {insight.description}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -281,30 +295,30 @@ const PortfolioAnalyzer = () => {
 
       {/* Recommendations */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className={isMobile ? "pb-2 px-3 pt-3" : "pb-3"}>
           <CardTitle>{t('portfolioAnalysis.recommendations', 'Recommendations')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className={isMobile ? "p-3" : ""}>
           <div className="space-y-4">
             {analysis.recommendations.map((rec, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border">
-                <div className="mt-1">
+              <div key={i} className={`flex items-start gap-${isMobile ? '2' : '3'} ${isMobile ? 'p-2' : 'p-3'} rounded-lg border border-border`}>
+                <div className={isMobile ? "mt-0.5" : "mt-1"}>
                   {rec.impact === 'high' ? (
-                    <Badge variant="destructive" className="px-1.5">!</Badge>
+                    <Badge variant="destructive" className={`${isMobile ? 'px-1 text-xs' : 'px-1.5'}`}>!</Badge>
                   ) : rec.impact === 'medium' ? (
-                    <Badge variant="secondary" className="px-1.5">+</Badge>
+                    <Badge variant="secondary" className={`${isMobile ? 'px-1 text-xs' : 'px-1.5'}`}>+</Badge>
                   ) : (
-                    <Badge variant="outline" className="px-1.5">•</Badge>
+                    <Badge variant="outline" className={`${isMobile ? 'px-1 text-xs' : 'px-1.5'}`}>•</Badge>
                   )}
                 </div>
                 <div className="space-y-1 flex-1">
-                  <div className="font-medium">{rec.title}</div>
-                  <p className="text-sm text-muted-foreground">{rec.description}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="outline" className="px-1.5 py-0.5">
+                  <div className={`${isMobile ? 'text-sm' : ''} font-medium`}>{rec.title}</div>
+                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>{rec.description}</p>
+                  <div className={`flex ${isMobile ? 'flex-wrap' : ''} items-center gap-2 ${isMobile ? 'mt-1.5' : 'mt-2'}`}>
+                    <Badge variant="outline" className={`${isMobile ? 'px-1 py-0 text-[10px]' : 'px-1.5 py-0.5'}`}>
                       {rec.impact} impact
                     </Badge>
-                    <Badge variant="outline" className="px-1.5 py-0.5">
+                    <Badge variant="outline" className={`${isMobile ? 'px-1 py-0 text-[10px]' : 'px-1.5 py-0.5'}`}>
                       {rec.timeframe} term
                     </Badge>
                   </div>
