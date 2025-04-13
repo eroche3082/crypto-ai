@@ -12,7 +12,7 @@ import { analyzeSentiment } from "./sentiment";
 import { generateAIResponse } from "./gemini";
 import { handleVertexAIResponse } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
-import { handleGeminiChat } from "./chatbot";
+import { handleVertexChat } from "./chatbot";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
 import apiRouter from "./apiRoutes";
 import { db } from "./db";
@@ -283,8 +283,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Gemini AI proxy - using real implementation
   app.post("/api/generate-ai-response", generateAIResponse);
   
-  // Chat endpoint with Gemini AI
-  app.post("/api/chat/gemini", handleGeminiChat);
+  // Chat endpoint with Vertex Flash AI
+  app.post("/api/chat/vertex", handleVertexChat);
   
   // User onboarding profile endpoint
   app.post("/api/onboarding/profile", async (req, res) => {

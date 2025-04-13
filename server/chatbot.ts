@@ -123,9 +123,9 @@ interface Message {
 }
 
 /**
- * Express handler for Gemini chat requests
+ * Express handler for Vertex Flash chat requests
  */
-export async function handleGeminiChat(req: Request, res: Response) {
+export async function handleVertexChat(req: Request, res: Response) {
   try {
     const { message, history = [] } = req.body;
 
@@ -245,7 +245,7 @@ export async function handleGeminiChat(req: Request, res: Response) {
     }
     
   } catch (error: any) {
-    console.error('Error in handleGeminiChat:', error);
+    console.error('Error in handleVertexChat:', error);
     // Check if this is an API key error
     if (error.message?.includes('API key')) {
       return res.status(401).json({ 

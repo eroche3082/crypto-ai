@@ -90,7 +90,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
       role: 'assistant',
       content: 'Hi there! I\'m CryptoBot, your AI assistant for all things cryptocurrency. How can I help you today?',
       timestamp: new Date(),
-      model: 'gemini-1.5-pro'
+      model: 'vertex-flash'
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -143,14 +143,14 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         role: 'assistant',
         content: "Hi there! Welcome to CryptoBot. I'm your AI Assistant. Let's personalize your experience.",
         timestamp: new Date(),
-        model: 'gemini-1.5-pro'
+        model: 'vertex-flash'
       },
       {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: leadCaptureFields[0].question,
         timestamp: new Date(),
-        model: 'gemini-1.5-pro'
+        model: 'vertex-flash'
       }
     ]);
   };
@@ -193,7 +193,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: personalizedQuestion,
           timestamp: new Date(),
-          model: 'gemini-1.5-pro'
+          model: 'vertex-flash'
         }]);
         
         setIsProcessing(false);
@@ -207,7 +207,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: `Thanks, ${updatedLeadData.name}! Now let's personalize your crypto experience with a few more questions. For the following questions, you can select multiple options where applicable.`,
           timestamp: new Date(),
-          model: 'gemini-1.5-pro'
+          model: 'vertex-flash'
         }]);
         
         // Display first question with multiple choice options
@@ -217,7 +217,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: questionContent,
           timestamp: new Date(),
-          model: 'gemini-1.5-pro'
+          model: 'vertex-flash'
         }]);
         
         setIsProcessing(false);
@@ -248,7 +248,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: questionContent,
           timestamp: new Date(),
-          model: 'gemini-1.5-pro'
+          model: 'vertex-flash'
         }]);
         
         setIsProcessing(false);
@@ -262,7 +262,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: `Your personalized CryptoAI profile is ready.`,
           timestamp: new Date(),
-          model: 'gemini-1.5-pro'
+          model: 'vertex-flash'
         }]);
         
         // Add login button as a separate message
@@ -339,7 +339,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
 
     try {
       // Send to backend API
-      const response = await fetch('/api/chat/gemini', {
+      const response = await fetch('/api/chat/vertex', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -592,7 +592,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                     </div>
                     <div className="flex justify-center mt-3">
                       <p className="text-[10px] text-muted-foreground">
-                        Powered by Google Gemini, OpenAI & Anthropic APIs
+                        Powered by Google Vertex Flash, OpenAI & Anthropic APIs
                       </p>
                     </div>
                   </div>
@@ -642,7 +642,8 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                           <div className="flex items-center justify-between">
                             <label className="text-xs">Default AI Model</label>
                             <select className="text-xs border border-input bg-background rounded-md h-8 px-2">
-                              <option>Gemini Pro</option>
+                              <option>Vertex Flash</option>
+                              <option>Gemini Flash</option>
                               <option>Claude</option>
                               <option>GPT-4o</option>
                             </select>
