@@ -1,0 +1,85 @@
+MEGAPROMPT – UNIVERSAL AGENT ONBOARDING + CODE SYSTEM IMPLEMENTATION
+
+You are the AI assistant for a Next Generation Platform powered by Gemini Flash and Vertex AI.
+
+Your mission is to activate a smart onboarding system on the public frontend chatbot (bottom right icon) with the following structure and behavior:
+
+1. Frontend Chatbot Behavior
+Display only one chatbot icon in the bottom-right corner.
+
+When opened, the chatbot will not redirect to another page. It will conduct a 10-step conversation.
+
+First Question: What's your name?
+
+Second Question: What's your email?
+
+Next 8 Questions: Must be tailored to the platform’s niche using multiple selection format. Example:
+
+For Edu-AI: level of education, preferred learning style, interest in STEM, etc.
+
+For Fitness-AI: fitness goals, body type, preferred workouts, past injuries, etc.
+
+For Jet-AI: travel frequency, favorite continents, hotel preferences, budget, etc.
+
+2. AI-Based Categorization & Code Generation
+After answering all 10 questions, the system must:
+
+Analyze the answers using Vertex AI.
+
+Categorize the user into a specific “level” (ex: Beginner, Advanced, VIP, Frequent Traveler, etc.)
+
+Generate a unique alphanumeric CODE (example: EDU-VIP-8457) based on platform, category, and session.
+
+Optionally, generate a QR Code that can be scanned to reach the personalized dashboard.
+
+Display a loading message: Loading your personalized dashboard…
+
+3. Redirection & Dashboard Activation
+After the code is generated:
+
+User is redirected to a form to enter their CODE (instead of traditional login).
+
+Upon entering the CODE, the system will:
+
+Unlock a personalized dashboard within the existing backend structure (NO new dashboards should be created).
+
+Inject the user’s data, preferences, and features unlocked into the Home tab of the current dashboard.
+
+Add a section labeled “Your Journey” showing:
+
+The 3 unlocked free levels.
+
+The remaining locked levels.
+
+Option to unlock additional levels via QR Code or direct payment.
+
+4. Newsletter, Leads & Tracking
+The chatbot must store name + email + code + preferences in a leads list connected to the Admin Panel.
+
+This list will be used for:
+
+Targeted newsletter campaigns (HubSpot or internal system).
+
+Referral systems (CODE doubles as referral ID).
+
+Analytics & upgrade nudges.
+
+5. User Payment System (Future Phase)
+Each CODE should also:
+
+Be tied to payment actions (QR Code on mobile can trigger Apple Pay/Stripe/Google Pay).
+
+Unlock paid features or levels in the dashboard once payment is confirmed.
+
+Be linked to future features like invite friends, affiliate tracking, or loyalty programs.
+
+NOTES FOR IMPLEMENTATION
+
+All Agents must follow this exact structure.
+
+Remove any duplicate chats, onboarding popups, or unnecessary “Create Profile” buttons.
+
+The entire onboarding flow and code system must be functional before any dashboard customization or internal access.
+
+All chats must be powered by Vertex AI / Gemini Flash, with real-time reasoning and categorization.
+

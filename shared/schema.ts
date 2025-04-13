@@ -368,16 +368,26 @@ export const userOnboardingProfiles = pgTable("user_onboarding_profiles", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
+  
+  // Core profile data
   crypto_experience_level: text("crypto_experience_level"),
-  investment_goals: json("investment_goals"), // array of goals
-  investment_timeframe: text("investment_timeframe"),
-  risk_tolerance: text("risk_tolerance"),
-  interests: json("interests"), // array of interests
-  initial_investment: text("initial_investment"),
+  investor_type: json("investor_type"), // array - Renamed from investment_goals
   preferred_cryptocurrencies: json("preferred_cryptocurrencies"), // array of cryptos
-  learning_preferences: json("learning_preferences"), // array of learning prefs
-  trading_frequency: text("trading_frequency"),
+  monthly_investment: text("monthly_investment"), // Renamed from initial_investment
+  used_platforms: json("used_platforms"), // array - New field
+  insight_preferences: json("insight_preferences"), // array - New field
+  alert_preferences: text("alert_preferences"), // New field
+  risk_tolerance: text("risk_tolerance"),
+  nft_preferences: text("nft_preferences"), // New field
   timezone: text("timezone"),
+  
+  // Universal Agent Onboarding Code System fields
+  unique_code: text("unique_code").unique(), // Generated access code
+  user_category: text("user_category"), // BEGINNER, INTER, EXPERT, VIP, etc.
+  unlocked_features: json("unlocked_features").default("[]"), // Features unlocked based on level
+  referral_count: integer("referral_count").default(0), // Count of users who used this code as referral
+  
+  // System fields
   onboarding_completed: boolean("onboarding_completed").default(false),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),

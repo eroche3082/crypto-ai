@@ -256,45 +256,65 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         // Onboarding complete
         setIsOnboarding(false);
         
-        // Add completion message exactly as specified in MEGAPROMPT
+        // Show loading state while analyzing responses and generating code
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: `Your personalized CryptoAI profile is ready.`,
+          content: `Analyzing your responses and generating your personalized access code...`,
           timestamp: new Date(),
           model: 'vertex-flash'
         }]);
         
-        // Add login button as a separate message
-        setTimeout(() => {
-          setMessages(prev => [...prev, {
-            id: (Date.now() + 1).toString(),
-            role: 'assistant',
-            content: 'Login to Dashboard',
-            timestamp: new Date(),
-            model: 'vertex-flash'
-          }]);
-        }, 1000);
+        // Generate a unique code based on user profile
+        const generateUniqueCode = () => {
+          // Determine user level based on their responses
+          let userLevel = 'BEGINNER';
+          
+          // Check experience level
+          if (selectedOptions[0]?.[0] === 'Expert') {
+            userLevel = 'EXPERT';
+          } else if (selectedOptions[0]?.[0] === 'Intermediate') {
+            userLevel = 'INTER';
+          }
+          
+          // Check investment amount to potentially upgrade level
+          if (selectedOptions[3]?.[0] === '$1000+') {
+            if (userLevel !== 'EXPERT') userLevel = 'VIP';
+          }
+          
+          // Generate random alphanumeric part (4 digits)
+          const randomPart = Math.floor(1000 + Math.random() * 9000);
+          
+          // Final code format: CRYPTO-[LEVEL]-[RANDOM]
+          return `CRYPTO-${userLevel}-${randomPart}`;
+        };
         
-        // Save complete profile data to the backend API
+        // Generate the code
+        const uniqueCode = generateUniqueCode();
+        
+        // Create complete profile data with the unique code
         const profileData = {
           name: leadCaptureData.name || '',
           email: leadCaptureData.email || '',
           crypto_experience_level: selectedOptions[0]?.[0] || '',
-          investment_goals: selectedOptions[1] || [],
-          investment_timeframe: selectedOptions[2]?.[0] || '',
-          risk_tolerance: selectedOptions[3]?.[0] || '',
-          interests: selectedOptions[4] || [],
-          initial_investment: selectedOptions[5]?.[0] || '',
-          preferred_cryptocurrencies: selectedOptions[6] || [],
-          learning_preferences: selectedOptions[7] || [],
-          trading_frequency: selectedOptions[8]?.[0] || '',
+          investor_type: selectedOptions[1] || [],
+          preferred_cryptocurrencies: selectedOptions[2] || [],
+          monthly_investment: selectedOptions[3]?.[0] || '',
+          used_platforms: selectedOptions[4] || [],
+          insight_preferences: selectedOptions[5] || [],
+          alert_preferences: selectedOptions[6]?.[0] || '',
+          risk_tolerance: selectedOptions[7]?.[0] || '',
+          nft_preferences: selectedOptions[8]?.[0] || '',
           timezone: selectedOptions[9]?.[0] || '',
-          onboarding_completed: true
+          onboarding_completed: true,
+          unique_code: uniqueCode,
+          user_category: uniqueCode.split('-')[1],
+          created_at: new Date().toISOString()
         };
         
         // Save to localStorage as fallback
         localStorage.setItem('cryptoUserProfile', JSON.stringify(profileData));
+        localStorage.setItem('cryptoAccessCode', uniqueCode);
         
         // Send to backend API
         try {
@@ -315,13 +335,37 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           console.error('Error saving onboarding profile to database:', error);
         }
         
+        // Show the unique code after a delay
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: `Your personalized dashboard is ready! Your unique access code is: **${uniqueCode}**\n\nThis code gives you access to our personalized dashboard with features unlocked based on your profile. You can also use it as a referral code to invite friends.`,
+            timestamp: new Date(),
+            model: 'vertex-flash'
+          }]);
+          
+          // Add the "Login to Dashboard" message after a brief delay
+          setTimeout(() => {
+            setMessages(prev => [...prev, {
+              id: (Date.now() + 2).toString(),
+              role: 'assistant',
+              content: 'Login to Dashboard',
+              timestamp: new Date(),
+              model: 'vertex-flash'
+            }]);
+          }, 1500);
+        }, 2000);
+        
         setIsProcessing(false);
         
-        // Redirect to dashboard after a delay
+        // Redirect to dashboard after a delay - we'll pass the code as a parameter
         setTimeout(() => {
-          // Use the original dashboard route
+          // Store the code in session storage for use in the dashboard
+          sessionStorage.setItem('cryptoAccessCode', uniqueCode);
+          // Redirect to dashboard
           setLocation('/dashboard');
-        }, 4000);
+        }, 6000);
       }
       return;
     }
