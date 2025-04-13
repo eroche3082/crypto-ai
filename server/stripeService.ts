@@ -15,7 +15,7 @@ const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY) 
   : null;
 
-// Define paid levels and their features
+// Define paid levels, their features, and animation settings
 const PAID_LEVELS = {
   'BASIC': {
     price: 1999, // $19.99
@@ -26,7 +26,15 @@ const PAID_LEVELS = {
       'News Feed',
       'Email Alerts'
     ],
-    description: 'Essential tools for crypto beginners and casual investors'
+    description: 'Essential tools for crypto beginners and casual investors',
+    animation: {
+      type: 'fade-in',
+      color: '3B82F6', // Blue
+      icon: 'chart-bar',
+      duration: 1200,
+      confetti: true,
+      sound: 'success-chime'
+    }
   },
   'PRO': {
     price: 4999, // $49.99
@@ -39,7 +47,16 @@ const PAID_LEVELS = {
       'Trading Signals',
       'Tax Reporting'
     ],
-    description: 'Comprehensive toolkit for serious crypto traders'
+    description: 'Comprehensive toolkit for serious crypto traders',
+    animation: {
+      type: 'scale-pulse',
+      color: '8B5CF6', // Purple
+      icon: 'trending-up',
+      duration: 1500,
+      confetti: true,
+      particles: true,
+      sound: 'achievement-unlock'
+    }
   },
   'PREMIUM': {
     price: 9999, // $99.99
@@ -52,7 +69,17 @@ const PAID_LEVELS = {
       'Priority Support',
       'Early Access to New Features'
     ],
-    description: 'Enterprise-grade solutions for professional traders and institutions'
+    description: 'Enterprise-grade solutions for professional traders and institutions',
+    animation: {
+      type: 'fireworks',
+      color: 'F59E0B', // Amber/Gold
+      icon: 'crown',
+      duration: 2000,
+      confetti: true,
+      particles: true,
+      fireworks: true,
+      sound: 'premium-unlock'
+    }
   }
 };
 
@@ -228,6 +255,29 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
       ...level.features
     ];
 
+    // Get the animation settings for this level
+    const animationSettings = level.animation || {
+      type: 'fade-in',
+      color: '3B82F6',
+      icon: 'check',
+      duration: 1000,
+      confetti: true
+    };
+    
+    // Create a record of the unlock with animation settings
+    const levelUnlockRecord = {
+      level: levelId,
+      unlocked_at: new Date().toISOString(),
+      animation: animationSettings,
+      payment_amount: level.price / 100,
+      payment_reference: session.id
+    };
+    
+    // Get existing unlock history or initialize new array
+    const unlockHistory = Array.isArray(profile.level_unlock_history) 
+      ? [...profile.level_unlock_history, levelUnlockRecord]
+      : [levelUnlockRecord];
+    
     // Update the profile in the database
     await db.update(userOnboardingProfiles)
       .set({
@@ -237,11 +287,13 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
         last_payment_date: new Date(),
         payment_amount: level.price / 100, // Convert cents to dollars
         payment_currency: 'USD',
-        payment_reference: session.id
+        payment_reference: session.id,
+        level_unlock_history: unlockHistory,
+        pending_animations: true // Flag to indicate there are animations to show
       })
       .where(eq(userOnboardingProfiles.id, id));
 
-    console.log(`Successfully updated profile ${id} with new level ${levelId}`);
+    console.log(`Successfully updated profile ${id} with new level ${levelId} and animation settings`);
   } catch (error) {
     console.error('Error handling successful payment:', error);
   }
@@ -262,7 +314,8 @@ export async function getAvailableLevels(req: Request, res: Response) {
           name: level.name,
           price: level.price / 100,
           features: level.features,
-          description: level.description
+          description: level.description,
+          animation: level.animation || null
         }))
       });
     }
@@ -289,16 +342,41 @@ export async function getAvailableLevels(req: Request, res: Response) {
       price: level.price / 100,
       features: level.features,
       description: level.description,
-      unlocked: unlockedLevels.includes(id)
+      unlocked: unlockedLevels.includes(id),
+      animation: level.animation || null,
+      // If level is already unlocked, don't send animation settings
+      // This prevents showing animation again for already unlocked levels
+      animationStatus: unlockedLevels.includes(id) ? 'completed' : 'pending'
     }));
 
+    // Check if there are pending animations to show
+    const pendingAnimations = profile.pending_animations || false;
+    const unlockHistory = profile.level_unlock_history || [];
+    
+    // Get only most recent animations that haven't been shown yet
+    const recentUnlocks = pendingAnimations 
+      ? unlockHistory.slice(-3) // Get last 3 unlocks if pending
+      : [];
+    
+    // If animations are returned, mark them as shown
+    if (pendingAnimations && recentUnlocks.length > 0) {
+      // Update the profile to mark animations as shown
+      await db.update(userOnboardingProfiles)
+        .set({
+          pending_animations: false
+        })
+        .where(eq(userOnboardingProfiles.id, profile.id));
+    }
+    
     res.json({
       levels: levelsWithStatus,
       profile: {
         id: profile.id,
         name: profile.name,
         email: profile.email,
-        subscription_status: profile.subscription_status || 'free'
+        subscription_status: profile.subscription_status || 'free',
+        pendingAnimations: pendingAnimations,
+        recentUnlocks: recentUnlocks
       }
     });
   } catch (error) {
@@ -385,19 +463,47 @@ export async function verifyReferralCode(req: Request, res: Response) {
       ...(userProfile.unlocked_features || []),
       ...referralFeatures
     ];
+    
+    // Create animation settings for referral reward
+    const referralAnimation = {
+      type: 'slide-up',
+      color: '10B981', // Green
+      icon: 'gift',
+      duration: 1500,
+      confetti: true,
+      sound: 'referral-reward'
+    };
+    
+    // Create a record of the referral with animation settings
+    const referralUnlockRecord = {
+      type: 'referral',
+      unlocked_at: new Date().toISOString(),
+      referral_code: referralCode,
+      referrer_name: referrerProfile.name,
+      features: referralFeatures,
+      animation: referralAnimation
+    };
+    
+    // Get existing unlock history or initialize new array
+    const unlockHistory = Array.isArray(userProfile.level_unlock_history) 
+      ? [...userProfile.level_unlock_history, referralUnlockRecord]
+      : [referralUnlockRecord];
 
     await db.update(userOnboardingProfiles)
       .set({
         unlocked_features: updatedFeatures,
         used_referral_code: referralCode,
-        referral_date: new Date()
+        referral_date: new Date(),
+        level_unlock_history: unlockHistory,
+        pending_animations: true
       })
       .where(eq(userOnboardingProfiles.id, userProfile.id));
 
     res.json({
       success: true,
       message: 'Referral code successfully applied',
-      unlockedFeatures: referralFeatures
+      unlockedFeatures: referralFeatures,
+      animation: referralAnimation
     });
   } catch (error) {
     console.error('Error verifying referral code:', error);
