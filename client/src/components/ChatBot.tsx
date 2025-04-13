@@ -918,12 +918,37 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         console.error('Error saving onboarding profile to database:', error);
       });
       
-      // Show the unique code after a delay
+      // Generate QR code for dashboard access
+      const dashboardUrl = `${window.location.origin}/dashboard?code=${uniqueCode}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(dashboardUrl)}&size=200x200`;
+      
+      // Show the unique code and QR code after a delay
       setTimeout(() => {
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: `Your personalized dashboard is ready! Your unique access code is: **${uniqueCode}**\n\nThis code gives you access to our personalized dashboard with features unlocked based on your profile. You can also use it as a referral code to invite friends.`,
+          content: `<div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 mb-4">
+  <div class="flex items-center gap-2 p-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-indigo-600">
+      <span class="text-lg font-semibold">🌟</span>
+    </div>
+    <h3 class="text-indigo-800 font-semibold">PROFILE CREATION COMPLETE</h3>
+  </div>
+  
+  <p class="text-indigo-800 mb-4">Your personalized dashboard is ready!</p>
+  
+  <div class="bg-white p-3 rounded-md mb-4 border-2 border-indigo-400 text-center">
+    <p class="text-xs text-indigo-600 mb-1">Your Unique Access Code</p>
+    <p class="text-lg font-bold text-indigo-800">${uniqueCode}</p>
+    <div class="flex justify-center mt-3">
+      <img src="${qrCodeUrl}" alt="QR Code" class="w-24 h-24" />
+    </div>
+    <p class="text-xs text-indigo-500 mt-1">Scan this code to access your dashboard</p>
+  </div>
+  
+  <p class="text-sm text-indigo-700 mb-2">This code gives you access to personalized features based on your profile.</p>
+  <p class="text-xs text-indigo-600 mb-3">You can also use it as a referral code to invite friends.</p>
+</div>`,
           timestamp: new Date(),
           model: 'vertex-flash'
         }]);
@@ -938,6 +963,18 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
             model: 'vertex-flash'
           }]);
         }, 1500);
+        
+        // Save the QR code URL to the database for the profile
+        fetch(`/api/access-code/generate-qr/${uniqueCode}`)
+          .then(response => {
+            if (!response.ok) {
+              console.error('Failed to generate QR code in the database');
+            }
+          })
+          .catch(error => {
+            console.error('Error generating QR code:', error);
+          });
+          
       }, 2000);
       
       // Redirect to dashboard after a delay - we'll pass the code as a parameter

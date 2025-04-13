@@ -266,6 +266,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', apiRouter);
   app.use('/api/v2', apiRouter); // Keep v2 for backward compatibility
   
+  // Register Universal Access Code System routes
+  app.use('/api/access-code', accessCodeRouter);
+  app.use('/api/admin/access-code', accessCodeAdminRouter);
+  
   // API Routes
   
   // User management

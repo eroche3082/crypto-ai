@@ -396,6 +396,7 @@ export const userOnboardingProfiles = pgTable("user_onboarding_profiles", {
   
   // QR Code access
   qr_code_url: text("qr_code_url"), // URL to the QR code for dashboard access
+  qr_code_generated_at: timestamp("qr_code_generated_at"), // When QR code was generated
   last_access_date: timestamp("last_access_date"), // Last access date
   access_count: integer("access_count").default(0), // Number of times accessed
   
@@ -584,6 +585,19 @@ export const insertUserOnboardingProfileSchema = createInsertSchema(userOnboardi
   id: true,
   created_at: true,
   updated_at: true,
+  access_count: true,
+  last_access_date: true,
+  qr_code_url: true,
+  qr_code_generated_at: true,
+  payment_amount: true,
+  payment_currency: true,
+  payment_reference: true,
+  stripe_payment_history: true,
+  unlocked_levels: true,
+  unlocked_features: true,
+  referral_count: true,
+  used_referral_code: true,
+  referral_date: true,
 });
 export type InsertUserOnboardingProfile = z.infer<typeof insertUserOnboardingProfileSchema>;
 export type UserOnboardingProfile = typeof userOnboardingProfiles.$inferSelect;

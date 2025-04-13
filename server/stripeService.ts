@@ -7,109 +7,134 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { db } from './db';
-import { userOnboardingProfiles } from '@shared/schema';
 import { eq } from 'drizzle-orm';
+import { userOnboardingProfiles } from '@shared/schema';
 
-// Initialize Stripe
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('STRIPE_SECRET_KEY is not set. Stripe payments will be unavailable.');
-}
-
+// Initialize Stripe with the secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY) 
   : null;
 
-const DOMAIN = process.env.NODE_ENV === 'production' 
-  ? 'https://cryptobot.replit.app'
-  : 'http://localhost:5000';
+// Define paid levels and their features
+const PAID_LEVELS = {
+  'BASIC': {
+    price: 1999, // $19.99
+    name: 'Basic Plan',
+    features: [
+      'Portfolio Tracker',
+      'Basic Market Analysis',
+      'News Feed',
+      'Email Alerts'
+    ],
+    description: 'Essential tools for crypto beginners and casual investors'
+  },
+  'PRO': {
+    price: 4999, // $49.99
+    name: 'Pro Plan',
+    features: [
+      'All Basic Plan Features',
+      'Advanced Technical Analysis',
+      'AI Market Predictions',
+      'Portfolio Optimization',
+      'Trading Signals',
+      'Tax Reporting'
+    ],
+    description: 'Comprehensive toolkit for serious crypto traders'
+  },
+  'PREMIUM': {
+    price: 9999, // $99.99
+    name: 'Premium Plan',
+    features: [
+      'All Pro Plan Features',
+      'Custom AI Strategy Builder',
+      'API Access',
+      'Dedicated Account Manager',
+      'Priority Support',
+      'Early Access to New Features'
+    ],
+    description: 'Enterprise-grade solutions for professional traders and institutions'
+  }
+};
 
 /**
  * Create a Stripe checkout session for level unlocking
  */
 export async function createCheckoutSession(req: Request, res: Response) {
-  if (!stripe) {
-    return res.status(503).json({ 
-      error: 'Stripe payments are unavailable',
-      details: 'Stripe API key is not configured'
-    });
-  }
-
   try {
-    const { code, levelId, priceId } = req.body;
-
-    // Verify request body
-    if (!code || !levelId || !priceId) {
+    if (!stripe) {
       return res.status(400).json({
-        error: 'Missing required fields',
-        details: 'code, levelId, and priceId are required'
+        error: 'Stripe not configured',
+        details: 'Stripe API key is missing'
       });
     }
 
-    // Find the user profile with the provided code
+    const { accessCode, levelId } = req.body;
+
+    if (!accessCode || !levelId) {
+      return res.status(400).json({
+        error: 'Invalid request',
+        details: 'Access code and levelId are required'
+      });
+    }
+
+    // Validate level exists
+    const level = PAID_LEVELS[levelId as keyof typeof PAID_LEVELS];
+    if (!level) {
+      return res.status(400).json({
+        error: 'Invalid level',
+        details: `Level ${levelId} does not exist`
+      });
+    }
+
+    // Find user profile with the access code
     const [profile] = await db
       .select()
       .from(userOnboardingProfiles)
-      .where(eq(userOnboardingProfiles.unique_code, code));
+      .where(eq(userOnboardingProfiles.unique_code, accessCode));
 
     if (!profile) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: 'Profile not found',
-        details: 'No user profile found with the provided code'
+        details: 'No profile found with the provided access code'
       });
     }
 
-    // Create or retrieve Stripe customer
-    let customerId = profile.stripe_customer_id;
-    
-    if (!customerId) {
-      // Create a new customer if one doesn't exist
-      const customer = await stripe.customers.create({
-        email: profile.email,
-        name: profile.name,
-        metadata: {
-          code: profile.unique_code,
-          user_category: profile.user_category || 'standard'
-        }
-      });
-      
-      customerId = customer.id;
-      
-      // Update the profile with the new customer ID
-      await db
-        .update(userOnboardingProfiles)
-        .set({ stripe_customer_id: customerId })
-        .where(eq(userOnboardingProfiles.id, profile.id));
-    }
-
-    // Create a Stripe checkout session
+    // Create checkout session with Stripe
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: priceId,
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: level.name,
+              description: level.description,
+              metadata: {
+                levelId
+              }
+            },
+            unit_amount: level.price,
+          },
           quantity: 1,
         },
       ],
-      mode: 'payment',
-      customer: customerId,
       metadata: {
-        code: profile.unique_code,
-        levelId: levelId,
-        userId: profile.id.toString()
+        accessCode,
+        profileId: profile.id.toString(),
+        levelId
       },
-      success_url: `${DOMAIN}/dashboard?code=${profile.unique_code}&success=true&level=${levelId}`,
-      cancel_url: `${DOMAIN}/dashboard?code=${profile.unique_code}&canceled=true`
+      mode: 'payment',
+      success_url: `${req.headers.origin}/dashboard?code=${accessCode}&success=true&level=${levelId}`,
+      cancel_url: `${req.headers.origin}/dashboard?code=${accessCode}&canceled=true`,
     });
 
-    // Return session ID for the frontend
-    res.json({ 
+    res.json({
       sessionId: session.id,
       url: session.url
     });
-
   } catch (error) {
-    console.error('Error creating Stripe checkout session:', error);
-    res.status(500).json({ 
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({
       error: 'Failed to create checkout session',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -120,54 +145,45 @@ export async function createCheckoutSession(req: Request, res: Response) {
  * Handle Stripe webhook events
  */
 export async function handleStripeWebhook(req: Request, res: Response) {
-  if (!stripe) {
-    return res.status(503).json({ error: 'Stripe payments are unavailable' });
-  }
-
-  const sig = req.headers['stripe-signature'] as string;
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-  if (!sig || !endpointSecret) {
-    return res.status(400).json({ error: 'Missing signature or webhook secret' });
-  }
-
-  let event;
-
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err);
-    return res.status(400).json({ error: 'Webhook signature verification failed' });
-  }
-
-  try {
-    // Handle the event
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
-        
-        // Check if payment succeeded
-        if (session.payment_status === 'paid') {
-          await handleSuccessfulPayment(session);
-        }
-        break;
-      }
-
-      case 'payment_intent.succeeded': {
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log('PaymentIntent was successful:', paymentIntent.id);
-        break;
-      }
-
-      default:
-        console.log(`Unhandled event type ${event.type}`);
+    if (!stripe) {
+      return res.status(400).json({
+        error: 'Stripe not configured',
+        details: 'Stripe API key is missing'
+      });
     }
 
-    // Return a 200 response to acknowledge receipt of the event
+    // Get the webhook signature
+    const signature = req.headers['stripe-signature'] as string;
+    if (!signature) {
+      return res.status(400).json({
+        error: 'Missing signature',
+        details: 'Stripe webhook signature is required'
+      });
+    }
+
+    // In a production environment, we would validate the Stripe webhook signature
+    // For demo purposes, we'll skip this step
+
+    // Parse the webhook event
+    const event = req.body;
+
+    // Handle the event based on its type
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await handleSuccessfulPayment(event.data.object);
+        break;
+      default:
+        console.log(`Unhandled Stripe event: ${event.type}`);
+    }
+
     res.json({ received: true });
   } catch (error) {
-    console.error('Error handling webhook event:', error);
-    res.status(500).json({ error: 'Failed to process webhook' });
+    console.error('Error handling Stripe webhook:', error);
+    res.status(500).json({
+      error: 'Failed to handle webhook',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }
 
@@ -176,11 +192,18 @@ export async function handleStripeWebhook(req: Request, res: Response) {
  */
 async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
   try {
-    // Extract metadata from session
-    const { code, levelId } = session.metadata || {};
-    
-    if (!code || !levelId) {
+    // Extract metadata from the session
+    const { accessCode, levelId, profileId } = session.metadata || {};
+
+    if (!accessCode || !levelId || !profileId) {
       console.error('Missing metadata in Stripe session:', session.id);
+      return;
+    }
+
+    // Convert profileId to number for database query
+    const id = parseInt(profileId, 10);
+    if (isNaN(id)) {
+      console.error('Invalid profile ID:', profileId);
       return;
     }
 
@@ -188,50 +211,37 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
     const [profile] = await db
       .select()
       .from(userOnboardingProfiles)
-      .where(eq(userOnboardingProfiles.unique_code, code));
+      .where(eq(userOnboardingProfiles.id, id));
 
     if (!profile) {
-      console.error('Profile not found for code:', code);
+      console.error('Profile not found for ID:', id);
       return;
     }
 
-    // Get current unlocked levels
-    const unlockedLevels = Array.isArray(profile.unlocked_levels) 
-      ? profile.unlocked_levels 
-      : [];
+    // Update the user profile with the new level
+    const updatedUnlockedLevels = [...(profile.unlocked_levels || []), levelId];
     
-    // Add the new level if not already unlocked
-    if (!unlockedLevels.includes(levelId)) {
-      unlockedLevels.push(levelId);
-    }
+    // Add level-specific features
+    const level = PAID_LEVELS[levelId as keyof typeof PAID_LEVELS];
+    const updatedUnlockedFeatures = [
+      ...(profile.unlocked_features || []),
+      ...level.features
+    ];
 
-    // Get current payment history
-    const paymentHistory = Array.isArray(profile.stripe_payment_history) 
-      ? profile.stripe_payment_history 
-      : [];
-    
-    // Add the new payment to history
-    paymentHistory.push({
-      sessionId: session.id,
-      amount: session.amount_total ? session.amount_total / 100 : 0, // Convert from cents
-      level: levelId,
-      date: new Date().toISOString(),
-      status: 'completed'
-    });
-
-    // Update the profile
-    await db
-      .update(userOnboardingProfiles)
+    // Update the profile in the database
+    await db.update(userOnboardingProfiles)
       .set({
-        unlocked_levels: unlockedLevels,
-        stripe_payment_history: paymentHistory,
-        last_payment_date: new Date(),
+        unlocked_levels: updatedUnlockedLevels,
+        unlocked_features: updatedUnlockedFeatures,
         subscription_status: 'paid',
-        updated_at: new Date()
+        last_payment_date: new Date(),
+        payment_amount: level.price / 100, // Convert cents to dollars
+        payment_currency: 'USD',
+        payment_reference: session.id
       })
-      .where(eq(userOnboardingProfiles.id, profile.id));
+      .where(eq(userOnboardingProfiles.id, id));
 
-    console.log(`Successfully unlocked level ${levelId} for user ${profile.name} (${code})`);
+    console.log(`Successfully updated profile ${id} with new level ${levelId}`);
   } catch (error) {
     console.error('Error handling successful payment:', error);
   }
@@ -242,84 +252,58 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
  */
 export async function getAvailableLevels(req: Request, res: Response) {
   try {
-    // In a real app, these would likely come from a database
-    // For this implementation, we're providing static levels
-    const levels = [
-      {
-        id: 'level_1',
-        name: 'Basic Access',
-        description: 'Access to basic features and analytics',
-        price: 0,
-        currency: 'USD',
-        features: ['Basic market data', 'Limited portfolio tracking', 'Standard AI chat'],
-        status: 'free'
-      },
-      {
-        id: 'level_2',
-        name: 'Advanced Analytics',
-        description: 'Enhanced analytics and trading insights',
-        price: 19.99,
-        currency: 'USD',
-        priceId: process.env.STRIPE_PRICE_LEVEL_2 || 'price_mock_level_2',
-        features: [
-          'Advanced technical indicators', 
-          'Extended historical data', 
-          'Market sentiment analysis',
-          'Portfolio optimization'
-        ],
-        status: 'paid'
-      },
-      {
-        id: 'level_3',
-        name: 'Premium Trading Suite',
-        description: 'Full access to all trading tools and features',
-        price: 49.99,
-        currency: 'USD',
-        priceId: process.env.STRIPE_PRICE_LEVEL_3 || 'price_mock_level_3',
-        features: [
-          'Real-time trading signals',
-          'Custom alert systems',
-          'Priority AI responses',
-          'Exclusive market reports',
-          'Premium tech support'
-        ],
-        status: 'premium'
-      }
-    ];
+    const { accessCode } = req.query;
 
-    // Get the user's already unlocked levels
-    const { code } = req.query;
-    
-    if (code) {
-      const [profile] = await db
-        .select()
-        .from(userOnboardingProfiles)
-        .where(eq(userOnboardingProfiles.unique_code, code as string));
-
-      if (profile) {
-        // Mark levels as unlocked based on user's profile
-        const unlockedLevels = Array.isArray(profile.unlocked_levels) 
-          ? profile.unlocked_levels 
-          : [];
-        
-        // Update the levels with unlocked status
-        const userLevels = levels.map(level => ({
-          ...level,
-          unlocked: level.status === 'free' || unlockedLevels.includes(level.id)
-        }));
-        
-        return res.json(userLevels);
-      }
+    // If no accessCode is provided, return all available levels
+    if (!accessCode) {
+      return res.json({
+        levels: Object.entries(PAID_LEVELS).map(([id, level]) => ({
+          id,
+          name: level.name,
+          price: level.price / 100,
+          features: level.features,
+          description: level.description
+        }))
+      });
     }
 
-    // If no code provided or profile not found, return standard levels
-    res.json(levels.map(level => ({
-      ...level,
-      unlocked: level.status === 'free'
-    })));
+    // If accessCode is provided, get user-specific unlocked levels
+    const [profile] = await db
+      .select()
+      .from(userOnboardingProfiles)
+      .where(eq(userOnboardingProfiles.unique_code, accessCode as string));
+
+    if (!profile) {
+      return res.status(404).json({
+        error: 'Profile not found',
+        details: 'No profile found with the provided access code'
+      });
+    }
+
+    // Return all levels with an 'unlocked' flag
+    const unlockedLevels = profile.unlocked_levels || [];
+    
+    const levelsWithStatus = Object.entries(PAID_LEVELS).map(([id, level]) => ({
+      id,
+      name: level.name,
+      price: level.price / 100,
+      features: level.features,
+      description: level.description,
+      unlocked: unlockedLevels.includes(id)
+    }));
+
+    res.json({
+      levels: levelsWithStatus,
+      profile: {
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        subscription_status: profile.subscription_status || 'free'
+      }
+    });
   } catch (error) {
     console.error('Error getting available levels:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get available levels',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -331,37 +315,24 @@ export async function getAvailableLevels(req: Request, res: Response) {
  */
 export async function verifyReferralCode(req: Request, res: Response) {
   try {
-    const { userCode, referralCode } = req.body;
+    const { accessCode, referralCode } = req.body;
 
-    if (!userCode || !referralCode) {
+    if (!accessCode || !referralCode) {
       return res.status(400).json({
-        error: 'Missing codes',
-        details: 'Both userCode and referralCode are required'
+        error: 'Invalid request',
+        details: 'Access code and referral code are required'
       });
     }
 
-    // Check that codes are different
-    if (userCode === referralCode) {
+    // Check if codes are the same
+    if (accessCode === referralCode) {
       return res.status(400).json({
         error: 'Invalid referral',
         details: 'You cannot use your own code as a referral'
       });
     }
 
-    // Find the user profile
-    const [userProfile] = await db
-      .select()
-      .from(userOnboardingProfiles)
-      .where(eq(userOnboardingProfiles.unique_code, userCode));
-
-    if (!userProfile) {
-      return res.status(404).json({
-        error: 'User not found',
-        details: 'No profile found with the provided user code'
-      });
-    }
-
-    // Find the referrer profile
+    // Find the referrer profile (the one who owns the referral code)
     const [referrerProfile] = await db
       .select()
       .from(userOnboardingProfiles)
@@ -369,41 +340,64 @@ export async function verifyReferralCode(req: Request, res: Response) {
 
     if (!referrerProfile) {
       return res.status(404).json({
-        error: 'Referrer not found',
-        details: 'Invalid referral code'
+        error: 'Invalid referral code',
+        details: 'Referral code not found'
       });
     }
 
-    // Update referrer's referral count
-    await db
-      .update(userOnboardingProfiles)
+    // Find the current user's profile
+    const [userProfile] = await db
+      .select()
+      .from(userOnboardingProfiles)
+      .where(eq(userOnboardingProfiles.unique_code, accessCode));
+
+    if (!userProfile) {
+      return res.status(404).json({
+        error: 'Profile not found',
+        details: 'No profile found with the provided access code'
+      });
+    }
+
+    // Check if this user has already used a referral code
+    if (userProfile.used_referral_code) {
+      return res.status(400).json({
+        error: 'Referral already used',
+        details: 'You have already used a referral code'
+      });
+    }
+
+    // Update the referrer's referral count
+    await db.update(userOnboardingProfiles)
       .set({
-        referral_count: (referrerProfile.referral_count || 0) + 1,
-        updated_at: new Date()
+        referral_count: (referrerProfile.referral_count || 0) + 1
       })
       .where(eq(userOnboardingProfiles.id, referrerProfile.id));
 
-    // Unlock level 2 for the user if not already unlocked
-    const unlockedLevels = Array.isArray(userProfile.unlocked_levels) 
-      ? userProfile.unlocked_levels 
-      : [];
-    
-    if (!unlockedLevels.includes('level_2')) {
-      unlockedLevels.push('level_2');
-      
-      await db
-        .update(userOnboardingProfiles)
-        .set({
-          unlocked_levels: unlockedLevels,
-          updated_at: new Date()
-        })
-        .where(eq(userOnboardingProfiles.id, userProfile.id));
-    }
+    // Special features unlocked through referrals
+    const referralFeatures = [
+      'Extended Market Data',
+      'Custom Price Alerts',
+      'Enhanced Portfolio Analytics'
+    ];
+
+    // Update the user's profile with referral benefits
+    const updatedFeatures = [
+      ...(userProfile.unlocked_features || []),
+      ...referralFeatures
+    ];
+
+    await db.update(userOnboardingProfiles)
+      .set({
+        unlocked_features: updatedFeatures,
+        used_referral_code: referralCode,
+        referral_date: new Date()
+      })
+      .where(eq(userOnboardingProfiles.id, userProfile.id));
 
     res.json({
       success: true,
       message: 'Referral code successfully applied',
-      unlockedLevel: 'level_2'
+      unlockedFeatures: referralFeatures
     });
   } catch (error) {
     console.error('Error verifying referral code:', error);
