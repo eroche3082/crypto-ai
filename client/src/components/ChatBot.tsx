@@ -519,10 +519,76 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
   <div class="bg-white p-3 rounded-md mb-4 border-2 border-indigo-400 text-center">
     <p class="text-xs text-indigo-600 mb-1">Your Unique Access Code</p>
     <p class="text-lg font-bold text-indigo-800">${uniqueCode}</p>
+    <div class="flex justify-center mt-3">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(uniqueCode)}" alt="QR Code" class="w-24 h-24" />
+    </div>
+    <p class="text-xs text-indigo-500 mt-1">Scan this code to access your dashboard</p>
   </div>
   
   <p class="text-sm text-indigo-700 mb-2">This code gives you access to personalized features based on your profile.</p>
-  <p class="text-xs text-indigo-600">You can also use it as a referral code to invite friends.</p>
+  <p class="text-xs text-indigo-600 mb-3">You can also use it as a referral code to invite friends.</p>
+  
+  <div class="bg-indigo-50 p-3 rounded-md border border-indigo-200">
+    <p class="text-xs font-medium text-indigo-700 mb-2">📈 Recommended Features for You:</p>
+    <ul class="text-xs text-indigo-600 space-y-1.5">
+      ${(() => {
+        // Define recommended features based on user's profile
+        const recommendations = [];
+        
+        // Add recommendations based on experience level
+        if (selectedOptions[0]?.[0] === 'Beginner') {
+          recommendations.push('📚 Crypto 101 Education Modules');
+          recommendations.push('🔍 Basic Market Analysis Tools');
+        } else if (selectedOptions[0]?.[0] === 'Intermediate') {
+          recommendations.push('📊 Advanced Chart Analysis');
+          recommendations.push('💸 DeFi Yield Comparison');
+        } else if (selectedOptions[0]?.[0] === 'Expert') {
+          recommendations.push('🤖 Trading Bot Configuration');
+          recommendations.push('📈 API-Driven Custom Analytics');
+        }
+        
+        // Add recommendations based on investor type
+        if (selectedOptions[1]?.includes('Day Trader')) {
+          recommendations.push('⚡ Real-time Price Alerts');
+        }
+        if (selectedOptions[1]?.includes('HODLer')) {
+          recommendations.push('🔒 Cold Storage Security Tips');
+        }
+        if (selectedOptions[1]?.includes('DeFi')) {
+          recommendations.push('🔄 Gas Fee Optimizer');
+        }
+        if (selectedOptions[1]?.includes('NFT Collector')) {
+          recommendations.push('🖼️ NFT Market Analysis');
+        }
+        
+        // Cap at 5 recommendations and ensure at least 3
+        const defaultRecommendations = [
+          '🔔 Custom Price Alerts',
+          '📱 Mobile Notification Setup',
+          '📰 Curated Crypto News Feed'
+        ];
+        
+        // Combine and limit recommendations
+        let finalRecommendations = [...recommendations];
+        
+        // Add default recommendations if we have less than 3
+        while (finalRecommendations.length < 3) {
+          const defaultRec = defaultRecommendations.shift();
+          if (defaultRec && !finalRecommendations.includes(defaultRec)) {
+            finalRecommendations.push(defaultRec);
+          }
+        }
+        
+        // Limit to 5 recommendations
+        finalRecommendations = finalRecommendations.slice(0, 5);
+        
+        // Return as list items
+        return finalRecommendations.map(rec => `<li class="flex items-start">
+          <span class="block">${rec}</span>
+        </li>`).join('');
+      })()}
+    </ul>
+  </div>
 </div>`,
             timestamp: new Date(),
             model: 'vertex-flash'

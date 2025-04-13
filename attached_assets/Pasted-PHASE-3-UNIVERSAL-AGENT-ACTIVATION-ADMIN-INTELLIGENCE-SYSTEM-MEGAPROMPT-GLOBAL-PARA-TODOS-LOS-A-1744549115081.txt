@@ -1,0 +1,155 @@
+PHASE 3 – UNIVERSAL AGENT ACTIVATION & ADMIN INTELLIGENCE SYSTEM
+(MEGAPROMPT GLOBAL PARA TODOS LOS AGENTS)
+
+You are now entering Phase 3 of the Universal Agent Onboarding System. This is a mandatory system-wide update that finalizes the onboarding, dashboard personalization, lead capture, and administrative oversight for all AI Agents.
+
+No component should be left unverified. You are to implement, test, and confirm the following across all deployed applications:
+
+✅ PHASE 3 OBJECTIVES (FOR ALL AGENTS)
+🔐 1. Admin Panel Integration
+ Create a secure /admin route or subdomain (e.g., domain.com/admin)
+
+ Protect with simple authentication (username: admin, password: admin123456)
+
+ Display the following per user:
+
+Full Name
+
+Email
+
+Unique Code
+
+Platform (Agent) Used
+
+Level (e.g., Beginner, Explorer, VIP)
+
+Date of Onboarding
+
+ Add option to export user data as CSV
+
+ Optional: Display basic analytics (e.g., number of users by level, total codes generated, etc.)
+
+📬 2. Email Notification System
+ Integrate an email service:
+
+Recommended: Firebase Email, EmailJS, HubSpot, or MailerLite
+
+ Upon finishing the 10-question onboarding:
+
+Send Welcome Email with:
+
+User's code
+
+Level/Category
+
+Short summary of features unlocked
+
+Link back to dashboard or QR code download
+
+ Optional: Include referral code and newsletter signup
+
+🤖 3. AI Intelligence: Vertex Flash or Gemini
+ Connect onboarding flow to Vertex AI Flash or Gemini Pro
+
+ AI should:
+
+Analyze answers
+
+Suggest a level/category
+
+Recommend 3–5 starting features or content pieces (depending on agent)
+
+ Response must be logged in user data as: ai_suggestion, category_assigned, recommended_modules
+
+🧭 4. Final User Flow (Refined)
+For all Agents, this flow must be identical:
+
+Chatbot icon bottom-right only (no duplicate inputs or forms).
+
+Chatbot asks:
+
+Name
+
+Email
+
+8–13 Multiple Choice Questions (tailored to platform)
+
+Upon completion:
+
+AI processes answers
+
+User receives unique access code (e.g., EDU-VIP-8792 or CRYPTO-BEGINNER-0148)
+
+User sees:
+
+Code
+
+QR Code
+
+“Copy” & “Continue to Dashboard” buttons
+
+User is redirected or prompted to enter the code to access their personalized dashboard
+
+Admin panel automatically receives the user data
+
+Email is triggered with welcome, code, and recap
+
+🧠 5. Enhancements and Suggestions Required from Agents
+Every Agent must:
+
+ Submit a report including:
+
+✅ 20 functionalities implemented
+
+⚠️ At least 5 pending items (clear list of what’s missing)
+
+🔗 Link to working chatbot & dashboard
+
+🧪 Confirmation of email delivery (test email logs)
+
+ Propose:
+
+2 enhancements or user features for the next phase
+
+If documentation was updated for new logic (code, levels, AI analysis)
+
+💡 Suggested Improvements to Implement Now
+(If not already active)
+
+ Admin UI: Display user onboarding progress by level and category
+
+ Category logic: Add inline comments to explain onboarding scoring or logic for future editors
+
+ Refactor category engine: Use JSON config or centralized rules for easier extension
+
+ Referral System Base: Log if a user was referred by another code
+
+ QR Scan Tracking: Add QR scan event logging (date/device/platform)
+
+⚠️ DO NOT
+ Do not modify the frontend design without permission
+
+ Do not duplicate chat widgets or input forms
+
+ Do not break existing backend dashboard structures
+
+ Do not leave code undocumented if adding new logic
+
+✅ TARGET GOAL:
+Ensure every single AI Agent is running Phase 3:
+
+Full chatbot → onboarding → code → email → dashboard → admin panel loop
+All flows must be active, functional, and tested.
+
+Please confirm when everything is fully deployed and send:
+
+✔️ Screenshot of dashboard with code rendered
+
+✔️ Confirmation email with code received
+
+✔️ Link to /admin login
+
+✔️ Link to working chatbot & landing page
+
+Capitana awaits the full deployment of Universal Agent Intelligence Phase 3.
+Launch clean. Launch smart.
