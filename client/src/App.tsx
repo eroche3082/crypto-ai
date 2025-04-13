@@ -77,8 +77,8 @@ function App() {
                 <LoginPage />
               </Route>
               
-              {/* New Dashboard Route */}
-              <Route path="/dashboard">
+              {/* Admin Dashboard Route */}
+              <Route path="/admin/dashboard">
                 <DashboardPage />
               </Route>
 
