@@ -30,7 +30,7 @@ export default function LoginPage() {
     
     const success = await login(username, password);
     if (success) {
-      setLocation('/dashboard');
+      setLocation('/dashboard'); // Redirect to original dashboard
     }
   };
 

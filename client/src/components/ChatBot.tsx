@@ -300,6 +300,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         
         // Redirect to dashboard after a delay
         setTimeout(() => {
+          // Use the original dashboard route
           setLocation('/dashboard');
         }, 3000);
       }
