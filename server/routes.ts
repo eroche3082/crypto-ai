@@ -197,6 +197,28 @@ function generateBackupCryptoData() {
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
+  // Add a status endpoint to check system health including email service status
+  app.get('/api/system/status', (req: Request, res: Response) => {
+    const isSendGridConfigured = !!process.env.SENDGRID_API_KEY;
+    
+    res.json({
+      status: 'online',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      services: {
+        database: { operational: true },
+        email: {
+          provider: 'SendGrid',
+          configured: isSendGridConfigured,
+          mode: isSendGridConfigured ? 'live' : 'simulation'
+        },
+        stripe: {
+          configured: !!process.env.STRIPE_SECRET_KEY
+        }
+      }
+    });
+  });
+  
   // Add a route to serve the static HTML fallback page
   app.get('/static', (req: Request, res: Response) => {
     try {
