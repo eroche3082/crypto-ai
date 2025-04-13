@@ -1,0 +1,87 @@
+You are the integrated system checker and feature validator for the current Agent platform. Begin a comprehensive frontend scan of the ENTIRE HOMEPAGE and LANDING PAGE and generate a detailed report including the following points:
+
+1. **Main Menu Structure**
+   - List all tabs: Home, Features, About, Dashboard, Plans, etc.
+   - Confirm each tab works, opens correctly, and routes to a functional page
+   - Verify all tab labels are in **English**
+   - Suggest 3–5 new tabs or reorganizations if needed
+
+2. **Hero Section**
+   - Ensure the main Hero Banner includes a clear headline, subheadline, and CTA
+   - Validate that CTA buttons (e.g., Get Started, Explore Features) work properly
+   - Recommend any image updates or improvements
+
+3. **Features Block**
+   - Confirm presence of **at least 20 features** listed in an elegant structure
+   - For each feature: confirm there is a title, description, and working icon/image
+   - Suggest missing features that should be included based on the Agent's mission
+
+4. **Login & Access**
+   - Confirm there is a working **Login Button**
+   - Must route to secure login page using:
+     - Username: admin
+     - Password: admin123456
+   - If no login exists, create one
+   - Recommend a way to preview internal dashboards or screenshots on homepage
+
+5. **Live Features Check**
+   - For apps like JetAI, confirm Live APIs are working (e.g., hotel search, budget tracking)
+   - For SportsAI: confirm live scores, events, ticket integrations are loading
+   - Report which APIs are connected and functioning in real-time
+   - Flag any APIs missing or throwing errors
+
+6. **CTA Blocks & Membership Plans**
+   - Confirm plans are visible on homepage (Basic, Premium, VIP)
+   - Validate buttons (Subscribe, Join Now) redirect to correct form or checkout
+   - Verify plan descriptions are clear and aligned with backend benefits
+   - Confirm user selections are connected to their onboarding code system
+
+7. **Footer Section**
+   - Confirm presence of:
+     - Contact Info
+     - Newsletter signup
+     - Terms of Service
+     - Social Media Icons (working)
+     - Legal links (Privacy Policy, Cookie Policy)
+   - Suggest 2 enhancements for footer design/functionality
+
+8. **ChatBot Activation**
+   - Verify ChatBot is showing in bottom right corner
+   - Confirm onboarding question flow works (10 questions with categories)
+   - Must be connected to **Gemini Flash via Vertex AI**
+   - Confirm language translation via Google Translate API (multi-language support)
+   - Confirm output is clean, properly formatted, in English (with option to switch)
+
+9. **Media Content**
+   - Ensure all blocks contain active images/videos
+   - If blocks are empty or show outdated assets, suggest image replacements
+   - If needed, insert previews or screenshots of dashboard inside homepage
+
+10. **Smart Suggestions**
+   - For each Agent, suggest **5 improvements** or features that could elevate the homepage experience
+   - Suggestions may include:
+     - New interactive blocks
+     - Gamification
+     - AI-generated testimonials
+     - Product demos
+     - Scroll-based animations
+
+---
+
+**Expected Output:**
+- JSON or Markdown-style system report
+- Categorized as:
+  - ✅ Functioning
+  - ❌ Broken or missing
+  - ⚠️ Needs enhancement
+- Include image recommendations, API check status, link validation results, and proposed new UX ideas
+
+---
+
+This prompt should be executed internally by each Agent. The Agent must not request approval — it must **scan and act autonomously**. Once completed, each Agent should submit a report for review titled:
+
+**“[AGENT NAME] – HOMEPAGE SCAN & FEATURE STATUS REPORT (Phase 3)”**
+
+---
+
+¿Activamos esto ya mismo para todos los Agents? ¿O prefieres que prepare un comando por app para activarlos en fila?
