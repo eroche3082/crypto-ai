@@ -18,88 +18,52 @@ interface Message {
   images?: string[];
 }
 
-// Define the lead capture fields first
+// Define the lead capture fields first - exactly as specified in the MEGAPROMPT
 const leadCaptureFields = [
-  { id: 'name', question: "What's your name?", type: "text" },
-  { id: 'email', question: "What's your email address?", type: "email" },
-  { id: 'referral', question: "Do you have a referral code? (optional)", type: "text", optional: true }
+  { id: 'name', question: "Welcome to CryptoAI! What's your name?", type: "text" },
+  { id: 'email', question: "Great to meet you, [name]! What's your email address?", type: "email" }
 ];
 
-// Define the onboarding questions as multiple-choice selections
+// Define the onboarding questions exactly as specified in MEGAPROMPT (10 questions)
 const onboardingQuestions = [
   {
-    question: "What's your experience level with cryptocurrencies?",
-    options: ["Complete Beginner", "Some Knowledge", "Intermediate", "Advanced Trader", "Professional/Expert"],
+    question: "What are your goals in crypto?",
+    options: ["Long-term investment", "Day trading", "Learning about blockchain", "DeFi and staking", "NFTs and collectibles", "Launching a token or project"],
+    multiSelect: true
+  },
+  {
+    question: "How much experience do you have with crypto?",
+    options: ["I'm completely new", "I've dabbled a bit", "I use exchanges regularly", "I've been investing/trading for years"],
     multiSelect: false
   },
   {
-    question: "Are you currently holding any crypto assets?",
-    options: ["None yet", "Bitcoin Only", "Ethereum Only", "Multiple Altcoins", "NFTs", "DeFi Tokens"],
+    question: "What types of crypto assets interest you?",
+    options: ["Bitcoin & Ethereum", "Altcoins", "Stablecoins", "NFTs", "Governance tokens", "Meme coins"],
     multiSelect: true
   },
   {
-    question: "Which platforms or wallets do you use most?",
-    options: ["Binance", "Coinbase", "Metamask", "Ledger/Hardware Wallet", "Kraken", "FTX", "Other"],
+    question: "Do you currently use any of these platforms?",
+    options: ["Coinbase", "Binance", "MetaMask", "Kraken", "Uniswap", "Ledger/Hardware Wallet"],
     multiSelect: true
   },
   {
-    question: "What's your primary investment strategy?",
-    options: ["Long-term Holding", "Short-term Trading", "Swing Trading", "Day Trading", "Yield Farming", "Not Sure Yet"],
+    question: "How do you prefer to learn about crypto?",
+    options: ["Articles & newsletters", "Videos", "Live charts", "Simulators or practice tools", "AI-curated insights"],
+    multiSelect: true
+  },
+  {
+    question: "Are you interested in AI-generated predictions?",
+    options: ["Yes, I want AI suggestions", "I prefer making my own analysis", "I'd like to compare both"],
     multiSelect: false
   },
   {
-    question: "How frequently do you trade?",
-    options: ["Daily", "Weekly", "Monthly", "Rarely", "Never traded yet"],
+    question: "What is your risk tolerance?",
+    options: ["Low (stablecoins, staking)", "Moderate (blue-chip assets)", "High (volatile or new projects)", "Mixed (depends on strategy)"],
     multiSelect: false
   },
   {
-    question: "What types of tokens are you most interested in?",
-    options: ["Layer 1 (BTC, ETH)", "DeFi Tokens", "NFTs", "Stablecoins", "Meme Coins", "Privacy Coins", "GameFi"],
-    multiSelect: true
-  },
-  {
-    question: "Which crypto tools would you like to learn more about?",
-    options: ["Technical Analysis", "Fundamental Analysis", "On-chain Analytics", "Risk Management", "Tax Planning"],
-    multiSelect: true
-  },
-  {
-    question: "Would you like to receive AI alerts for any of these?",
-    options: ["Price Dips", "Price Surges", "Whale Movements", "New Project Launches", "Market News"],
-    multiSelect: true
-  },
-  {
-    question: "Would you like to connect your portfolio for live tracking?",
-    options: ["Yes, via API", "Yes, via manual entry", "Not right now", "Need more information"],
-    multiSelect: false
-  },
-  {
-    question: "What's your monthly investment budget for crypto?",
-    options: ["Under $100", "$100-$500", "$500-$1,000", "$1,000-$5,000", "Over $5,000", "Prefer not to say"],
-    multiSelect: false
-  },
-  {
-    question: "Are you interested in any of these advanced crypto features?",
-    options: ["DeFi Protocols", "Yield Farming", "Staking", "NFT Trading", "Crypto Loans", "None of these yet"],
-    multiSelect: true
-  },
-  {
-    question: "Do you follow crypto regulations and laws?",
-    options: ["Yes, closely", "Somewhat", "Not yet", "Only in my country"],
-    multiSelect: false
-  },
-  {
-    question: "Which dashboard features are most important to you?",
-    options: ["Portfolio Tracking", "Price Alerts", "News Feed", "Trading Signals", "Educational Content"],
-    multiSelect: true
-  },
-  {
-    question: "How would you like to receive crypto updates?",
-    options: ["Real-time Alerts", "Daily Summaries", "Weekly Newsletter", "Monthly Reports"],
-    multiSelect: true
-  },
-  {
-    question: "Which membership plan are you most interested in?",
-    options: ["Basic (Free)", "Pro ($29/month)", "Enterprise ($99/month)"],
+    question: "Do you want to receive alerts or updates by email?",
+    options: ["Yes, daily market alerts", "Weekly recaps only", "No notifications"],
     multiSelect: false
   }
 ];
@@ -208,10 +172,16 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         const nextLeadIndex = leadQuestionIndex + 1;
         setLeadQuestionIndex(nextLeadIndex);
         
+        // Personalize the email question with the user's name
+        let personalizedQuestion = leadCaptureFields[nextLeadIndex].question;
+        if (leadCaptureFields[nextLeadIndex].id === 'email' && updatedLeadData.name) {
+          personalizedQuestion = personalizedQuestion.replace('[name]', updatedLeadData.name);
+        }
+        
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: leadCaptureFields[nextLeadIndex].question,
+          content: personalizedQuestion,
           timestamp: new Date(),
           model: 'gemini-pro'
         }]);
@@ -276,14 +246,25 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         // Onboarding complete
         setIsOnboarding(false);
         
-        // Add completion message
+        // Add completion message exactly as specified in MEGAPROMPT
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: `Thanks! Your custom dashboard is now being prepared, ${leadCaptureData.name}. I'll use your preferences to personalize your experience.`,
+          content: `Thanks, ${leadCaptureData.name}! Your CryptoAI dashboard is now being customized. Please log in to access your personalized crypto experience.`,
           timestamp: new Date(),
           model: 'gemini-pro'
         }]);
+        
+        // Add login button as a separate message
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: 'Click below to access your dashboard',
+            timestamp: new Date(),
+            model: 'gemini-pro'
+          }]);
+        }, 1000);
         
         // Save complete profile data to localStorage (in a real app, send to backend/Firebase)
         const profileData = {
@@ -302,7 +283,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         setTimeout(() => {
           // Use the original dashboard route
           setLocation('/dashboard');
-        }, 3000);
+        }, 4000);
       }
       return;
     }

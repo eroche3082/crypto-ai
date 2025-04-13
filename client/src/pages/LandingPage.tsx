@@ -257,27 +257,16 @@ export default function LandingPage() {
                 A comprehensive AI-powered platform to analyze, manage, and optimize your cryptocurrency investments.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/login">
-                  <Button size="lg" className="gap-2 bg-indigo-600 hover:bg-indigo-700">
-                    Get Started <ArrowRight size={16} />
-                  </Button>
-                </Link>
                 <Button 
-                  variant="outline" 
                   size="lg" 
-                  className="text-white border-white hover:bg-white/10 gap-2"
-                  onClick={() => {
-                    // Trigger the onboarding flow in the chatbot
-                    if (startOnboardingRef.current) {
-                      startOnboardingRef.current();
-                    }
-                  }}
+                  className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+                  onClick={() => setChatbotOpen(true)}
                 >
-                  Set Up My Crypto Profile <Sparkles size={16} />
+                  Get Started <Sparkles size={16} />
                 </Button>
-                <Link href="/explore">
+                <Link href="/login">
                   <Button variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
-                    Explore Tools
+                    Login
                   </Button>
                 </Link>
               </div>
