@@ -36,6 +36,9 @@ export default function SystemReport() {
       const response = await axiosClient.get('/api/system/status');
       const statusData = response.data;
       
+      // For debugging purposes
+      console.log('System status data:', statusData);
+      
       // Build categories based on the response
       const newCategories: SystemCheckCategory[] = [];
       

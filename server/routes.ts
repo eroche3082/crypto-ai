@@ -1105,7 +1105,7 @@ Watch for increased volatility around upcoming economic announcements.
   });
   
   // System status endpoint for health checks and system audits
-  app.get('/api/system/status', (req: Request, res: Response) => {
+  app.get('/api/system/api-status', (req: Request, res: Response) => {
     try {
       // Collect API service statuses
       const apiServices = {
