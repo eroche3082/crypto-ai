@@ -115,6 +115,111 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
     if (startOnboardingRef) {
       startOnboardingRef.current = startOnboarding;
     }
+    
+    // Add sendAccessCodeEmail to window object for use in HTML string-based onClick
+    (window as any).sendAccessCodeEmail = async (accessCode: string) => {
+      const userProfile = JSON.parse(localStorage.getItem('cryptoUserProfile') || '{}');
+      const name = userProfile.name || '';
+      const email = userProfile.email || '';
+      const category = userProfile.user_category || '';
+      
+      if (!email) {
+        // Add an error message
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `
+<div class="bg-red-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-red-600">
+      <span class="text-lg font-semibold">!</span>
+    </div>
+    <h3 class="text-red-800 font-semibold">EMAIL ERROR</h3>
+  </div>
+  
+  <p class="text-red-700 mb-4">Sorry, I couldn't find your email address. Please try again with a valid email.</p>
+</div>`,
+          timestamp: new Date(),
+          model: 'error'
+        }]);
+        return;
+      }
+      
+      try {
+        // Temporarily disable the button
+        const emailBtn = document.getElementById('emailCodeBtn');
+        if (emailBtn) {
+          emailBtn.setAttribute('disabled', 'true');
+          emailBtn.textContent = 'Sending email...';
+        }
+        
+        // Send email request to server
+        const response = await fetch('/api/email/send-access-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            accessCode,
+            category
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to send email');
+        }
+        
+        // Success message
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `
+<div class="bg-green-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-green-600">
+      <span class="text-lg font-semibold">✓</span>
+    </div>
+    <h3 class="text-green-800 font-semibold">EMAIL SENT!</h3>
+  </div>
+  
+  <p class="text-green-700 mb-4">Your access code has been sent to ${email}. Please check your inbox (and spam folder) for an email from CryptoBot.</p>
+</div>`,
+          timestamp: new Date(),
+          model: 'vertex-flash'
+        }]);
+        
+      } catch (error) {
+        console.error('Error sending access code email:', error);
+        
+        // Error message
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `
+<div class="bg-red-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-red-600">
+      <span class="text-lg font-semibold">!</span>
+    </div>
+    <h3 class="text-red-800 font-semibold">EMAIL ERROR</h3>
+  </div>
+  
+  <p class="text-red-700 mb-4">There was a problem sending your access code email. Please try again later or contact support for assistance.</p>
+</div>`,
+          timestamp: new Date(),
+          model: 'error'
+        }]);
+      } finally {
+        // Re-enable the button
+        const emailBtn = document.getElementById('emailCodeBtn');
+        if (emailBtn) {
+          emailBtn.removeAttribute('disabled');
+          emailBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><span>Email me my code</span>';
+        }
+      }
+    };
   }, [startOnboardingRef]);
   
   // State for onboarding data
