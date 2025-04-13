@@ -533,13 +533,32 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
   
   <p class="text-indigo-800 mb-4">Your personalized dashboard is ready!</p>
   
-  <div class="bg-white p-3 rounded-md mb-4 border-2 border-indigo-400 text-center">
-    <p class="text-xs text-indigo-600 mb-1">Your Unique Access Code</p>
-    <p class="text-lg font-bold text-indigo-800">${uniqueCode}</p>
-    <div class="flex justify-center mt-3">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(uniqueCode)}" alt="QR Code" class="w-24 h-24" />
+  <div class="bg-gradient-to-br from-white to-indigo-50 p-4 rounded-lg mb-4 border-2 border-indigo-400 text-center shadow-md relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-20 h-20 -mr-10 -mt-10 bg-indigo-100 rounded-full opacity-30"></div>
+    <div class="absolute bottom-0 left-0 w-16 h-16 -ml-8 -mb-8 bg-indigo-100 rounded-full opacity-30"></div>
+    
+    <p class="text-xs text-indigo-600 mb-1 font-medium uppercase tracking-wider">Your Unique Access Code</p>
+    <p class="text-xl font-bold text-indigo-800 tracking-wide font-mono bg-white inline-block px-4 py-1 rounded-md border border-indigo-200 mb-3">${uniqueCode}</p>
+    
+    <div class="relative">
+      <div class="flex justify-center mt-2 mb-1 relative">
+        <div class="absolute inset-0 bg-indigo-600 rounded-md opacity-5 transform rotate-3"></div>
+        <div class="bg-white shadow-lg rounded-md p-2 z-10 relative">
+          <img 
+            src="/api/access-code/generate-qr/${uniqueCode}" 
+            alt="QR Code" 
+            class="w-28 h-28 transition-all duration-300 hover:scale-105" 
+            onload="this.classList.add('qr-loaded')"
+          />
+        </div>
+      </div>
+      <div class="absolute -top-1 -right-1 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md transform rotate-12">
+        VERIFIED
+      </div>
     </div>
-    <p class="text-xs text-indigo-500 mt-1">Scan this code to access your dashboard</p>
+    
+    <p class="text-xs text-indigo-500 mt-3 font-medium">Scan this code to access your dashboard</p>
+    <p class="text-[10px] text-indigo-400 mt-1">QR code expires in 30 days</p>
   </div>
   
   <p class="text-sm text-indigo-700 mb-2">This code gives you access to personalized features based on your profile.</p>
