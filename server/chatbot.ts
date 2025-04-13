@@ -2,7 +2,15 @@ import { Request, Response } from 'express';
 import { GoogleGenerativeAI, GenerativeModel, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
 // Initialize the Google Generative AI
-const genAI = new GoogleGenerativeAI(process.env.VITE_GEMINI_API_KEY || '');
+// Since VITE prefixed env variables are for the client, we need to access it directly
+// This is a special case for development where server code can access client env vars
+const apiKey = process.env.VITE_GEMINI_API_KEY || '';
+if (!apiKey) {
+  console.error('Error: VITE_GEMINI_API_KEY is not set. Chatbot functionality will not work.');
+} else {
+  console.log('Gemini API key is configured successfully');
+}
+const genAI = new GoogleGenerativeAI(apiKey);
 
 // System prompt to give the assistant the right personality and context
 const SYSTEM_PROMPT = `
@@ -82,8 +90,24 @@ export async function handleGeminiChat(req: Request, res: Response) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
+    if (!apiKey) {
+      console.error('API key is not set or empty. Cannot process chat request.');
+      return res.status(500).json({ 
+        error: 'Gemini API key not configured',
+        details: 'The server is missing the required API key to process this request.' 
+      });
+    }
+
     // Initialize model if needed
     const geminiModel = initializeModel();
+    if (!geminiModel) {
+      return res.status(500).json({ 
+        error: 'Failed to initialize Gemini model',
+        details: 'Could not create a connection to the Gemini API.'
+      });
+    }
+    
+    console.log('Processing chat request with message:', message);
     
     // Convert our message format to Gemini format
     const geminiHistory = history.map((msg: Message) => ({
@@ -125,13 +149,22 @@ export async function handleGeminiChat(req: Request, res: Response) {
       ? `${SYSTEM_PROMPT}\n\nUser message: ${message}`
       : message;
 
+    console.log('Sending message to Gemini API...');
     // Send message and get response
     const result = await chat.sendMessage(enhancedMessage);
     const response = result.response.text();
+    console.log('Received response from Gemini API');
 
     return res.json({ response });
   } catch (error: any) {
     console.error('Error in handleGeminiChat:', error);
+    // Check if this is an API key error
+    if (error.message?.includes('API key')) {
+      return res.status(401).json({ 
+        error: 'Invalid or missing API key',
+        details: 'The application is using an invalid or missing Gemini API key. Please check your configuration.'
+      });
+    }
     return res.status(500).json({ 
       error: 'Failed to process your request',
       details: error.message 

@@ -1,0 +1,185 @@
+MEGAPROMPT DE ACTIVACIÓN Y VERIFICACIÓN PARA CRYPTO AI – FRONTEND + CHATBOT + DASHBOARD
+Plataforma: Crypto AI
+Versión: Frontend Público + Dashboard Personalizado
+Lenguaje: Inglés
+Modelo de IA: Gemini Flash (Vertex AI)
+Objetivo: Verificar, corregir y activar todos los elementos visuales, funcionales, de IA, y el sistema de onboarding personalizado para usuarios de criptomonedas.
+
+1. HERO SECTION
+Asegurarse que los botones Get Started, Explore Tools y cualquier CTA estén:
+
+Visibles
+
+Conectados
+
+Funcionales
+
+Verificar que el fondo gráfico (trading panel, candlesticks, crypto logos) esté bien renderizado en todos los dispositivos.
+
+Activar que al hacer clic en Get Started, se abra el flujo de onboarding del AI Assistant.
+
+2. AI ASSISTANT – FLUJO DE ONBOARDING INTELIGENTE (20 PREGUNTAS)
+El asistente debe activarse inmediatamente después del login o al hacer clic en “Set Up My Crypto Profile”.
+
+Este flujo incluye las siguientes preguntas clave:
+
+What’s your experience level with cryptocurrencies?
+
+Are you currently holding any crypto assets?
+
+Which platforms or wallets do you use most? (e.g., Binance, Coinbase, Metamask)
+
+Are you more interested in long-term holding or short-term trading?
+
+How often do you trade?
+
+What type of tokens do you prefer? (Layer 1, DeFi, NFTs, Stablecoins, Meme coins)
+
+Are you interested in learning about technical analysis?
+
+Do you want AI alerts for market dips or surges?
+
+Would you like to connect your portfolio for live tracking?
+
+What is your monthly investment budget (if any)?
+
+Are you interested in DeFi protocols and yield farming?
+
+Have you ever minted or traded NFTs?
+
+Do you follow news on regulations or crypto laws?
+
+Are you concerned about volatility or risk?
+
+Do you prefer mobile or desktop dashboards?
+
+Would you like daily, weekly or real-time crypto summaries?
+
+What languages would you like support in?
+
+Are you interested in AI trading bots or signals?
+
+Do you need educational resources or tutorials?
+
+Would you like to receive updates on pre-sales or new token launches?
+
+Tras responder, el usuario debe ser redirigido automáticamente al Dashboard Personalizado.
+
+3. DASHBOARD INTELIGENTE – FUNCIONALIDADES VISIBLES
+Asegúrate de incluir:
+
+Portfolio Overview (con conexión a APIs o placeholder realista)
+
+Crypto Sentiment Tracker
+
+AI Alerts (dips, spikes, watchlist)
+
+NFT Gallery (si aplica)
+
+Market Overview (BTC, ETH, SOL, trending tokens)
+
+Learning Path (nivelado por experiencia)
+
+Chatbot Access constante en el dashboard
+
+4. FEATURES CHECK (Crypto AI debe incluir mínimo 20 features activas)
+Validar y conectar:
+
+✅ Crypto Portfolio Tracker
+
+✅ Wallet Integrations (Metamask, Coinbase, Binance)
+
+✅ AI Market Sentiment Analyzer
+
+✅ Personalized AI Alerts
+
+✅ AI-Based Token Evaluator
+
+✅ DeFi Yield Optimizer
+
+✅ NFT Explorer & Evaluator
+
+✅ Smart Trading Assistant
+
+✅ Tax Estimator & Reports
+
+✅ Regulation News Feed
+
+✅ Crypto Chatbot (Gemini Flash)
+
+✅ Price Prediction Models
+
+✅ Token Launch Tracker
+
+✅ Trading Strategy Generator
+
+✅ Watchlist Organizer
+
+✅ Scam Detection System
+
+✅ Multichain Dashboard View
+
+✅ Buy/Sell Signal Generator
+
+✅ Custom Chart Builder
+
+✅ Learning Hub (videos, articles, guides)
+
+5. CHATBOT – PERSONALIDAD Y FUNCIONALIDAD
+Estilo: Cripto-analítico, rápido, preciso, con personalidad calmada pero técnica.
+
+Modelo: Gemini Flash (Vertex AI)
+
+Funciones clave:
+
+Responder sobre tokens, precios, y tendencias
+
+Activar módulos de análisis
+
+Dar definiciones o explicaciones de conceptos
+
+Ayudar a interpretar gráficas
+
+Detectar cambios bruscos en el mercado
+
+Recomendar recursos según experiencia del usuario
+
+Identificar oportunidades o riesgos según el perfil
+
+6. FOOTER CHECK
+Debe contener:
+
+Secciones de navegación funcionales
+
+Links a Terms, Privacy, Contact, API Docs
+
+Logos sociales (Twitter, Discord, Reddit, Telegram)
+
+Subcripción al newsletter o actualizaciones de mercado
+
+7. MEMBERSHIP & PRICING
+Verificar que los planes estén visibles y enlazados:
+
+Plan	Precio	Funcionalidades
+Basic	Free	Portfolio, 3 alerts, no NFT module
+Pro	$14.99	Alerts + DeFi + NFT + AI Insights
+Trader+	$39.99	Todo + bots, API sync, realtime market AI
+Botones de Subscribe, Get Started, y Connect Wallet deben estar activos.
+
+8. REPORTE FINAL
+Al finalizar la validación, debe entregarse:
+
+Lista completa de features funcionales
+
+APIs conectadas y operativas
+
+Elementos visuales faltantes o rotos
+
+Chatbot: estado y capacidad real
+
+Onboarding: estado y preguntas activas
+
+Dashboard: rutas conectadas y módulos visibles
+
+Recomendaciones para la próxima fase
+

@@ -11,6 +11,7 @@ import { analyzeSentiment } from './sentiment';
 import { getTwitterSentiment, getMarketSentiment } from './twitter';
 import { handleContextAwareChat } from './controllers/contextAwareChatController';
 import { getProviders } from './controllers/aiProviderController';
+import { handleGeminiChat } from './chatbot';
 import { 
   getWalletMessages, 
   sendWalletMessage, 
@@ -28,6 +29,8 @@ apiRouter.post('/ai/claude/vision', uploadMiddleware, analyzeImageWithClaude);
 apiRouter.post('/ai/gemini', generateAIResponse);
 apiRouter.post('/ai/context-chat', handleContextAwareChat);
 apiRouter.get('/chat/providers', getProviders);
+// Chatbot endpoint - Adding this for the ChatBot component to work
+apiRouter.post('/chat/gemini', handleGeminiChat);
 
 // Vertex AI Market Analysis routes
 apiRouter.post('/vertex/market/analyze', services.analyzeMarketTrends);
