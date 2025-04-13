@@ -381,11 +381,23 @@ export const userOnboardingProfiles = pgTable("user_onboarding_profiles", {
   nft_preferences: text("nft_preferences"), // New field
   timezone: text("timezone"),
   
-  // Universal Agent Onboarding Code System fields
+  // Universal Access Code System fields
   unique_code: text("unique_code").unique(), // Generated access code
   user_category: text("user_category"), // BEGINNER, INTER, EXPERT, VIP, etc.
   unlocked_features: json("unlocked_features").default("[]"), // Features unlocked based on level
   referral_count: integer("referral_count").default(0), // Count of users who used this code as referral
+  
+  // Payment and level tracking
+  unlocked_levels: json("unlocked_levels").default("[]"), // Array of unlocked level IDs
+  stripe_customer_id: text("stripe_customer_id"), // Stripe customer ID for payments
+  stripe_payment_history: json("stripe_payment_history").default("[]"), // Payment history
+  last_payment_date: timestamp("last_payment_date"), // Last payment date
+  subscription_status: text("subscription_status").default("free"), // free, paid, premium
+  
+  // QR Code access
+  qr_code_url: text("qr_code_url"), // URL to the QR code for dashboard access
+  last_access_date: timestamp("last_access_date"), // Last access date
+  access_count: integer("access_count").default(0), // Number of times accessed
   
   // System fields
   onboarding_completed: boolean("onboarding_completed").default(false),

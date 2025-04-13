@@ -1,0 +1,120 @@
+MEGAPROMPT — UNIVERSAL ACCESS CODE SYSTEM: Payment + QR + Dashboard Integration
+Contexto:
+Cada usuario recibe un código único al finalizar su onboarding (ej: FIT-BEG-2565, TRAVEL-LUX-ES-1099, SHOP-VIP-4281). Este código activa una experiencia personalizada dentro del dashboard. A partir de ahora, se usará ese código como base para:
+
+Desbloquear niveles
+
+Hacer pagos
+
+Acceder por QR desde celular
+
+Compartir para referidos
+
+Analizar journeys
+
+Activar contenido premium
+
+1. STRIPE + ACCESS CODE PAYMENTS
+Flujo:
+
+Usuario genera su código (tras completar onboarding)
+
+En el dashboard, algunos niveles están “bloqueados” (ej. Nivel 4, 5, 6)
+
+Al hacer clic en “Unlock Level”, se abre:
+
+Opción 1: Ingresar código de referidos o promo
+
+Opción 2: Pagar directamente vía Stripe
+
+Integración Stripe:
+
+Crear stripeSession.ts con checkout personalizado:
+
+ts
+Copiar
+Editar
+const session = await stripe.checkout.sessions.create({
+  payment_method_types: ['card'],
+  line_items: [{ price: 'price_id_xyz', quantity: 1 }],
+  mode: 'payment',
+  success_url: `${domain}/dashboard?code=${userCode}&success=true`,
+  cancel_url: `${domain}/dashboard?code=${userCode}&cancel=true`,
+});
+Guardar en Firestore que el código desbloqueó ese nivel:
+
+ts
+Copiar
+Editar
+{
+  code: 'FIT-BEG-2565',
+  unlocked_levels: ['Level 1', 'Level 2', 'Level 3', 'Level 4 (paid)'],
+  stripe_payment_id: 'pi_xxxxx',
+}
+2. QR CODE GENERATION + DASHBOARD ACCESS
+Al finalizar onboarding, se genera un QR code que apunta a:
+
+arduino
+Copiar
+Editar
+https://jetai.app/dashboard?code=TRAVEL-VIP-9876
+Se muestra en pantalla + se envía por email
+
+Puede usarse desde móvil para entrar directamente
+
+Opcional: agregar “Save to Wallet” o Apple Pass
+
+3. EXPANSIÓN DE USO DEL CÓDIGO (10 FUNCIONES)
+Función	Descripción
+1. Acceso directo al Dashboard	El código reemplaza el login tradicional
+2. Niveles desbloqueables	Algunos niveles son gratuitos, otros requieren código o pago
+3. Newsletter personalizado	El código define el tipo de emails y contenido que recibe el usuario
+4. Sistema de referidos	Al compartir tu código, ganas puntos o niveles
+5. Gamificación	El código avanza de nivel conforme usas la plataforma
+6. Social Sharing	Cada post creado incluye el código (opcional)
+7. API de Validación	Verifica si el código es válido antes de acceder (API endpoint)
+8. Estadísticas internas	El admin panel muestra qué códigos tienen más actividad
+9. Desbloqueo de IA Premium	Solo ciertos códigos pueden usar funciones avanzadas
+10. Activación de productos físicos	En ShopAI, productos con QR desbloquean contenido en dashboard
+4. ADMIN PANEL TRACKING
+Agregar tabla codes_activity
+
+ts
+Copiar
+Editar
+{
+  code: string,
+  type: "FITNESS" | "TRAVEL" | "SHOP" | "FINANCE",
+  level: string,
+  unlocked: boolean,
+  referred_by: string | null,
+  payment_status: "free" | "paid",
+  created_at: Timestamp,
+}
+Vista:
+
+Top used codes
+
+Codes without unlocks
+
+Revenue by code
+
+5. DISEÑO DEL FLUJO DE USUARIO
+User completes onboarding → Receives FIT-PRO-8321
+
+Se muestra QR + email de confirmación
+
+Entra a dashboard con su código
+
+Ve niveles disponibles y bloqueados
+
+Puede:
+
+Referir (share code)
+
+Pagar (Stripe)
+
+Usar promo code
+
+Desbloquea contenido, AI features, productos o recompensas
+

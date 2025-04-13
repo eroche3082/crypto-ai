@@ -200,6 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add a status endpoint to check system health including email service status
   app.get('/api/system/status', (req: Request, res: Response) => {
     const isSendGridConfigured = !!process.env.SENDGRID_API_KEY;
+    const isStripeConfigured = !!process.env.STRIPE_SECRET_KEY;
     
     res.json({
       status: 'online',
@@ -213,7 +214,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           mode: isSendGridConfigured ? 'live' : 'simulation'
         },
         stripe: {
-          configured: !!process.env.STRIPE_SECRET_KEY
+          configured: isStripeConfigured,
+          mode: isStripeConfigured ? 'live' : 'unavailable'
+        },
+        universal_access_code: {
+          operational: true,
+          features: [
+            'dashboard_access',
+            'level_unlocking',
+            'qr_code_generation',
+            'payment_processing',
+            'referral_system'
+          ]
         }
       }
     });
