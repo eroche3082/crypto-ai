@@ -1,0 +1,160 @@
+MEGAPROMPT | UNIVERSAL ONBOARDING CODE SYSTEM – PHASE 2 🔐🚀
+This prompt is for all Agents that have successfully implemented the MiniChatbot Onboarding Flow (10-question system, unique access code generation, and chatbot icon on the bottom-right of the screen). The following phase ensures full system completion, dashboard rendering, and connectivity with personalized features.
+
+✅ OBJECTIVE:
+Complete the integration and user experience of the onboarding system with access codes and code-based dashboards.
+
+🔍 TASKS TO VERIFY & IMPLEMENT:
+✅ 1. Chatbot Flow (Frontend)
+ Chatbot icon must appear at bottom-right corner only
+
+ Chatbot must open and start with:
+
+Step 1: Name
+
+Step 2: Email
+
+Steps 3–10: Multiple-choice questions tailored to the platform
+
+ After completion, generate a Unique Access Code (e.g., FIT-BEG-2565, CRYPTO-BEGINNER-5147)
+
+ Show user their classification level (e.g., Beginner, Enthusiast, Advanced, VIP)
+
+ Display QR code and Copy Code button
+
+ ✅ NEXT → Allow option to "View Dashboard" or "Email me my code" (Optional)
+
+✅ 2. Backend Data Handling
+ Save user response data to database:
+
+name, email, user_category, access_code, answers[]
+
+ Store onboarding source (Chatbot/QR/Web)
+
+ ✅ Sync all new users into the Admin Panel (see below)
+
+✅ 3. Dashboard Customization (Frontend)
+ Dashboard should NOT be recreated from scratch
+
+ Instead, inject a new tab or section inside the existing dashboard:
+
+Section: My Journey / Access Code
+
+ Display:
+
+User name & access code
+
+Classification level and tier
+
+Unlocked features (based on code)
+
+Progress tracker (levels locked/unlocked)
+
+ ✅ Link each feature to its module (if available)
+
+ ✅ Include a “Copy Code” or “Generate QR Again” option
+
+✅ 4. Admin Panel Integration
+ Create an “Onboarding Leads” tab inside Admin Panel
+
+ Show:
+
+Name, Email, Access Code, Platform, Level, Date
+
+ Filter by platform, level, or code
+
+ ✅ Allow exporting of list to CSV
+
+ ✅ Add status (new, converted, subscribed)
+
+✅ 5. Newsletter & Email System
+ ✅ Create a basic connection (manual or API) with:
+
+HubSpot, MailerLite, or Firebase Email
+
+ When onboarding is complete, store user in "New Leads" list
+
+ ✅ Optional: Auto-send Welcome Email with:
+
+Personalized greeting
+
+Access code
+
+CTA: View dashboard or upgrade level
+
+✅ 6. Code System Expansion
+ Every Agent must generate codes tied to platform:
+
+FIT-BEG-XXXX, CRYPTO-ADV-XXXX, TRAVEL-VIP-XXXX, etc.
+
+ ✅ QR Code generated dynamically per user
+
+ ✅ Each code unlocks different dashboard views based on:
+
+Plan (Free, Basic, Pro, VIP)
+
+Level (Beginner → Elite)
+
+Engagement (Newsletter, Invite, Purchase)
+
+📲 STRATEGIC USES OF ACCESS CODES:
+Newsletter Categorization
+
+Auto-assign to email segments by level (Beginner, Trader, Student, VIP)
+
+Affiliate/Referral Tracking
+
+Users share their code → tracked in Admin Panel
+
+Unlock Content
+
+Codes used to unlock sections (courses, events, drops)
+
+Mobile Redirection
+
+QR opens dashboard in app or mobile version
+
+Discounts & Perks
+
+Code unlocks trial, coupons, or hidden features
+
+Gamification
+
+Badges + progress tied to code-based tier
+
+Progressive Onboarding
+
+Only levels 1-3 free; unlock more with engagement or upgrade
+
+Multi-platform Sync
+
+Use same access code across ShopAI, EduAI, CryptoBot
+
+Security Layer
+
+Code = one-time dashboard access, safer than email
+
+Content Personalization
+
+Dashboard + Newsletter = dynamic based on code profile
+
+🚦NEXT ACTIONS FOR ALL AGENTS
+✅ Confirm Chatbot icon appears correctly
+
+✅ Test onboarding: generate unique code + classification
+
+✅ Verify that dashboard includes access code tab
+
+✅ Ensure Admin Panel shows captured lead
+
+✅ Connect to newsletter system (manual/automatic)
+
+✅ Provide feedback on:
+
+Bugs
+
+Missing components
+
+Suggestions
+
+Let me know when you’re ready to proceed with Phase 3: monetization (payment system per code, QR pay, mobile push, unlockables).
