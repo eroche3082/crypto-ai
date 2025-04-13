@@ -50,7 +50,7 @@ const initializeModel = () => {
   if (!model) {
     // Using a widely available model to ensure compatibility
     model = genAI.getGenerativeModel({
-      model: "gemini-pro",
+      model: "gemini-1.5-pro",  // Updated to the latest model name
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
