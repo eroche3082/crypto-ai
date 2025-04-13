@@ -1,203 +1,137 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, AlertTriangle, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { 
-  generateSystemReport, 
-  type SystemCheckItem, 
-  type SystemCheckCategory 
-} from "@/lib/systemChecks";
+// This file contains functions to perform system checks for the CryptoBot platform
 
-export default function SystemValidator() {
-  const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<SystemCheckCategory[]>([]);
-  const [scanDate, setScanDate] = useState<Date>(new Date());
-  
-  useEffect(() => {
-    runSystemCheck();
-  }, []);
-  
-  const runSystemCheck = async () => {
-    setLoading(true);
-    
-    try {
-      // Perform system checks
-      const results = await performFullSystemCheck();
-      setCategories(results);
-      setScanDate(new Date());
-    } catch (error) {
-      console.error("Error running system check:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const toggleCategory = (index: number) => {
-    setCategories(prev => {
-      const updated = [...prev];
-      updated[index].expanded = !updated[index].expanded;
-      return updated;
-    });
-  };
-  
-  const getStatusCount = (status: "success" | "error" | "warning") => {
-    return categories.reduce((count, category) => {
-      return count + category.items.filter(item => item.status === status).length;
-    }, 0);
-  };
-  
-  return (
-    <div className="container mx-auto py-6 max-w-6xl">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold mb-2">CryptoBot - Homepage Scan & Feature Status Report</h1>
-          <p className="text-muted-foreground">
-            Last scan: {scanDate.toLocaleDateString()} at {scanDate.toLocaleTimeString()}
-          </p>
-        </div>
-        <Button 
-          onClick={runSystemCheck} 
-          disabled={loading}
-          className="gap-2"
-        >
-          {loading ? (
-            <RefreshCw className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
-          Run Scan
-        </Button>
-      </div>
-      
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span className="font-medium">Functioning</span>
-              </div>
-              <Badge variant="outline" className="bg-green-500/10 text-green-500">
-                {getStatusCount("success")}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <XCircle className="h-5 w-5 text-destructive" />
-                <span className="font-medium">Broken or Missing</span>
-              </div>
-              <Badge variant="outline" className="bg-destructive/10 text-destructive">
-                {getStatusCount("error")}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                <span className="font-medium">Needs Enhancement</span>
-              </div>
-              <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500">
-                {getStatusCount("warning")}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {loading ? (
-        <div className="flex items-center justify-center p-12">
-          <div className="flex flex-col items-center gap-4">
-            <RefreshCw className="h-12 w-12 animate-spin text-primary" />
-            <p>Running system checks...</p>
-          </div>
-        </div>
-      ) : (
-        <ScrollArea className="h-[600px] rounded-md border">
-          <div className="p-4">
-            {categories.map((category, categoryIndex) => (
-              <div key={categoryIndex} className="mb-6">
-                <div 
-                  className="flex items-center justify-between bg-card p-4 rounded-lg cursor-pointer"
-                  onClick={() => toggleCategory(categoryIndex)}
-                >
-                  <h2 className="text-xl font-semibold">{category.name}</h2>
-                  {category.expanded ? (
-                    <ChevronUp className="h-5 w-5" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5" />
-                  )}
-                </div>
-                
-                {category.expanded && (
-                  <div className="mt-4 space-y-4">
-                    {category.items.map((item, itemIndex) => (
-                      <Card key={itemIndex} className={`
-                        ${item.status === "success" ? "border-green-500/30" : ""}
-                        ${item.status === "error" ? "border-destructive/30" : ""}
-                        ${item.status === "warning" ? "border-yellow-500/30" : ""}
-                      `}>
-                        <CardContent className="pt-6">
-                          <div className="flex items-start gap-3">
-                            {item.status === "success" && (
-                              <CheckCircle className="h-5 w-5 mt-0.5 text-green-500 flex-shrink-0" />
-                            )}
-                            {item.status === "error" && (
-                              <XCircle className="h-5 w-5 mt-0.5 text-destructive flex-shrink-0" />
-                            )}
-                            {item.status === "warning" && (
-                              <AlertTriangle className="h-5 w-5 mt-0.5 text-yellow-500 flex-shrink-0" />
-                            )}
-                            <div>
-                              <h3 className="font-medium">{item.name}</h3>
-                              <p className="text-muted-foreground text-sm mt-1">{item.message}</p>
-                              
-                              {item.details && item.details.length > 0 && (
-                                <ul className="mt-2 space-y-1">
-                                  {item.details.map((detail, detailIndex) => (
-                                    <li key={detailIndex} className="text-sm pl-4 border-l-2 border-border">
-                                      {detail}
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      )}
-    </div>
-  );
+import { axiosClient } from "./api";
+
+export interface SystemCheckItem {
+  name: string;
+  status: "success" | "error" | "warning";
+  message: string;
+  details?: string[];
 }
 
-// Actual system check logic
-async function performFullSystemCheck(): Promise<SystemCheckCategory[]> {
-  // Use the system report generator from our utility
-  return await generateSystemReport();
+export interface SystemCheckCategory {
+  name: string;
+  items: SystemCheckItem[];
+  expanded: boolean;
 }
 
-// Legacy code - replaced by dynamic system checks
-/*
-const menuStructure: SystemCheckCategory = {
+/**
+ * Check if an API endpoint is responsive
+ */
+export async function checkApiEndpoint(endpoint: string): Promise<boolean> {
+  try {
+    const response = await axiosClient.get(endpoint, { timeout: 5000 });
+    return response.status === 200;
+  } catch (error) {
+    console.error(`Error checking API endpoint ${endpoint}:`, error);
+    return false;
+  }
+}
+
+/**
+ * Check if the CoinGecko API is working
+ */
+export async function checkCoinGeckoApi(): Promise<SystemCheckItem> {
+  try {
+    const working = await checkApiEndpoint('/api/crypto/coins/markets');
+    return {
+      name: "CoinGecko API Integration",
+      status: working ? "success" : "error",
+      message: working 
+        ? "CoinGecko API is connected and functioning" 
+        : "CoinGecko API is not responding properly",
+    };
+  } catch (error) {
+    return {
+      name: "CoinGecko API Integration",
+      status: "error",
+      message: "Error checking CoinGecko API",
+      details: [String(error)]
+    };
+  }
+}
+
+/**
+ * Check if the News API is working
+ */
+export async function checkNewsApi(): Promise<SystemCheckItem> {
+  try {
+    const working = await checkApiEndpoint('/api/news');
+    return {
+      name: "News API Integration",
+      status: working ? "success" : "error",
+      message: working 
+        ? "Crypto news API working and displaying current news" 
+        : "News API is not responding properly",
+    };
+  } catch (error) {
+    return {
+      name: "News API Integration",
+      status: "error",
+      message: "Error checking News API",
+      details: [String(error)]
+    };
+  }
+}
+
+/**
+ * Check if the AI integration is working
+ */
+export async function checkAiIntegration(): Promise<SystemCheckItem> {
+  try {
+    const vertexWorking = await checkApiEndpoint('/api/chat/vertex-check');
+    return {
+      name: "Vertex AI Integration",
+      status: vertexWorking ? "success" : "warning",
+      message: vertexWorking 
+        ? "Vertex AI connected to chatbot as required" 
+        : "Vertex AI integration appears to be unavailable",
+    };
+  } catch (error) {
+    return {
+      name: "Vertex AI Integration",
+      status: "warning",
+      message: "Could not verify Vertex AI status",
+      details: [String(error)]
+    };
+  }
+}
+
+/**
+ * Check if the payment system is configured properly
+ */
+export async function checkPaymentSystem(): Promise<SystemCheckItem> {
+  try {
+    const paymentsWorking = await checkApiEndpoint('/api/payments/methods');
+    return {
+      name: "Multi-Payment System",
+      status: paymentsWorking ? "success" : "warning",
+      message: paymentsWorking 
+        ? "Multiple payment options including Stripe, PayPal, and crypto are available" 
+        : "Payment system configuration needs attention",
+    };
+  } catch (error) {
+    return {
+      name: "Multi-Payment System",
+      status: "warning",
+      message: "Could not verify payment system status",
+      details: ["Make sure Stripe and PayPal configurations are set up correctly"]
+    };
+  }
+}
+
+/**
+ * Build the full system check report
+ */
+export async function generateSystemReport(): Promise<SystemCheckCategory[]> {
+  // Run API checks
+  const coinGeckoCheck = await checkCoinGeckoApi();
+  const newsApiCheck = await checkNewsApi();
+  const aiCheck = await checkAiIntegration();
+  const paymentCheck = await checkPaymentSystem();
+  
+  // Main Menu Structure
+  const menuStructure: SystemCheckCategory = {
     name: "Main Menu Structure",
     items: [
       {
@@ -331,26 +265,10 @@ const menuStructure: SystemCheckCategory = {
   const liveFeatures: SystemCheckCategory = {
     name: "Live Features Check",
     items: [
-      {
-        name: "CoinGecko API Integration",
-        status: "success",
-        message: "CoinGecko API is connected and functioning",
-      },
-      {
-        name: "Vertex AI Integration",
-        status: "success",
-        message: "Vertex AI connected to chatbot as required",
-      },
-      {
-        name: "News API Integration",
-        status: "success",
-        message: "Crypto news API working and displaying current news",
-      },
-      {
-        name: "Multi-Payment System",
-        status: "success",
-        message: "Multiple payment options including Stripe, PayPal, and crypto are available",
-      }
+      coinGeckoCheck,
+      aiCheck,
+      newsApiCheck,
+      paymentCheck
     ],
     expanded: true
   };
@@ -553,4 +471,3 @@ const menuStructure: SystemCheckCategory = {
     smartSuggestions
   ];
 }
-*/

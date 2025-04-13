@@ -13,6 +13,7 @@ import { generateAIResponse } from "./gemini";
 import { handleVertexAIResponse } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
+import { checkVertexAi, checkPaymentMethods } from "./systemCheck";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
 import { sendAccessCodeEmail, sendNewsletterCampaign } from './emailService';
 import { createCheckoutSession, handleStripeWebhook, getAvailableLevels, verifyReferralCode } from './stripeService';
@@ -345,6 +346,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Chat endpoint with Vertex Flash AI
   app.post("/api/chat/vertex", handleVertexChat);
+  
+  // System check endpoints
+  app.get("/api/chat/vertex-check", checkVertexAi);
+  app.get("/api/payments/methods", checkPaymentMethods);
   
   // User onboarding profile endpoint
   app.post("/api/onboarding/profile", async (req, res) => {
