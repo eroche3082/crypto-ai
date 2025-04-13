@@ -1,0 +1,147 @@
+You are the Lead AI Systems Engineer responsible for completing and elevating CryptoBot to its Phase 3 state: a fully immersive, intelligent crypto management and education platform. You must verify, implement, or improve all essential features and integrations. Below is your mission scope:
+
+🔒 1. LOGIN & ACCESS CONTROL
+• Confirm secure login page is accessible with:
+   - Username: admin
+   - Password: admin123456
+• Validate Universal Access Code System:
+   - Codes must unlock the correct access level (Basic, Premium, VIP)
+   - Codes must be formatted as: CRYPTO-[CATEGORY]-[4-digit ID]
+• If QR Code access is used, allow mobile scan → auto-login → redirect to dashboard
+• Ensure email + code login also works for all users
+
+---
+
+🧠 2. CHATBOT FUNCTIONALITY (GEMINI + VERTEX AI)
+• ChatBot must:
+   - Live in bottom right corner only
+   - Ask onboarding flow (10 questions + code generation)
+   - Respond to: "Portfolio help", "Analyze Bitcoin", "What’s trending?"
+   - Detect user type and unlock features with Access Code
+• Use Gemini Flash with Vertex AI fallback
+• Language: English-only output for now
+• Must include:
+   - Sentiment analysis from Twitter/News
+   - Price predictions based on trends
+   - Risk level classification by wallet behavior
+
+---
+
+📊 3. DASHBOARD + DATA MODULES
+• Verify tabs:
+   - Dashboard (summary)
+   - Favorites
+   - Portfolio
+   - Digital Assets (NFT & Token Management)
+   - Risk Watchlist
+   - Wallet Messaging
+   - Investment Advisor
+   - Tax Simulator
+   - Gamification
+   - News & Sentiment
+   - Education
+   - Locations
+
+• Ensure each module is:
+   - Populated with mock or live data
+   - Interactive (charts, filters, dynamic feedback)
+   - Styled consistently (dark mode, Lucide icons, purple/blue)
+
+---
+
+💹 4. LIVE MARKET DATA & API INTEGRATION
+• CoinGecko API is functional but rate-limited:
+   - Implement exponential backoff fallback
+   - Use backup cached data or alternate sources (e.g. CryptoCompare)
+• News Aggregator:
+   - Sentiment analysis via NLP (OpenAI/Vertex)
+   - News classification by asset
+• Real-time charting:
+   - Use ApexCharts, Recharts or TradingView widgets
+
+---
+
+💳 5. PAYMENTS & ACCESS CODES
+• Stripe: ✅
+• PayPal: ✅
+• Crypto payments: ✅
+• Bank Transfer (instructions-only): ✅
+• Ensure plan-based access unlocks correct tier:
+   - Basic: 3 modules
+   - Premium: 10 modules
+   - VIP: Full access
+• QR Code system:
+   - After payment or onboarding, generate QR
+   - QR loads login → code unlock → dashboard access
+   - Must be copyable & shareable
+
+---
+
+📧 6. EMAIL & NOTIFICATIONS
+• SendGrid system:
+   - Confirm welcome email upon signup
+   - Email must contain access code and dashboard walkthrough
+• Optional:
+   - Weekly digest: “Top 3 assets to watch this week”
+   - Alerts (via email): “BTC drops below X”, “Risk in Wallet XYZ”
+
+---
+
+📚 7. EDUCATION HUB
+• Add course cards with modules:
+   - Crypto 101, NFTs, DeFi, Wallet Safety
+   - Short videos or AI summaries
+• Add tab for:
+   - Gamified learning
+   - Progress badges
+   - Quizzes with rewards
+
+---
+
+📈 8. SYSTEM REPORTING & MONITORING
+• Admin Panel:
+   - /admin → username: admin / password: admin123456
+   - View user registrations, Access Code usage, conversion stats
+   - Export CSV
+• API Health Monitor:
+   - CoinGecko, Gemini, Firebase, Stripe
+   - Ping status + fallback report
+• User Heatmap:
+   - Most visited pages
+   - Chatbot interactions frequency
+
+---
+
+🔧 9. SMART SUGGESTIONS FOR NEXT PHASE
+• Add Mobile App QR generator to integrate with CryptoBot on iOS/Android
+• Launch “Trade With AI” button → real-time swap integrations
+• Integrate external APIs (Coinbase, MetaMask, Trust Wallet)
+• Expand portfolio advisor to simulate risk projections over 1/3/5 years
+• Launch a "Crypto Academy" series via email
+
+---
+
+📌 FINAL DELIVERY CHECKLIST:
+✅ Login & Admin access secured
+✅ 20+ core features displayed on homepage
+✅ Chatbot integrated with onboarding & categories
+✅ Dashboard dynamic + real data/live fallback
+✅ Payments and access codes functional
+✅ QR code login and tracking in place
+✅ Email system working via SendGrid
+✅ All tabs route, load, and operate properly
+✅ System status panel created
+✅ Mobile responsive and accessible in English
+
+→ Upon completion, return JSON:
+{
+  "status": "Complete",
+  "features_enabled": [...],
+  "features_pending": [...],
+  "onboarding_status": true,
+  "chatbot_connected": true,
+  "dashboard_modules": 15,
+  "emails_sent": "working",
+  "access_code_format": "CRYPTO-[TIER]-####"
+}
+

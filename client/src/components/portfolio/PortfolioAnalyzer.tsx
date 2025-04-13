@@ -58,6 +58,17 @@ interface PortfolioAnalysis {
 const PortfolioAnalyzer = () => {
   const { t } = useTranslation();
   const { toast } = useToast();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  
+  // Handle window resize events for responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const { data, isLoading, error } = useQuery<{status: string, data: PortfolioAnalysis}>({
     queryKey: ['/api/portfolio/analysis'],
@@ -160,8 +171,8 @@ const PortfolioAnalyzer = () => {
                     data={analysis.allocation}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
+                    innerRadius={window.innerWidth < 640 ? 40 : 60}
+                    outerRadius={window.innerWidth < 640 ? 60 : 80}
                     paddingAngle={2}
                     dataKey="percentage"
                   >
@@ -176,8 +187,14 @@ const PortfolioAnalyzer = () => {
                   <Tooltip 
                     formatter={(value: number, name: string, props: any) => [`${value}%`, props.payload.type]} 
                     labelFormatter={() => ''} 
+                    wrapperStyle={{ fontSize: window.innerWidth < 640 ? '10px' : '12px' }}
                   />
-                  <Legend />
+                  <Legend 
+                    layout={window.innerWidth < 640 ? "vertical" : "horizontal"}
+                    verticalAlign={window.innerWidth < 640 ? "bottom" : "middle"}
+                    align={window.innerWidth < 640 ? "center" : "right"}
+                    wrapperStyle={{ fontSize: window.innerWidth < 640 ? '10px' : '12px' }}
+                  />
                 </RechartsSimplePieChart>
               </ResponsiveContainer>
             </div>
