@@ -211,6 +211,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add a status endpoint to check system health including email service status
   app.get('/api/system/status', getSystemStatus);
   
+  // API status endpoint for monitoring data sources health
+  app.get('/api/system/api-status', async (req, res) => {
+    try {
+      // Check CoinGecko API status
+      let coinGeckoStatus = 'unknown';
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/ping');
+        coinGeckoStatus = response.ok ? 'online' : 'degraded';
+      } catch (error) {
+        coinGeckoStatus = 'offline';
+        console.error('CoinGecko API health check failed:', error);
+      }
+      
+      // Check CoinAPI status
+      let coinApiStatus = 'unknown';
+      try {
+        const { coinApiService } = await import('./services/crypto/coinApiService');
+        // Just getting exchange rates is a simple way to check if the API is working
+        const result = await coinApiService.getExchangeRates();
+        coinApiStatus = result.source === 'api' ? 'online' : 'degraded';
+      } catch (error) {
+        coinApiStatus = 'offline';
+        console.error('CoinAPI health check failed:', error);
+      }
+      
+      // Check News API (optional, but useful)
+      let newsApiStatus = 'unknown';
+      if (process.env.NEWS_API_KEY) {
+        try {
+          const response = await fetch(
+            'https://newsapi.org/v2/top-headlines?country=us&pageSize=1',
+            { headers: { 'X-Api-Key': process.env.NEWS_API_KEY } }
+          );
+          newsApiStatus = response.ok ? 'online' : 'degraded';
+        } catch (error) {
+          newsApiStatus = 'offline';
+          console.error('NewsAPI health check failed:', error);
+        }
+      } else {
+        newsApiStatus = 'not_configured';
+      }
+      
+      // Load cache statistics from crypto data services
+      let cacheStats = {};
+      try {
+        const { cryptoDataService } = await import('./services/crypto/cryptoDataService');
+        cacheStats = cryptoDataService.getCacheStats();
+      } catch (error) {
+        console.error('Failed to get cache statistics:', error);
+      }
+      
+      // Send the combined API status information
+      res.json({
+        timestamp: new Date().toISOString(),
+        apis: {
+          coinGecko: {
+            status: coinGeckoStatus,
+            provider: 'CoinGecko',
+            description: 'Primary cryptocurrency market data provider'
+          },
+          coinApi: {
+            status: coinApiStatus,
+            provider: 'CoinAPI',
+            description: 'Secondary cryptocurrency market data provider'
+          },
+          newsApi: {
+            status: newsApiStatus,
+            provider: 'NewsAPI',
+            description: 'Financial and cryptocurrency news provider'
+          }
+        },
+        cache: cacheStats
+      });
+    } catch (error) {
+      console.error('Error checking API status:', error);
+      res.status(500).json({ error: 'Failed to check API status' });
+    }
+  });
+  
   // Add a route to serve the static HTML fallback page
   app.get('/static', (req: Request, res: Response) => {
     try {
@@ -445,234 +524,93 @@ Watch for increased volatility around upcoming economic announcements.
     try {
       const { vs_currency, ids, category, order, per_page, page, sparkline, price_change_percentage } = req.query;
       
-      // Use free API since the Pro API seems to have authentication issues
-      // const apiKey = process.env.VITE_COINGECKO_API_KEY;
-      const baseUrl = "https://api.coingecko.com/api/v3";
-      const url = new URL(`${baseUrl}/coins/markets`);
+      // Import the unified crypto data service with CoinGecko and CoinAPI
+      const { cryptoDataService } = await import('./services/crypto/cryptoDataService');
       
-      // Add common query parameters
-      url.searchParams.append("vs_currency", (vs_currency as string) || "usd");
-      
-      if (ids) url.searchParams.append("ids", ids as string);
-      if (category) url.searchParams.append("category", category as string);
-      if (order) url.searchParams.append("order", order as string);
-      
-      // Handle per_page parameter differently for the watchlist which needs more data
-      // CoinGecko free API limits this to 250 as maximum
-      if (per_page) {
-        const perPageValue = parseInt(per_page as string, 10);
-        const finalPerPage = Math.min(perPageValue, 250).toString();
-        url.searchParams.append("per_page", finalPerPage);
-      } else {
-        url.searchParams.append("per_page", "20");
-      }
-      
-      if (page) url.searchParams.append("page", page as string);
-      if (sparkline) url.searchParams.append("sparkline", sparkline as string);
-      if (price_change_percentage) url.searchParams.append("price_change_percentage", price_change_percentage as string);
-      
-      // Configure headers
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
+      // Construct parameters object for the service
+      const params: Record<string, any> = {
+        vs_currency: vs_currency || "usd",
       };
       
-      console.log("Using CoinGecko free API tier");
+      if (ids) params.ids = ids;
+      if (category) params.category = category;
+      if (order) params.order = order;
+      if (per_page) params.per_page = per_page;
+      if (page) params.page = page;
+      if (sparkline) params.sparkline = sparkline;
+      if (price_change_percentage) params.price_change_percentage = price_change_percentage;
       
-      // Implement retry logic
-      const maxRetries = 3;
-      let retries = 0;
-      let success = false;
-      let data;
+      // Get data from unified service with smart source selection and caching
+      const { data, source } = await cryptoDataService.getMarkets(params);
       
-      while (retries < maxRetries && !success) {
-        try {
-          console.log(`CoinGecko API attempt ${retries + 1}/${maxRetries}: ${url.toString()}`);
-          
-          // Make the request to CoinGecko
-          const response = await fetch(url.toString(), { 
-            headers,
-            method: 'GET',
-          });
-          
-          // Handle rate limits and errors
-          if (response.status === 429) {
-            // Rate limit hit, wait before retrying
-            const retryAfter = response.headers.get('retry-after') || '30';
-            const waitTime = parseInt(retryAfter, 10) * 1000;
-            console.log(`CoinGecko API rate limit hit. Waiting ${waitTime}ms before retry.`);
-            await new Promise(resolve => setTimeout(resolve, waitTime));
-            retries++;
-            continue;
-          } else if (!response.ok) {
-            if (retries < maxRetries - 1) {
-              console.log(`CoinGecko API error: ${response.status} ${response.statusText}. Retrying...`);
-              retries++;
-              // Exponential backoff
-              await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000));
-              continue;
-            } else {
-              console.log(`CoinGecko API error: ${response.status} ${response.statusText}. Using backup data.`);
-              const backupData = generateBackupCryptoData();
-              return res.json(backupData);
-            }
-          }
-          
-          // Success - parse and return data
-          data = await response.json();
-          success = true;
-          
-        } catch (error) {
-          if (retries < maxRetries - 1) {
-            console.log(`CoinGecko API fetch error: ${error}. Retrying...`);
-            retries++;
-            // Exponential backoff
-            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000));
-          } else {
-            console.log(`CoinGecko API fetch error after ${maxRetries} attempts: ${error}. Using backup data.`);
-            const backupData = generateBackupCryptoData();
-            return res.json(backupData);
-          }
-        }
-      }
+      // Add data source info to header for debugging
+      res.setHeader('X-Data-Source', source);
       
-      if (success && data) {
-        console.log(`CoinGecko API request successful. Returning ${data.length} coins.`);
-        return res.json(data);
-      } else {
-        // This should never happen but just in case
-        console.log("CoinGecko API request failed for unknown reason. Using backup data.");
-        const backupData = generateBackupCryptoData();
-        return res.json(backupData);
-      }
+      console.log(`Crypto markets data returned from source: ${source}`);
+      return res.json(data);
     } catch (error) {
-      console.error("Unexpected error in CoinGecko API proxy:", error);
+      console.error("Unexpected error in cryptocurrency markets API:", error);
       res.status(500).json({ error: (error as Error).message });
     }
   });
   
-  // Individual coin data proxy with improved error handling and retry logic
+  // Global cryptocurrency market data with caching and fallbacks
+  app.get("/api/crypto/global", async (req, res) => {
+    try {
+      // Import the unified crypto data service with CoinGecko and CoinAPI
+      const { cryptoDataService } = await import('./services/crypto/cryptoDataService');
+      
+      // Get global market data from the service
+      try {
+        const { data, source } = await cryptoDataService.getGlobalData();
+        
+        // Add data source info to header for debugging
+        res.setHeader('X-Data-Source', source);
+        
+        console.log(`Global crypto market data returned from source: ${source}`);
+        return res.json(data);
+      } catch (error) {
+        console.error('Error fetching global cryptocurrency data:', error);
+        return res.status(500).json({ 
+          error: 'Could not retrieve global cryptocurrency market data',
+          message: (error as Error).message
+        });
+      }
+    } catch (error) {
+      console.error('Unexpected error in global cryptocurrency data API:', error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  });
+  
+  // Individual coin data proxy with smart source selection and caching
   app.get("/api/crypto/coins/:id", async (req, res) => {
     try {
       const id = req.params.id;
-      const queryParams = new URLSearchParams(req.query as any);
+      const params = Object.fromEntries(
+        Object.entries(req.query).map(([key, value]) => [key, value as string])
+      );
       
-      // Use free API since the Pro API seems to have authentication issues
-      // const apiKey = process.env.VITE_COINGECKO_API_KEY;
-      const baseUrl = "https://api.coingecko.com/api/v3";
-      const url = `${baseUrl}/coins/${id}?${queryParams.toString()}`;
+      // Import the unified crypto data service with CoinGecko and CoinAPI
+      const { cryptoDataService } = await import('./services/crypto/cryptoDataService');
       
-      // Configure headers
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      };
-      
-      console.log("Using CoinGecko free API tier for coin details");
-      
-      // Implement retry logic for individual coin data
-      const maxRetries = 3;
-      let retries = 0;
-      let success = false;
-      let data;
-      
-      while (retries < maxRetries && !success) {
-        try {
-          console.log(`CoinGecko coin detail API attempt ${retries + 1}/${maxRetries} for ${id}`);
-          
-          // Make the request to CoinGecko
-          const response = await fetch(url, { 
-            headers,
-            method: 'GET', 
-          });
-          
-          // Handle rate limits and errors
-          if (response.status === 429) {
-            // Rate limit hit, wait before retrying
-            const retryAfter = response.headers.get('retry-after') || '30';
-            const waitTime = parseInt(retryAfter, 10) * 1000;
-            console.log(`CoinGecko API rate limit hit. Waiting ${waitTime}ms before retry.`);
-            await new Promise(resolve => setTimeout(resolve, waitTime));
-            retries++;
-            continue;
-          } else if (!response.ok) {
-            if (retries < maxRetries - 1) {
-              console.log(`CoinGecko coin API error: ${response.status} ${response.statusText}. Retrying...`);
-              retries++;
-              // Exponential backoff
-              await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000));
-              continue;
-            } else {
-              // For specific coin, find in backup data or generate a more detailed response
-              console.log(`CoinGecko coin API error after ${maxRetries} attempts. Using backup data.`);
-              const backupData = generateBackupCryptoData().find(coin => coin.id === id);
-              
-              if (backupData) {
-                // Enhance backup data for single coin view
-                const enhancedData = {
-                  ...backupData,
-                  description: { en: `Detailed information about ${backupData.name} is temporarily unavailable.` },
-                  links: {
-                    homepage: ["https://example.com"],
-                    blockchain_site: ["https://example.com"],
-                    official_forum_url: ["https://example.com"],
-                    twitter_screen_name: "example",
-                    telegram_channel_identifier: "",
-                    subreddit_url: "https://example.com",
-                  },
-                  market_data: {
-                    current_price: { usd: backupData.current_price },
-                    ath: { usd: backupData.ath },
-                    ath_change_percentage: { usd: backupData.ath_change_percentage },
-                    ath_date: { usd: backupData.ath_date },
-                    atl: { usd: backupData.atl },
-                    atl_change_percentage: { usd: backupData.atl_change_percentage },
-                    atl_date: { usd: backupData.atl_date },
-                    market_cap: { usd: backupData.market_cap },
-                    total_volume: { usd: backupData.total_volume },
-                    high_24h: { usd: backupData.high_24h },
-                    low_24h: { usd: backupData.low_24h },
-                    price_change_24h: backupData.price_change_24h,
-                    price_change_percentage_24h: backupData.price_change_percentage_24h,
-                    price_change_percentage_7d: backupData.price_change_percentage_7d,
-                    price_change_percentage_14d: backupData.price_change_percentage_14d,
-                    price_change_percentage_30d: backupData.price_change_percentage_30d,
-                    sparkline_7d: { price: backupData.sparkline_in_7d?.price || [] },
-                  },
-                };
-                return res.json(enhancedData);
-              }
-              
-              return res.status(404).json({ error: `Coin ${id} not found and no backup data available` });
-            }
-          }
-          
-          // Success - parse and return data
-          data = await response.json();
-          success = true;
-          
-        } catch (error) {
-          if (retries < maxRetries - 1) {
-            console.log(`CoinGecko coin API fetch error: ${error}. Retrying...`);
-            retries++;
-            // Exponential backoff
-            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000));
-          } else {
-            console.log(`CoinGecko coin API fetch error after ${maxRetries} attempts: ${error}.`);
-            return res.status(500).json({ error: `Failed to fetch data for ${id} after multiple attempts` });
-          }
-        }
-      }
-      
-      if (success && data) {
-        console.log(`CoinGecko coin API request successful for ${id}.`);
+      // Get data from unified service with smart source selection and caching
+      try {
+        const { data, source } = await cryptoDataService.getCoinDetails(id, params);
+        
+        // Add data source info to header for debugging
+        res.setHeader('X-Data-Source', source);
+        
+        console.log(`Crypto coin details for ${id} returned from source: ${source}`);
         return res.json(data);
-      } else {
-        // This should never happen but just in case
-        return res.status(500).json({ error: `Failed to fetch data for ${id} for unknown reason` });
+      } catch (error) {
+        console.error(`Error fetching coin details for ${id}:`, error);
+        return res.status(404).json({ 
+          error: `Could not retrieve data for coin ${id}`,
+          message: (error as Error).message
+        });
       }
     } catch (error) {
-      console.error(`Unexpected error in CoinGecko coin API proxy: ${error}`);
+      console.error(`Unexpected error in cryptocurrency details API: ${error}`);
       res.status(500).json({ error: (error as Error).message });
     }
   });
