@@ -392,7 +392,12 @@ export const userOnboardingProfiles = pgTable("user_onboarding_profiles", {
   stripe_customer_id: text("stripe_customer_id"), // Stripe customer ID for payments
   stripe_payment_history: json("stripe_payment_history").default("[]"), // Payment history
   last_payment_date: timestamp("last_payment_date"), // Last payment date
+  payment_amount: integer("payment_amount"), // Amount of last payment in dollars
+  payment_currency: text("payment_currency"), // Currency of last payment
+  payment_reference: text("payment_reference"), // Reference ID for last payment
   subscription_status: text("subscription_status").default("free"), // free, paid, premium
+  used_referral_code: text("used_referral_code"), // Referral code this user used
+  referral_date: timestamp("referral_date"), // When referral was used
   
   // QR Code access
   qr_code_url: text("qr_code_url"), // URL to the QR code for dashboard access
