@@ -148,7 +148,18 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
       {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: leadCaptureFields[0].question,
+        content: `
+<div class="bg-amber-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+      <span class="text-lg font-semibold">👋</span>
+    </div>
+    <h3 class="text-amber-800 font-semibold">WELCOME TO CRYPTOBOT</h3>
+  </div>
+  <p class="text-amber-800/80 mb-4 text-sm">Let's start with a few quick questions</p>
+  
+  <p class="font-medium text-amber-900">${leadCaptureFields[0].question}</p>
+</div>`,
         timestamp: new Date(),
         model: 'vertex-flash'
       }
@@ -191,7 +202,18 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: personalizedQuestion,
+          content: `
+<div class="bg-amber-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+      <span class="text-lg font-semibold">✉️</span>
+    </div>
+    <h3 class="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+  </div>
+  <p class="text-amber-800/80 mb-4 text-sm">One more quick question before we start</p>
+  
+  <p class="font-medium text-amber-900">${personalizedQuestion}</p>
+</div>`,
           timestamp: new Date(),
           model: 'vertex-flash'
         }]);
@@ -205,17 +227,41 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: `Thanks, ${updatedLeadData.name}! Now let's personalize your crypto experience with a few more questions. For the following questions, you can select multiple options where applicable.`,
+          content: `
+<div class="bg-green-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-green-600">
+      <span class="text-lg font-semibold">✅</span>
+    </div>
+    <h3 class="text-green-800 font-semibold">PROFILE CREATION STARTED</h3>
+  </div>
+  <p class="text-green-800/80 mb-4 text-sm">Thanks, ${updatedLeadData.name}! Now let's personalize your crypto experience with a few more questions.</p>
+  <p class="text-green-700 mb-2">For the following questions, you can select multiple options where applicable.</p>
+</div>`,
           timestamp: new Date(),
           model: 'vertex-flash'
         }]);
         
         // Display first question with multiple choice options
-        const questionContent = renderOnboardingQuestion(0);
+        const question = onboardingQuestions[0];
+        const multiSelectText = question.multiSelect ? 'Choose all that apply:' : 'Choose one:';
+        
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: questionContent,
+          content: `
+<div class="bg-amber-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+      <span class="text-lg font-semibold">?</span>
+    </div>
+    <h3 class="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+  </div>
+  <p class="text-amber-800/80 mb-4 text-sm">Question 1 of ${onboardingQuestions.length}</p>
+  
+  <p class="font-medium mb-3 text-amber-900">${question.question}</p>
+  <p class="text-sm text-amber-700 mb-1">${multiSelectText}</p>
+</div>`,
           timestamp: new Date(),
           model: 'vertex-flash'
         }]);
@@ -242,11 +288,25 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         setCurrentQuestionIndex(nextQuestionIndex);
         
         // Add next question with options as a message
-        const questionContent = renderOnboardingQuestion(nextQuestionIndex);
+        const question = onboardingQuestions[nextQuestionIndex];
+        const multiSelectText = question.multiSelect ? 'Choose all that apply:' : 'Choose one:';
+        
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: questionContent,
+          content: `
+<div class="bg-amber-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+      <span class="text-lg font-semibold">?</span>
+    </div>
+    <h3 class="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+  </div>
+  <p class="text-amber-800/80 mb-4 text-sm">Question ${nextQuestionIndex + 1} of ${onboardingQuestions.length}</p>
+  
+  <p class="font-medium mb-3 text-amber-900">${question.question}</p>
+  <p class="text-sm text-amber-700 mb-1">${multiSelectText}</p>
+</div>`,
           timestamp: new Date(),
           model: 'vertex-flash'
         }]);
@@ -340,7 +400,25 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           setMessages(prev => [...prev, {
             id: (Date.now() + 1).toString(),
             role: 'assistant',
-            content: `Your personalized dashboard is ready! Your unique access code is: **${uniqueCode}**\n\nThis code gives you access to our personalized dashboard with features unlocked based on your profile. You can also use it as a referral code to invite friends.`,
+            content: `
+<div class="bg-indigo-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-indigo-600">
+      <span class="text-lg font-semibold">🌟</span>
+    </div>
+    <h3 class="text-indigo-800 font-semibold">PROFILE CREATION COMPLETE</h3>
+  </div>
+  
+  <p class="text-indigo-800 mb-4">Your personalized dashboard is ready!</p>
+  
+  <div class="bg-white p-3 rounded-md mb-4 border-2 border-indigo-400 text-center">
+    <p class="text-xs text-indigo-600 mb-1">Your Unique Access Code</p>
+    <p class="text-lg font-bold text-indigo-800">${uniqueCode}</p>
+  </div>
+  
+  <p class="text-sm text-indigo-700 mb-2">This code gives you access to personalized features based on your profile.</p>
+  <p class="text-xs text-indigo-600">You can also use it as a referral code to invite friends.</p>
+</div>`,
             timestamp: new Date(),
             model: 'vertex-flash'
           }]);
@@ -350,7 +428,22 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
             setMessages(prev => [...prev, {
               id: (Date.now() + 2).toString(),
               role: 'assistant',
-              content: 'Login to Dashboard',
+              content: `
+<div class="bg-green-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-green-600">
+      <span class="text-lg font-semibold">🚀</span>
+    </div>
+    <h3 class="text-green-800 font-semibold">READY TO EXPLORE</h3>
+  </div>
+  
+  <p class="text-green-700 mb-4">Click the button below to access your personalized dashboard with all the features you need.</p>
+  
+  <button onClick="window.location.href='/dashboard'" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2">
+    <span>Login to Dashboard</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </button>
+</div>`,
               timestamp: new Date(),
               model: 'vertex-flash'
             }]);
@@ -515,12 +608,25 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
       setCurrentQuestionIndex(nextQuestionIndex);
       
       // Add next question with options as a message
-      const questionContent = renderOnboardingQuestion(nextQuestionIndex);
+      const question = onboardingQuestions[nextQuestionIndex];
+      const multiSelectText = question.multiSelect ? 'Choose all that apply:' : 'Choose one:';
       
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         role: 'assistant',
-        content: questionContent,
+        content: `
+<div class="bg-amber-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+      <span class="text-lg font-semibold">?</span>
+    </div>
+    <h3 class="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+  </div>
+  <p class="text-amber-800/80 mb-4 text-sm">Question ${nextQuestionIndex + 1} of ${onboardingQuestions.length}</p>
+  
+  <p class="font-medium mb-3 text-amber-900">${question.question}</p>
+  <p class="text-sm text-amber-700 mb-1">${multiSelectText}</p>
+</div>`,
         timestamp: new Date(),
         model: 'vertex-flash'
       }]);
@@ -532,7 +638,19 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `Analyzing your responses and generating your personalized access code...`,
+        content: `
+<div class="bg-blue-100/90 p-4 rounded-lg">
+  <div class="flex items-center gap-3 mb-3">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-blue-600">
+      <span class="animate-spin text-lg">⚙️</span>
+    </div>
+    <h3 class="text-blue-800 font-semibold">PROCESSING PROFILE DATA</h3>
+  </div>
+  <p class="text-blue-700 mb-2">Analyzing your responses and generating your personalized access code...</p>
+  <div class="w-full bg-white rounded-full h-2 mt-3">
+    <div class="bg-blue-500 h-2 rounded-full animate-pulse" style="width: 75%"></div>
+  </div>
+</div>`,
         timestamp: new Date(),
         model: 'vertex-flash'
       }]);
@@ -759,33 +877,45 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                                   
                                   {/* Add option buttons for onboarding questions */}
                                   {isOnboarding && !inLeadCapture && message === messages[messages.length - 1] && message.role === 'assistant' && currentQuestionIndex < onboardingQuestions.length && (
-                                    <div className="mt-3 grid gap-2">
-                                      {onboardingQuestions[currentQuestionIndex].options.map((option, idx) => {
-                                        const isSelected = selectedOptions[currentQuestionIndex]?.includes(option);
-                                        return (
-                                          <button
-                                            key={idx}
-                                            onClick={() => handleOptionSelect(option)}
-                                            className={`text-sm text-left px-4 py-3 rounded-lg border transition-all ${
-                                              isSelected 
-                                                ? 'bg-primary/20 border-primary' 
-                                                : 'bg-background/80 border-border hover:border-primary/30 hover:bg-muted/50'
-                                            }`}
-                                          >
-                                            {option}
-                                          </button>
-                                        );
-                                      })}
+                                    <div className="mt-4 bg-amber-100/90 p-4 rounded-lg -mx-2">
+                                      <div className="flex items-center gap-2 mb-3">
+                                        <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+                                          <span className="text-lg font-semibold">?</span>
+                                        </div>
+                                        <h3 className="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+                                      </div>
+                                      <p className="text-amber-800/80 mb-4 text-sm">Let's customize your crypto experience</p>
                                       
-                                      {/* Show continue button for multi-select options */}
-                                      {onboardingQuestions[currentQuestionIndex].multiSelect && selectedOptions[currentQuestionIndex]?.length > 0 && (
-                                        <button
-                                          onClick={handleContinueAfterSelection}
-                                          className="mt-1 flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80"
-                                        >
-                                          Continue <ArrowRight size={14} />
-                                        </button>
-                                      )}
+                                      <p className="font-medium mb-3 text-amber-900">{onboardingQuestions[currentQuestionIndex].question}</p>
+                                      
+                                      <div className="grid gap-2">
+                                        {onboardingQuestions[currentQuestionIndex].options.map((option, idx) => {
+                                          const isSelected = selectedOptions[currentQuestionIndex]?.includes(option);
+                                          return (
+                                            <button
+                                              key={idx}
+                                              onClick={() => handleOptionSelect(option)}
+                                              className={`text-sm text-left px-4 py-3 rounded-lg border transition-all ${
+                                                isSelected 
+                                                  ? 'bg-amber-500/20 border-amber-500 text-amber-900' 
+                                                  : 'bg-white border-amber-200 hover:border-amber-400 hover:bg-amber-50 text-amber-800'
+                                              }`}
+                                            >
+                                              {option}
+                                            </button>
+                                          );
+                                        })}
+                                        
+                                        {/* Show continue button for multi-select options */}
+                                        {onboardingQuestions[currentQuestionIndex].multiSelect && selectedOptions[currentQuestionIndex]?.length > 0 && (
+                                          <button
+                                            onClick={handleContinueAfterSelection}
+                                            className="mt-2 flex items-center justify-center gap-1 text-sm font-medium text-amber-600 hover:text-amber-800"
+                                          >
+                                            Continue <ArrowRight size={14} />
+                                          </button>
+                                        )}
+                                      </div>
                                     </div>
                                   )}
                                   
