@@ -260,7 +260,7 @@ export default function LandingPage() {
                 <Button 
                   size="lg" 
                   className="gap-2 bg-indigo-600 hover:bg-indigo-700"
-                  onClick={() => setChatbotOpen(true)}
+                  onClick={() => startOnboardingRef.current && startOnboardingRef.current()}
                 >
                   Get Started <Sparkles size={16} />
                 </Button>
