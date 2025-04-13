@@ -286,6 +286,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat endpoint with Gemini AI
   app.post("/api/chat/gemini", handleGeminiChat);
   
+  // User onboarding profile endpoint
+  app.post("/api/onboarding/profile", async (req, res) => {
+    try {
+      // Validate the input using Zod schema
+      const profileData = insertUserOnboardingProfileSchema.parse(req.body);
+      
+      // Insert the profile data into the database
+      const [newProfile] = await db.insert(userOnboardingProfiles).values(profileData).returning();
+      
+      console.log('Saved new onboarding profile:', newProfile.name, newProfile.email);
+      
+      return res.status(201).json({
+        success: true,
+        profile: newProfile,
+        message: 'Onboarding profile created successfully'
+      });
+    } catch (error: any) {
+      console.error('Error saving onboarding profile:', error);
+      return res.status(400).json({
+        success: false,
+        error: error.message || 'Failed to save onboarding profile',
+        details: error.errors || []
+      });
+    }
+  });
+  
   // VertexAI proxy for enhanced Gemini capabilities
   app.post("/api/vertex-ai-response", handleVertexAIResponse);
   

@@ -276,16 +276,44 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           }]);
         }, 1000);
         
-        // Save complete profile data to localStorage (in a real app, send to backend/Firebase)
+        // Save complete profile data to the backend API
         const profileData = {
-          leadCapture: leadCaptureData,
-          preferences: selectedOptions,
-          onboardingComplete: true,
-          timestamp: new Date().toISOString()
+          name: leadCaptureData.name || '',
+          email: leadCaptureData.email || '',
+          crypto_experience_level: selectedOptions[0]?.[0] || '',
+          investment_goals: selectedOptions[1] || [],
+          investment_timeframe: selectedOptions[2]?.[0] || '',
+          risk_tolerance: selectedOptions[3]?.[0] || '',
+          interests: selectedOptions[4] || [],
+          initial_investment: selectedOptions[5]?.[0] || '',
+          preferred_cryptocurrencies: selectedOptions[6] || [],
+          learning_preferences: selectedOptions[7] || [],
+          trading_frequency: selectedOptions[8]?.[0] || '',
+          timezone: selectedOptions[9]?.[0] || '',
+          onboarding_completed: true
         };
+        
+        // Save to localStorage as fallback
         localStorage.setItem('cryptoUserProfile', JSON.stringify(profileData));
         
-        // Here we would also store the lead info in the database for the admin panel
+        // Send to backend API
+        try {
+          const response = await fetch('/api/onboarding/profile', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(profileData),
+          });
+          
+          if (response.ok) {
+            console.log('Onboarding profile saved to database');
+          } else {
+            console.error('Failed to save onboarding profile to database:', await response.text());
+          }
+        } catch (error) {
+          console.error('Error saving onboarding profile to database:', error);
+        }
         
         setIsProcessing(false);
         
