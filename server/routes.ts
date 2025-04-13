@@ -17,6 +17,13 @@ import { initializeAppSecrets } from "./services/secrets/secretManager";
 import { sendAccessCodeEmail, sendNewsletterCampaign } from './emailService';
 import { createCheckoutSession, handleStripeWebhook, getAvailableLevels, verifyReferralCode } from './stripeService';
 import { generateQRCode, validateAccessCode } from './qrCodeService';
+import { 
+  getPaymentMethods, 
+  initPayPalPayment, 
+  initCryptoPayment, 
+  getBankTransferInstructions,
+  verifyCryptoPayment 
+} from './paymentService';
 import apiRouter from "./apiRoutes";
 import { accessCodeRouter, accessCodeAdminRouter } from "./accessCodeRoutes";
 import { db } from "./db";
@@ -205,6 +212,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const isSendGridConfigured = !!process.env.SENDGRID_API_KEY;
     const isStripeConfigured = !!process.env.STRIPE_SECRET_KEY;
     
+    // Get available payment methods
+    const availablePaymentMethods = Object.entries(PAYMENT_METHODS)
+      .filter(([_, method]) => method.enabled)
+      .map(([id]) => id);
+    
     res.json({
       status: 'online',
       version: '1.0.0',
@@ -216,9 +228,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           configured: isSendGridConfigured,
           mode: isSendGridConfigured ? 'live' : 'simulation'
         },
-        stripe: {
-          configured: isStripeConfigured,
-          mode: isStripeConfigured ? 'live' : 'unavailable'
+        payments: {
+          stripe: {
+            configured: isStripeConfigured,
+            mode: isStripeConfigured ? 'live' : 'unavailable'
+          },
+          methods: availablePaymentMethods,
+          multi_payment: true
         },
         universal_access_code: {
           operational: true,
@@ -227,7 +243,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             'level_unlocking',
             'qr_code_generation',
             'payment_processing',
-            'referral_system'
+            'referral_system',
+            'multi_payment_options',
+            'animated_level_unlocks'
           ]
         }
       }
@@ -1016,6 +1034,13 @@ Watch for increased volatility around upcoming economic announcements.
     app.post("/api/create-subscription", stripeErrorHandler);
     app.post("/api/stripe-webhook", stripeErrorHandler);
   }
+  
+  // Multi-payment options routes (beyond Stripe)
+  app.get('/api/payment/methods', getPaymentMethods);
+  app.post('/api/payment/paypal/init', initPayPalPayment);
+  app.post('/api/payment/crypto/init', initCryptoPayment);
+  app.post('/api/payment/bank-transfer/instructions', getBankTransferInstructions);
+  app.post('/api/payment/crypto/verify', verifyCryptoPayment);
   
   // Text-to-Speech API routes
   app.post('/api/tts/google', googleTTSHandler);
