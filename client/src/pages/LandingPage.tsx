@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star as StarIcon, Mail, MapPin, Phone } from "lucide-react";
+import ChatBot from "@/components/ChatBot";
 
 // Create a custom StarHalfIcon component since it's not available in lucide-react
 const StarHalfIcon = () => (
