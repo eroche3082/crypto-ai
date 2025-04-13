@@ -1,0 +1,133 @@
+UNIVERSAL AGENT MEGAPROMPT — ACCESS CODE SYSTEM
+Instructions to the Agent (Generic for All Platforms):
+
+You are now responsible for managing and executing the Universal Access Code System for your application. This includes generating onboarding codes, rendering QR access, enabling dashboard personalization, processing payments via Stripe, and supporting referral and tracking logic.
+
+Follow the steps below and verify that all are functional:
+
+PHASE 1: Onboarding Access Code Generation
+When the user finishes the onboarding flow, generate a unique access code using the format:
+
+css
+Copiar
+Editar
+[PLATFORM]-[CATEGORY]-[LANGUAGE_CODE]-[RANDOM_NUMBER]
+Example: FIT-PRO-EN-8471, TRAVEL-VIP-ES-2890, SHOP-BASIC-EN-0923
+
+Save the following data:
+
+json
+Copiar
+Editar
+{
+  "userId": "auto-generated",
+  "accessCode": "TRAVEL-VIP-ES-2890",
+  "platform": "JetAI",
+  "category": "VIP",
+  "language": "ES",
+  "level": "Beginner",
+  "unlockedLevels": ["Level 1", "Level 2"],
+  "referrals": [],
+  "createdAt": Timestamp
+}
+PHASE 2: QR Code Integration
+Generate a QR Code that links to:
+
+arduino
+Copiar
+Editar
+https://[platform].app/dashboard?code=ACCESS_CODE
+Display the QR Code on screen and send it in a confirmation email using the existing email system (SendGrid, Firebase, or EmailJS).
+
+Ensure the QR is mobile-optimized and scan-ready.
+
+PHASE 3: Dashboard Access via Code
+When a user lands on the platform with a ?code=XYZ in the URL:
+
+Automatically log them in
+
+Load their personalized dashboard using the information tied to that code
+
+Show their journey, progress, and unlocked features
+
+PHASE 4: Level Unlock System
+Inside the dashboard, display "locked" levels
+
+Allow unlocking via:
+
+Promo code input
+
+Stripe payment
+
+Integrate Stripe with the appropriate price ID per level:
+
+json
+Copiar
+Editar
+{
+  "level": "Level 4",
+  "priceId": "price_1ABC234567890"
+}
+Upon successful payment, update unlockedLevels in Firestore or your DB.
+
+PHASE 5: Admin Panel Tracking
+Implement a protected admin route /admin
+
+Use the credentials:
+
+username: admin
+
+password: admin123456
+
+The admin dashboard must display:
+
+All access codes issued
+
+User activity per code
+
+Payments made
+
+Referral stats
+
+CSV export option
+
+PHASE 6: Referral + Sharing System
+Allow the user to share their access code with friends
+
+If the code is used during onboarding by another user, update:
+
+json
+Copiar
+Editar
+{
+  "referrerCode": "FIT-PRO-8471",
+  "referrals": ["USER_ID_2", "USER_ID_3"]
+}
+Add rewardPoints to the referrer, based on platform logic
+
+PHASE 7: Final Checklist
+Before confirming completion, verify:
+
+ Code is generated at the end of onboarding
+
+ QR code is displayed and emailed
+
+ Dashboard loads from ?code=
+
+ Levels can be unlocked
+
+ Stripe payment is processed and reflected
+
+ Admin Panel shows real-time data
+
+ Referrals are tracked and rewarded
+
+Return a status report including:
+
+Total Codes Generated
+
+Total Payments Made
+
+Codes with Referrals
+
+Suggestions or Errors
