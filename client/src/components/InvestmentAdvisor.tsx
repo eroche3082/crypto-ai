@@ -98,6 +98,17 @@ const InvestmentAdvisor: React.FC = () => {
   const [strategy, setStrategy] = useState<InvestmentStrategy | null>(null);
   const [progressPercentage, setProgressPercentage] = useState(100 / 5); // 5 steps in total
   const [activeTab, setActiveTab] = useState("allocation");
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  
+  // Handle responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Initialize form with defaults
   const form = useForm<InvestmentProfile>({
@@ -358,16 +369,30 @@ const InvestmentAdvisor: React.FC = () => {
     ];
     
     return (
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
         <RechartsPieChart>
-          <Tooltip formatter={(value) => [`${value}%`, 'Allocation']} />
-          <Legend />
+          <Tooltip 
+            formatter={(value) => [`${value}%`, 'Allocation']} 
+            wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}
+          />
+          <Legend 
+            layout={isMobile ? "vertical" : "horizontal"}
+            verticalAlign={isMobile ? "bottom" : "bottom"}
+            align="center"
+            wrapperStyle={{ 
+              fontSize: isMobile ? '10px' : '12px',
+              paddingTop: isMobile ? '10px' : '0px',
+              width: '100%'
+            }}
+          />
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            labelLine={true}
-            outerRadius={100}
+            labelLine={!isMobile}
+            label={!isMobile}
+            outerRadius={isMobile ? 80 : 100}
+            innerRadius={isMobile ? 30 : 0}
             fill="#8884d8"
             dataKey="value"
             nameKey="name"
@@ -386,13 +411,32 @@ const InvestmentAdvisor: React.FC = () => {
     if (!strategy) return null;
     
     return (
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={strategy.projections}>
+      <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
+        <AreaChart 
+          data={strategy.projections}
+          margin={isMobile ? { top: 5, right: 5, left: 0, bottom: 5 } : { top: 10, right: 30, left: 0, bottom: 0 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" />
-          <YAxis tickFormatter={(value) => `$${(value / 1000)}k`} />
-          <Tooltip formatter={(value) => [formatCurrency(value as number), 'Portfolio Value']} />
-          <Legend />
+          <XAxis 
+            dataKey="year" 
+            tick={{ fontSize: isMobile ? 10 : 12 }}
+            tickMargin={isMobile ? 5 : 10}
+          />
+          <YAxis 
+            tickFormatter={(value) => `$${(value / 1000)}k`} 
+            tick={{ fontSize: isMobile ? 10 : 12 }}
+            width={isMobile ? 30 : 40}
+          />
+          <Tooltip 
+            formatter={(value) => [formatCurrency(value as number), 'Portfolio Value']} 
+            wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}
+          />
+          <Legend 
+            wrapperStyle={{ 
+              fontSize: isMobile ? '10px' : '12px',
+              paddingTop: isMobile ? '10px' : '0px'
+            }}
+          />
           <Area 
             type="monotone" 
             dataKey="conservative" 
@@ -588,14 +632,24 @@ const InvestmentAdvisor: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {category.tokens.map((token) => (
                           <Card key={token.symbol} className="overflow-hidden">
-                            <div className="flex p-4">
+                            <div className={`${isMobile ? 'flex-col' : 'flex'} p-4`}>
                               <div className="flex-1">
-                                <h5 className="font-medium">{token.name} <span className="text-sm text-muted-foreground">({token.symbol})</span></h5>
-                                <p className="text-sm text-muted-foreground mt-1">{token.rationale}</p>
+                                <div className={`flex justify-between ${isMobile ? 'mb-2' : ''}`}>
+                                  <h5 className="font-medium">
+                                    {token.name} 
+                                    <span className="text-sm text-muted-foreground ml-1">({token.symbol})</span>
+                                  </h5>
+                                  {isMobile && <Badge>{token.percentage}%</Badge>}
+                                </div>
+                                <p className={`text-sm text-muted-foreground ${isMobile ? '' : 'mt-1'}`}>
+                                  {token.rationale}
+                                </p>
                               </div>
-                              <div className="ml-4">
-                                <Badge>{token.percentage}%</Badge>
-                              </div>
+                              {!isMobile && (
+                                <div className="ml-4">
+                                  <Badge>{token.percentage}%</Badge>
+                                </div>
+                              )}
                             </div>
                           </Card>
                         ))}
@@ -605,22 +659,26 @@ const InvestmentAdvisor: React.FC = () => {
                 </div>
                 
                 <Card className="bg-muted/40 mt-4">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-md">{t("investmentAdvisor.analysis", "Strategy Analysis")}</CardTitle>
+                  <CardHeader className={`${isMobile ? 'p-3 pb-1' : 'pb-2'}`}>
+                    <CardTitle className={`${isMobile ? 'text-sm' : 'text-md'}`}>
+                      {t("investmentAdvisor.analysis", "Strategy Analysis")}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm whitespace-pre-line">{strategy.geminiAnalysis}</p>
+                  <CardContent className={isMobile ? 'p-3 pt-1' : ''}>
+                    <p className={`${isMobile ? 'text-xs' : 'text-sm'} whitespace-pre-line`}>
+                      {strategy.geminiAnalysis}
+                    </p>
                   </CardContent>
                 </Card>
                 
-                <div className="bg-primary/10 rounded-lg p-4 border border-primary/20 mt-4">
+                <div className={`bg-primary/10 rounded-lg ${isMobile ? 'p-3' : 'p-4'} border border-primary/20 mt-4`}>
                   <div className="flex">
-                    <InfoIcon className="h-5 w-5 text-primary mt-0.5 mr-3 flex-shrink-0" />
+                    <InfoIcon className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-primary mt-0.5 ${isMobile ? 'mr-2' : 'mr-3'} flex-shrink-0`} />
                     <div>
-                      <p className="font-medium mb-1">
+                      <p className={`font-medium ${isMobile ? 'text-sm mb-0.5' : 'mb-1'}`}>
                         {t("investmentAdvisor.disclaimer", "Important Disclaimer")}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
                         {t("investmentAdvisor.disclaimerText", "This is an AI-generated investment strategy for educational purposes only. It does not constitute financial advice. Always do your own research and consider consulting with a qualified financial advisor before making investment decisions.")}
                       </p>
                     </div>
