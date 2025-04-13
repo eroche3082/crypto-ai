@@ -1,8 +1,44 @@
 import { Link } from "wouter";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight } from "lucide-react";
+
+// Crypto data interface
+interface CryptoData {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  price_change_percentage_24h: number;
+  market_cap: number;
+  sparkline_in_7d: {
+    price: number[];
+  };
+}
 
 export default function LandingPage() {
+  const [cryptoData, setCryptoData] = useState<CryptoData[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch crypto data from the API
+  useEffect(() => {
+    const fetchCryptoData = async () => {
+      try {
+        const response = await fetch('/api/crypto/coins/markets');
+        const data = await response.json();
+        setCryptoData(data);
+      } catch (error) {
+        console.error('Error fetching crypto data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchCryptoData();
+  }, []);
+
   const features = [
     {
       title: "Portfolio Advisor",
@@ -106,10 +142,23 @@ export default function LandingPage() {
     },
   ];
 
+  // Function to format market cap
+  const formatMarketCap = (marketCap: number) => {
+    if (marketCap >= 1e12) {
+      return `$${(marketCap / 1e12).toFixed(2)}T`;
+    } else if (marketCap >= 1e9) {
+      return `$${(marketCap / 1e9).toFixed(2)}B`;
+    } else if (marketCap >= 1e6) {
+      return `$${(marketCap / 1e6).toFixed(2)}M`;
+    } else {
+      return `$${marketCap.toLocaleString()}`;
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Top Navigation */}
-      <header className="border-b border-border">
+      <header className="border-b border-border bg-black/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="bg-primary/20 text-primary rounded-full w-10 h-10 flex items-center justify-center">
@@ -125,20 +174,20 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 overflow-hidden">
+      <section className="relative py-20 md:py-32 overflow-hidden bg-black">
         <div className="absolute inset-0 z-0 bg-gradient-to-r from-primary/10 to-primary/5">
           {/* Background pattern */}
           <div className="absolute inset-0 opacity-5">
-            <div className="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iLjUiPjxwYXRoIGQ9Ik0zNiAxOGMxLjIyOCAwIDIuNDQuMDQgMy42LjEyIDEuMTU0LjA3NSAyLjI5OC4xODYgMy40Mi4zMzIgMS4xMi4xNDUgMi4yMjYuMzI0IDMuMzE0LjUzOCAxLjA5LjIxIDIuMTYuNDUgMy4yMDQuNzJsLTEuNTU2IDQuNTU1Yy0uOTg0LS4zNDUtMi0uNjU3LTMuMDQ4LS45MzQtMS4wNDQtLjI4LTIuMTEyLS41Mi0zLjIwNC0uNzI2LTEuMDkzLS4yMDMtMi4yLS4zNjUtMy4zMjQtLjQ4NS0xLjEyNS0uMTItMi4yNi0uMTgtMy40MDgtLjE4LTEuMTQ2IDAtMi4yOC4wNi0zLjQwNC4xOC0xLjEyNi4xMi0yLjIzLjI4Mi0zLjMxOC40ODUtMS4wODguMjA3LTIuMTUzLjQ0Ny0zLjE5Ny43MjYtMS4wNDYuMjc3LTIuMDU4LjU5LTMuMDM2LjkzNEwxMC40IDE4Ljk5Yy41LS4xMzMgMS4wMTMtLjI2IDEuNTQtLjM4LjUyNy0uMTIgMS4wNi0uMjMzIDEuNi0uMzQuNTMzLS4xMDcgMS4wNzYtLjIwNCAxLjYyOC0uMjkuNTUzLS4wODcgMS4xMS0uMTY3IDEuNjc2LS4yNC41NjQtLjA3MyAxLjEzMi0uMTM3IDEuNzA0LS4xOS41Ny0uMDU0IDEuMTQ2LS4xIDEuNzI0LS4xNC41OC0uMDQgMS4xNjMtLjA3IDEuNzUyLS4wOS41ODgtLjAyIDEuMTgtLjAzIDEuNzc2LS4wM3oiLz48cGF0aCBkPSJNNiAzNnYtNy42NDRsLTQgMi40ODh2LTEyTDI0IDE1LjJ2LTEuNzc4Yy0xLjA5My4wNjQtMi4xNzQuMTYyLTMuMjQzLjI5NS0xLjA2NS4xMzMtMi4xMTIuMjktMy4xMzcuNDc1LTEuMDI2LjE4NC0yLjAzMi4zOTUtMy4wMi42MzMtLjk5LjIzNy0xLjk1OC41LTIuOTA0Ljc5TC0uMDQgMTQuMDdDLjQ0OCAxMy4xNzQgMS4wMTIgMTIuMyAxLjY1IDExLjQ1Yy42NC0uODUgMS4zNS0xLjY3NCAyLjEzNi0yLjQ3LjY4NC0uNjk0IDEuNDEtMS4zNTYgMi4xOC0xLjk4Ni43Ny0uNjMgMS41ODMtMS4yMjYgMi40NC0xLjc4NS44Ni0uNTYgMS43Ni0xLjA4IDIuNy0xLjU2czEuOTI0LS45MDggMi45NS0xLjI4YzEuMDI2LS4zNzMgMi4wOS0uNyAzLjE5LTEgMS4xLS4yNzIgMi4yMy0uNTA1IDMuMzktLjY5NiAxLjE2LS4xOTIgMi4zNS0uMzQ0IDMuNTYtLjQ1NmwxLjQ5LTQuMDMyQzI0LjUuMzQyIDIzLjMxLjIgMjIuMTI0LjA5NyAyMC45MzYtLjAwNyAxOS43MjMtLjA2IDE4LjQ5My0uMDZjLTEuMjMgMC0yLjQ0Mi4wNTUtMy42MzQuMTY1LTEuMTkuMTEtMi4zNjIuMjY3LTMuNTEzLjQ3Mi0xLjE1LjIwNS0yLjI3OC40NTQtMy4zODMuNzQ2LTEuMTA1LjI5Mi0yLjE4NC42Mi0zLjIzMyAxLjA0LS45NzcuMzgtMS45MjIuNzktMi44MyAxLjIzNC0uOTEzLjQ0LTEuODA1LjkyLTIuNjcgMS40My0uODY4LjUxLTEuNzA3IDEuMDQzLTIuNTIgMS42MXYyLjc0TC0uMDYgNi43MnYxMkw2IDE1LjY4NFYzNnptNDYuODU1LTI0LjM1NGwuMDY1LS4wMkM1NC42MTUgMTEuMDk1IDU2LjMgMTAuNjEgNTggMTAuMTVWOC41OTZjLS4yLjA0LS40MDMuMDgtLjYwNy4xMTgtLjIwNS4wNC0uNDEuMDgtLjYxNS4xMTctLjIwNi4wMzctLjQxLjA3NS0uNjE2LjExMy0uMjA1LjA0LS40MS4wNzUtLjYxNS4xMTNDNDQuODMyIDExLjcxNCAzNSAxNi40MyAzNSAyNHYxMS42ODRsNCAxLjFWMjRjMC0zLjQ4MiA1LjU5Mi03LjA4IDE1LjM4Ni05Ljc3OGwtLjA1Ny4wMjItMS40NzQuNTl2LjAxeiIvPjxwYXRoIGQ9Ik00OS44NCAyNy45MjVDNTEuMDcgMjguODcgNTIuNDggMjkuNjkzIDU0IDMwLjM5djEuMDFjLTEuOTItLjgyLTMuNzMtMS44Mi01LjM5LTNsMS4yMy0uNDc1ek0xMCAyOS4wNXYtLjQ3NWMwLS4wMjIuMDAzLS4wNDMuMDA5LS4wNjMuMDA1LS4wMi4wMTMtLjA0LjAyNC0uMDU1LjAxLS4wMTYuMDIzLS4wMy4wMzgtLjA0LjAxNC0uMDEuMDMtLjAxNi4wNDgtLjAxOGw1LjUyLTEuNDRjLjAyLS4wMDUuMDQtLjAwNS4wNi0uMDAyLjAyLjAwNC4wMzkuMDEyLjA1NC4wMjQuMDE2LjAxLjAzLjAyNC4wNC4wNC4wMS4wMTUuMDE1LjAzMi4wMTcuMDVWMjh2LjY4NmwtNS44MDkgMS41MlYyOS4wNXptMzMuODMtMTMuMzljLjEzOC4zMzQuMjY4LjY3Mi4zOTIgMS4wMTUuMTIzLjM0My4yNCAxLjE5LjM0OCAxLjU0OC4yNS44My40OTIgMS42OCuNzE4IDIuNTQ4LjE1My41OTYuMjkgMS4xOTcuNDAyIDEuOC4xMTIuNjAzLjIwOSAxLjIxLjI4OCAxLjgxOC4wNzkuNjEuMTQzIDEuMjIuMTg5IDEuODI4LjA0Ni42MS4wNzcgMS4yMTIuMDkzIDEuODA4LjAxNS41OTYuMDE1IDEuMTgzIDAgMS43NTgtLjAxNi41NzYtLjA0NyAxLjE0LS4wOTUgMS42OS0uMDQ3LjU1LS4xMSAxLjA4OC0uMTg4IDEuNjEtLjA4LjUyMy0uMTczIDEuMDMtLjI4NyAxLjUyLS4xMTQuNDktLjI0Ni45NjQtLjM5NiAxLjQyMi0uMTUuNDU4LS4zMTcuOS0uNDk4IDEuMzMtLjE4LjQyNy0uMzc3LjgzNy0uNTg2IDEuMjMyLS4yMS4zOTUtLjQzNy43Ny0uNjc4IDEuMTQtLjI0LjM2Ny0uNDk1LjcyLS43NiAxLjA1NS0uMjY3LjMzNi0uNTQ0LjY1NS0uODMuOTZMMzguOTYgNDIuNjM3em0tMzIuNTYtNy43OWwtLjAxMy0uMDA0QzkuNjQgNi44NzQgOC4wODcgNi4xMjQgNi41IDUuNDU1VjcuMTFsLjI0OC4xMy4yNTYuMTM1LjI2LjEzOGMxMi40MzMgNi42NSAxNy43MzYgMTIuNDMgMTYuMjQgMTguNWwtMi42NjQtLjczNGMuNjc3LTIuNDUzLTEuNTg4LTYuNDktOC41Ny0xMS4yNXpNNTAgNi42N3YtLjQ0NGwtMS43Mi42OUw2IDIwLjU3MnYyLjQ1Mmw0Mi0xNi44djEuMjA1bC0yIC43NDdWNi42N3ptLTE1IDM3LjY1OGwuMDIuMDAzLjMwOC4wNy4zLjA2OC4yOTguMDY2Yy0uMDI2LS4wMDUtLjA1NS0uMDEtLjA4NC0uMDE2LS4wNy0uMDE0LS4xNC0uMDI4LS4yMTMtLjA0My0uMTQzLS4wMy0uMjg4LS4wNi0uNDMzLS4wOTJsLS43MTUtLjE1NCAyLjY4OC43My0uMDItLjAwNGMzLjM5LjczIDYuODY3IDEuMzY3IDEwLjM3NyAxLjkwNS40MzguMDc1Ljg1LjE3MiAxLjI1LjI5NWwtLjAyOC0uMDA2LS41ODguMTMyLS41OC4xMy0uNTc3LjEzLS41NzYuMTMtLjU3LjEyNy0uNTY4LjEyNy0uNTYyLjEyNy0uNTYuMTI1LS41NS4xMjMtLjU0Ni4xMjItLjU0Mi4xMi0uNTM0LjEyLS41My4xMi0uNTI2LjExNi0uNTE4LjExNi0uNTEuMTE0LS40OTguMTEyLS40OS4xMS0uNDc4LjEwOC0uNDcuMTA1LS40Ni4xMDMtLjQ1Mi4xLS40NC4xLS40My4wOTYtLjQyLjA5NS0uNDEuMDktLjQuMDl6Ii8+PHBhdGggZD0iTTUuOTc2IDQuN0M1LjY1IDQuNTMgNS4zMiA0LjM2IDQuOTg4IDQuMmMtLjMzNS0uMTYtLjY3NC0uMzEtMS4wMTYtLjQ1LS4zNDItLjE0LS42ODgtLjI3LTEuMDM1LS4zOS0uMzQ4LS4xMi0uNy0uMjMtMS4wNS0uMzNsLTEuNSAzLjkxYTExLjQzIDExLjQzIDAgMDExLjI1NC4zNWMuNDE4LjEzNS44Mi4yODUgMS4yMDYuNDUuMzg2LjE2Ni43Ni4zNDMgMS4xMTguNTMzLjM2LjE5LjcuMzkgMS4wMy41OTguMzMuMjEuNjQzLjQzLjkzOC42Ni4yOTYuMjI4LjU3NC40NjguODM0LjcxOC4yNi4yNS41LjUxLjcyLjc4Mi4yMjMuMjcuNDI4LjU1LjYxNS44MzguMTg2LjI4OC4zNTUuNTg0LjUwNi44OS4xNS4zMDUuMjguNjE4LjM5My45MzRsNC4zNDgtMS42MmMtLjE4Ny0uMzk0LS4zOS0uNzgzLS42MDYtMS4xNjctLjIxOC0uMzgyLS40NS0uNzUzLS42OTQtMS4xMS0uMjQ1LS4zNTgtLjUwMy0uNzAyLS43NzItMS4wMzUtLjI3LS4zMy0uNTU1LS42NS0uODUzLS45NTVsMi4wNTUtLjY5YzEuNDg0IDIuMjUzIDIuNTcyIDQuNjczIDMuMjQ1IDcuMjJsLTMuNTY3IDEuODYyYy0uNjM3LTIuNzU0LTEuNzg3LTUuMzEtMy40My03LjYyM3oiLz48L2c+PC9nPjwvc3ZnPg==')]"></div>
+            <div className="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iLjUiPjxwYXRoIGQ9Ik0zNiAxOGMxLjIyOCAwIDIuNDQuMDQgMy42LjEyIDEuMTU0LjA3NSAyLjI5OC4xODYgMy40Mi4zMzIgMS4xMi4xNDUgMi4yMjYuMzI0IDMuMzE0LjUzOCAxLjA5LjIxIDIuMTYuNDUgMy4yMDQuNzJsLTEuNTU2IDQuNTU1Yy0uOTg0LS4zNDUtMi0uNjU3LTMuMDQ4LS45MzQtMS4wNDQtLjI4LTIuMTEyLS41Mi0zLjIwNC0uNzI2LTEuMDkzLS4yMDMtMi4yLS4zNjUtMy4zMjQtLjQ4NS0xLjEyNS0uMTItMi4yNi0uMTgtMy40MDgtLjE4LTEuMTQ2IDAtMi4yOC4wNi0zLjQwNC4xOC0xLjEyNi4xMi0yLjIzLjI4Mi0zLjMxOC40ODUtMS4wODguMjA3LTIuMTUzLjQ0Ny0zLjE5Ny43MjYtMS4wNDYuMjc3LTIuMDU4LjU5LTMuMDM2LjkzNEwxMC40IDE4Ljk5Yy41LS4xMzMgMS4wMTMtLjI2IDEuNTQtLjM4LjUyNy0uMTIgMS4wNi0uMjMzIDEuNi0uMzQuNTMzLS4xMDcgMS4wNzYtLjIwNCAxLjYyOC0uMjkuNTUzLS4wODcgMS4xMS0uMTY3IDEuNjc2LS4yNC41NjQtLjA3MyAxLjEzMi0uMTM3IDEuNzA0LS4xOS41Ny0uMDU0IDEuMTQ2LS4xIDEuNzI0LS4xNC41OC0uMDQgMS4xNjMtLjA3IDEuNzUyLS4wOS41ODgtLjAyIDEuMTgtLjAzIDEuNzc2LS4wM3oiLz48cGF0aCBkPSJNNiAzNnYtNy42NDRsLTQgMi40ODh2LTEyTDI0IDE1LjJ2LTEuNzc4Yy0xLjA5My4wNjQtMi4xNzQuMTYyLTMuMjQzLjI5NS0xLjA2NS4xMzMtMi4xMTIuMjktMy4xMzcuNDc1LTEuMDI2LjE4NC0yLjAzMi4zOTUtMy4wMi42MzMtLjk5LjIzNy0xLjk1OC41LTIuOTA0Ljc5TC0uMDQgMTQuMDdDLjQ0OCAxMy4xNzQgMS4wMTIgMTIuMyAxLjY1IDExLjQ1Yy42NC0uODUgMS4zNS0xLjY3NCAyLjEzNi0yLjQ3LjY4NC0uNjk0IDEuNDEtMS4zNTYgMi4xOC0xLjk4Ni43Ny0uNjMgMS41ODMtMS4yMjYgMi40NC0xLjc4NS44Ni0uNTYgMS43Ni0xLjA4IDIuNy0xLjU2czEuOTI0LS45MDggMi45NS0xLjI4YzEuMDI2LS4zNzMgMi4wOS0uNyAzLjE5LTEgMS4xLS4yNzIgMi4yMy0uNTA1IDMuMzktLjY5NiAxLjE2LS4xOTIgMi4zNS0uMzQ0IDMuNTYtLjQ1NmwxLjQ5LTQuMDMyQzI0LjUuMzQyIDIzLjMxLjIgMjIuMTI0LjA5NyAyMC45MzYtLjAwNyAxOS43MjMtLjA2IDE4LjQ5My0uMDZjLTEuMjMgMC0yLjQ0Mi4wNTUtMy42MzQuMTY1LTEuMTkuMTEtMi4zNjIuMjY3LTMuNTEzLjQ3Mi0xLjE1LjIwNS0yLjI3OC40NTQtMy4zODMuNzQ2LTEuMTA1LjI5Mi0yLjE4NC42Mi0zLjIzMyAxLjA0LS45NzcuMzgtMS45MjIuNzktMi44MyAxLjIzNC0uOTEzLjQ0LTEuODA1LjkyLTIuNjcgMS40My0uODY4LjUxLTEuNzA3IDEuMDQzLTIuNTIgMS42MXYyLjc0TC0uMDYgNi43MnYxMkw2IDE1LjY4NFYzNnptNDYuODU1LTI0LjM1NGwuMDY1LS4wMkM1NC42MTUgMTEuMDk1IDU2LjMgMTAuNjEgNTggMTAuMTVWOC41OTZjLS4yLjA0LS40MDMuMDgtLjYwNy4xMTgtLjIwNS4wNC0uNDEuMDgtLjYxNS4xMTctLjIwNi4wMzctLjQxLjA3NS0uNjE2LjExMy0uMjA1LjA0LS40MS4wNzUtLjYxNS4xMTNDNDQuODMyIDExLjcxNCAzNSAxNi40MyAzNSAyNHYxMS42ODRsNCAxLjFWMjRjMC0zLjQ4MiA1LjU5Mi03LjA4IDE1LjM4Ni05Ljc3OGwtLjA1Ny4wMjItMS40NzQuNTl2LjAxeiIvPjxwYXRoIGQ9Ik00OS44NCAyNy45MjVDNTEuMDcgMjguODcgNTIuNDggMjkuNjkzIDU0IDMwLjM5djEuMDFjLTEuOTItLjgyLTMuNzMtMS44Mi01LjM5LTNsMS4yMy0uNDc1ek0xMCAyOS4wNXYtLjQ3NWMwLS4wMjIuMDAzLS4wNDMuMDA5LS4wNjMuMDA1LS4wMi4wMTMtLjA0LjAyNC0uMDU1LjAxLS4wMTYuMDIzLS4wMy4wMzgtLjA0LjAxNC0uMDEuMDMtLjAxNi4wNDgtLjAxOGw1LjUyLTEuNDRjLjAyLS4wMDUuMDQtLjAwNS4wNi0uMDAyLjAyLjAwNC4wMzkuMDEyLjA1NC4wMjQuMDE2LjAxLjAzLjAyNC4wNC4wNC4wMS4wMTUuMDE1LjAzMi4wMTcuMDVWMjh2LjY4NmwtNS44MDkgMS41MlYyOS4wNXptMzMuODMtMTMuMzljLjEzOC4zMzQuMjY4LjY3Mi4zOTIgMS4wMTUuMTIzLjM0My4yNCAxLjE5LjM0OCAxLjU0OC4yNS44My40OTIgMS42OC43MTggMi41NDguMTUzLjU5Ni4yOSAxLjE5Ny40MDIgMS44LjExMi42MDMuMjA5IDEuMjEuMjg4IDEuODE4LjA3OS42MS4xNDMgMS4yMi4xODkgMS44MjguMDQ2LjYxLjA3NyAxLjIxMi4wOTMgMS44MDguMDE1LjU5Ni4wMTUgMS4xODMgMCAxLjc1OC0uMDE2LjU3Ni0uMDQ3IDEuMTQtLjA5NSAxLjY5LS4wNDcuNTUtLjExIDEuMDg4LS4xODggMS42MS0uMDguNTIzLS4xNzMgMS4wMy0uMjg3IDEuNTItLjExNC40OS0uMjQ2Ljk2NC0uMzk2IDEuNDIyLS4xNS40NTgtLjMxNy45LS40OTggMS4zMy0uMTguNDI3LS4zNzcuODM3LS41ODYgMS4yMzItLjIxLjM5NS0uNDM3Ljc3LS42NzggMS4xNC0uMjQuMzY3LS40OTUuNzItLjc2IDEuMDU1LS4yNjcuMzM2LS41NDQuNjU1LS44My45NkwzOC45NiA0Mi42Mzd6bS0zMi41Ni03Ljc5bC0uMDEzLS4wMDRDOS42NCA2Ljg3NCA4LjA4NyA2LjEyNCA2LjUgNS40NTVWNy4xMWwuMjQ4LjEzLjI1Ni4xMzUuMjYuMTM4YzEyLjQzMyA2LjY1IDE3LjczNiAxMi40MyAxNi4yNCAxOC41bC0yLjY2NC0uNzM0Yy42NzctMi40NTMtMS41ODgtNi40OS04LjU3LTExLjI1ek01MCA2LjY3di0uNDQ0bC0xLjcyLjY5TDYgMjAuNTcydjIuNDUybDQyLTE2Ljh2MS4yMDVsLTIgLjc0N1Y2LjY3em0tMTUgMzcuNjU4bC4wMi4wMDMuMzA4LjA3LjMuMDY4LjI5OC4wNjZjLS4wMjYtLjAwNS0uMDU1LS4wMS0uMDg0LS4wMTYtLjA3LS4wMTQtLjE0LS4wMjgtLjIxMy0uMDQzLS4xNDMtLjAzLS4yODgtLjA2LS40MzMtLjA5MmwtLjcxNS0uMTU0IDIuNjg4LjczLS4wMi0uMDA0YzMuMzkuNzMgNi44NjcgMS4zNjcgMTAuMzc3IDEuOTA1LjQzOC4wNzUuODUuMTcyIDEuMjUuMjk1bC0uMDI4LS4wMDYtLjU4OC4xMzItLjU4LjEzLS41NzcuMTMtLjU3Ni4xMy0uNTcuMTI3LS41NjguMTI3LS41NjIuMTI3LS41Ni4xMjUtLjU1LjEyMy0uNTQ2LjEyMi0uNTQyLjEyLS41MzQuMTItLjUzLjEyLS41MjYuMTE2LS41MTguMTE2LS41MS4xMTQtLjQ5OC4xMTItLjQ5LjExLS40NzguMTA4LS40Ny4xMDUtLjQ2LjEwMy0uNDUyLjEtLjQ0LjEtLjQzLjA5Ni0uNDIuMDk1LS40MS4wOS0uNC4wOXoiLz48cGF0aCBkPSJNNS45NzYgNC43QzUuNjUgNC41MyA1LjMyIDQuMzYgNC45ODggNC4yYy0uMzM1LS4xNi0uNjc0LS4zMS0xLjAxNi0uNDUtLjM0Mi0uMTQtLjY4OC0uMjctMS4wMzUtLjM5LS4zNDgtLjEyLS43LS4yMy0xLjA1LS4zM2wtMS41IDMuOTFhMTEuNDMgMTEuNDMgMCAwMTEuMjU0LjM1Yy40MTguMTM1LjgyLjI4NSAxLjIwNi40NS4zODYuMTY2Ljc2LjM0MyAxLjExOC41MzMuMzYuMTkuNy4zOSAxLjAzLjU5OC4zMy4yMS42NDMuNDMuOTM4LjY2LjI5Ni4yMjguNTc0LjQ2OC44MzQuNzE4LjI2LjI1LjUuNTEuNzIuNzgyLjIyMy4yNy40MjguNTUuNjE1LjgzOC4xODYuMjg4LjM1NS41ODQuNTA2Ljg5LjE1LjMwNS4yOC42MTguMzkzLjkzNGw0LjM0OC0xLjYyYy0uMTg3LS4zOTQtLjM5LS43ODMtLjYwNi0xLjE2Ny0uMjE4LS4zODItLjQ1LS43NTMtLjY5NC0xLjExLS4yNDUtLjM1OC0uNTAzLS43MDItLjc3Mi0xLjAzNS0uMjctLjMzLS41NTUtLjY1LS44NTMtLjk1NWwyLjA1NS0uNjljMS40ODQgMi4yNTMgMi41NzIgNC42NzMgMy4yNDUgNy4yMmwtMy41NjcgMS44NjJjLS42MzctMi43NTQtMS43ODctNS4zMS0zLjQzLTcuNjIzeiIvPjwvZz48L2c+PC9zdmc+')]"></div>
           </div>
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
               Artificial Intelligence for Your Crypto Investments
             </h1>
-            <p className="text-xl mb-8 text-muted-foreground">
+            <p className="text-xl mb-8 text-gray-300">
               A comprehensive AI-powered platform to analyze, manage, and optimize your cryptocurrency investments.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -148,7 +197,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Link href="/login">
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
                   Explore
                 </Button>
               </Link>
@@ -157,6 +206,83 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Live Market Data */}
+      <section className="py-12 bg-black/80">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold mb-4 text-white">Live Market Data</h2>
+            <p className="text-gray-400">
+              Real-time cryptocurrency prices and market insights powered by CoinGecko API
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {cryptoData.slice(0, 8).map((coin) => (
+                <Card key={coin.id} className="bg-card/30 border-primary/20 backdrop-blur-md overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="flex items-center mb-3">
+                      <img src={coin.image} alt={coin.name} className="w-8 h-8 mr-3" />
+                      <div>
+                        <h3 className="font-bold">{coin.name}</h3>
+                        <p className="text-xs text-muted-foreground uppercase">{coin.symbol}</p>
+                      </div>
+                      <div className="ml-auto text-right">
+                        <p className="font-bold">${coin.current_price.toLocaleString()}</p>
+                        <p className={`text-xs flex items-center ${coin.price_change_percentage_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                          {coin.price_change_percentage_24h >= 0 ? (
+                            <ArrowUpRight className="h-3 w-3 mr-1" />
+                          ) : (
+                            <ArrowDownRight className="h-3 w-3 mr-1" />
+                          )}
+                          {Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Mini chart visualization */}
+                    <div className="h-12 w-full">
+                      <div className="h-full flex items-end">
+                        {coin.sparkline_in_7d.price.filter((_, i) => i % 10 === 0).map((price, i, filteredPrices) => {
+                          const maxPrice = Math.max(...filteredPrices);
+                          const minPrice = Math.min(...filteredPrices);
+                          const range = maxPrice - minPrice;
+                          const normalizedHeight = range === 0 ? 50 : ((price - minPrice) / range) * 100;
+                          
+                          return (
+                            <div 
+                              key={i} 
+                              className={`flex-1 mx-0.5 ${coin.price_change_percentage_24h >= 0 ? 'bg-green-500/40' : 'bg-red-500/40'}`}
+                              style={{ height: `${normalizedHeight}%` }}
+                            ></div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      Market Cap: {formatMarketCap(coin.market_cap)}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+          
+          <div className="text-center mt-8">
+            <Link href="/login">
+              <Button variant="outline" className="mt-4 text-primary border-primary hover:bg-primary/10">
+                View All Markets <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+      
       {/* Features Section */}
       <section className="py-20 bg-card/30">
         <div className="container mx-auto px-4">
@@ -185,16 +311,16 @@ export default function LandingPage() {
       </section>
 
       {/* About / Mission Section */}
-      <section className="py-20">
+      <section className="py-20 bg-black/90">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
-            <p className="text-lg mb-8 text-muted-foreground">
+            <h2 className="text-3xl font-bold mb-6 text-white">Our Mission</h2>
+            <p className="text-lg mb-8 text-gray-300">
               CryptoBot was created with the goal of democratizing access to high-quality financial analysis for cryptocurrency investors. We combine advanced artificial intelligence with real-time market data to deliver insights and personalized recommendations that were previously only available to institutional investors.
             </p>
             <div className="flex justify-center">
               <Link href="/login">
-                <Button size="lg" className="gap-2">
+                <Button size="lg" className="gap-2 bg-white text-primary hover:bg-white/90">
                   Chat with Assistant <MessageCircle size={16} />
                 </Button>
               </Link>
@@ -226,7 +352,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-border">
+      <footer className="py-8 border-t border-border bg-black text-white">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
@@ -235,9 +361,9 @@ export default function LandingPage() {
               </div>
               <span className="font-bold">CryptoBot</span>
             </div>
-            <div className="flex gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
+            <div className="flex gap-6 text-sm text-gray-400">
+              <a href="#" className="hover:text-white transition-colors">Terms</a>
+              <a href="#" className="hover:text-white transition-colors">Privacy</a>
               <span>© 2025 CryptoBot AI. All rights reserved.</span>
             </div>
           </div>
