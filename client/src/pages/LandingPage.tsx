@@ -27,8 +27,17 @@ export default function LandingPage() {
     const fetchCryptoData = async () => {
       try {
         const response = await fetch('/api/crypto/coins/markets');
+        if (!response.ok) {
+          throw new Error(`API responded with status: ${response.status}`);
+        }
         const data = await response.json();
-        setCryptoData(data);
+        
+        // Make sure we have valid data before setting state
+        if (Array.isArray(data) && data.length > 0) {
+          setCryptoData(data);
+        } else {
+          console.warn('Received empty or invalid data from API');
+        }
       } catch (error) {
         console.error('Error fetching crypto data:', error);
       } finally {
@@ -37,6 +46,10 @@ export default function LandingPage() {
     };
     
     fetchCryptoData();
+    
+    // Retry if rate limited
+    const retryTimeout = setTimeout(fetchCryptoData, 5000);
+    return () => clearTimeout(retryTimeout);
   }, []);
 
   const features = [
@@ -220,6 +233,18 @@ export default function LandingPage() {
             <div className="flex justify-center py-8">
               <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
             </div>
+          ) : cryptoData.length === 0 ? (
+            // Show a message when there's no data
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">Unable to load cryptocurrency data at this moment</p>
+              <Button 
+                variant="outline" 
+                className="text-primary border-primary hover:bg-primary/10"
+                onClick={() => window.location.reload()}
+              >
+                Refresh Data
+              </Button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {cryptoData.slice(0, 8).map((coin) => (
@@ -247,20 +272,32 @@ export default function LandingPage() {
                     {/* Mini chart visualization */}
                     <div className="h-12 w-full">
                       <div className="h-full flex items-end">
-                        {coin.sparkline_in_7d.price.filter((_, i) => i % 10 === 0).map((price, i, filteredPrices) => {
-                          const maxPrice = Math.max(...filteredPrices);
-                          const minPrice = Math.min(...filteredPrices);
-                          const range = maxPrice - minPrice;
-                          const normalizedHeight = range === 0 ? 50 : ((price - minPrice) / range) * 100;
-                          
-                          return (
-                            <div 
-                              key={i} 
-                              className={`flex-1 mx-0.5 ${coin.price_change_percentage_24h >= 0 ? 'bg-green-500/40' : 'bg-red-500/40'}`}
-                              style={{ height: `${normalizedHeight}%` }}
-                            ></div>
-                          );
-                        })}
+                        {coin.sparkline_in_7d && coin.sparkline_in_7d.price ? (
+                          // Only render if sparkline data exists
+                          coin.sparkline_in_7d.price
+                            .filter((price, i) => i % 10 === 0 && price !== null && price !== undefined)
+                            .map((price, i, filteredPrices) => {
+                              if (filteredPrices.length === 0) return null;
+                              
+                              const maxPrice = Math.max(...filteredPrices);
+                              const minPrice = Math.min(...filteredPrices);
+                              const range = maxPrice - minPrice;
+                              const normalizedHeight = range === 0 ? 50 : ((price - minPrice) / range) * 100;
+                              
+                              return (
+                                <div 
+                                  key={i} 
+                                  className={`flex-1 mx-0.5 ${coin.price_change_percentage_24h >= 0 ? 'bg-green-500/40' : 'bg-red-500/40'}`}
+                                  style={{ height: `${normalizedHeight}%` }}
+                                ></div>
+                              );
+                            })
+                        ) : (
+                          // Fallback if no sparkline data
+                          <div className="w-full h-6 flex items-center justify-center text-muted-foreground text-xs">
+                            No chart data
+                          </div>
+                        )}
                       </div>
                     </div>
                     
