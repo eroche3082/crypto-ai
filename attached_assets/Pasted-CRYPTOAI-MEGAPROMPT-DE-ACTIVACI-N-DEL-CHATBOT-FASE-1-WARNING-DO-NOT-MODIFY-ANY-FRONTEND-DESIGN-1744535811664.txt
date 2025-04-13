@@ -1,0 +1,172 @@
+CRYPTOAI – MEGAPROMPT DE ACTIVACIÓN DEL CHATBOT (FASE 1)
+[WARNING: DO NOT MODIFY ANY FRONTEND DESIGN OR STRUCTURE]
+The CryptoAI frontend has been approved. Absolutely no changes to the layout, buttons, spacing, or positioning are allowed, unless explicitly authorized by a future deployment prompt.
+
+1. CHATBOT POSITIONING AND BEHAVIOR (FRONTEND ONLY)
+The chatbot must be anchored on the bottom-right corner of the homepage, visible on all screen sizes.
+
+Must open in a floating chat window (not full-screen, not replacing the page).
+
+Must not override the setup form or any other UI elements.
+
+The chatbot is for onboarding only — it is not the same as the dashboard assistant.
+
+2. CHATBOT FLOW – 10 STRUCTURED QUESTIONS (ONBOARDING QUIZ)
+This flow begins as soon as the user clicks the chatbot button.
+
+STEP 1: Basic Information
+“Welcome to CryptoAI! What’s your name?”
+→ Text input
+
+“Great to meet you, [name]! What’s your email address?”
+→ Text input
+→ Must be stored in Firebase or backend for lead capture
+→ Used to pre-generate user account and profile
+
+STEP 2: Crypto Profile Questionnaire – Multiple Selections
+“What are your goals in crypto?” (Select all that apply)
+
+Long-term investment
+
+Day trading
+
+Learning about blockchain
+
+DeFi and staking
+
+NFTs and collectibles
+
+Launching a token or project
+
+“How much experience do you have with crypto?”
+
+I’m completely new
+
+I’ve dabbled a bit
+
+I use exchanges regularly
+
+I’ve been investing/trading for years
+
+“What types of crypto assets interest you?”
+
+Bitcoin & Ethereum
+
+Altcoins
+
+Stablecoins
+
+NFTs
+
+Governance tokens
+
+Meme coins
+
+“Do you currently use any of these platforms?” (Select all that apply)
+
+Coinbase
+
+Binance
+
+MetaMask
+
+Kraken
+
+Uniswap
+
+Ledger/Hardware Wallet
+
+“How do you prefer to learn about crypto?”
+
+Articles & newsletters
+
+Videos
+
+Live charts
+
+Simulators or practice tools
+
+AI-curated insights
+
+“Are you interested in AI-generated predictions?”
+
+Yes, I want AI suggestions
+
+I prefer making my own analysis
+
+I’d like to compare both
+
+“What is your risk tolerance?”
+
+Low (stablecoins, staking)
+
+Moderate (blue-chip assets)
+
+High (volatile or new projects)
+
+Mixed (depends on strategy)
+
+“Do you want to receive alerts or updates by email?”
+
+Yes, daily market alerts
+
+Weekly recaps only
+
+No notifications
+
+3. SYSTEM RESPONSE & NEXT STEP
+Once the user answers all 10 questions, the AI Assistant must say:
+
+“Thanks, [name]! Your CryptoAI dashboard is now being customized. Please log in to access your personalized crypto experience.”
+
+Action: Show button → Login to Dashboard
+User must be redirected to /login or /dashboard.
+
+4. POST-LOGIN EXPECTATION (NOT THIS PHASE, BUT MUST BE LINKED)
+The chatbot is only for onboarding. Once the user logs in:
+
+Their Crypto Profile (from quiz answers) must auto-load
+
+Dashboard must show personalized:
+
+Token suggestions
+
+Portfolio builder
+
+Watchlists
+
+Learning materials
+
+Alerts panel
+
+5. FUNCTIONALITY VERIFICATION CHECKLIST
+Please return a full report confirming the following:
+
+Component	Status	Notes
+Chatbot visible (bottom right)	❌	Not activated
+Chatbot structured flow (10 Qs)	❌	Missing
+Name + email stored in DB	⚠️	Only in setup, not connected to chatbot
+Personalized dashboard after login	❌	Not triggering from chatbot responses
+Footer links functional	✅	Confirm again
+Header links functional	✅	Confirm again
+Setup page interfering?	⚠️	Currently overriding chatbot’s function
+6. STRICT IMPLEMENTATION NOTICE
+DO NOT replace the chatbot with any setup form.
+
+The setup my crypto profile section must either be removed or integrated with the chatbot backend if needed, but not replace the assistant.
+
+Chatbot logic must follow flow strictly — no pop-ups, fullscreens, or modals overriding the page.
+
+7. FINAL DELIVERABLES REQUIRED
+✅ Confirmation of chatbot deployment on homepage
+
+✅ Activation of full 10-question logic flow
+
+✅ Correct storage of leads (name, email, answers)
+
+✅ Login redirection working
+
+✅ Integration with future dashboard personalization
+
+✅ Full functionality checklist + improvement suggestions
+
