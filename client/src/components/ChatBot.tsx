@@ -272,7 +272,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
             role: 'assistant',
             content: 'Login to Dashboard',
             timestamp: new Date(),
-            model: 'gemini-1.5-pro'
+            model: 'vertex-flash'
           }]);
         }, 1000);
         
@@ -367,7 +367,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
             role: 'assistant',
             content: data.response,
             timestamp: new Date(),
-            model: 'gemini-1.5-pro'
+            model: data.model || 'vertex-flash'
           } : msg
         )
       );
