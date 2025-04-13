@@ -13,7 +13,7 @@ import { generateAIResponse } from "./gemini";
 import { handleVertexAIResponse } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
-import { checkVertexAi, checkPaymentMethods } from "./systemCheck";
+import { checkVertexAi, checkPaymentMethods, getSystemStatus } from "./systemCheck";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
 import { sendAccessCodeEmail, sendNewsletterCampaign } from './emailService';
 import { createCheckoutSession, handleStripeWebhook, getAvailableLevels, verifyReferralCode } from './stripeService';
@@ -209,49 +209,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
   // Add a status endpoint to check system health including email service status
-  app.get('/api/system/status', (req: Request, res: Response) => {
-    const isSendGridConfigured = !!process.env.SENDGRID_API_KEY;
-    const isStripeConfigured = !!process.env.STRIPE_SECRET_KEY;
-    
-    // Get available payment methods
-    const availablePaymentMethods = Object.entries(PAYMENT_METHODS)
-      .filter(([_, method]) => method.enabled)
-      .map(([id]) => id);
-    
-    res.json({
-      status: 'online',
-      version: '1.0.0',
-      timestamp: new Date().toISOString(),
-      services: {
-        database: { operational: true },
-        email: {
-          provider: 'SendGrid',
-          configured: isSendGridConfigured,
-          mode: isSendGridConfigured ? 'live' : 'simulation'
-        },
-        payments: {
-          stripe: {
-            configured: isStripeConfigured,
-            mode: isStripeConfigured ? 'live' : 'unavailable'
-          },
-          methods: availablePaymentMethods,
-          multi_payment: true
-        },
-        universal_access_code: {
-          operational: true,
-          features: [
-            'dashboard_access',
-            'level_unlocking',
-            'qr_code_generation',
-            'payment_processing',
-            'referral_system',
-            'multi_payment_options',
-            'animated_level_unlocks'
-          ]
-        }
-      }
-    });
-  });
+  app.get('/api/system/status', getSystemStatus);
   
   // Add a route to serve the static HTML fallback page
   app.get('/static', (req: Request, res: Response) => {
