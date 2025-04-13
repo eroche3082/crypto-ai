@@ -76,6 +76,7 @@ const Sidebar = () => {
     { path: "/education", icon: <GraduationCap size={20} />, label: t("education.title", "Education") },
     { path: "/locations", icon: <MapPin size={20} />, label: t("locations.title", "Locations") },
     { path: "/admin/system-check", icon: <CheckCircle2 size={20} />, label: t("admin.systemCheck", "System Check") },
+    { path: "/admin/system-validator", icon: <ShieldAlert size={20} />, label: t("admin.systemValidator", "System Validator") },
   ];
 
   const toggleLanguageSwitcher = () => {

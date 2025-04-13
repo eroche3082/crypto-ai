@@ -22,6 +22,7 @@ import NFTGalleryPage from "./pages/nft/NFTGalleryPage";
 import TokenTrackerPage from "./pages/nft/TokenTrackerPage";
 import GamificationPage from "./pages/GamificationPage";
 import SystemCheck from "./pages/admin/SystemCheck";
+import SystemValidator from "./pages/admin/SystemValidator";
 import AdminPanel from "./pages/AdminPanel";
 import MultiPaymentPage from "./pages/MultiPaymentPage";
 import NotFound from "@/pages/not-found";
@@ -138,6 +139,7 @@ function AppLayout() {
           <Route path="/wallet-messaging" component={WalletMessaging} />
           <Route path="/gamification" component={GamificationPage} />
           <Route path="/admin/system-check" component={SystemCheck} />
+          <Route path="/admin/system-validator" component={SystemValidator} />
           <Route path="/admin/panel" component={AdminPanel} />
           <Route path="/dashboard/payment/:levelId" component={MultiPaymentPage} />
           <Route component={NotFound} />
