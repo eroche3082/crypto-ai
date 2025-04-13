@@ -810,8 +810,8 @@ export default function LandingPage() {
         </div>
       </footer>
       
-      {/* ChatBot Component */}
-      <ChatBot />
+      {/* ChatBot Component with onboarding functionality */}
+      <ChatBot startOnboardingRef={startOnboardingRef} />
     </div>
   );
 }
