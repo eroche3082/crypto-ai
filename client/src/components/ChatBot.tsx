@@ -167,9 +167,14 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           }),
         });
         
+        const data = await response.json();
+        
         if (!response.ok) {
-          throw new Error('Failed to send email');
+          throw new Error(data.error || 'Failed to send email');
         }
+        
+        // Check if we're in simulation mode
+        const isSimulation = data.simulation === true;
         
         // Success message
         setMessages(prev => [...prev, {
@@ -181,10 +186,22 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
     <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-green-600">
       <span class="text-lg font-semibold">✓</span>
     </div>
-    <h3 class="text-green-800 font-semibold">EMAIL SENT!</h3>
+    <h3 class="text-green-800 font-semibold">${isSimulation ? 'SIMULATION MODE' : 'EMAIL SENT!'}</h3>
   </div>
   
-  <p class="text-green-700 mb-4">Your access code has been sent to ${email}. Please check your inbox (and spam folder) for an email from CryptoBot.</p>
+  <p class="text-green-700 mb-4">${
+    isSimulation 
+      ? `<strong>NOTE:</strong> SendGrid API key not configured. In a real environment, an email with your access code would be sent to ${email}.`
+      : `Your access code has been sent to ${email}. Please check your inbox (and spam folder) for an email from CryptoBot.`
+  }</p>
+  
+  ${isSimulation ? `
+  <div class="bg-white p-3 rounded-md mb-4 border border-green-200">
+    <p class="text-xs text-green-700 font-medium mb-1">Email would contain:</p>
+    <p class="text-xs text-green-600">Your access code: <span class="font-mono font-bold">${accessCode}</span></p>
+    <p class="text-xs text-green-600">Instructions to access your personalized dashboard</p>
+  </div>
+  ` : ''}
 </div>`,
           timestamp: new Date(),
           model: 'vertex-flash'

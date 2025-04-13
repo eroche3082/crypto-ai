@@ -14,11 +14,18 @@ let mailService: MailService | null = null;
 
 // Initialize the mail service with the API key
 if (process.env.SENDGRID_API_KEY) {
-  mailService = new MailService();
-  mailService.setApiKey(process.env.SENDGRID_API_KEY);
-  console.log('SendGrid email service initialized');
+  try {
+    mailService = new MailService();
+    mailService.setApiKey(process.env.SENDGRID_API_KEY);
+    console.log('✅ SendGrid email service initialized successfully');
+    console.log('📧 Email functionality is now LIVE - emails will be actually sent');
+  } catch (error) {
+    console.error('❌ Error initializing SendGrid:', error);
+    mailService = null;
+    console.log('⚠️ Falling back to email simulation mode');
+  }
 } else {
-  console.log('SendGrid API key not found. Email service will be in simulation mode.');
+  console.log('📝 SendGrid API key not found. Email service will be in simulation mode.');
 }
 
 interface EmailParams {
@@ -98,10 +105,22 @@ export async function sendAccessCodeEmail(req: Request, res: Response): Promise<
       console.log('Email sending simulated (no API key):');
       console.log(`To: ${params.to}`);
       console.log(`Subject: ${params.subject}`);
+      console.log(`Access code: ${accessCode}`);
       console.log('Email would have been sent if SENDGRID_API_KEY was set');
+      
+      // In simulation mode, wait 1 second to simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       res.status(200).json({ 
         success: true, 
-        message: 'Email simulation mode: Access code would have been sent'
+        message: 'Email simulation mode: Access code would have been sent',
+        simulation: true,
+        details: {
+          to: email,
+          code: accessCode,
+          category: category || 'BEGINNER',
+          timestamp: new Date().toISOString()
+        }
       });
     }
   } catch (error) {
@@ -172,9 +191,24 @@ export async function sendNewsletterCampaign(req: Request, res: Response): Promi
         console.log(`Filtered by category: ${category}`);
       }
       
+      // In simulation mode, wait 1 second to simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       res.status(200).json({
         success: true,
-        message: `Simulation mode: Newsletter would be sent to ${recipients.length} recipients`
+        message: `Simulation mode: Newsletter would be sent to ${recipients.length} recipients`,
+        simulation: true,
+        details: {
+          recipientCount: recipients.length,
+          category: category || 'all',
+          timestamp: new Date().toISOString(),
+          subject: subject,
+          firstFewRecipients: recipients.slice(0, 3).map(r => ({ 
+            email: r.email, 
+            name: r.name, 
+            code: r.code 
+          }))
+        }
       });
     }
   } catch (error) {

@@ -252,10 +252,24 @@ const AdminPanel = () => {
       const data = await response.json();
       
       if (data.success) {
+        // Check if we're in simulation mode
+        const isSimulation = data.simulation === true;
+        
         toast({
-          title: "Emails sent successfully",
+          title: isSimulation ? "Email Simulation" : "Emails sent successfully",
           description: data.message,
         });
+        
+        // If in simulation mode, show more details in a separate toast
+        if (isSimulation && data.details) {
+          setTimeout(() => {
+            toast({
+              title: "Simulation Details",
+              description: `Would send to ${data.details.recipientCount} recipients with subject: "${data.details.subject}"`,
+              variant: "default"
+            });
+          }, 1000);
+        }
       } else {
         throw new Error(data.error || "Failed to send emails");
       }
