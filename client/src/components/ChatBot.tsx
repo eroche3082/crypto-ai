@@ -42,7 +42,11 @@ const onboardingQuestions = [
   "Would you like to receive updates on pre-sales or new token launches?"
 ];
 
-export default function ChatBot() {
+interface ChatBotProps {
+  startOnboardingRef?: React.MutableRefObject<(() => void) | null>;
+}
+
+export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -69,6 +73,13 @@ export default function ChatBot() {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isExpanded]);
+  
+  // Expose the startOnboarding function to the parent component
+  useEffect(() => {
+    if (startOnboardingRef) {
+      startOnboardingRef.current = startOnboarding;
+    }
+  }, [startOnboardingRef]);
   
   // Function to start the onboarding process
   const startOnboarding = () => {
@@ -111,6 +122,61 @@ export default function ChatBot() {
     setInputMessage('');
     setIsProcessing(true);
 
+    // Check if we're in the onboarding process
+    if (isOnboarding) {
+      // Save the answer and update the onboarding status
+      const updatedAnswers = [...onboardingAnswers];
+      updatedAnswers[currentQuestionIndex] = userMessage.content;
+      setOnboardingAnswers(updatedAnswers);
+      
+      // Move to the next question or complete the onboarding
+      if (currentQuestionIndex < onboardingQuestions.length - 1) {
+        // Ask next question
+        const nextQuestionIndex = currentQuestionIndex + 1;
+        setCurrentQuestionIndex(nextQuestionIndex);
+        
+        // Add next question as a message
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: onboardingQuestions[nextQuestionIndex],
+          timestamp: new Date(),
+          model: 'gemini-pro'
+        }]);
+        
+        setIsProcessing(false);
+      } else {
+        // Onboarding complete
+        setIsOnboarding(false);
+        
+        // Add completion message
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: "Thank you for completing your crypto profile setup! I now have a better understanding of your preferences and goals. I'll use this information to provide personalized insights and recommendations. You're now being redirected to your dashboard.",
+          timestamp: new Date(),
+          model: 'gemini-pro'
+        }]);
+        
+        // Save profile to localStorage for now (in a real app, this would be sent to the backend)
+        const profileData = {
+          onboardingComplete: true,
+          answers: updatedAnswers,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('cryptoUserProfile', JSON.stringify(profileData));
+        
+        setIsProcessing(false);
+        
+        // Redirect to dashboard after a delay
+        setTimeout(() => {
+          setLocation('/dashboard');
+        }, 3000);
+      }
+      return;
+    }
+
+    // If not in onboarding, proceed with normal chat
     // Placeholder for assistant message while processing
     const tempId = Date.now().toString() + '-temp';
     setMessages(prev => [...prev, {

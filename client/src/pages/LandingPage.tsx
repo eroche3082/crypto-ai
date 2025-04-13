@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star as StarIcon, Mail, MapPin, Phone } from "lucide-react";
@@ -41,6 +41,7 @@ interface CryptoData {
 export default function LandingPage() {
   const [cryptoData, setCryptoData] = useState<CryptoData[]>([]);
   const [loading, setLoading] = useState(true);
+  const startOnboardingRef = useRef<(() => void) | null>(null);
   
   // Fetch crypto data from the API
   useEffect(() => {
@@ -266,11 +267,9 @@ export default function LandingPage() {
                   size="lg" 
                   className="text-white border-white hover:bg-white/10 gap-2"
                   onClick={() => {
-                    // This would trigger the chatbot to open with the onboarding questionnaire
-                    // For now, just open the chatbot
-                    const chatButton = document.querySelector('[data-chat-toggle]');
-                    if (chatButton) {
-                      (chatButton as HTMLButtonElement).click();
+                    // Trigger the onboarding flow in the chatbot
+                    if (startOnboardingRef.current) {
+                      startOnboardingRef.current();
                     }
                   }}
                 >
