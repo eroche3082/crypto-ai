@@ -795,14 +795,8 @@ export default function LandingPage() {
         </div>
       </footer>
       
-      {/* Floating Chat Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Link href="/login">
-          <Button className="w-16 h-16 rounded-full p-0 shadow-lg bg-indigo-600 hover:bg-indigo-700">
-            <MessageCircle size={24} />
-          </Button>
-        </Link>
-      </div>
+      {/* ChatBot Component */}
+      <ChatBot />
     </div>
   );
 }

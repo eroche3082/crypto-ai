@@ -1,0 +1,128 @@
+You are now entering the **Frontend Validation Phase** for the CryptoBot Agent. This is a critical checkpoint before any backend enhancements, API expansions, or additional functionalities can be approved.
+
+Your task is to **fully audit, verify, and activate** the CryptoBot frontend system based on the following specifications:
+
+---
+
+### 1. GENERAL VISUAL STYLE CHECK
+- Confirm that the **final frontend theme** is 100% aligned with the approved style:
+  - Font type and size
+  - Color palette (purple + dark mode consistency)
+  - Button colors, hover states, and shadows
+  - Background images and visual contrast
+- Ensure consistency between landing page style and internal views (Dashboard, Features, Pricing, Testimonials)
+
+---
+
+### 2. TOP NAVIGATION (MENU)
+- Check that the **top nav bar** includes and routes correctly:
+  - Home
+  - Features (with 20 features visible)
+  - Pricing
+  - Testimonials
+  - About
+  - Sign In
+  - Get Started
+- Verify that **Sign In and Get Started** buttons are active, styled correctly, and route to the **Dashboard and Registration system**
+
+---
+
+### 3. FEATURES SECTION (20 TOOLS)
+- Confirm that all 20 features are:
+  - Displayed in 3 full rows
+  - Have correct icons, titles, and descriptions
+  - Properly responsive on mobile and desktop
+- Sample features shown (must be verified live):
+  - Portfolio Advisor
+  - Market Sentiment Analyzer
+  - Price Alert Creator
+  - DeFi Yield Optimizer
+  - NFT Collection Evaluator
+  - Regulatory Updates Tracker
+  - Trading Bot Configuration
+  - Voice Note Market Analysis
+  - Personalized Learning Path
+  - And others…
+
+---
+
+### 4. CHATBOT FUNCTIONALITY
+- The chatbot icon must:
+  - Be located at **bottom right**
+  - Open on click and respond
+  - Be connected to **Gemini Flash (Vertex AI)**
+  - Recognize and reply based on CryptoBot-specific personality
+  - Integrate real-time crypto data where relevant
+- Chatbot must also respond to:
+  - Membership plan inquiries
+  - Feature explanations
+  - AI tool usage guidance
+
+---
+
+### 5. LIVE MARKET DATA SECTION
+- Must load crypto values dynamically via **CoinGecko API**
+- Confirm:
+  - Bitcoin, Ethereum, Solana, Tether, Dogecoin, XRP, etc.
+  - Market cap and percent changes
+  - Responsive layout for grid
+  - “View All Markets” button works
+
+---
+
+### 6. MEMBERSHIP PLANS
+- Three tiers must be visible and functional:
+  - Basic – $9/month
+  - Pro – $29/month
+  - Enterprise – $99/month
+- Confirm:
+  - Plan buttons ("Get Started" or "Contact Sales") are working
+  - Stripe or checkout integration exists or is pending clearly
+  - Features under each plan are correctly listed
+
+---
+
+### 7. TESTIMONIALS SECTION
+- Must show real testimonials (placeholders OK if styled)
+- Include name, role, text, and rating stars
+- Ensure consistency across screen sizes
+
+---
+
+### 8. FOOTER VALIDATION
+- Footer must include:
+  - Brand logo
+  - Quick Links: Features, Pricing, Testimonials, Dashboard
+  - Resources: Blog, Docs, Help Center, API
+  - Contact: Email, Address, Phone (fake OK for demo)
+  - Social Media Icons (LinkedIn, Twitter, etc.) → Must be clickable
+
+---
+
+### 9. EXPERIENCE + CTA SECTIONS
+- Verify the “Ready to Optimize Your Investments” section:
+  - Stats must be present: Active users, AI Predictions, ROI increase
+  - Buttons: “Explore Platform”, “Get Started Now” must work
+- If "Experience" or Assistant sections exist: Must be linked to chatbot or user journey
+
+---
+
+### 10. INTEGRATIONS + REPORT
+- Confirm API connections:
+  - ✅ CoinGecko API
+  - ✅ Chatbot (Gemini Flash)
+  - ⚠️ Stripe Checkout
+  - ⚠️ Dashboard Auth (Login → Dashboard flow)
+- Provide summary:
+  - ✅ List of working features
+  - ❌ Features/APIs still missing or not working
+  - ⚠️ Partial features with explanation
+- Submit diagnostic with **screenshots or screen recording**
+
+---
+
+### FINAL DIRECTIVE
+This Agent (CryptoBot) **cannot progress** to backend integrations or deployment unless this checklist is passed 100%. Your mission is to **confirm full frontend readiness**, ensure everything is live, clickable, responsive, and visually aligned.
+
+Return a status report upon completion. Phase ends once all requirements are met.
+
