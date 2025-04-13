@@ -1066,7 +1066,10 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                                 </div>
                               ) : (
                                 <>
-                                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                  <p 
+                                    className="text-sm whitespace-pre-wrap"
+                                    dangerouslySetInnerHTML={{__html: message.content}}
+                                  ></p>
                                   
                                   {/* Add option buttons for onboarding questions */}
                                   {isOnboarding && !inLeadCapture && message === messages[messages.length - 1] && message.role === 'assistant' && currentQuestionIndex < onboardingQuestions.length && (
