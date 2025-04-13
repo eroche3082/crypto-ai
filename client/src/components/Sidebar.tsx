@@ -78,6 +78,7 @@ const Sidebar = () => {
     { path: "/admin/system-check", icon: <CheckCircle2 size={20} />, label: t("admin.systemCheck", "System Check") },
     { path: "/admin/system-validator", icon: <ShieldAlert size={20} />, label: t("admin.systemValidator", "System Validator") },
     { path: "/admin/system-report", icon: <BarChart3 size={20} />, label: t("admin.systemReport", "System Report") },
+    { path: "/admin/api-health", icon: <Globe size={20} />, label: t("admin.apiHealth", "API Health"), tag: "New" },
   ];
 
   const toggleLanguageSwitcher = () => {
