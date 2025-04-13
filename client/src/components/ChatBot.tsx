@@ -18,28 +18,90 @@ interface Message {
   images?: string[];
 }
 
-// Define the onboarding questions as specified in the requirements
+// Define the lead capture fields first
+const leadCaptureFields = [
+  { id: 'name', question: "What's your name?", type: "text" },
+  { id: 'email', question: "What's your email address?", type: "email" },
+  { id: 'referral', question: "Do you have a referral code? (optional)", type: "text", optional: true }
+];
+
+// Define the onboarding questions as multiple-choice selections
 const onboardingQuestions = [
-  "What's your experience level with cryptocurrencies?",
-  "Are you currently holding any crypto assets?",
-  "Which platforms or wallets do you use most? (e.g., Binance, Coinbase, Metamask)",
-  "Are you more interested in long-term holding or short-term trading?",
-  "How often do you trade?",
-  "What type of tokens do you prefer? (Layer 1, DeFi, NFTs, Stablecoins, Meme coins)",
-  "Are you interested in learning about technical analysis?",
-  "Do you want AI alerts for market dips or surges?",
-  "Would you like to connect your portfolio for live tracking?",
-  "What is your monthly investment budget (if any)?",
-  "Are you interested in DeFi protocols and yield farming?",
-  "Have you ever minted or traded NFTs?",
-  "Do you follow news on regulations or crypto laws?",
-  "Are you concerned about volatility or risk?",
-  "Do you prefer mobile or desktop dashboards?",
-  "Would you like daily, weekly or real-time crypto summaries?",
-  "What languages would you like support in?",
-  "Are you interested in AI trading bots or signals?",
-  "Do you need educational resources or tutorials?",
-  "Would you like to receive updates on pre-sales or new token launches?"
+  {
+    question: "What's your experience level with cryptocurrencies?",
+    options: ["Complete Beginner", "Some Knowledge", "Intermediate", "Advanced Trader", "Professional/Expert"],
+    multiSelect: false
+  },
+  {
+    question: "Are you currently holding any crypto assets?",
+    options: ["None yet", "Bitcoin Only", "Ethereum Only", "Multiple Altcoins", "NFTs", "DeFi Tokens"],
+    multiSelect: true
+  },
+  {
+    question: "Which platforms or wallets do you use most?",
+    options: ["Binance", "Coinbase", "Metamask", "Ledger/Hardware Wallet", "Kraken", "FTX", "Other"],
+    multiSelect: true
+  },
+  {
+    question: "What's your primary investment strategy?",
+    options: ["Long-term Holding", "Short-term Trading", "Swing Trading", "Day Trading", "Yield Farming", "Not Sure Yet"],
+    multiSelect: false
+  },
+  {
+    question: "How frequently do you trade?",
+    options: ["Daily", "Weekly", "Monthly", "Rarely", "Never traded yet"],
+    multiSelect: false
+  },
+  {
+    question: "What types of tokens are you most interested in?",
+    options: ["Layer 1 (BTC, ETH)", "DeFi Tokens", "NFTs", "Stablecoins", "Meme Coins", "Privacy Coins", "GameFi"],
+    multiSelect: true
+  },
+  {
+    question: "Which crypto tools would you like to learn more about?",
+    options: ["Technical Analysis", "Fundamental Analysis", "On-chain Analytics", "Risk Management", "Tax Planning"],
+    multiSelect: true
+  },
+  {
+    question: "Would you like to receive AI alerts for any of these?",
+    options: ["Price Dips", "Price Surges", "Whale Movements", "New Project Launches", "Market News"],
+    multiSelect: true
+  },
+  {
+    question: "Would you like to connect your portfolio for live tracking?",
+    options: ["Yes, via API", "Yes, via manual entry", "Not right now", "Need more information"],
+    multiSelect: false
+  },
+  {
+    question: "What's your monthly investment budget for crypto?",
+    options: ["Under $100", "$100-$500", "$500-$1,000", "$1,000-$5,000", "Over $5,000", "Prefer not to say"],
+    multiSelect: false
+  },
+  {
+    question: "Are you interested in any of these advanced crypto features?",
+    options: ["DeFi Protocols", "Yield Farming", "Staking", "NFT Trading", "Crypto Loans", "None of these yet"],
+    multiSelect: true
+  },
+  {
+    question: "Do you follow crypto regulations and laws?",
+    options: ["Yes, closely", "Somewhat", "Not yet", "Only in my country"],
+    multiSelect: false
+  },
+  {
+    question: "Which dashboard features are most important to you?",
+    options: ["Portfolio Tracking", "Price Alerts", "News Feed", "Trading Signals", "Educational Content"],
+    multiSelect: true
+  },
+  {
+    question: "How would you like to receive crypto updates?",
+    options: ["Real-time Alerts", "Daily Summaries", "Weekly Newsletter", "Monthly Reports"],
+    multiSelect: true
+  },
+  {
+    question: "Which membership plan are you most interested in?",
+    options: ["Basic (Free)", "Pro ($29/month)", "Enterprise ($99/month)"],
+    multiSelect: false
+  }
 ];
 
 interface ChatBotProps {
@@ -81,26 +143,38 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
     }
   }, [startOnboardingRef]);
   
+  // State for onboarding data
+  const [leadCaptureData, setLeadCaptureData] = useState<{[key: string]: string}>({});
+  const [inLeadCapture, setInLeadCapture] = useState(false);
+  const [leadQuestionIndex, setLeadQuestionIndex] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState<{[key: number]: string[]}>({});
+
   // Function to start the onboarding process
   const startOnboarding = () => {
     setIsOnboarding(true);
+    setInLeadCapture(true);
     setIsOpen(true);
     setIsExpanded(true);
     setSelectedTab('chat');
+    setLeadQuestionIndex(0);
     setCurrentQuestionIndex(0);
     setOnboardingAnswers([]);
+    setLeadCaptureData({});
+    setSelectedOptions({});
+    
+    // Start with welcome message and first lead capture question
     setMessages([
       {
         id: Date.now().toString(),
         role: 'assistant',
-        content: "Welcome to CryptoBot! Let's set up your crypto profile to provide you with personalized insights and recommendations. I'll ask you a series of questions to understand your preferences and goals.",
+        content: "Hi there! Welcome to CryptoBot. I'm your AI Assistant. Let's personalize your experience.",
         timestamp: new Date(),
         model: 'gemini-pro'
       },
       {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: onboardingQuestions[0],
+        content: leadCaptureFields[0].question,
         timestamp: new Date(),
         model: 'gemini-pro'
       }
@@ -122,12 +196,64 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
     setInputMessage('');
     setIsProcessing(true);
 
-    // Check if we're in the onboarding process
-    if (isOnboarding) {
-      // Save the answer and update the onboarding status
-      const updatedAnswers = [...onboardingAnswers];
-      updatedAnswers[currentQuestionIndex] = userMessage.content;
-      setOnboardingAnswers(updatedAnswers);
+    // Check if we're in the lead capture phase
+    if (isOnboarding && inLeadCapture) {
+      // Save lead capture data
+      const updatedLeadData = {...leadCaptureData};
+      updatedLeadData[leadCaptureFields[leadQuestionIndex].id] = userMessage.content;
+      setLeadCaptureData(updatedLeadData);
+      
+      // Move to next lead capture question or start main onboarding
+      if (leadQuestionIndex < leadCaptureFields.length - 1) {
+        const nextLeadIndex = leadQuestionIndex + 1;
+        setLeadQuestionIndex(nextLeadIndex);
+        
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: leadCaptureFields[nextLeadIndex].question,
+          timestamp: new Date(),
+          model: 'gemini-pro'
+        }]);
+        
+        setIsProcessing(false);
+      } else {
+        // Lead capture complete, move to main onboarding questions
+        setInLeadCapture(false);
+        
+        // Add transition message
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `Thanks, ${updatedLeadData.name}! Now let's personalize your crypto experience with a few more questions. For the following questions, you can select multiple options where applicable.`,
+          timestamp: new Date(),
+          model: 'gemini-pro'
+        }]);
+        
+        // Display first question with multiple choice options
+        const questionContent = renderOnboardingQuestion(0);
+        setMessages(prev => [...prev, {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: questionContent,
+          timestamp: new Date(),
+          model: 'gemini-pro'
+        }]);
+        
+        setIsProcessing(false);
+      }
+      return;
+    }
+    
+    // Check if we're in the main onboarding questions phase
+    if (isOnboarding && !inLeadCapture) {
+      // In the actual implementation, this should handle the selection from buttons
+      // For now, we'll just save the text input as the answer
+      
+      // Save the answer 
+      const updatedOptions = {...selectedOptions};
+      updatedOptions[currentQuestionIndex] = [userMessage.content];
+      setSelectedOptions(updatedOptions);
       
       // Move to the next question or complete the onboarding
       if (currentQuestionIndex < onboardingQuestions.length - 1) {
@@ -135,11 +261,12 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         const nextQuestionIndex = currentQuestionIndex + 1;
         setCurrentQuestionIndex(nextQuestionIndex);
         
-        // Add next question as a message
+        // Add next question with options as a message
+        const questionContent = renderOnboardingQuestion(nextQuestionIndex);
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: onboardingQuestions[nextQuestionIndex],
+          content: questionContent,
           timestamp: new Date(),
           model: 'gemini-pro'
         }]);
@@ -153,18 +280,21 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: "Thank you for completing your crypto profile setup! I now have a better understanding of your preferences and goals. I'll use this information to provide personalized insights and recommendations. You're now being redirected to your dashboard.",
+          content: `Thanks! Your custom dashboard is now being prepared, ${leadCaptureData.name}. I'll use your preferences to personalize your experience.`,
           timestamp: new Date(),
           model: 'gemini-pro'
         }]);
         
-        // Save profile to localStorage for now (in a real app, this would be sent to the backend)
+        // Save complete profile data to localStorage (in a real app, send to backend/Firebase)
         const profileData = {
+          leadCapture: leadCaptureData,
+          preferences: selectedOptions,
           onboardingComplete: true,
-          answers: updatedAnswers,
           timestamp: new Date().toISOString()
         };
         localStorage.setItem('cryptoUserProfile', JSON.stringify(profileData));
+        
+        // Here we would also store the lead info in the database for the admin panel
         
         setIsProcessing(false);
         
@@ -255,6 +385,19 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
   // Format timestamp for display
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+  
+  // Function to render onboarding question with options
+  const renderOnboardingQuestion = (index: number): string => {
+    const question = onboardingQuestions[index];
+    const multiSelectText = question.multiSelect ? 'Choose all that apply:' : 'Choose one:';
+    
+    // Format the options as a numbered list
+    const optionsText = question.options.map((option, i) => 
+      `${i+1}. ${option}`
+    ).join('\n');
+    
+    return `${question.question}\n\n${multiSelectText}\n${optionsText}`;
   };
 
   const specialistFeatures = [

@@ -1,0 +1,116 @@
+MEGAPROMPT UNIVERSAL – AI ONBOARDING + DASHBOARD PERSONALIZATION
+SYSTEM-WIDE PROTOCOL: FINAL IMPLEMENTATION NOTICE
+
+Please verify and activate the following structure across all platforms:
+
+1. FRONTEND AI CHAT ONBOARDING (Pre-Dashboard)
+This is the first interaction users experience before logging into the platform. It should:
+
+A. Begin with a welcome message:
+“Hi there! Welcome to [Platform Name]. I’m your AI Assistant. Let’s personalize your experience.”
+
+B. Ask 3 Core Fields for Lead Capture:
+Name (text input)
+
+Email (text input)
+
+Optional: Referral Code or Invite Code (if applicable)
+
+These fields will automatically create a new entry in the Admin Panel’s Lead List, labeled as:
+[PlatformName]_Leads → Full Name, Email, Date, Referral, QuizScore, MembershipInterest
+
+2. INTELLIGENT ONBOARDING QUIZ (10–15 Multiple Selections)
+The chat must then automatically continue into a smart conversational flow with 10–15 dynamic questions using multiple option selection format. Each question must be contextualized to the platform (e.g., fitness, finance, education, crypto, etc.).
+
+Examples:
+
+For Fitness AI: “What are your fitness goals?”
+
+For Sports AI: “Which leagues are you most interested in?”
+
+For Edu AI: “What subjects are you struggling with?”
+
+Technical Requirements:
+
+Must support multi-selection where users can select more than one answer.
+
+All responses must be stored and mapped to the user profile.
+
+Once all answers are received, trigger a system message:
+
+“Thanks! Your custom dashboard is now being prepared…”
+
+3. POST-LOGIN DASHBOARD EXPERIENCE (Personalized Dashboard)
+When the user logs in and enters the Dashboard (Home tab), they must be greeted by a personalized dashboard view based on the answers they gave during onboarding.
+
+Dashboard Must Include:
+Custom welcome message (e.g., “Welcome back, Alex! Here's your tailored experience.”)
+
+A summary panel of their selected interests, goals, and features.
+
+Pre-loaded content, modules, or shortcuts based on their answers (e.g., fitness plans, finance tools, educational lessons, crypto alerts, etc.)
+
+Active display of their membership level and options to upgrade.
+
+4. AI CHATBOT INSIDE DASHBOARD (Post-Onboarding Assistant)
+This chat interface is not the same as the frontend AI onboarding. This assistant must:
+
+Be connected to the Gemini / Vertex AI assistant.
+
+Provide access to the full set of features (minimum 20) defined for the platform.
+
+Support file upload (image, PDF), voice commands, language selection, and direct feature activation.
+
+Reference user context from onboarding (e.g., suggest workouts, courses, stocks, etc.)
+
+Example message:
+
+“I see you're interested in CrossFit and meal planning. Want to begin your first session today?”
+
+5. ADMIN PANEL – LEAD & USER TRACKING (Phase 2 prompt to follow)
+For now, ensure:
+
+All emails and names collected from the frontend onboarding chat are stored in the backend or Firebase DB.
+
+Leads should be tagged with Quiz Completed, Membership Plan Interested, and Platform Source.
+
+This lead list should be exportable and visible in the Admin Panel (to be defined in the next prompt).
+
+6. VERIFICATION CHECKLIST
+Each platform (e.g., Fitness AI, JetAI, CryptoBot, etc.) must confirm:
+
+Feature	Status	Notes
+Frontend Chat visible on landing	✅	Should auto-start
+Name & Email input fields	✅	Stored in Leads DB
+10–15 Smart Multiple-Selection Questions	✅	Dynamic per platform
+Personalized Dashboard on Login	✅	Based on quiz responses
+Dashboard AI Chat Assistant	✅	Gemini/Vertex-based
+Responses stored to Firebase/DB	✅	Indexed by UID/email
+Admin Panel shows leads	⚠️	Awaiting Phase 2 prompt
+Membership plan selection linked	✅	To Stripe/Paywall or placeholder
+7. SUGGESTIONS FOR ENHANCEMENT (Optional)
+Add progress bar or visual steps indicator during onboarding (e.g., 30%, 60%, Complete).
+
+Auto-email a “Welcome + Summary of Your Answers” PDF after onboarding.
+
+Trigger real-time generation of a personalized plan (PDF/HTML component) after the 15th question.
+
+Add smart analytics to show drop-off rate and optimize flow.
+
+REMINDER TO ALL TEAMS & AGENTS
+The initial chat onboarding system must remain separate from the dashboard chat. It serves two functions:
+
+Lead capture & personalization.
+
+First-level intelligence for custom dashboard generation.
+
+DO NOT overwrite or sync the frontend chatbot with the dashboard assistant directly unless the routing is intelligent.
+
+Please verify that this structure is correctly implemented and respond with:
+
+✅ Features confirmed
+
+❌ Features missing
+
+Suggestions for improvement
+
