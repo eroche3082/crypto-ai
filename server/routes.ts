@@ -15,7 +15,10 @@ import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
 import { sendAccessCodeEmail, sendNewsletterCampaign } from './emailService';
+import { createCheckoutSession, handleStripeWebhook, getAvailableLevels, verifyReferralCode } from './stripeService';
+import { generateQRCode, validateAccessCode } from './qrCodeService';
 import apiRouter from "./apiRoutes";
+import { accessCodeRouter, accessCodeAdminRouter } from "./accessCodeRoutes";
 import { db } from "./db";
 import { insertUserOnboardingProfileSchema, userOnboardingProfiles } from "../shared/schema";
 
