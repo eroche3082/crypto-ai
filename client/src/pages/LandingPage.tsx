@@ -2,7 +2,26 @@ import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star as StarIcon } from "lucide-react";
+
+// Create a custom StarHalfIcon component since it's not available in lucide-react
+const StarHalfIcon = () => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className="lucide lucide-star-half"
+  >
+    <path d="M12 17.8 5.8 21 7 14.1 2 9.3l7-1L12 2" />
+    <path d="M12 2v15.8l-6.2 3.2L7 14.1 2 9.3l7-1L12 2z" fill="currentColor" />
+  </svg>
+);
 
 // Crypto data interface
 interface CryptoData {
@@ -180,9 +199,23 @@ export default function LandingPage() {
             <span className="font-bold text-xl">CryptoBot</span>
           </div>
           
-          <Link href="/login">
-            <Button>Login</Button>
-          </Link>
+          <div className="hidden md:flex items-center gap-8">
+            <nav className="flex gap-6">
+              <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
+              <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
+              <a href="#testimonials" className="text-gray-300 hover:text-white transition-colors">Testimonials</a>
+              <a href="#mission" className="text-gray-300 hover:text-white transition-colors">About</a>
+            </nav>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <Link href="/login">
+              <Button variant="outline" className="text-white border-white hover:bg-white/10">Sign In</Button>
+            </Link>
+            <Link href="/login">
+              <Button>Get Started</Button>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -321,7 +354,7 @@ export default function LandingPage() {
       </section>
       
       {/* Features Section */}
-      <section className="py-20 bg-card/30">
+      <section id="features" className="py-20 bg-card/30">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl font-bold mb-4">Powered by Artificial Intelligence</h2>
@@ -346,9 +379,232 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-gradient-to-b from-background to-black/80">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold mb-4">Choose Your Plan</h2>
+            <p className="text-muted-foreground">
+              Select the membership that best suits your investment strategy and goals
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Basic Plan */}
+            <div className="rounded-xl border border-border bg-card p-8 flex flex-col hover:shadow-lg transition-shadow relative overflow-hidden">
+              <div className="mb-5">
+                <h3 className="text-xl font-bold mb-2">Basic</h3>
+                <div className="text-3xl font-bold mb-1">$9<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+                <p className="text-muted-foreground text-sm">Perfect for beginners</p>
+              </div>
+              
+              <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Real-time market data</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Basic portfolio tracking</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>5 AI chat queries per day</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>News summaries</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Email support</span>
+                </li>
+              </ul>
+              
+              <Link href="/login" className="w-full">
+                <Button className="w-full" variant="outline">Get Started</Button>
+              </Link>
+            </div>
+            
+            {/* Pro Plan - Featured */}
+            <div className="rounded-xl border-2 border-primary bg-card p-8 flex flex-col shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-bold">
+                POPULAR
+              </div>
+              
+              <div className="mb-5">
+                <h3 className="text-xl font-bold mb-2">Pro</h3>
+                <div className="text-3xl font-bold mb-1">$29<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+                <p className="text-muted-foreground text-sm">For serious investors</p>
+              </div>
+              
+              <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Everything in Basic</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Advanced portfolio analytics</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Unlimited AI chat queries</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Investment recommendations</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Customizable price alerts</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Priority support</span>
+                </li>
+              </ul>
+              
+              <Link href="/login" className="w-full">
+                <Button className="w-full">Get Started</Button>
+              </Link>
+            </div>
+            
+            {/* Enterprise Plan */}
+            <div className="rounded-xl border border-border bg-card p-8 flex flex-col hover:shadow-lg transition-shadow relative overflow-hidden">
+              <div className="mb-5">
+                <h3 className="text-xl font-bold mb-2">Enterprise</h3>
+                <div className="text-3xl font-bold mb-1">$99<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+                <p className="text-muted-foreground text-sm">For professional traders</p>
+              </div>
+              
+              <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Everything in Pro</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Institutional-grade analytics</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Trading bot integration</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>API access</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>Dedicated account manager</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span>White-label options</span>
+                </li>
+              </ul>
+              
+              <Link href="/login" className="w-full">
+                <Button className="w-full" variant="outline">Contact Sales</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-20 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold mb-4 text-white">What Our Users Say</h2>
+            <p className="text-gray-400">
+              Hear from investors who have transformed their crypto strategies with CryptoBot
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Testimonial 1 */}
+            <div className="bg-card/30 backdrop-blur-sm p-6 rounded-lg border border-primary/20">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold text-xl">
+                  JD
+                </div>
+                <div className="ml-4">
+                  <h4 className="font-bold">James Davis</h4>
+                  <p className="text-sm text-muted-foreground">Day Trader</p>
+                </div>
+              </div>
+              <p className="text-gray-300 italic">
+                "The Portfolio Advisor feature has completely changed my investment strategy. I've seen a 32% increase in my returns since using CryptoBot for the past 6 months."
+              </p>
+              <div className="flex mt-4">
+                <div className="text-yellow-400 flex">
+                  <StarIcon />
+                  <StarIcon />
+                  <StarIcon />
+                  <StarIcon />
+                  <StarIcon />
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial 2 */}
+            <div className="bg-card/30 backdrop-blur-sm p-6 rounded-lg border border-primary/20">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold text-xl">
+                  SJ
+                </div>
+                <div className="ml-4">
+                  <h4 className="font-bold">Sarah Johnson</h4>
+                  <p className="text-sm text-muted-foreground">Crypto Enthusiast</p>
+                </div>
+              </div>
+              <p className="text-gray-300 italic">
+                "As someone new to crypto, the educational content and personalized learning path have been invaluable. The AI makes complex topics easy to understand."
+              </p>
+              <div className="flex mt-4">
+                <div className="text-yellow-400 flex">
+                  <StarIcon />
+                  <StarIcon />
+                  <StarIcon />
+                  <StarIcon />
+                  <StarIcon />
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial 3 */}
+            <div className="bg-card/30 backdrop-blur-sm p-6 rounded-lg border border-primary/20">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold text-xl">
+                  RM
+                </div>
+                <div className="ml-4">
+                  <h4 className="font-bold">Robert Martinez</h4>
+                  <p className="text-sm text-muted-foreground">Institutional Investor</p>
+                </div>
+              </div>
+              <p className="text-gray-300 italic">
+                "The market sentiment analysis has given our firm an edge in anticipating market movements. CryptoBot's AI predictions have been remarkably accurate."
+              </p>
+              <div className="flex mt-4">
+                <div className="text-yellow-400 flex">
+                  <StarIcon />
+                  <StarIcon />
+                  <StarIcon />
+                  <StarIcon />
+                  <StarHalfIcon />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* About / Mission Section */}
-      <section className="py-20 bg-black/90">
+      <section id="mission" className="py-20 bg-black/90">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6 text-white">Our Mission</h2>
