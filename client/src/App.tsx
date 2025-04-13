@@ -23,6 +23,7 @@ import TokenTrackerPage from "./pages/nft/TokenTrackerPage";
 import GamificationPage from "./pages/GamificationPage";
 import SystemCheck from "./pages/admin/SystemCheck";
 import AdminPanel from "./pages/AdminPanel";
+import MultiPaymentPage from "./pages/MultiPaymentPage";
 import NotFound from "@/pages/not-found";
 // Landing and Login pages
 import LandingPage from "./pages/LandingPage";
@@ -138,6 +139,7 @@ function AppLayout() {
           <Route path="/gamification" component={GamificationPage} />
           <Route path="/admin/system-check" component={SystemCheck} />
           <Route path="/admin/panel" component={AdminPanel} />
+          <Route path="/dashboard/payment/:levelId" component={MultiPaymentPage} />
           <Route component={NotFound} />
         </Switch>
         <Footer />

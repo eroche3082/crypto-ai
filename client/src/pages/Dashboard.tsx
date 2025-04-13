@@ -272,8 +272,12 @@ const Dashboard = () => {
                               {index === 4 && 'Premium features with priority support and exclusive reports'}
                             </p>
                             {!level.unlocked && (
-                              <Button variant="outline" size="sm">
-                                Upgrade to Unlock
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => navigate(`/dashboard/payment/${level.id}?code=${accessCode}`)}
+                              >
+                                Choose Payment Method
                               </Button>
                             )}
                           </div>
