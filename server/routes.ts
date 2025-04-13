@@ -14,6 +14,7 @@ import { handleVertexAIResponse } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
+import { sendAccessCodeEmail, sendNewsletterCampaign } from './emailService';
 import apiRouter from "./apiRoutes";
 import { db } from "./db";
 import { insertUserOnboardingProfileSchema, userOnboardingProfiles } from "../shared/schema";
@@ -311,6 +312,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Admin endpoint to get all onboarding profiles
+  app.get("/api/admin/onboarding-profiles", async (req, res) => {
+    try {
+      // In a real application, we would add authentication middleware here
+      // to ensure only admins can access this endpoint
+      
+      // Query all profiles from the database
+      const profiles = await db.select().from(userOnboardingProfiles).orderBy(userOnboardingProfiles.created_at, "desc");
+      
+      return res.status(200).json({
+        success: true,
+        profiles,
+        count: profiles.length
+      });
+    } catch (error: any) {
+      console.error('Error fetching onboarding profiles:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to fetch onboarding profiles'
+      });
+    }
+  });
+  
+  // Email endpoints
+  app.post("/api/email/send-access-code", sendAccessCodeEmail);
+  app.post("/api/email/send-newsletter", sendNewsletterCampaign);
   
   // VertexAI proxy for enhanced Gemini capabilities
   app.post("/api/vertex-ai-response", handleVertexAIResponse);

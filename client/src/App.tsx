@@ -22,7 +22,7 @@ import NFTGalleryPage from "./pages/nft/NFTGalleryPage";
 import TokenTrackerPage from "./pages/nft/TokenTrackerPage";
 import GamificationPage from "./pages/GamificationPage";
 import SystemCheck from "./pages/admin/SystemCheck";
-import AdminPanel from "./pages/admin/AdminPanel";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "@/pages/not-found";
 // Landing and Login pages
 import LandingPage from "./pages/LandingPage";
