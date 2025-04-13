@@ -1,0 +1,318 @@
+CRYPTOBOT – UNIVERSAL SYSTEM DEPLOYMENT MEGAPROMPT (PHASE 3 FINAL)
+✅ LANGUAGE: English only
+✅ OBJECTIVE: Implement and validate the full system for CryptoBot including 20+ features, onboarding with AI, access code generation, user dashboard, financial tools, and educational flows.
+
+📌 PHASE 1 – HOMEPAGE & UI VALIDATION
+Main Menu Tabs
+
+✅ Home
+
+✅ Dashboard
+
+✅ Portfolio
+
+✅ Favorites
+
+✅ Digital Assets
+
+✅ Risk Watchlist
+
+✅ Wallet Messaging
+
+✅ Tax Simulator
+
+✅ News
+
+✅ Alerts
+
+✅ AI Assistant
+
+✅ Converter
+
+✅ Education
+
+✅ Access Codes
+
+⚠️ Add if missing: Subscription Plans / Live Price Tracker / NFT Explorer
+
+Hero Section
+
+Headline: "Your AI-Powered Crypto Intelligence Platform"
+
+CTA: “Get Started” → triggers onboarding
+
+Visual: Dark theme with animated tickers, trending coins, and CTA buttons
+
+Features Block – At Least 20 Must Include:
+
+AI-powered investment recommendations
+
+Portfolio tracking and performance graphs
+
+Wallet messaging (wallet-to-wallet chat)
+
+Live price alerts
+
+News with sentiment analysis
+
+Tax simulator
+
+Wallet integration (Metamask, Coinbase)
+
+NFT portfolio manager
+
+Universal Access Code system
+
+Multi-payment integration (crypto, Stripe, PayPal)
+
+Market risk radar
+
+Token explorer
+
+Customizable dashboard
+
+Educational modules (Beginner to Pro)
+
+Smart AI queries
+
+Gamified learning
+
+Trading simulator
+
+Converter (crypto to fiat, cross-chain)
+
+Twitter sentiment stream
+
+AI-generated crypto summaries
+
+Real-time graphs + CoinGecko API
+
+📌 PHASE 2 – ONBOARDING FLOW & CODE SYSTEM
+Chatbot (Bottom Right Icon)
+
+Must be visible and functional
+
+Only 1 Chatbot on screen
+
+Connected to Gemini Flash / Vertex AI
+
+Language = English
+
+No “Create Profile” button, onboarding starts from icon
+
+Onboarding Chat Flow – 10 Steps
+
+What’s your name?
+
+What’s your email?
+
+What’s your crypto experience?
+
+(Beginner / Intermediate / Advanced)
+
+What are you most interested in?
+
+(Trading / Investing / NFTs / Education / Market News)
+
+Favorite blockchain or coin?
+
+Are you looking for short-term or long-term strategies?
+
+Do you use a wallet?
+
+Have you done taxes with crypto before?
+
+Would you like investment alerts?
+
+Do you prefer video or text-based learning?
+
+Access Code System
+
+Format: CRYPTO-[CATEGORY]-XXXX
+
+Category options: BEGINNER, TRADER, INVESTOR, NFT, TAXPRO, VIP
+
+Display code after onboarding
+
+QR code and copy button
+
+Send onboarding summary via SendGrid email
+
+📌 PHASE 3 – DASHBOARD IMPLEMENTATION
+Main Tabs in Dashboard
+
+Home
+
+Market Insights
+
+My Portfolio
+
+AI Assistant
+
+Watchlist
+
+News
+
+Converter
+
+Access Code
+
+Alerts
+
+NFT Section
+
+Education
+
+Wallet Messaging
+
+Personalized Dashboard
+
+Based on access code and onboarding
+
+Show user’s level, category, and unlocked features
+
+Graphs and tools unlocked as user progresses
+
+Highlight VIP zones, early access features, and gamified achievements
+
+New Tab: My Journey
+
+Visual tracker of goals, education modules completed, badges unlocked, code used
+
+📌 PHASE 4 – AI SYSTEMS & TOOLS
+Gemini Flash / Vertex AI
+
+Handles market queries
+
+Generates coin summaries
+
+Recommends tokens
+
+Explains complex terms
+
+Compares portfolios
+
+Simulates trades
+
+Detects fraud signals or risk exposure
+
+Translate API
+
+Multi-language support
+
+Default language: English
+
+Option to toggle via footer
+
+📌 PHASE 5 – LIVE DATA + API INTEGRATION
+APIs Connected
+
+✅ CoinGecko
+
+✅ Coinbase or Metamask
+
+✅ NewsAPI
+
+✅ Gemini AI
+
+✅ Stripe
+
+✅ SendGrid
+
+⚠️ Add fallback caching if CoinGecko hits rate limit
+
+Live Tools to Validate
+
+Price alerts
+
+Token info + historical data
+
+News filtering by sentiment
+
+Twitter + Reddit trending streams
+
+Tax report simulation
+
+Wallet status
+
+📌 PHASE 6 – SUBSCRIPTIONS & PAYMENTS
+Access Levels
+
+Free / Trader / Pro / VIP
+
+Subscription Flow
+
+Stripe (credit/debit)
+
+PayPal
+
+Crypto payments (via Coinbase Commerce)
+
+Access code automatically generated post-purchase
+
+QR code appears + sent via email
+
+Dashboard Unlocking
+
+Code category determines what is shown
+
+Example: VIP → Full tools + prediction engine
+
+Beginner → Starter pack + guides
+
+📌 PHASE 7 – ADMIN PANEL
+Route: /admin
+
+Login: admin / admin123456
+
+Dashboard:
+
+See all users
+
+Email, code, preferences
+
+Activity logs
+
+Plan type
+
+Export CSV
+
+API logs + errors
+
+Stripe and PayPal transaction viewer
+
+📌 PHASE 8 – SMART ADDITIONS & INNOVATIONS
+🔍 AI Insights of the Week (in dashboard)
+
+📈 Portfolio Health Score
+
+📩 Weekly email recap with top 3 suggested actions
+
+🔐 Secure messaging wallet-to-wallet
+
+📱 Mobile QR login via unique code
+
+📊 Social token analytics (influencer trends)
+
+✅ FINAL CHECKLIST (MANDATORY)
+ Tabs working in homepage
+
+ Chatbot active, connected to Gemini Flash
+
+ 10 onboarding questions, ends with access code
+
+ Dashboard personalized by code
+
+ Stripe + QR + email working
+
+ All 20+ features listed and functional
+
+ Footer complete
+
+ Mobile OK
+
+ Translate working
+
+ Admin panel active
+
+ Gamified structure visible

@@ -214,16 +214,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API status endpoint for monitoring data sources health
   app.get('/api/system/api-status', async (req, res) => {
     try {
-      // Check CoinGecko API status
-      let coinGeckoStatus = 'unknown';
-      try {
-        const response = await fetch('https://api.coingecko.com/api/v3/ping');
-        coinGeckoStatus = response.ok ? 'online' : 'degraded';
-      } catch (error) {
-        coinGeckoStatus = 'offline';
-        console.error('CoinGecko API health check failed:', error);
-      }
-      
       // Check CoinAPI status
       let coinApiStatus = 'unknown';
       try {
@@ -266,15 +256,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         timestamp: new Date().toISOString(),
         apis: {
-          coinGecko: {
-            status: coinGeckoStatus,
-            provider: 'CoinGecko',
-            description: 'Primary cryptocurrency market data provider'
-          },
           coinApi: {
             status: coinApiStatus,
             provider: 'CoinAPI',
-            description: 'Secondary cryptocurrency market data provider'
+            description: 'Primary cryptocurrency market data provider'
           },
           newsApi: {
             status: newsApiStatus,
@@ -1047,7 +1032,7 @@ Watch for increased volatility around upcoming economic announcements.
     try {
       // Collect API service statuses
       const apiServices = {
-        coingecko: { 
+        coinApi: {
           status: 'operational',
           lastChecked: Date.now()
         },
