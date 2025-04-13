@@ -159,10 +159,24 @@ export async function handleVertexChat(req: Request, res: Response) {
       let formattedHistory = [];
       
       if (history.length > 0) {
-        formattedHistory = history.map(msg => ({
-          role: msg.role === 'user' ? 'user' : 'model',
-          parts: [{ text: msg.content }],
-        }));
+        // Make sure first message is from user to meet Vertex AI requirements
+        if (history[0].role !== 'user') {
+          // Skip the first message if it's not from user to avoid API error
+          formattedHistory = history.slice(1)
+            .filter(msg => msg.role === 'user')
+            .map(msg => ({
+              role: 'user',
+              parts: [{ text: msg.content }],
+            }));
+        } else {
+          // Filter to only include user messages, as Vertex AI has specific requirements
+          formattedHistory = history
+            .filter(msg => msg.role === 'user')
+            .map(msg => ({
+              role: 'user',
+              parts: [{ text: msg.content }],
+            }));
+        }
       }
       
       // Prepare chat session
@@ -211,10 +225,39 @@ export async function handleVertexChat(req: Request, res: Response) {
       });
       
       // Convert our message format to Gemini format
-      const geminiHistory = history.map((msg: Message) => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }],
-      }));
+      // Make sure to properly format for Gemini API requirements
+      let geminiHistory = [];
+      if (history.length > 0) {
+        // Fix similar issue with Gemini - make sure to format correctly
+        if (history[0].role !== 'user') {
+          // Filter to only include valid patterns
+          geminiHistory = [];
+          for (let i = 0; i < history.length; i++) {
+            if (i+1 < history.length && history[i].role === 'user' && history[i+1].role === 'assistant') {
+              geminiHistory.push({
+                role: 'user',
+                parts: [{ text: history[i].content }]
+              });
+              geminiHistory.push({
+                role: 'model',
+                parts: [{ text: history[i+1].content }]
+              });
+            }
+          }
+        } else {
+          let validHistory = [];
+          for (let i = 0; i < history.length; i += 2) {
+            if (i+1 < history.length) {
+              validHistory.push(history[i]);
+              validHistory.push(history[i+1]);
+            }
+          }
+          geminiHistory = validHistory.map((msg: Message) => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }],
+          }));
+        }
+      }
 
       // Create chat session
       const chat = geminiModel.startChat({
