@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star as StarIcon } from "lucide-react";
+import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star as StarIcon, Mail, MapPin, Phone } from "lucide-react";
 
 // Create a custom StarHalfIcon component since it's not available in lucide-react
 const StarHalfIcon = () => (
@@ -221,32 +221,86 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 overflow-hidden bg-black">
-        <div className="absolute inset-0 z-0 bg-gradient-to-r from-primary/10 to-primary/5">
-          {/* Background pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iLjUiPjxwYXRoIGQ9Ik0zNiAxOGMxLjIyOCAwIDIuNDQuMDQgMy42LjEyIDEuMTU0LjA3NSAyLjI5OC4xODYgMy40Mi4zMzIgMS4xMi4xNDUgMi4yMjYuMzI0IDMuMzE0LjUzOCAxLjA5LjIxIDIuMTYuNDUgMy4yMDQuNzJsLTEuNTU2IDQuNTU1Yy0uOTg0LS4zNDUtMi0uNjU3LTMuMDQ4LS45MzQtMS4wNDQtLjI4LTIuMTEyLS41Mi0zLjIwNC0uNzI2LTEuMDkzLS4yMDMtMi4yLS4zNjUtMy4zMjQtLjQ4NS0xLjEyNS0uMTItMi4yNi0uMTgtMy40MDgtLjE4LTEuMTQ2IDAtMi4yOC4wNi0zLjQwNC4xOC0xLjEyNi4xMi0yLjIzLjI4Mi0zLjMxOC40ODUtMS4wODguMjA3LTIuMTUzLjQ0Ny0zLjE5Ny43MjYtMS4wNDYuMjc3LTIuMDU4LjU5LTMuMDM2LjkzNEwxMC40IDE4Ljk5Yy41LS4xMzMgMS4wMTMtLjI2IDEuNTQtLjM4LjUyNy0uMTIgMS4wNi0uMjMzIDEuNi0uMzQuNTMzLS4xMDcgMS4wNzYtLjIwNCAxLjYyOC0uMjkuNTUzLS4wODcgMS4xMS0uMTY3IDEuNjc2LS4yNC41NjQtLjA3MyAxLjEzMi0uMTM3IDEuNzA0LS4xOS41Ny0uMDU0IDEuMTQ2LS4xIDEuNzI0LS4xNC41OC0uMDQgMS4xNjMtLjA3IDEuNzUyLS4wOS41ODgtLjAyIDEuMTgtLjAzIDEuNzc2LS4wM3oiLz48cGF0aCBkPSJNNiAzNnYtNy42NDRsLTQgMi40ODh2LTEyTDI0IDE1LjJ2LTEuNzc4Yy0xLjA5My4wNjQtMi4xNzQuMTYyLTMuMjQzLjI5NS0xLjA2NS4xMzMtMi4xMTIuMjktMy4xMzcuNDc1LTEuMDI2LjE4NC0yLjAzMi4zOTUtMy4wMi42MzMtLjk5LjIzNy0xLjk1OC41LTIuOTA0Ljc5TC0uMDQgMTQuMDdDLjQ0OCAxMy4xNzQgMS4wMTIgMTIuMyAxLjY1IDExLjQ1Yy42NC0uODUgMS4zNS0xLjY3NCAyLjEzNi0yLjQ3LjY4NC0uNjk0IDEuNDEtMS4zNTYgMi4xOC0xLjk4Ni43Ny0uNjMgMS41ODMtMS4yMjYgMi40NC0xLjc4NS44Ni0uNTYgMS43Ni0xLjA4IDIuNy0xLjU2czEuOTI0LS45MDggMi45NS0xLjI4YzEuMDI2LS4zNzMgMi4wOS0uNyAzLjE5LTEgMS4xLS4yNzIgMi4yMy0uNTA1IDMuMzktLjY5NiAxLjE2LS4xOTIgMi4zNS0uMzQ0IDMuNTYtLjQ1NmwxLjQ5LTQuMDMyQzI0LjUuMzQyIDIzLjMxLjIgMjIuMTI0LjA5NyAyMC45MzYtLjAwNyAxOS43MjMtLjA2IDE4LjQ5My0uMDZjLTEuMjMgMC0yLjQ0Mi4wNTUtMy42MzQuMTY1LTEuMTkuMTEtMi4zNjIuMjY3LTMuNTEzLjQ3Mi0xLjE1LjIwNS0yLjI3OC40NTQtMy4zODMuNzQ2LTEuMTA1LjI5Mi0yLjE4NC42Mi0zLjIzMyAxLjA0LS45NzcuMzgtMS45MjIuNzktMi44MyAxLjIzNC0uOTEzLjQ0LTEuODA1LjkyLTIuNjcgMS40My0uODY4LjUxLTEuNzA3IDEuMDQzLTIuNTIgMS42MXYyLjc0TC0uMDYgNi43MnYxMkw2IDE1LjY4NFYzNnptNDYuODU1LTI0LjM1NGwuMDY1LS4wMkM1NC42MTUgMTEuMDk1IDU2LjMgMTAuNjEgNTggMTAuMTVWOC41OTZjLS4yLjA0LS40MDMuMDgtLjYwNy4xMTgtLjIwNS4wNC0uNDEuMDgtLjYxNS4xMTctLjIwNi4wMzctLjQxLjA3NS0uNjE2LjExMy0uMjA1LjA0LS40MS4wNzUtLjYxNS4xMTNDNDQuODMyIDExLjcxNCAzNSAxNi40MyAzNSAyNHYxMS42ODRsNCAxLjFWMjRjMC0zLjQ4MiA1LjU5Mi03LjA4IDE1LjM4Ni05Ljc3OGwtLjA1Ny4wMjItMS40NzQuNTl2LjAxeiIvPjxwYXRoIGQ9Ik00OS44NCAyNy45MjVDNTEuMDcgMjguODcgNTIuNDggMjkuNjkzIDU0IDMwLjM5djEuMDFjLTEuOTItLjgyLTMuNzMtMS44Mi01LjM5LTNsMS4yMy0uNDc1ek0xMCAyOS4wNXYtLjQ3NWMwLS4wMjIuMDAzLS4wNDMuMDA5LS4wNjMuMDA1LS4wMi4wMTMtLjA0LjAyNC0uMDU1LjAxLS4wMTYuMDIzLS4wMy4wMzgtLjA0LjAxNC0uMDEuMDMtLjAxNi4wNDgtLjAxOGw1LjUyLTEuNDRjLjAyLS4wMDUuMDQtLjAwNS4wNi0uMDAyLjAyLjAwNC4wMzkuMDEyLjA1NC4wMjQuMDE2LjAxLjAzLjAyNC4wNC4wNC4wMS4wMTUuMDE1LjAzMi4wMTcuMDVWMjh2LjY4NmwtNS44MDkgMS41MlYyOS4wNXptMzMuODMtMTMuMzljLjEzOC4zMzQuMjY4LjY3Mi4zOTIgMS4wMTUuMTIzLjM0My4yNCAxLjE5LjM0OCAxLjU0OC4yNS44My40OTIgMS42OC43MTggMi41NDguMTUzLjU5Ni4yOSAxLjE5Ny40MDIgMS44LjExMi42MDMuMjA5IDEuMjEuMjg4IDEuODE4LjA3OS42MS4xNDMgMS4yMi4xODkgMS44MjguMDQ2LjYxLjA3NyAxLjIxMi4wOTMgMS44MDguMDE1LjU5Ni4wMTUgMS4xODMgMCAxLjc1OC0uMDE2LjU3Ni0uMDQ3IDEuMTQtLjA5NSAxLjY5LS4wNDcuNTUtLjExIDEuMDg4LS4xODggMS42MS0uMDguNTIzLS4xNzMgMS4wMy0uMjg3IDEuNTItLjExNC40OS0uMjQ2Ljk2NC0uMzk2IDEuNDIyLS4xNS40NTgtLjMxNy45LS40OTggMS4zMy0uMTguNDI3LS4zNzcuODM3LS41ODYgMS4yMzItLjIxLjM5NS0uNDM3Ljc3LS42NzggMS4xNC0uMjQuMzY3LS40OTUuNzItLjc2IDEuMDU1LS4yNjcuMzM2LS41NDQuNjU1LS44My45NkwzOC45NiA0Mi42Mzd6bS0zMi41Ni03Ljc5bC0uMDEzLS4wMDRDOS42NCA2Ljg3NCA4LjA4NyA2LjEyNCA2LjUgNS40NTVWNy4xMWwuMjQ4LjEzLjI1Ni4xMzUuMjYuMTM4YzEyLjQzMyA2LjY1IDE3LjczNiAxMi40MyAxNi4yNCAxOC41bC0yLjY2NC0uNzM0Yy42NzctMi40NTMtMS41ODgtNi40OS04LjU3LTExLjI1ek01MCA2LjY3di0uNDQ0bC0xLjcyLjY5TDYgMjAuNTcydjIuNDUybDQyLTE2Ljh2MS4yMDVsLTIgLjc0N1Y2LjY3em0tMTUgMzcuNjU4bC4wMi4wMDMuMzA4LjA3LjMuMDY4LjI5OC4wNjZjLS4wMjYtLjAwNS0uMDU1LS4wMS0uMDg0LS4wMTYtLjA3LS4wMTQtLjE0LS4wMjgtLjIxMy0uMDQzLS4xNDMtLjAzLS4yODgtLjA2LS40MzMtLjA5MmwtLjcxNS0uMTU0IDIuNjg4LjczLS4wMi0uMDA0YzMuMzkuNzMgNi44NjcgMS4zNjcgMTAuMzc3IDEuOTA1LjQzOC4wNzUuODUuMTcyIDEuMjUuMjk1bC0uMDI4LS4wMDYtLjU4OC4xMzItLjU4LjEzLS41NzcuMTMtLjU3Ni4xMy0uNTcuMTI3LS41NjguMTI3LS41NjIuMTI3LS41Ni4xMjUtLjU1LjEyMy0uNTQ2LjEyMi0uNTQyLjEyLS41MzQuMTItLjUzLjEyLS41MjYuMTE2LS41MTguMTE2LS41MS4xMTQtLjQ5OC4xMTItLjQ5LjExLS40NzguMTA4LS40Ny4xMDUtLjQ2LjEwMy0uNDUyLjEtLjQ0LjEtLjQzLjA5Ni0uNDIuMDk1LS40MS4wOS0uNC4wOXoiLz48cGF0aCBkPSJNNS45NzYgNC43QzUuNjUgNC41MyA1LjMyIDQuMzYgNC45ODggNC4yYy0uMzM1LS4xNi0uNjc0LS4zMS0xLjAxNi0uNDUtLjM0Mi0uMTQtLjY4OC0uMjctMS4wMzUtLjM5LS4zNDgtLjEyLS43LS4yMy0xLjA1LS4zM2wtMS41IDMuOTFhMTEuNDMgMTEuNDMgMCAwMTEuMjU0LjM1Yy40MTguMTM1LjgyLjI4NSAxLjIwNi40NS4zODYuMTY2Ljc2LjM0MyAxLjExOC41MzMuMzYuMTkuNy4zOSAxLjAzLjU5OC4zMy4yMS42NDMuNDMuOTM4LjY2LjI5Ni4yMjguNTc0LjQ2OC44MzQuNzE4LjI2LjI1LjUuNTEuNzIuNzgyLjIyMy4yNy40MjguNTUuNjE1LjgzOC4xODYuMjg4LjM1NS41ODQuNTA2Ljg5LjE1LjMwNS4yOC42MTguMzkzLjkzNGw0LjM0OC0xLjYyYy0uMTg3LS4zOTQtLjM5LS43ODMtLjYwNi0xLjE2Ny0uMjE4LS4zODItLjQ1LS43NTMtLjY5NC0xLjExLS4yNDUtLjM1OC0uNTAzLS43MDItLjc3Mi0xLjAzNS0uMjctLjMzLS41NTUtLjY1LS44NTMtLjk1NWwyLjA1NS0uNjljMS40ODQgMi4yNTMgMi41NzIgNC42NzMgMy4yNDUgNy4yMmwtMy41NjcgMS44NjJjLS42MzctMi43NTQtMS43ODctNS4zMS0zLjQzLTcuNjIzeiIvPjwvZz48L2c+PC9zdmc+')]"></div>
+        {/* Dynamic background with gradients and animated particles */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5"></div>
+          
+          {/* Crypto-themed background elements */}
+          <div className="absolute top-1/4 right-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/3 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-10 left-1/3 w-24 h-24 bg-primary/20 rounded-full blur-xl"></div>
+          
+          {/* Bitcoin symbol styled element */}
+          <div className="absolute bottom-20 right-[10%] text-primary/10 hidden md:block">
+            <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.5 11.5V7.5C11.5 6.39543 12.3954 5.5 13.5 5.5H15.5C16.6046 5.5 17.5 6.39543 17.5 7.5C17.5 8.60457 16.6046 9.5 15.5 9.5H17.5C18.6046 9.5 19.5 10.3954 19.5 11.5C19.5 12.6046 18.6046 13.5 17.5 13.5H15.5H13.5M11.5 11.5H8.5M11.5 11.5V15.5C11.5 16.6046 10.6046 17.5 9.5 17.5H7.5C6.39543 17.5 5.5 16.6046 5.5 15.5C5.5 14.3954 6.39543 13.5 7.5 13.5H5.5C4.39543 13.5 3.5 12.6046 3.5 11.5C3.5 10.3954 4.39543 9.5 5.5 9.5H7.5H9.5M8.5 5.5V8.5M8.5 14.5V17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          
+          {/* ETH symbol styled element */}
+          <div className="absolute top-1/4 left-[15%] text-primary/10 hidden md:block">
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 11.0001L12 13.0001L20 11.0001M4 11.0001L12 19.0001M4 11.0001L12 2.00006L20 11.0001M20 11.0001L12 19.0001" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
-              Artificial Intelligence for Your Crypto Investments
-            </h1>
-            <p className="text-xl mb-8 text-gray-300">
-              A comprehensive AI-powered platform to analyze, manage, and optimize your cryptocurrency investments.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/login">
-                <Button size="lg" className="gap-2">
-                  Get Started <ArrowRight size={16} />
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
-                  Explore
-                </Button>
-              </Link>
+          <div className="flex flex-col lg:flex-row items-center justify-between">
+            <div className="max-w-3xl mb-10 lg:mb-0">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
+                Artificial Intelligence for Your Crypto Investments
+              </h1>
+              <p className="text-xl mb-8 text-gray-300">
+                A comprehensive AI-powered platform to analyze, manage, and optimize your cryptocurrency investments.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link href="/login">
+                  <Button size="lg" className="gap-2 bg-indigo-600 hover:bg-indigo-700">
+                    Get Started <ArrowRight size={16} />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
+                    Explore
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            
+            {/* Animated 3D Crypto dashboard mockup */}
+            <div className="lg:w-1/2 relative hidden lg:block">
+              <div className="relative bg-card/20 border border-primary/20 backdrop-blur-lg rounded-xl shadow-2xl p-4 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  <div className="text-xs text-white/60">CryptoBot Dashboard</div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <div className="bg-black/50 p-2 rounded-lg">
+                    <div className="text-xs text-gray-400">Bitcoin</div>
+                    <div className="text-sm text-white font-bold">$61,245.78</div>
+                    <div className="text-xs text-green-500">+3.45%</div>
+                  </div>
+                  <div className="bg-black/50 p-2 rounded-lg">
+                    <div className="text-xs text-gray-400">Ethereum</div>
+                    <div className="text-sm text-white font-bold">$3,125.42</div>
+                    <div className="text-xs text-red-500">-1.23%</div>
+                  </div>
+                </div>
+                <div className="h-20 bg-black/50 rounded-lg mb-4 flex items-center justify-center">
+                  <div className="text-primary text-xs">AI-Generated Price Chart</div>
+                </div>
+                <div className="bg-black/50 p-2 rounded-lg">
+                  <div className="flex items-center gap-2 text-xs text-white/80">
+                    <MessageCircle size={12} className="text-primary" />
+                    <span>AI Assistant: How can I help with your investments today?</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -603,40 +657,50 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* About / Mission Section */}
-      <section id="mission" className="py-20 bg-black/90">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6 text-white">Our Mission</h2>
-            <p className="text-lg mb-8 text-gray-300">
-              CryptoBot was created with the goal of democratizing access to high-quality financial analysis for cryptocurrency investors. We combine advanced artificial intelligence with real-time market data to deliver insights and personalized recommendations that were previously only available to institutional investors.
-            </p>
-            <div className="flex justify-center">
-              <Link href="/login">
-                <Button size="lg" className="gap-2 bg-white text-primary hover:bg-white/90">
-                  Chat with Assistant <MessageCircle size={16} />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Removed Mission Section - following user request */}
 
       {/* Call to Action Section */}
-      <section className="py-16 bg-primary/10">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Optimize Your Investments?</h2>
-          <p className="text-lg mb-8 text-muted-foreground max-w-2xl mx-auto">
+      <section className="py-16 bg-gradient-to-r from-violet-950/90 to-indigo-900/90 relative overflow-hidden">
+        {/* Dynamic background elements */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-violet-600/20 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-4xl font-bold mb-6 text-white">Ready to Optimize Your Investments?</h2>
+          <p className="text-lg mb-8 text-gray-300 max-w-2xl mx-auto">
             Join thousands of investors who are already harnessing the power of artificial intelligence to improve their strategies.
           </p>
+          
+          {/* Statistics counters */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 max-w-4xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+              <div className="text-3xl font-bold text-white">25k+</div>
+              <div className="text-gray-300 text-sm">Active Users</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+              <div className="text-3xl font-bold text-white">$1.8B+</div>
+              <div className="text-gray-300 text-sm">Assets Tracked</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+              <div className="text-3xl font-bold text-white">42M+</div>
+              <div className="text-gray-300 text-sm">AI Predictions</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+              <div className="text-3xl font-bold text-white">18%</div>
+              <div className="text-gray-300 text-sm">Avg. ROI Increase</div>
+            </div>
+          </div>
+          
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/login">
-              <Button size="lg" className="gap-2">
+              <Button size="lg" className="gap-2 bg-indigo-600 hover:bg-indigo-700">
                 Get Started Now <ArrowRight size={16} />
               </Button>
             </Link>
             <Link href="/login">
-              <Button variant="outline" size="lg" className="gap-2">
+              <Button variant="outline" size="lg" className="gap-2 text-white border-white hover:bg-white/10">
                 Explore Platform <ChevronRight size={16} />
               </Button>
             </Link>
@@ -645,23 +709,100 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-border bg-black text-white">
+      <footer className="py-12 bg-black text-white">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <div className="bg-primary/20 text-primary rounded-full w-8 h-8 flex items-center justify-center">
-                <MessageCircle size={16} />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+            {/* Logo and about */}
+            <div className="md:col-span-1">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="bg-primary/20 text-primary rounded-full w-10 h-10 flex items-center justify-center">
+                  <MessageCircle size={20} />
+                </div>
+                <span className="font-bold text-xl">CryptoBot</span>
               </div>
-              <span className="font-bold">CryptoBot</span>
+              <p className="text-gray-400 text-sm mb-4">
+                Using advanced AI to transform how you research, analyze, and manage your crypto investments.
+              </p>
+              <div className="flex gap-4">
+                <a href="#" className="text-gray-400 hover:text-primary transition-colors">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-primary transition-colors">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-primary transition-colors">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-4.466 19.59c-.405.078-.534-.171-.534-.384v-2.195c0-.747-.262-1.233-.55-1.481 1.782-.198 3.654-.875 3.654-3.947 0-.874-.312-1.588-.823-2.147.082-.202.356-1.016-.079-2.117 0 0-.671-.215-2.198.82-.64-.18-1.324-.267-2.004-.271-.68.003-1.364.091-2.003.269-1.528-1.035-2.2-.82-2.2-.82-.434 1.102-.16 1.915-.077 2.118-.512.56-.824 1.273-.824 2.147 0 3.064 1.867 3.751 3.645 3.954-.229.2-.436.552-.508 1.07-.457.204-1.614.557-2.328-.666 0 0-.423-.768-1.227-.825 0 0-.78-.01-.055.487 0 0 .525.246.889 1.17 0 0 .463 1.428 2.688.944v1.489c0 .211-.129.459-.528.385-3.18-1.057-5.472-4.056-5.472-7.59 0-4.419 3.582-8 8-8s8 3.581 8 8c0 3.533-2.289 6.531-5.466 7.59z"></path></svg>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-primary transition-colors">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+                </a>
+              </div>
             </div>
-            <div className="flex gap-6 text-sm text-gray-400">
-              <a href="#" className="hover:text-white transition-colors">Terms</a>
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
-              <span>© 2025 CryptoBot AI. All rights reserved.</span>
+            
+            {/* Quick links */}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">Features</a></li>
+                <li><a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#testimonials" className="text-gray-400 hover:text-white transition-colors">Testimonials</a></li>
+                <li><a href="/login" className="text-gray-400 hover:text-white transition-colors">Dashboard</a></li>
+              </ul>
+            </div>
+            
+            {/* Resources */}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Resources</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">API</a></li>
+              </ul>
+            </div>
+            
+            {/* Contact */}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Contact</h3>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2">
+                  <Mail className="h-5 w-5 text-primary mt-0.5" />
+                  <span className="text-gray-400">support@cryptobot.ai</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                  <span className="text-gray-400">123 Blockchain Blvd, San Francisco, CA</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Phone className="h-5 w-5 text-primary mt-0.5" />
+                  <span className="text-gray-400">+1 (555) 123-4567</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          {/* Divider */}
+          <div className="border-t border-gray-800 pt-8 mt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-400 text-sm mb-4 md:mb-0">© 2025 CryptoBot AI. All rights reserved.</p>
+              <div className="flex gap-6 text-sm text-gray-400">
+                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+              </div>
             </div>
           </div>
         </div>
       </footer>
+      
+      {/* Floating Chat Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Link href="/login">
+          <Button className="w-16 h-16 rounded-full p-0 shadow-lg bg-indigo-600 hover:bg-indigo-700">
+            <MessageCircle size={24} />
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
