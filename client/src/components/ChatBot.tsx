@@ -90,7 +90,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
       role: 'assistant',
       content: 'Hi there! I\'m CryptoBot, your AI assistant for all things cryptocurrency. How can I help you today?',
       timestamp: new Date(),
-      model: 'gemini-pro'
+      model: 'gemini-1.5-pro'
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -143,14 +143,14 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         role: 'assistant',
         content: "Hi there! Welcome to CryptoBot. I'm your AI Assistant. Let's personalize your experience.",
         timestamp: new Date(),
-        model: 'gemini-pro'
+        model: 'gemini-1.5-pro'
       },
       {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: leadCaptureFields[0].question,
         timestamp: new Date(),
-        model: 'gemini-pro'
+        model: 'gemini-1.5-pro'
       }
     ]);
   };
@@ -193,7 +193,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: personalizedQuestion,
           timestamp: new Date(),
-          model: 'gemini-pro'
+          model: 'gemini-1.5-pro'
         }]);
         
         setIsProcessing(false);
@@ -207,7 +207,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: `Thanks, ${updatedLeadData.name}! Now let's personalize your crypto experience with a few more questions. For the following questions, you can select multiple options where applicable.`,
           timestamp: new Date(),
-          model: 'gemini-pro'
+          model: 'gemini-1.5-pro'
         }]);
         
         // Display first question with multiple choice options
@@ -217,7 +217,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: questionContent,
           timestamp: new Date(),
-          model: 'gemini-pro'
+          model: 'gemini-1.5-pro'
         }]);
         
         setIsProcessing(false);
@@ -248,7 +248,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: questionContent,
           timestamp: new Date(),
-          model: 'gemini-pro'
+          model: 'gemini-1.5-pro'
         }]);
         
         setIsProcessing(false);
@@ -262,7 +262,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           role: 'assistant',
           content: `Your personalized CryptoAI profile is ready.`,
           timestamp: new Date(),
-          model: 'gemini-pro'
+          model: 'gemini-1.5-pro'
         }]);
         
         // Add login button as a separate message
@@ -272,7 +272,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
             role: 'assistant',
             content: 'Login to Dashboard',
             timestamp: new Date(),
-            model: 'gemini-pro'
+            model: 'gemini-1.5-pro'
           }]);
         }, 1000);
         
@@ -339,7 +339,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
             role: 'assistant',
             content: data.response,
             timestamp: new Date(),
-            model: 'gemini-pro'
+            model: 'gemini-1.5-pro'
           } : msg
         )
       );
