@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, ChevronDown, ChevronUp, Send, X, Mic, Image, Sparkles, Paperclip, Loader2 } from 'lucide-react';
+import { MessageCircle, ChevronDown, ChevronUp, Send, X, Mic, Image, Sparkles, Paperclip, Loader2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLocation } from 'wouter';
 
 interface Message {
   id: string;
@@ -16,6 +17,30 @@ interface Message {
   processing?: boolean;
   images?: string[];
 }
+
+// Define the onboarding questions as specified in the requirements
+const onboardingQuestions = [
+  "What's your experience level with cryptocurrencies?",
+  "Are you currently holding any crypto assets?",
+  "Which platforms or wallets do you use most? (e.g., Binance, Coinbase, Metamask)",
+  "Are you more interested in long-term holding or short-term trading?",
+  "How often do you trade?",
+  "What type of tokens do you prefer? (Layer 1, DeFi, NFTs, Stablecoins, Meme coins)",
+  "Are you interested in learning about technical analysis?",
+  "Do you want AI alerts for market dips or surges?",
+  "Would you like to connect your portfolio for live tracking?",
+  "What is your monthly investment budget (if any)?",
+  "Are you interested in DeFi protocols and yield farming?",
+  "Have you ever minted or traded NFTs?",
+  "Do you follow news on regulations or crypto laws?",
+  "Are you concerned about volatility or risk?",
+  "Do you prefer mobile or desktop dashboards?",
+  "Would you like daily, weekly or real-time crypto summaries?",
+  "What languages would you like support in?",
+  "Are you interested in AI trading bots or signals?",
+  "Do you need educational resources or tutorials?",
+  "Would you like to receive updates on pre-sales or new token launches?"
+];
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,6 +58,10 @@ export default function ChatBot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [selectedTab, setSelectedTab] = useState('chat');
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isOnboarding, setIsOnboarding] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [onboardingAnswers, setOnboardingAnswers] = useState<string[]>([]);
+  const [, setLocation] = useLocation();
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -40,6 +69,32 @@ export default function ChatBot() {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isExpanded]);
+  
+  // Function to start the onboarding process
+  const startOnboarding = () => {
+    setIsOnboarding(true);
+    setIsOpen(true);
+    setIsExpanded(true);
+    setSelectedTab('chat');
+    setCurrentQuestionIndex(0);
+    setOnboardingAnswers([]);
+    setMessages([
+      {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: "Welcome to CryptoBot! Let's set up your crypto profile to provide you with personalized insights and recommendations. I'll ask you a series of questions to understand your preferences and goals.",
+        timestamp: new Date(),
+        model: 'gemini-pro'
+      },
+      {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: onboardingQuestions[0],
+        timestamp: new Date(),
+        model: 'gemini-pro'
+      }
+    ]);
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -166,6 +221,7 @@ export default function ChatBot() {
         <Button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg z-50 bg-indigo-600 hover:bg-indigo-700 p-0"
+          data-chat-toggle="true"
         >
           <MessageCircle size={24} />
         </Button>

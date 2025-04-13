@@ -261,9 +261,24 @@ export default function LandingPage() {
                     Get Started <ArrowRight size={16} />
                   </Button>
                 </Link>
-                <Link href="/login">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="text-white border-white hover:bg-white/10 gap-2"
+                  onClick={() => {
+                    // This would trigger the chatbot to open with the onboarding questionnaire
+                    // For now, just open the chatbot
+                    const chatButton = document.querySelector('[data-chat-toggle]');
+                    if (chatButton) {
+                      (chatButton as HTMLButtonElement).click();
+                    }
+                  }}
+                >
+                  Set Up My Crypto Profile <Sparkles size={16} />
+                </Button>
+                <Link href="/explore">
                   <Button variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
-                    Explore
+                    Explore Tools
                   </Button>
                 </Link>
               </div>
