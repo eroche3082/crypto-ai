@@ -1,0 +1,126 @@
+MEGAPROMPT – FRONTEND + CHATBOT SYSTEM – CRYPTOAI
+INSTRUCTIONS FOR CRYPTOAI AGENT TEAM
+This prompt serves as the definitive guide to finalize the front-facing user experience and chatbot onboarding flow for CryptoAI. Do not make any frontend layout changes unless specifically instructed below.
+
+SECTION 1: FRONTEND STRUCTURE REQUIREMENTS
+KEEP EXISTING APPROVED DESIGN
+
+The current frontend layout, typography, spacing, button positions, color scheme, and overall theme have been approved and must not be modified.
+
+No auto-generated UI adjustments or replacements unless explicitly ordered.
+
+ACTIVE LINKS VERIFICATION
+
+All navbar buttons must be checked and confirmed to be functional:
+
+Home
+
+Features
+
+Pricing
+
+Testimonials
+
+About
+
+Get Started (should lead to login system)
+
+Login (must open access to the pre-approved dashboard)
+
+CHATBOT LOCATION
+
+Only ONE chatbot icon should appear on the page, located at the bottom-right corner.
+
+Remove any extra "Setup My Profile" or "Chat" elements on the page. All interactions must go through this icon.
+
+REMOVE/REPLACE BUTTONS
+
+Remove any secondary call-to-action buttons like "Create Profile" or “Setup Wizard” if not part of the chatbot.
+
+The chatbot icon is the sole entry point for onboarding.
+
+SECTION 2: CHATBOT ONBOARDING FLOW
+INITIAL FLOW STRUCTURE
+
+When the user clicks the chatbot icon:
+
+Step 1: Ask “What’s your name?”
+
+Step 2: Ask “What’s your email address?”
+
+These values are saved into the lead database linked to the admin panel.
+
+QUESTIONS 3–12 (MULTIPLE CHOICE FORMAT)
+All questions below should use checkboxes or buttons with options the user can select. Example: MultipleOptionSelection component.
+
+Question	Options
+What is your current crypto experience level? | Beginner, Intermediate, Expert |
+
+What type of investor are you? | Day Trader, HODLer, DeFi, NFT Collector, Long-Term Analyst |
+
+Which coins are you most interested in? | BTC, ETH, SOL, ADA, MATIC, XRP, Other |
+
+How much do you currently invest monthly? | <$100, $100–$500, $500–$1000, $1000+ |
+
+What platforms do you use? | Binance, Coinbase, Kraken, MetaMask, Other |
+
+What kind of insights are you seeking? | Market Predictions, Portfolio Analytics, Alerts, Learning |
+
+Do you want real-time alerts? | Yes (SMS), Yes (Email), No |
+
+What is your risk tolerance? | Low, Moderate, High |
+
+Are you interested in NFTs or token projects? | NFTs Only, Tokens Only, Both, Not Interested |
+
+What timezone do you trade in? | [Auto-detect or let user choose from dropdown]
+
+FINAL STEP AFTER QUESTIONS
+
+Show: “Your personalized CryptoAI profile is ready.”
+
+Button: Login to Dashboard → redirects user to Login route (no signup form needed).
+
+After login, open pre-approved CryptoBot Dashboard and inject the user’s selections into a new "AI Dashboard" tab on the left panel.
+
+This tab will show:
+
+Summary of all 10 answers
+
+Personalized recommendations
+
+Top coin suggestions
+
+Market alerts setup options
+
+SECTION 3: BACKEND/DASHBOARD CONNECTIONS
+Do NOT create a new dashboard layout.
+
+Simply append the “Personalized AI Dashboard” tab into the already built backend structure.
+
+Connect all responses to the Gemini API / Firebase backend for persistent storage and personalization logic.
+
+SECTION 4: VERIFICATION & REPORT
+The following must be submitted after implementation:
+
+A Functionality Report with:
+
+✅ Working buttons in navbar
+
+✅ Chatbot icon properly placed and activated
+
+✅ 10-question flow fully working with data capture
+
+✅ Dashboard personalized tab created and functional
+
+✅ All links (footer and top menu) working
+
+✅ Gemini AI integration enabled
+
+A list of:
+
+All functions implemented
+
+Functions that are still pending
+
+Suggested enhancements (if any)
+

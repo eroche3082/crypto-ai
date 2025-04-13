@@ -27,43 +27,53 @@ const leadCaptureFields = [
 // Define the onboarding questions exactly as specified in MEGAPROMPT (10 questions)
 const onboardingQuestions = [
   {
-    question: "What are your goals in crypto?",
-    options: ["Long-term investment", "Day trading", "Learning about blockchain", "DeFi and staking", "NFTs and collectibles", "Launching a token or project"],
-    multiSelect: true
-  },
-  {
-    question: "How much experience do you have with crypto?",
-    options: ["I'm completely new", "I've dabbled a bit", "I use exchanges regularly", "I've been investing/trading for years"],
+    question: "What is your current crypto experience level?",
+    options: ["Beginner", "Intermediate", "Expert"],
     multiSelect: false
   },
   {
-    question: "What types of crypto assets interest you?",
-    options: ["Bitcoin & Ethereum", "Altcoins", "Stablecoins", "NFTs", "Governance tokens", "Meme coins"],
+    question: "What type of investor are you?",
+    options: ["Day Trader", "HODLer", "DeFi", "NFT Collector", "Long-Term Analyst"],
     multiSelect: true
   },
   {
-    question: "Do you currently use any of these platforms?",
-    options: ["Coinbase", "Binance", "MetaMask", "Kraken", "Uniswap", "Ledger/Hardware Wallet"],
+    question: "Which coins are you most interested in?",
+    options: ["BTC", "ETH", "SOL", "ADA", "MATIC", "XRP", "Other"],
     multiSelect: true
   },
   {
-    question: "How do you prefer to learn about crypto?",
-    options: ["Articles & newsletters", "Videos", "Live charts", "Simulators or practice tools", "AI-curated insights"],
+    question: "How much do you currently invest monthly?",
+    options: ["<$100", "$100–$500", "$500–$1000", "$1000+"],
+    multiSelect: false
+  },
+  {
+    question: "What platforms do you use?",
+    options: ["Binance", "Coinbase", "Kraken", "MetaMask", "Other"],
     multiSelect: true
   },
   {
-    question: "Are you interested in AI-generated predictions?",
-    options: ["Yes, I want AI suggestions", "I prefer making my own analysis", "I'd like to compare both"],
+    question: "What kind of insights are you seeking?",
+    options: ["Market Predictions", "Portfolio Analytics", "Alerts", "Learning"],
+    multiSelect: true
+  },
+  {
+    question: "Do you want real-time alerts?",
+    options: ["Yes (SMS)", "Yes (Email)", "No"],
     multiSelect: false
   },
   {
     question: "What is your risk tolerance?",
-    options: ["Low (stablecoins, staking)", "Moderate (blue-chip assets)", "High (volatile or new projects)", "Mixed (depends on strategy)"],
+    options: ["Low", "Moderate", "High"],
     multiSelect: false
   },
   {
-    question: "Do you want to receive alerts or updates by email?",
-    options: ["Yes, daily market alerts", "Weekly recaps only", "No notifications"],
+    question: "Are you interested in NFTs or token projects?",
+    options: ["NFTs Only", "Tokens Only", "Both", "Not Interested"],
+    multiSelect: false
+  },
+  {
+    question: "What timezone do you trade in?",
+    options: ["UTC-12 to UTC-8 (Pacific)", "UTC-7 to UTC-5 (Americas)", "UTC-4 to UTC-0 (Eastern Americas/Western Europe)", "UTC+1 to UTC+3 (Europe/Africa)", "UTC+4 to UTC+6 (Middle East/Central Asia)", "UTC+7 to UTC+9 (Asia)", "UTC+10 to UTC+14 (Australia/Pacific)"],
     multiSelect: false
   }
 ];
@@ -250,7 +260,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'assistant',
-          content: `Thanks, ${leadCaptureData.name}! Your CryptoAI dashboard is now being customized. Please log in to access your personalized crypto experience.`,
+          content: `Your personalized CryptoAI profile is ready.`,
           timestamp: new Date(),
           model: 'gemini-pro'
         }]);
@@ -260,7 +270,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           setMessages(prev => [...prev, {
             id: (Date.now() + 1).toString(),
             role: 'assistant',
-            content: 'Click below to access your dashboard',
+            content: 'Login to Dashboard',
             timestamp: new Date(),
             model: 'gemini-pro'
           }]);
