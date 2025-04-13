@@ -104,12 +104,16 @@ export default function ChatBot() {
       console.error('Error getting AI response:', error);
       
       // Update the temporary message to show error
+      const errorMessage = error.response?.data?.error || 'Sorry, I encountered an error. Please try again.';
+      const errorDetails = error.response?.data?.details || '';
+      const displayError = errorDetails ? `${errorMessage}: ${errorDetails}` : errorMessage;
+      
       setMessages(prev => 
         prev.map(msg => 
           msg.id === tempId ? {
             id: Date.now().toString(),
             role: 'assistant',
-            content: 'Sorry, I encountered an error. Please try again.',
+            content: displayError,
             timestamp: new Date(),
             model: 'error'
           } : msg

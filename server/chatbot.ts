@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import { GoogleGenerativeAI, GenerativeModel, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
 // Initialize the Google Generative AI
-// Since VITE prefixed env variables are for the client, we need to access it directly
-// This is a special case for development where server code can access client env vars
-const apiKey = process.env.VITE_GEMINI_API_KEY || '';
+// For server-side code, we can access the VITE env variable directly because of how Replit configures environment
+// In a production environment, this would need a proper backend API key
+const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
 if (!apiKey) {
-  console.error('Error: VITE_GEMINI_API_KEY is not set. Chatbot functionality will not work.');
+  console.error('Error: Neither VITE_GEMINI_API_KEY nor GEMINI_API_KEY is set. Chatbot functionality will not work.');
 } else {
   console.log('Gemini API key is configured successfully');
 }
@@ -48,9 +48,9 @@ let model: GenerativeModel | null = null;
 // Initialize the model
 const initializeModel = () => {
   if (!model) {
-    // the newest Google Gemini model is "gemini-1.5-flash" which was released in March 2024
+    // Using a widely available model to ensure compatibility
     model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-pro",
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
