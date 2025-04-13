@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
+import { useAuth } from "./contexts/AuthContext";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
@@ -26,6 +27,7 @@ import NotFound from "@/pages/not-found";
 // Landing and Login pages
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
 // Unified pages
 import UnifiedPortfolio from "./pages/UnifiedPortfolio";
 import UnifiedDigitalAssets from "./pages/UnifiedDigitalAssets";
@@ -35,7 +37,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { GeminiProvider } from "./contexts/GeminiContext";
 import { CryptoProvider } from "./contexts/CryptoContext";
-import { AuthProvider } from "./lib/auth";
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -72,12 +74,12 @@ function App() {
 
               {/* Public route for Login Page */}
               <Route path="/login">
-                <LoginPage 
-                  onLogin={() => {
-                    localStorage.setItem("isAuthenticated", "true");
-                    window.location.href = "/dashboard";
-                  }} 
-                />
+                <LoginPage />
+              </Route>
+              
+              {/* New Dashboard Route */}
+              <Route path="/dashboard">
+                <DashboardPage />
               </Route>
 
               {/* All other routes get the dashboard layout */}
@@ -94,13 +96,15 @@ function App() {
 
 // Separate component for the app layout with sidebar
 function AppLayout() {
-  // Check authentication
+  const { isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  
+  // Check authentication using our context
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
     if (!isAuthenticated) {
-      window.location.href = "/login";
+      setLocation('/login');
     }
-  }, []);
+  }, [isAuthenticated, setLocation]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">

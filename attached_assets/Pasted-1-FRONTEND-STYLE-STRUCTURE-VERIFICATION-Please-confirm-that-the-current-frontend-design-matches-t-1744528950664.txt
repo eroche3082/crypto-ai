@@ -1,0 +1,144 @@
+1. FRONTEND STYLE & STRUCTURE VERIFICATION
+Please confirm that the current frontend design matches the approved structure. Specifically, verify:
+
+Brand-aligned colors, fonts, backgrounds, and images
+
+All buttons are visible, clickable, functional, and correctly styled
+
+The Hero section includes visible CTA buttons (e.g. "Get Started", "Explore", "Try Now") with links active
+
+The Header menu includes:
+
+Home
+
+Features (must display 20+ features per platform)
+
+Pricing
+
+Testimonials/About
+
+Login / Signup
+
+The Footer must include:
+
+Navigation links
+
+Company info
+
+Contact email/phone
+
+Social media links (all functional)
+
+Language setting must be:
+ENGLISH ONLY – no Spanish, French or mixed content.
+
+2. AI CHATBOT CONFIGURATION
+Ensure the chatbot is fully functional and meets the following:
+
+Appears on bottom-right corner
+
+Uses Gemini Flash (Vertex AI) or other assigned model
+
+Has its identity and tone of voice activated
+
+Responds with contextual memory
+
+Triggers workflows and recommendations
+
+Has audio input/output (voice mode optional)
+
+Allows input via keyboard, mic, and buttons
+
+3. SMART ONBOARDING FLOW
+Enable and test the onboarding system with the following:
+
+After login or signup, the AI Assistant must ask 10–15 onboarding questions
+
+Questions must be based on the platform’s purpose (finance, crypto, travel, fashion, etc.)
+
+After answering, the user should be redirected to a personalized dashboard
+
+If data is incomplete, prompt the user to complete profile
+
+Example questions:
+
+What are your main goals?
+
+What’s your experience level?
+
+What preferences do you have?
+
+What platforms/accounts do you use?
+
+4. PERSONALIZED DASHBOARD ACTIVATION
+Ensure the user lands in their smart dashboard with:
+
+Visible widgets: Profile, Recommendations, Goals, Insights
+
+Display of platform-specific tools (e.g., crypto trends, travel plans, portfolio tracking, clothing suggestions)
+
+Functional charts, suggestions, insights, or alerts
+
+Chatbot access inside the dashboard
+
+Profile settings editable
+
+Quick access to upgrade plans or features
+
+5. FEATURES & API INTEGRATIONS CHECK
+Each platform must show 20+ working features
+
+Each card, module or section (like “Virtual Try-On”, “Investment Optimizer”, “Plan Your Trip”) must link to the correct logic
+
+Validate that all features that claim to be AI-powered are connected to Gemini, OpenAI, or APIs
+
+If any API or feature is not functional, provide:
+
+Feature name
+
+Expected behavior
+
+Current status
+
+Reason for failure or missing link
+
+6. VIDEOS, TESTIMONIALS, BLOGS
+Make sure all videos are uploaded and viewable
+
+Testimonials and review cards must be fully visible
+
+“Read More” or “Watch Now” buttons must be linked
+
+If any video is missing: return the full list of broken or empty assets
+
+7. MEMBERSHIP SYSTEM VALIDATION
+Each plan must:
+
+Have visible pricing and descriptions
+
+Be linked to Stripe or subscription system
+
+Connect to dashboard access based on plan level (Basic, Premium, Enterprise, etc.)
+
+“Subscribe”, “Join”, or “Get Started” buttons must work properly
+
+8. SUBMIT REPORT BEFORE NEXT PHASE
+All Agents must submit a full checklist including:
+
+✅ Features implemented
+
+✅ APIs successfully integrated
+
+❌ Features not working or pending
+
+⚠️ Design/style/UX mismatches
+
+🔗 Broken or unlinked buttons
+
+✔️ Recommendations for improvements or missing parts
+
+📋 Summary of chatbot performance
+
+IMPORTANT:
+If this phase is not 100% complete, the platform CANNOT move forward to backend integrations, affiliate systems, media automation or launch campaigns. This phase ensures the frontend is stable, smart, and fully integrated.
+
