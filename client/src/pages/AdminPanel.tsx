@@ -183,13 +183,90 @@ const AdminPanel = () => {
   };
 
   // Send emails to selected profiles
-  const sendEmails = () => {
-    const count = selectedProfiles.length || filteredProfiles.length;
+  const sendEmails = async () => {
+    // Get the profiles to send emails to (selected or all if none selected)
+    const profilesToEmail = selectedProfiles.length > 0 
+      ? filteredProfiles.filter(profile => selectedProfiles.includes(profile.id))
+      : filteredProfiles;
     
+    if (profilesToEmail.length === 0) {
+      toast({
+        title: "No profiles selected",
+        description: "Please select at least one profile to send emails to.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Format recipients for the API
+    const recipients = profilesToEmail.map(profile => ({
+      name: profile.name,
+      email: profile.email,
+      code: profile.unique_code
+    }));
+    
+    // Show loading toast
     toast({
-      title: "Emails queued",
-      description: `${count} emails have been queued for sending`,
+      title: "Preparing to send emails",
+      description: `Sending to ${recipients.length} recipients...`,
     });
+    
+    try {
+      // Send newsletter campaign via API
+      const response = await apiRequest("POST", "/api/email/send-newsletter", {
+        recipients,
+        subject: "Your CryptoBot Access Code",
+        content: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h1 style="color: #4f46e5; margin-bottom: 10px;">CryptoBot</h1>
+              <p style="color: #6b7280; font-size: 16px;">Your AI-powered crypto assistant</p>
+            </div>
+            
+            <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="margin-bottom: 10px;">Hello {{name}},</p>
+              <p style="margin-bottom: 15px;">Thank you for completing the onboarding process with CryptoBot. Your personalized dashboard is ready!</p>
+              
+              <div style="background-color: white; padding: 15px; border-radius: 6px; text-align: center; border: 2px solid #4f46e5; margin-bottom: 15px;">
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">Your Unique Access Code</p>
+                <p style="font-size: 18px; font-weight: bold; color: #4f46e5; font-family: monospace;">{{code}}</p>
+              </div>
+              
+              <p style="margin-bottom: 10px;">This code gives you access to personalized features based on your profile.</p>
+              <p style="margin-bottom: 20px;">You can use it to log in to your dashboard at any time.</p>
+              
+              <div style="text-align: center; margin-top: 20px;">
+                <a href="https://cryptobot.ai/dashboard" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">Access Your Dashboard</a>
+              </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 12px;">
+              <p>© 2025 CryptoBot. All rights reserved.</p>
+              <p>If you didn't request this email, please ignore it.</p>
+            </div>
+          </div>
+        `,
+        category: "access_code"
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: "Emails sent successfully",
+          description: data.message,
+        });
+      } else {
+        throw new Error(data.error || "Failed to send emails");
+      }
+    } catch (error) {
+      console.error("Error sending emails:", error);
+      toast({
+        title: "Failed to send emails",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive"
+      });
+    }
   };
 
   // Format date for display
