@@ -14,6 +14,7 @@ import { handleVertexAIResponse } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
 import { checkVertexAi, checkPaymentMethods, getSystemStatus } from "./systemCheck";
+import { runVertexDiagnostics, runComprehensiveVertexDiagnostic } from "./vertexDiagnostic";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
 import { sendAccessCodeEmail, sendNewsletterCampaign } from './emailService';
 import { createCheckoutSession, handleStripeWebhook, getAvailableLevels, verifyReferralCode } from './stripeService';
