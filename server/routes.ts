@@ -22,6 +22,7 @@ import googleApiKeyManager from "./services/googleApiKeyManager";
 import { handleRunServiceTests } from "./googleServicesTest";
 import { checkVertexAi, checkPaymentMethods, getSystemStatus } from "./systemCheck";
 import { runVertexDiagnostics, runComprehensiveVertexDiagnostic } from "./vertexDiagnostic";
+import { getSystemDiagnostics } from "./systemDiagnostics";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
 import { sendAccessCodeEmail, sendNewsletterCampaign } from './emailService';
 import { createCheckoutSession, handleStripeWebhook, getAvailableLevels, verifyReferralCode } from './stripeService';
@@ -289,6 +290,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Google Cloud services test endpoint
   app.get('/api/system/google-services-test', handleRunServiceTests);
+  
+  // System diagnostics endpoint for full platform validation
+  app.get('/api/system/diagnostics', getSystemDiagnostics);
   
   // Add a route to serve the static HTML fallback page
   app.get('/static', (req: Request, res: Response) => {

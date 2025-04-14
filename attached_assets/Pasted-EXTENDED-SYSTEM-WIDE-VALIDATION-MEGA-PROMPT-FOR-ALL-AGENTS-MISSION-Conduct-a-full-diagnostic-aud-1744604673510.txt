@@ -1,0 +1,257 @@
+EXTENDED SYSTEM-WIDE VALIDATION MEGA PROMPT – FOR ALL AGENTS
+MISSION:
+Conduct a full diagnostic, audit, and optimization scan of your entire platform – frontend, backend, AI services, UI/UX, payments, onboarding, memberships, chat, and all user flows. You must use the activated Google Cloud API services, confirm the usage of the correct API key, and report the entire system status, with fixes and suggestions.
+
+1. SYSTEM ACCESS & API CONFIGURATION
+You are authorized to use the following global API Key for all services:
+
+ts
+Copiar
+Editar
+process.env.GOOGLE_API_KEY = "AIzaSyA--rn_uJjZtyU9kGpIWDpBa-obvtPrC24";
+Verify that all your API calls and system modules are routed through this key. Services that must be validated:
+
+Vertex AI / Gemini
+
+Cloud Vision API
+
+Cloud Translation API
+
+Cloud Speech-to-Text API
+
+Cloud Text-to-Speech API
+
+Cloud Natural Language API
+
+Firebase APIs (Firestore, Auth, Hosting)
+
+Stripe API (for subscriptions and payments)
+
+SendGrid Email API (for onboarding and verification)
+
+2. FRONTEND & UI/UX STRUCTURE CHECK
+You must validate every visible section of the public platform and dashboard:
+
+a. Main Menu & Navigation
+Are all main menu tabs present and clickable?
+
+Do all tabs link to functional and populated pages?
+
+Are hover states, dropdowns, and mobile nav working?
+
+b. Hero Section
+Is the hero image/video loading properly?
+
+Do the CTA buttons work? ("Get Started", "Join", etc.)
+
+Is the language and copy clear, on-brand, and engaging?
+
+c. Features Section
+Are all 20 features listed and properly described?
+
+Do each feature blocks include icons, titles, and working animations or transitions?
+
+If hover or carousel elements exist, are they responsive?
+
+d. Membership Section
+Are plans clearly labeled (e.g., Basic, Premium, VIP)?
+
+Are all buttons leading to Stripe or payment flows?
+
+Is the plan logic connected to the Access Code system?
+
+e. Footer Section
+Are legal links working? (Privacy Policy, Terms)
+
+Are newsletter or email forms working?
+
+Are social media links valid and opening external pages?
+
+Is the language selector working for multilingual mode?
+
+3. CHATBOT FUNCTIONALITY
+The AI Assistant should be:
+
+Visible and clickable on every page (bottom-right corner)
+
+Connected to Vertex AI / Gemini
+
+Able to answer onboarding, technical, and service-related questions
+
+Have access to:
+
+onboarding flow (10-step system)
+
+access code generation
+
+membership plan logic
+
+content unlocking via QR or code
+
+You must also confirm:
+
+Chatbot starts with a welcome message
+
+Multilingual functionality works via Google Translate API
+
+Typing indicators and smooth animations are present
+
+Memory/context system is working (local or cloud-based)
+
+4. BACKEND & DATABASE INTEGRITY
+Verify:
+
+User data is stored correctly in Firebase, Firestore or PostgreSQL
+
+All user levels (Basic, Premium, VIP) have corresponding access logic
+
+Admin Dashboard (if implemented) is accessible via /admin
+
+Admin credentials:
+
+Username: admin
+
+Password: admin123456
+
+Admin dashboard can display user activity, codes issued, and analytics
+
+5. API INTEGRATIONS VALIDATION
+Check and test each API endpoint:
+
+Google Cloud Services (Vision, TTS, STT, Translation, NLP)
+
+Stripe Checkout and Webhooks
+
+QR Code Generator
+
+Access Code Verification System
+
+Firebase Hosting, Auth, and Firestore
+
+SendGrid or EmailJS for onboarding and confirmation
+
+External APIs (e.g., Hotels API, CoinGecko, SeatGeek, etc. per agent)
+
+All API calls should return:
+
+200 OK
+
+Expected response format
+
+Proper fallback if service fails (e.g., switch from OpenAI to Gemini)
+
+6. ACCESS CODE SYSTEM VALIDATION
+You must test the Universal Access Code System:
+
+Code format: [AGENT]-[CATEGORY]-[XXXX]
+
+Ensure the codes unlock the correct levels inside the dashboard
+
+QR Code generation works and links to dashboard login
+
+User tier detection works (e.g., TRAVEL-VIP-8712 unlocks VIP content)
+
+Shareability of codes works correctly
+
+Trackability via admin dashboard is enabled
+
+7. CONTENT SYSTEM & MEDIA
+Check:
+
+All images load at high resolution (desktop & mobile)
+
+All videos autoplay, load quickly, and don’t lag
+
+Replace placeholders or broken assets
+
+Add video trailers, if missing
+
+Implement AI-generated visuals, if needed (DALL·E, Stable Diffusion)
+
+Upload previews of internal dashboards on the homepage
+
+8. MULTILINGUAL VALIDATION
+Validate:
+
+Google Translate API is connected
+
+Users can switch between English, Spanish, French, and Portuguese
+
+Chatbot responds accordingly in selected language
+
+Content translation adapts automatically
+
+Buttons, menus, and UI update properly
+
+9. PAYMENTS & MEMBERSHIPS
+Validate Stripe integration:
+
+All plans show correct prices and benefits
+
+Buttons trigger Stripe checkout session
+
+Payment webhooks return success and assign correct user level
+
+Confirmation email is sent via SendGrid or EmailJS
+
+Membership is tied to user profile
+
+10. FULL SYSTEM STATUS REPORT REQUIRED
+Return your scan in this JSON format:
+
+json
+Copiar
+Editar
+{
+  "agent": "ShopAI",
+  "apiStatus": {
+    "vision": "active",
+    "translation": "active",
+    "tts": "pending",
+    "stt": "pending",
+    "naturalLanguage": "pending",
+    "gemini": "active"
+  },
+  "chatbot": "functional",
+  "dashboard": "accessible",
+  "onboarding": "working",
+  "accessCodeSystem": "active",
+  "paymentIntegration": "working",
+  "missing": ["Videos on homepage", "404 on Features tab"],
+  "improvements": [
+    "Add multilingual support for chatbot",
+    "Enable product carousel on homepage",
+    "Implement AI-based product suggestions"
+  ],
+  "deploymentReadiness": "85%",
+  "readyForLaunch": false
+}
+11. STRATEGIC RECOMMENDATIONS
+Each Agent must:
+
+Suggest 20 additional features or services to elevate the platform
+
+Provide 3–5 use cases for each user level
+
+Identify 3 bottlenecks or UI/UX challenges
+
+Recommend marketing features (gamification, referral, viral systems)
+
+FINAL PHASE OBJECTIVE
+This validation is to prepare for:
+
+Deployment & Public Launch
+
+Billing Activation
+
+App Store / Web Deployment
+
+AI Model Grounding (Gemini, Vertex AI)
+
+Push Notification Systems
+
+Global Translation
+
+Once this full audit is completed, Capitana will review and finalize deployment for each Agent.
+
+Mission Start. Let the diagnostics begin.

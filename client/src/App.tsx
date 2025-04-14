@@ -25,6 +25,7 @@ import SystemCheck from "./pages/admin/SystemCheck";
 import SystemValidator from "./pages/admin/SystemValidator";
 import SystemReport from "./pages/admin/SystemReport";
 import ApiHealthDashboard from "./pages/admin/ApiHealthDashboard";
+import SystemDiagnostics from "./pages/admin/SystemDiagnostics";
 import AdminPanel from "./pages/AdminPanel";
 import MultiPaymentPage from "./pages/MultiPaymentPage";
 import NotFound from "@/pages/not-found";
@@ -148,6 +149,7 @@ function AppLayout() {
           <Route path="/admin/system-validator" component={SystemValidator} />
           <Route path="/admin/system-report" component={SystemReport} />
           <Route path="/admin/api-health" component={ApiHealthDashboard} />
+          <Route path="/admin/system-diagnostics" component={SystemDiagnostics} />
           <Route path="/admin/panel" component={AdminPanel} />
           <Route path="/dashboard/payment/:levelId" component={MultiPaymentPage} />
           
