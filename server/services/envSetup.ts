@@ -5,9 +5,13 @@
  * making sure necessary variables are available for other services.
  */
 import { config } from 'dotenv';
+import * as path from 'path';
 
 // Load environment variables from .env file
 config();
+
+// Load Google API specific environment variables
+config({ path: path.resolve('./.env.google') });
 
 /**
  * Initialize API key groups from environment variables

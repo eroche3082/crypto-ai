@@ -49,7 +49,19 @@ const apiKeyGroups: ApiKeyGroup[] = [
   {
     id: 'GROUP1',
     key: process.env.GOOGLE_GROUP1_API_KEY || null,
-    services: ['vertex-ai', 'gemini', 'vision', 'language', 'maps', 'places'],
+    services: [
+      'vertex-ai', 
+      'gemini', 
+      'vision', 
+      'language', 
+      'translate', 
+      'speech', 
+      'text-to-speech', 
+      'maps', 
+      'places', 
+      'firebase', 
+      'storage'
+    ],
     isAvailable: !!process.env.GOOGLE_GROUP1_API_KEY
   },
   {
