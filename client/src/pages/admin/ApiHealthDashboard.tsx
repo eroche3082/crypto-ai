@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import GoogleApiKeyManager from '@/components/admin/GoogleApiKeyManager';
+import GoogleServiceTests from '@/components/admin/GoogleServiceTests';
 
 // Vertex AI Diagnostics Component
 const VertexAIDiagnostics = () => {
