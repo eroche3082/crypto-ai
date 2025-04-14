@@ -374,17 +374,17 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
           content: `
-<div class="bg-amber-100/90 p-4 rounded-lg">
+<div class="bg-primary/10 p-4 rounded-lg">
   <div class="flex items-center gap-2 mb-3">
-    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-primary">
       <span class="text-lg font-semibold">?</span>
     </div>
-    <h3 class="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+    <h3 class="text-primary font-semibold">PERSONALIZATION QUESTIONS</h3>
   </div>
-  <p class="text-amber-800/80 mb-4 text-sm">Question 1 of ${onboardingQuestions.length}</p>
+  <p class="text-primary/80 mb-4 text-sm">Question 1 of ${onboardingQuestions.length}</p>
   
-  <p class="font-medium mb-3 text-amber-900">${question.question}</p>
-  <p class="text-sm text-amber-700 mb-1">${multiSelectText}</p>
+  <p class="font-medium mb-3 text-primary">${question.question}</p>
+  <p class="text-sm text-primary/70 mb-1">${multiSelectText}</p>
 </div>`,
           timestamp: new Date(),
           model: 'vertex-flash'
@@ -419,17 +419,17 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           id: Date.now().toString(),
           role: 'assistant',
           content: `
-<div class="bg-amber-100/90 p-4 rounded-lg">
+<div class="bg-primary/10 p-4 rounded-lg">
   <div class="flex items-center gap-2 mb-3">
-    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-primary">
       <span class="text-lg font-semibold">?</span>
     </div>
-    <h3 class="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+    <h3 class="text-primary font-semibold">PERSONALIZATION QUESTIONS</h3>
   </div>
-  <p class="text-amber-800/80 mb-4 text-sm">Question ${nextQuestionIndex + 1} of ${onboardingQuestions.length}</p>
+  <p class="text-primary/80 mb-4 text-sm">Question ${nextQuestionIndex + 1} of ${onboardingQuestions.length}</p>
   
-  <p class="font-medium mb-3 text-amber-900">${question.question}</p>
-  <p class="text-sm text-amber-700 mb-1">${multiSelectText}</p>
+  <p class="font-medium mb-3 text-primary">${question.question}</p>
+  <p class="text-sm text-primary/70 mb-1">${multiSelectText}</p>
 </div>`,
           timestamp: new Date(),
           model: 'vertex-flash'
@@ -829,17 +829,17 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         id: Date.now().toString(),
         role: 'assistant',
         content: `
-<div class="bg-amber-100/90 p-4 rounded-lg">
+<div class="bg-primary/10 p-4 rounded-lg">
   <div class="flex items-center gap-2 mb-3">
-    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-primary">
       <span class="text-lg font-semibold">?</span>
     </div>
-    <h3 class="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+    <h3 class="text-primary font-semibold">PERSONALIZATION QUESTIONS</h3>
   </div>
-  <p class="text-amber-800/80 mb-4 text-sm">Question ${nextQuestionIndex + 1} of ${onboardingQuestions.length}</p>
+  <p class="text-primary/80 mb-4 text-sm">Question ${nextQuestionIndex + 1} of ${onboardingQuestions.length}</p>
   
-  <p class="font-medium mb-3 text-amber-900">${question.question}</p>
-  <p class="text-sm text-amber-700 mb-1">${multiSelectText}</p>
+  <p class="font-medium mb-3 text-primary">${question.question}</p>
+  <p class="text-sm text-primary/70 mb-1">${multiSelectText}</p>
 </div>`,
         timestamp: new Date(),
         model: 'vertex-flash'
@@ -1131,16 +1131,16 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                                   
                                   {/* Add option buttons for onboarding questions */}
                                   {isOnboarding && !inLeadCapture && message === messages[messages.length - 1] && message.role === 'assistant' && currentQuestionIndex < onboardingQuestions.length && (
-                                    <div className="mt-4 bg-amber-100/90 p-4 rounded-lg -mx-2">
+                                    <div className="mt-4 bg-primary/10 p-4 rounded-lg -mx-2">
                                       <div className="flex items-center gap-2 mb-3">
-                                        <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+                                        <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-primary">
                                           <span className="text-lg font-semibold">?</span>
                                         </div>
-                                        <h3 className="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+                                        <h3 className="text-primary font-semibold">PERSONALIZATION QUESTIONS</h3>
                                       </div>
-                                      <p className="text-amber-800/80 mb-4 text-sm">Let's customize your crypto experience</p>
+                                      <p className="text-primary/80 mb-4 text-sm">Let's customize your crypto experience</p>
                                       
-                                      <p className="font-medium mb-3 text-amber-900">{onboardingQuestions[currentQuestionIndex].question}</p>
+                                      <p className="font-medium mb-3 text-primary">{onboardingQuestions[currentQuestionIndex].question}</p>
                                       
                                       <div className="grid gap-2">
                                         {onboardingQuestions[currentQuestionIndex].options.map((option, idx) => {
@@ -1151,8 +1151,8 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                                               onClick={() => handleOptionSelect(option)}
                                               className={`text-sm text-left px-4 py-3 rounded-lg border transition-all ${
                                                 isSelected 
-                                                  ? 'bg-amber-500/20 border-amber-500 text-amber-900' 
-                                                  : 'bg-white border-amber-200 hover:border-amber-400 hover:bg-amber-50 text-amber-800'
+                                                  ? 'bg-primary/20 border-primary text-primary-foreground' 
+                                                  : 'bg-white border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary/90'
                                               }`}
                                             >
                                               {option}
@@ -1164,7 +1164,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                                         {onboardingQuestions[currentQuestionIndex].multiSelect && selectedOptions[currentQuestionIndex]?.length > 0 && (
                                           <button
                                             onClick={handleContinueAfterSelection}
-                                            className="mt-2 flex items-center justify-center gap-1 text-sm font-medium text-amber-600 hover:text-amber-800"
+                                            className="mt-2 flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80"
                                           >
                                             Continue <ArrowRight size={14} />
                                           </button>
