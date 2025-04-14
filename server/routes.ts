@@ -440,6 +440,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/vertex-ai-response", handleVertexAIResponse);
   app.post("/api/vertex-ai-vision", handleVisionAIResponse);
   app.get("/api/vertex-ai-diagnostics", getAIDiagnostics);
+  app.get("/api/vertex-ai-diagnostics/comprehensive", async (req, res) => {
+    try {
+      // Import all necessary variables from vertexai.ts
+      const { 
+        lastRequestDiagnostics, 
+        isConfigured, 
+        vertexAI, 
+        genAI, 
+        USE_API_KEY_AUTH, 
+        USE_GEMINI_FALLBACK, 
+        projectId, 
+        location,
+        apiKey,
+        generateResponse
+      } = await import('./vertexai');
+      
+      // First get basic diagnostics
+      const basicDiagnostics = {
+        ...lastRequestDiagnostics,
+        configStatus: {
+          isConfigured,
+          vertexAIAvailable: !!vertexAI,
+          geminiAIAvailable: !!genAI,
+          useAPIKeyAuth: USE_API_KEY_AUTH,
+          useGeminiFallback: USE_GEMINI_FALLBACK,
+          projectId,
+          location
+        }
+      };
+      
+      // Then run a test request to verify connectivity
+      let testSuccess = false;
+      let modelUsed = '';
+      let responseTime = 0;
+      let errorDetails = '';
+      
+      const startTime = Date.now();
+      try {
+        const response = await generateResponse('Test connectivity with a simple response. Please reply with "Connection successful."', 0.1, 50);
+        testSuccess = true;
+        responseTime = Date.now() - startTime;
+        modelUsed = lastRequestDiagnostics.modelUsed || 'unknown';
+      } catch (error) {
+        testSuccess = false;
+        responseTime = Date.now() - startTime;
+        errorDetails = error.message;
+      }
+      
+      // Generate a comprehensive report
+      const overallStatus = testSuccess ? 'success' : (genAI ? 'warning' : 'error');
+      const recommendedAction = !testSuccess ? 
+        'Check your API key and GCP project settings.' : 
+        (basicDiagnostics.method === 'gemini' ? 'Primary Vertex AI connection failed, but Gemini API fallback is working.' : '');
+      
+      res.json({
+        timestamp: new Date().toISOString(),
+        overallStatus,
+        apiConnectivity: testSuccess,
+        responseTime,
+        modelUsed,
+        errorDetails,
+        recommendedAction,
+        diagnostics: basicDiagnostics,
+        apiKey: apiKey ? `${apiKey.substring(0, 8)}...` : null
+      });
+    } catch (error) {
+      console.error('Error in comprehensive diagnostics:', error);
+      res.status(500).json({ 
+        error: 'Diagnostic error', 
+        details: error.message 
+      });
+    }
+  });
   
   // Vertex AI Market Analysis with full fallback support
   app.post("/api/v2/vertex/market/analyze", generateMarketAnalysis);

@@ -9,20 +9,20 @@ import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertex
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Configuration flags
-const USE_API_KEY_AUTH = true; // Use API key auth instead of service account
-const USE_GEMINI_FALLBACK = true; // Use Gemini API as fallback if Vertex AI fails
-const ENABLE_VERTEX_DIAGNOSTICS = true; // Enable detailed diagnostic logging
+export const USE_API_KEY_AUTH = true; // Use API key auth instead of service account
+export const USE_GEMINI_FALLBACK = true; // Use Gemini API as fallback if Vertex AI fails
+export const ENABLE_VERTEX_DIAGNOSTICS = true; // Enable detailed diagnostic logging
 
 // Check if Vertex AI is configured
-const apiKey = process.env.VERTEX_AI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_VERTEX_KEY_ID;
-const isConfigured = !!apiKey;
-const projectId = process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai';
-const location = process.env.GOOGLE_LOCATION || 'us-central1';
-const keyFilePath = process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials-global.json';
+export const apiKey = process.env.VERTEX_AI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_VERTEX_KEY_ID;
+export const isConfigured = !!apiKey;
+export const projectId = process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai';
+export const location = process.env.GOOGLE_LOCATION || 'us-central1';
+export const keyFilePath = process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials-global.json';
 
 // Initialize clients
-let vertexAI: VertexAI | null = null;
-let genAI: GoogleGenerativeAI | null = null;
+export let vertexAI: VertexAI | null = null;
+export let genAI: GoogleGenerativeAI | null = null;
 
 // Initialize Vertex AI with API key if configured
 if (isConfigured) {
@@ -88,7 +88,7 @@ interface AIRequestDiagnostics {
 }
 
 // Keep track of the last request diagnostics
-let lastRequestDiagnostics: AIRequestDiagnostics = {
+export let lastRequestDiagnostics: AIRequestDiagnostics = {
   method: 'none',
   success: false,
   timestamp: new Date().toISOString()
@@ -566,4 +566,4 @@ export async function generateMarketAnalysis(req: Request, res: Response) {
   }
 }
 
-export { isConfigured };
+// Export was moved to the top of the file

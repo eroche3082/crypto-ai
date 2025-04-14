@@ -28,9 +28,9 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 const VertexAIDiagnostics = () => {
   const { toast } = useToast();
   
-  // Query for Vertex AI diagnostic data
+  // Query for Vertex AI diagnostic data - using new enhanced endpoint
   const { data, isLoading, error, refetch, isFetching } = useQuery({
-    queryKey: ['/api/system/vertex-diagnostics'],
+    queryKey: ['/api/vertex-ai-diagnostics'],
     staleTime: 60000, // 1 minute
   });
   
@@ -43,7 +43,7 @@ const VertexAIDiagnostics = () => {
     });
     
     try {
-      const response = await fetch('/api/system/vertex-diagnostics/comprehensive');
+      const response = await fetch('/api/vertex-ai-diagnostics/comprehensive');
       const result = await response.json();
       
       toast({
