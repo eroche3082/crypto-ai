@@ -72,17 +72,19 @@ async function validateApiServices(): Promise<{apiStatus: ApiStatus, details: an
   // Check if API keys exist in environment
   const hasStripeKeys = process.env.STRIPE_SECRET_KEY && process.env.VITE_STRIPE_PUBLIC_KEY;
   const hasSendGridKey = process.env.SENDGRID_API_KEY;
-  const hasCoinApiKey = process.env.VITE_COINGECKO_API_KEY;
+  const hasCoinApiKey = process.env.COINAPI_KEY;
   const hasVertexKey = process.env.GOOGLE_VERTEX_KEY_ID;
   const hasGoogleApiKey = process.env.GOOGLE_API_KEY;
 
   // Try to make a simple CoinAPI request to verify connectivity
   let coinApiStatus = "inactive";
   try {
-    const response = await axios.get('https://rest.coinapi.io/v1/assets', {
-      headers: { 'X-CoinAPI-Key': process.env.VITE_COINGECKO_API_KEY }
-    });
-    if (response.status === 200) {
+    // Use the updated coinApiService to test connectivity
+    const { cryptoDataService } = await import('./services/crypto/cryptoDataService');
+    const { source } = await cryptoDataService.getMarkets({ vs_currency: "usd", per_page: 1 });
+    
+    // If we can get market data, the API is active
+    if (source.includes('api')) {
       coinApiStatus = "active";
     }
   } catch (error) {
