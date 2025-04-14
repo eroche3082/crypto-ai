@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 import { VertexAI } from '@google-cloud/vertexai';
 
 // Check if Vertex AI is configured
-const isConfigured = !!process.env.GOOGLE_VERTEX_KEY_ID;
+const isConfigured = !!process.env.VERTEX_AI_API_KEY || !!process.env.GOOGLE_VERTEX_KEY_ID;
 
 let vertexAI: VertexAI | null = null;
 
@@ -17,8 +17,13 @@ if (isConfigured) {
     vertexAI = new VertexAI({
       project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
       location: process.env.GOOGLE_LOCATION || 'us-central1',
+      apiEndpoint: "us-central1-aiplatform.googleapis.com",
+      googleAuthOptions: {
+        scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+        keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials-global.json',
+      },
     });
-    console.log('Vertex AI initialized successfully');
+    console.log('Vertex AI initialized successfully with API key');
   } catch (error) {
     console.error('Error initializing Vertex AI:', error);
     vertexAI = null;
@@ -34,7 +39,7 @@ export async function generateResponse(
   maxTokens: number = 1000
 ): Promise<string> {
   if (!isConfigured || !vertexAI) {
-    throw new Error('Vertex AI is not configured. Please provide GOOGLE_VERTEX_KEY_ID environment variable.');
+    throw new Error('Vertex AI is not configured. Please provide VERTEX_AI_API_KEY environment variable.');
   }
 
   try {
@@ -71,7 +76,7 @@ export async function generateResponseWithImage(
   maxTokens: number = 1000
 ): Promise<string> {
   if (!isConfigured || !vertexAI) {
-    throw new Error('Vertex AI is not configured. Please provide GOOGLE_VERTEX_KEY_ID environment variable.');
+    throw new Error('Vertex AI is not configured. Please provide VERTEX_AI_API_KEY environment variable.');
   }
 
   try {
@@ -114,7 +119,7 @@ export async function generateResponseWithImage(
 export async function handleVertexAIResponse(req: Request, res: Response) {
   if (!isConfigured || !vertexAI) {
     return res.status(503).json({
-      error: 'Vertex AI is not configured. Please provide GOOGLE_VERTEX_KEY_ID environment variable.'
+      error: 'Vertex AI is not configured. Please provide VERTEX_AI_API_KEY environment variable.'
     });
   }
 
@@ -150,7 +155,7 @@ export async function handleVertexAIResponse(req: Request, res: Response) {
 export async function generateMarketAnalysis(req: Request, res: Response) {
   if (!isConfigured || !vertexAI) {
     return res.status(503).json({
-      error: 'Vertex AI is not configured. Please provide GOOGLE_VERTEX_KEY_ID environment variable.'
+      error: 'Vertex AI is not configured. Please provide VERTEX_AI_API_KEY environment variable.'
     });
   }
 
