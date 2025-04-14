@@ -175,6 +175,16 @@ export async function runVertexDiagnostics(req: Request, res: Response) {
     } else if (errorMsg.includes('billing') || errorMsg.includes('payment') || errorMsg.includes('budget')) {
       result.billingActive = false;
       result.recommendedAction = 'There appears to be an issue with billing. Please check your Google Cloud billing account.';
+    } else if (errorMsg.includes('service_disabled') || errorMsg.includes('has not been used') || errorMsg.includes('is disabled')) {
+      result.status = 'error';
+      result.apiConnectivity = false;
+      result.errorDetails = error.message;
+      result.recommendedAction = 'The Vertex AI API or Gemini API is not enabled on this Google Cloud project. Please enable the API in the Google Cloud Console.';
+    } else if (errorMsg.includes('api_key_service_blocked')) {
+      result.status = 'error';
+      result.apiConnectivity = false;
+      result.errorDetails = error.message;
+      result.recommendedAction = 'The API key does not have access to the Gemini API. Please enable the API in the Google Cloud Console.';
     } else if (errorMsg.includes('permission') || errorMsg.includes('unauthorized') || errorMsg.includes('unauthenticated')) {
       result.recommendedAction = 'Authentication failed. Please check your API key and permissions.';
     } else if (errorMsg.includes('not found')) {

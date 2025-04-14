@@ -5,7 +5,8 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import {
   Table,
@@ -18,8 +19,280 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, RefreshCw, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, RefreshCw, AlertTriangle, CheckCircle, XCircle, Server, Cpu, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
+// Vertex AI Diagnostics Component
+const VertexAIDiagnostics = () => {
+  const { toast } = useToast();
+  
+  // Query for Vertex AI diagnostic data
+  const { data, isLoading, error, refetch, isFetching } = useQuery({
+    queryKey: ['/api/system/vertex-diagnostics'],
+    staleTime: 60000, // 1 minute
+  });
+  
+  // Handle running a comprehensive diagnostic
+  const runComprehensiveDiagnostic = async () => {
+    toast({
+      title: "Running comprehensive diagnostics",
+      description: "This may take a moment...",
+      duration: 3000,
+    });
+    
+    try {
+      const response = await fetch('/api/system/vertex-diagnostics/comprehensive');
+      const result = await response.json();
+      
+      toast({
+        title: "Comprehensive diagnostics complete",
+        description: `Status: ${result.overallStatus}`,
+        duration: 3000,
+      });
+      
+      // Refetch the basic diagnostics
+      refetch();
+    } catch (err) {
+      toast({
+        title: "Error running comprehensive diagnostics",
+        description: "Please try again later",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+  
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  // Error state
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          Failed to load Vertex AI diagnostics information.
+          <Button variant="outline" size="sm" className="mt-2" onClick={() => refetch()}>
+            Try Again
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+  
+  // Status color mapping
+  const getStatusColor = (status: string) => {
+    if (status === 'success') return 'bg-green-500 hover:bg-green-600';
+    if (status === 'warning') return 'bg-yellow-500 hover:bg-yellow-600';
+    if (status === 'error') return 'bg-red-500 hover:bg-red-600';
+    return 'bg-gray-500 hover:bg-gray-600';
+  };
+  
+  // Status icon mapping
+  const getStatusIcon = (status: string) => {
+    if (status === 'success') return <CheckCircle className="h-5 w-5 text-green-500" />;
+    if (status === 'warning') return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+    if (status === 'error') return <XCircle className="h-5 w-5 text-red-500" />;
+    return <AlertTriangle className="h-5 w-5 text-gray-500" />;
+  };
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col-reverse md:flex-row gap-6">
+        {/* Main diagnostic card */}
+        <Card className="flex-1">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle>Vertex AI Diagnostic Results</CardTitle>
+              <Badge 
+                className={getStatusColor(data?.status || 'unknown')}
+                variant="outline"
+              >
+                {data?.status?.toUpperCase() || 'UNKNOWN'}
+              </Badge>
+            </div>
+            <CardDescription>
+              Diagnostics for Google Vertex AI and Gemini API connectivity
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center">
+                  <div className="mr-3">
+                    {data?.apiConnectivity ? 
+                      <CheckCircle className="h-5 w-5 text-green-500" /> : 
+                      <XCircle className="h-5 w-5 text-red-500" />
+                    }
+                  </div>
+                  <div>
+                    <p className="font-medium">API Connectivity</p>
+                    <p className="text-sm text-gray-500">
+                      {data?.apiConnectivity ? 'Connected' : 'Disconnected'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <div className="mr-3">
+                    <Database className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Quota Status</p>
+                    <p className="text-sm text-gray-500 capitalize">
+                      {data?.quotaStatus || 'Unknown'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <div className="mr-3">
+                    <Cpu className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Billing Status</p>
+                    <p className="text-sm text-gray-500">
+                      {data?.billingActive ? 'Active' : 'Inactive'}
+                    </p>
+                  </div>
+                </div>
+                
+                {data?.modelUsed && (
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <Server className="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Model</p>
+                      <p className="text-sm text-gray-500">
+                        {data.modelUsed}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {data?.responseTime && (
+                  <div className="md:col-span-2">
+                    <p className="font-medium mb-1">Response Time</p>
+                    <div className="space-y-2">
+                      <Progress value={Math.min(100, (data.responseTime / 5000) * 100)} />
+                      <p className="text-sm text-gray-500">
+                        {data.responseTime}ms
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {data?.errorDetails && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Error Details</AlertTitle>
+                  <AlertDescription className="mt-2 text-xs whitespace-pre-wrap max-h-[150px] overflow-y-auto">
+                    {data.errorDetails}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {data?.recommendedAction && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Recommended Action</AlertTitle>
+                  <AlertDescription>
+                    {data.recommendedAction}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button 
+              variant="outline" 
+              onClick={() => refetch()} 
+              disabled={isFetching}
+              size="sm"
+            >
+              {isFetching ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+              Run Basic Diagnostic
+            </Button>
+            
+            <Button 
+              onClick={runComprehensiveDiagnostic} 
+              disabled={isFetching}
+              size="sm"
+            >
+              Run Comprehensive Test
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+      
+      {/* Resources */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Vertex AI Resources</CardTitle>
+          <CardDescription>
+            Helpful links for troubleshooting and configuring Vertex AI
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a 
+                href="https://console.cloud.google.com/vertex-ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-4 border rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <h3 className="font-medium">Vertex AI Console</h3>
+                <p className="text-sm text-gray-500">Access the Google Cloud Vertex AI Console</p>
+              </a>
+              
+              <a 
+                href="https://console.cloud.google.com/apis/dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-4 border rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <h3 className="font-medium">API Console</h3>
+                <p className="text-sm text-gray-500">Enable and manage Google Cloud APIs</p>
+              </a>
+              
+              <a 
+                href="https://console.cloud.google.com/iam-admin/serviceaccounts"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-4 border rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <h3 className="font-medium">Service Accounts</h3>
+                <p className="text-sm text-gray-500">Manage service accounts and keys</p>
+              </a>
+              
+              <a 
+                href="https://console.cloud.google.com/apis/credentials"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-4 border rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <h3 className="font-medium">API Credentials</h3>
+                <p className="text-sm text-gray-500">Manage API keys and OAuth credentials</p>
+              </a>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 // Define status badge colors
 const statusColors = {
@@ -182,6 +455,7 @@ export default function ApiHealthDashboard() {
       <Tabs defaultValue="cache">
         <TabsList className="mb-4">
           <TabsTrigger value="cache">Cache Statistics</TabsTrigger>
+          <TabsTrigger value="vertex">Vertex AI Diagnostics</TabsTrigger>
           <TabsTrigger value="details">Technical Details</TabsTrigger>
         </TabsList>
         
@@ -226,6 +500,10 @@ export default function ApiHealthDashboard() {
               </Card>
             ))}
           </div>
+        </TabsContent>
+        
+        <TabsContent value="vertex">
+          <VertexAIDiagnostics />
         </TabsContent>
         
         <TabsContent value="details">
