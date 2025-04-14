@@ -1089,6 +1089,13 @@ Watch for increased volatility around upcoming economic announcements.
   // Image analysis with Google Vision API
   app.post('/api/vision/analyze', uploadMiddleware, analyzeImage);
   
+  // Chart Pattern Recognition endpoint
+  // Ruta para análisis de patrones en gráficos con carga de archivo
+  app.post('/api/vision/chart-pattern', uploadChartMiddleware, analyzeChartPattern);
+  
+  // Ruta para análisis de patrones en gráficos con JSON (base64)
+  app.post('/api/chart-pattern-analysis', analyzeChartPattern);
+  
   // Twitter sentiment analysis endpoints
   app.get('/api/sentiment/twitter/:symbol', getTwitterSentiment);
   app.get('/api/sentiment/market', getMarketSentiment);

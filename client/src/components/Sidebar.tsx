@@ -27,7 +27,8 @@ import {
   Image,
   Coins,
   Trophy,
-  CheckCircle2
+  CheckCircle2,
+  Scan
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -74,6 +75,14 @@ const Sidebar = () => {
       path: "/nft-explorer", 
       icon: <Image size={20} />, 
       label: t("nftExplorer.title", "NFT Explorer"),
+      tag: "New"
+    },
+    
+    // New Phase 5 feature
+    {
+      path: "/chart-analysis",
+      icon: <Scan size={20} />,
+      label: t("chartAnalysis.title", "Chart Patterns"),
       tag: "New"
     },
     

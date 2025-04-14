@@ -1,447 +1,204 @@
-/**
- * Chart Pattern Recognition Service
- * 
- * This service uses Google Vision API and Vertex AI to analyze uploaded chart images,
- * detect technical patterns, and provide trading insights based on those patterns.
- */
-import { ImageAnnotatorClient } from '@google-cloud/vision';
-import { VertexAI } from '@google-cloud/vertexai';
-import { Request as ExpressRequest, Response } from 'express';
+import { processSecret } from '../secrets';
+import { GoogleVertexAI } from '../google/vertexAi';
+import { GoogleVision } from '../google/vision';
 import multer from 'multer';
-import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
-import { getApiKeyForService, trackServiceInitialization } from './googleApiKeyManager';
+import fs from 'fs';
+import { Request, Response } from 'express';
 
-// Technical chart patterns database with properties and signals
-const CHART_PATTERNS = {
-  'head_and_shoulders': {
-    name: 'Head and Shoulders',
-    type: 'reversal',
-    bullish: false,
-    description: 'A bearish reversal pattern consisting of three peaks, with the middle peak being the highest.',
-    reliability: 0.75,
-    typicalMove: '-7% to -15%',
-    stopLoss: 'Above the right shoulder',
-    timeToTarget: '2-4 weeks',
-  },
-  'inverse_head_and_shoulders': {
-    name: 'Inverse Head and Shoulders',
-    type: 'reversal',
-    bullish: true,
-    description: 'A bullish reversal pattern consisting of three troughs, with the middle trough being the lowest.',
-    reliability: 0.78,
-    typicalMove: '+7% to +15%',
-    stopLoss: 'Below the right shoulder',
-    timeToTarget: '2-4 weeks',
-  },
-  'double_top': {
-    name: 'Double Top',
-    type: 'reversal',
-    bullish: false,
-    description: 'A bearish reversal pattern consisting of two consecutive peaks at approximately the same price level.',
-    reliability: 0.72,
-    typicalMove: '-5% to -12%',
-    stopLoss: 'Above the higher peak',
-    timeToTarget: '2-3 weeks',
-  },
-  'double_bottom': {
-    name: 'Double Bottom',
-    type: 'reversal',
-    bullish: true,
-    description: 'A bullish reversal pattern consisting of two consecutive troughs at approximately the same price level.',
-    reliability: 0.74,
-    typicalMove: '+5% to +12%',
-    stopLoss: 'Below the lower trough',
-    timeToTarget: '2-3 weeks',
-  },
-  'ascending_triangle': {
-    name: 'Ascending Triangle',
-    type: 'continuation',
-    bullish: true,
-    description: 'A bullish continuation pattern with a flat top and rising bottom trendline.',
-    reliability: 0.67,
-    typicalMove: '+5% to +10%',
-    stopLoss: 'Below the last swing low',
-    timeToTarget: '1-3 weeks',
-  },
-  'descending_triangle': {
-    name: 'Descending Triangle',
-    type: 'continuation',
-    bullish: false,
-    description: 'A bearish continuation pattern with a flat bottom and decreasing top trendline.',
-    reliability: 0.69,
-    typicalMove: '-5% to -10%',
-    stopLoss: 'Above the last swing high',
-    timeToTarget: '1-3 weeks',
-  },
-  'symmetrical_triangle': {
-    name: 'Symmetrical Triangle',
-    type: 'continuation',
-    bullish: null, // Depends on the prior trend
-    description: 'A continuation pattern with converging trendlines of similar slope.',
-    reliability: 0.63,
-    typicalMove: '±5% to ±10%',
-    stopLoss: 'Below/above the last swing low/high',
-    timeToTarget: '1-3 weeks',
-  },
-  'flag': {
-    name: 'Flag',
-    type: 'continuation',
-    bullish: null, // Depends on the prior trend
-    description: 'A short-term continuation pattern consisting of a small channel that slopes against the prior trend.',
-    reliability: 0.75,
-    typicalMove: '±3% to ±7%',
-    stopLoss: 'Outside the flag pattern',
-    timeToTarget: '1-2 weeks',
-  },
-  'pennant': {
-    name: 'Pennant',
-    type: 'continuation',
-    bullish: null, // Depends on the prior trend
-    description: 'A short-term continuation pattern forming a small symmetrical triangle after a strong move.',
-    reliability: 0.73,
-    typicalMove: '±3% to ±7%',
-    stopLoss: 'Outside the pennant pattern',
-    timeToTarget: '1-2 weeks',
-  },
-  'cup_and_handle': {
-    name: 'Cup and Handle',
-    type: 'continuation',
-    bullish: true,
-    description: 'A bullish continuation pattern resembling a cup with a handle, signaling a brief consolidation before an upward breakout.',
-    reliability: 0.65,
-    typicalMove: '+7% to +15%',
-    stopLoss: 'Below the handle',
-    timeToTarget: '3-4 weeks',
-  },
-  'wedge_rising': {
-    name: 'Rising Wedge',
-    type: 'reversal',
-    bullish: false,
-    description: 'A bearish reversal pattern with converging upward-sloping trendlines.',
-    reliability: 0.66,
-    typicalMove: '-5% to -10%',
-    stopLoss: 'Above the upper trendline',
-    timeToTarget: '2-3 weeks',
-  },
-  'wedge_falling': {
-    name: 'Falling Wedge',
-    type: 'reversal',
-    bullish: true,
-    description: 'A bullish reversal pattern with converging downward-sloping trendlines.',
-    reliability: 0.69,
-    typicalMove: '+5% to +10%',
-    stopLoss: 'Below the lower trendline',
-    timeToTarget: '2-3 weeks',
-  },
-  'rounding_bottom': {
-    name: 'Rounding Bottom',
-    type: 'reversal',
-    bullish: true,
-    description: 'A bullish reversal pattern resembling a "U" shape, indicating a gradual shift from selling to buying pressure.',
-    reliability: 0.62,
-    typicalMove: '+5% to +15%',
-    stopLoss: 'Below the lowest point of the curve',
-    timeToTarget: '4-8 weeks',
-  }
-};
-
-// Interface for chart pattern analysis result
 interface ChartPatternResult {
-  pattern: string;
-  confidence: number;
-  predictedMove: string;
-  moveDirection: 'bullish' | 'bearish' | 'neutral';
-  timeframe: string;
-  entryZone: string;
-  stopLoss: string;
-  targetZone: string;
+  pattern: string;          // The identified pattern name (e.g., "Head and Shoulders", "Double Bottom")
+  confidence: number;       // Confidence level in the pattern detection (0-1)
+  predictedMove: string;    // Description of the predicted price movement
+  moveDirection: 'bullish' | 'bearish' | 'neutral'; // Direction of predicted movement
+  timeframe: string;        // Suggested timeframe for the pattern to play out
+  entryZone: string;        // Suggested entry price or zone
+  stopLoss: string;         // Suggested stop loss level
+  targetZone: string;       // Suggested take profit or target zone
   patternInfo: {
-    description: string;
-    type: string;
-    reliability: number;
-    timeToTarget: string;
+    description: string;    // Detailed explanation of what the pattern is
+    type: string;           // Categorization (continuation, reversal, etc.)
+    reliability: number;    // Historical reliability of this pattern (0-100%)
+    timeToTarget: string;   // Typical time duration until target is reached
   };
 }
 
-// Setup multer for file uploads
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadDir = path.join(process.cwd(), 'uploads');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+/**
+ * Service for analyzing cryptocurrency chart images to identify patterns
+ * and provide trading insights using computer vision and AI.
+ */
+export class ChartPatternRecognitionService {
+  private vertexAI: GoogleVertexAI;
+  private visionAPI: GoogleVision;
+  
+  constructor() {
+    this.vertexAI = new GoogleVertexAI();
+    this.visionAPI = new GoogleVision();
+  }
+  
+  /**
+   * Analyzes a chart image to identify patterns and provide trading insights
+   * @param imageBase64 Base64 encoded image data
+   * @returns Analysis results including pattern identification and trading insights
+   */
+  async analyzeChartPattern(imageBase64: string): Promise<ChartPatternResult> {
+    try {
+      // First use Vision API to get basic chart information
+      const visionResults = await this.visionAPI.analyzeImage(imageBase64);
+      
+      // Extract chart data description from vision results
+      const chartDescription = visionResults.fullTextAnnotation?.text || 
+                               "Cryptocurrency price chart with candlestick patterns";
+                               
+      // Use Vertex AI to analyze the pattern with specific chart pattern recognition prompting
+      const vertexPrompt = `
+        You are an expert cryptocurrency technical analyst specializing in chart pattern recognition.
+        Analyze this price chart image carefully and identify the most prominent technical pattern present.
+        
+        Chart context: ${chartDescription}
+        
+        Provide a detailed analysis in JSON format with the following structure:
+        {
+          "pattern": "Name of the identified pattern",
+          "confidence": 0.85, // Confidence level from 0-1
+          "predictedMove": "Detailed description of the predicted price movement",
+          "moveDirection": "bullish/bearish/neutral",
+          "timeframe": "Suggested timeframe for the pattern to play out",
+          "entryZone": "Suggested entry price or zone",
+          "stopLoss": "Suggested stop loss level",
+          "targetZone": "Suggested take profit or target zone",
+          "patternInfo": {
+            "description": "Detailed explanation of what the pattern is",
+            "type": "Pattern type (continuation, reversal, etc.)",
+            "reliability": 75, // Historical reliability percentage
+            "timeToTarget": "Typical time duration until target is reached"
+          }
+        }
+        
+        If you cannot confidently identify a pattern, return your best guess but with a lower confidence score.
+        Base your analysis purely on what you can see in the chart, without making assumptions about specific assets.
+      `;
+      
+      // Call Vertex AI with the prompt and image
+      const vertexResponse = await this.vertexAI.generateMultimodalContent(vertexPrompt, imageBase64);
+      
+      // Extract JSON from response
+      try {
+        // Find JSON in the response - often AI wraps JSON in markdown code blocks
+        const jsonMatch = vertexResponse.match(/```json\s*([\s\S]*?)\s*```/) || 
+                          vertexResponse.match(/{[\s\S]*}/);
+                          
+        const jsonContent = jsonMatch ? jsonMatch[1] || jsonMatch[0] : vertexResponse;
+        const cleanedJson = jsonContent.replace(/```json|```/g, '').trim();
+        
+        // Parse the JSON response
+        const patternResult = JSON.parse(cleanedJson) as ChartPatternResult;
+        
+        return patternResult;
+      } catch (jsonError) {
+        console.error("Failed to parse AI response as JSON:", jsonError);
+        // Fallback with a basic response if JSON parsing fails
+        return {
+          pattern: "Unknown Pattern",
+          confidence: 0.5,
+          predictedMove: "Unable to determine from provided image",
+          moveDirection: "neutral",
+          timeframe: "Unknown",
+          entryZone: "Not available",
+          stopLoss: "Not available",
+          targetZone: "Not available",
+          patternInfo: {
+            description: "Could not extract pattern information from the image",
+            type: "Unknown",
+            reliability: 0,
+            timeToTarget: "Unknown"
+          }
+        };
       }
-      cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      const extension = path.extname(file.originalname);
-      cb(null, 'chart-' + uniqueSuffix + extension);
+    } catch (error) {
+      console.error("Chart pattern analysis failed:", error);
+      throw new Error("Failed to analyze chart pattern: " + (error as Error).message);
     }
-  }),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // Limit to 10MB
+  }
+}
+
+// Configurar multer para la carga de archivos
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    
+    // Crear directorio si no existe
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    
+    cb(null, uploadDir);
   },
-  fileFilter: (req, file, cb) => {
-    // Accept only image files
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'));
-      cb(null, false);
-    }
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, 'chart-' + uniqueSuffix + ext);
   }
 });
 
-// Export middleware for route handler
-export const uploadChartMiddleware = upload.single('chart');
-
-// Initialize Vision client
-let visionClient: ImageAnnotatorClient | null = null;
-let vertexAIClient: VertexAI | null = null;
-
-try {
-  // Get API key for Vision service
-  const apiKey = getApiKeyForService('vision');
+// Filtro para asegurar que solo se suben imágenes
+const fileFilter = (req: any, file: any, cb: any) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
   
-  if (apiKey) {
-    visionClient = new ImageAnnotatorClient({
-      keyFilename: process.env.GOOGLE_VISION_KEY_PATH || './google-credentials-global.json',
-    });
-    trackServiceInitialization('vision', 'GROUP5', true);
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
   } else {
-    console.error('No API key available for Vision service');
-    trackServiceInitialization('vision', 'GROUP5', false, 'No API key available');
+    cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'), false);
   }
-  
-  // Initialize Vertex AI client
-  const projectId = 'erudite-creek-431302-q3';
-  const location = 'us-central1';
-  
-  vertexAIClient = new VertexAI({
-    project: projectId,
-    location: location,
-  });
-  
-  trackServiceInitialization('vertex-ai', 'GROUP5', true);
-} catch (error: any) {
-  console.error('Error initializing chart pattern recognition services:', error);
-  trackServiceInitialization('vision', 'GROUP5', false, error.message);
-  trackServiceInitialization('vertex-ai', 'GROUP5', false, error.message);
-}
+};
+
+// Middleware de multer para subir imágenes de gráficos
+export const uploadChartMiddleware = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // Límite: 5MB
+  }
+}).single('chart');
+
+// Instancia del servicio
+const chartService = new ChartPatternRecognitionService();
 
 /**
- * Detects lines, edges, and shapes in the image using Vision API
+ * Controlador para analizar patrones en gráficos
  */
-async function detectPatternsInChart(imagePath: string) {
-  if (!visionClient) {
-    throw new Error('Vision client not initialized');
-  }
-  
-  // Define features for chart pattern detection
-  const features = [
-    { type: 'TEXT_DETECTION' },      // Detect any text (labels, prices, dates)
-    { type: 'DOCUMENT_TEXT_DETECTION' }, // More comprehensive text detection
-    { type: 'OBJECT_LOCALIZATION' }, // Detect shapes and objects
-    { type: 'LABEL_DETECTION', maxResults: 15 }, // Identify elements in the chart
-    { type: 'IMAGE_PROPERTIES' }     // Color distribution (green/red candles)
-  ];
-  
-  // Run image analysis
-  const [result] = await visionClient.annotateImage({
-    image: { source: { filename: imagePath } },
-    features,
-  });
-  
-  return {
-    text: result.textAnnotations?.[0]?.description || '',
-    fullText: result.fullTextAnnotation?.text || '',
-    objects: result.localizedObjectAnnotations?.map(obj => ({
-      name: obj.name,
-      confidence: obj.score,
-      boundingPoly: obj.boundingPoly
-    })) || [],
-    labels: result.labelAnnotations?.map(label => ({
-      description: label.description,
-      confidence: label.score
-    })) || [],
-    colors: result.imagePropertiesAnnotation?.dominantColors?.colors?.map(color => ({
-      rgb: `rgb(${Math.round(color.color?.red || 0)}, ${Math.round(color.color?.green || 0)}, ${Math.round(color.color?.blue || 0)})`,
-      score: color.score,
-      pixelFraction: color.pixelFraction
-    })).slice(0, 5) || []
-  };
-}
-
-/**
- * Uses Vertex AI to analyze the chart pattern and generate insights
- */
-async function analyzeChartWithVertexAI(visionData: any, context?: any) {
-  if (!vertexAIClient) {
-    throw new Error('Vertex AI client not initialized');
-  }
-  
-  const generativeModel = vertexAIClient.preview.getGenerativeModel({
-    model: "gemini-1.5-pro",
-  });
-  
-  // Create a comprehensive prompt for chart pattern analysis
-  const prompt = `
-You are a professional crypto technical analyst specialized in chart pattern recognition.
-Analyze the following data extracted from a cryptocurrency price chart and identify the most likely technical pattern present.
-
-Text detected in the chart: ${visionData.text || 'No text detected'}
-
-Objects detected: ${JSON.stringify(visionData.objects)}
-
-Labels detected: ${JSON.stringify(visionData.labels)}
-
-Color distribution: ${JSON.stringify(visionData.colors)}
-
-${context ? `Additional context: ${context}` : ''}
-
-Based on this information, identify which of the following patterns is most likely present in the chart:
-- Head and Shoulders 
-- Inverse Head and Shoulders
-- Double Top
-- Double Bottom
-- Ascending Triangle
-- Descending Triangle
-- Symmetrical Triangle
-- Flag
-- Pennant
-- Cup and Handle
-- Rising Wedge
-- Falling Wedge
-- Rounding Bottom
-
-Respond with a JSON object containing:
-1. pattern (string): The name of the most likely pattern
-2. confidence (number): Your confidence level between 0 and 1
-3. moveDirection (string): "bullish", "bearish", or "neutral"
-4. entryZone (string): Ideal entry price zone
-5. stopLoss (string): Recommended stop loss level
-6. targetZone (string): Price target zone
-7. timeframe (string): Detected chart timeframe (e.g., "1D", "4H")
-8. additionalInsights (string): Brief technical analysis insights
-`;
-
+export const analyzeChartPattern = async (req: Request, res: Response) => {
   try {
-    const result = await generativeModel.generateContent(prompt);
-    const response = await result.response;
-    const textContent = response.candidates[0].content.parts[0].text;
+    let imageBase64;
     
-    // Extract JSON from text response
-    let jsonStart = textContent.indexOf('{');
-    let jsonEnd = textContent.lastIndexOf('}');
-    
-    if (jsonStart >= 0 && jsonEnd >= 0) {
-      const jsonString = textContent.substring(jsonStart, jsonEnd + 1);
-      try {
-        const patternAnalysis = JSON.parse(jsonString);
-        return patternAnalysis;
-      } catch (e) {
-        console.error('Error parsing Vertex AI response as JSON:', e);
-        throw new Error('Failed to parse Vertex AI response');
-      }
+    // Para solicitudes JSON con imágenes en base64
+    if (req.body.image) {
+      imageBase64 = req.body.image;
+    } 
+    // Para solicitudes multipart/form-data (archivos subidos)
+    else if (req.file) {
+      const filePath = req.file.path;
+      const fileData = fs.readFileSync(filePath);
+      imageBase64 = fileData.toString('base64');
+      
+      // Eliminar el archivo temporal
+      fs.unlinkSync(filePath);
     } else {
-      throw new Error('Vertex AI response did not contain valid JSON');
-    }
-  } catch (error) {
-    console.error('Error in Vertex AI analysis:', error);
-    throw error;
-  }
-}
-
-/**
- * Enhances the analysis with pattern database information
- */
-function enhancePatternAnalysis(aiAnalysis: any): ChartPatternResult {
-  // Find the matching pattern in our database
-  const patternKey = Object.keys(CHART_PATTERNS).find(key => 
-    CHART_PATTERNS[key as keyof typeof CHART_PATTERNS].name.toLowerCase() === aiAnalysis.pattern.toLowerCase()
-  );
-  
-  let patternInfo = {
-    description: "Unknown pattern",
-    type: "unknown",
-    reliability: 0.5,
-    timeToTarget: "Unknown"
-  };
-  
-  if (patternKey) {
-    const pattern = CHART_PATTERNS[patternKey as keyof typeof CHART_PATTERNS];
-    patternInfo = {
-      description: pattern.description,
-      type: pattern.type,
-      reliability: pattern.reliability,
-      timeToTarget: pattern.timeToTarget
-    };
-  }
-  
-  return {
-    pattern: aiAnalysis.pattern,
-    confidence: aiAnalysis.confidence,
-    predictedMove: aiAnalysis.moveDirection === 'bullish' ? `+${aiAnalysis.confidence * 10}%` : 
-                   aiAnalysis.moveDirection === 'bearish' ? `-${aiAnalysis.confidence * 10}%` : '0%',
-    moveDirection: aiAnalysis.moveDirection,
-    timeframe: aiAnalysis.timeframe || "Unknown",
-    entryZone: aiAnalysis.entryZone,
-    stopLoss: aiAnalysis.stopLoss,
-    targetZone: aiAnalysis.targetZone,
-    patternInfo
-  };
-}
-
-/**
- * Main handler for analyzing chart patterns from uploaded images
- */
-export async function analyzeChartPattern(req: ExpressRequest & { file?: Express.Multer.File }, res: Response) {
-  try {
-    if (!visionClient || !vertexAIClient) {
-      return res.status(500).json({ 
-        error: 'Chart pattern recognition services not initialized', 
-        message: 'Google Vision API or Vertex AI is not available' 
-      });
-    }
-
-    if (!req.file) {
       return res.status(400).json({ 
-        error: 'No chart image uploaded',
-        message: 'Please upload a chart image for analysis' 
+        success: false, 
+        message: 'No image provided. Please upload an image file or provide a base64 encoded image.' 
       });
     }
-
-    const filePath = req.file.path;
-    const timeframe = req.body.timeframe || 'Unknown';
-    const symbol = req.body.symbol || 'Unknown';
     
-    // Extract data from the chart image using Vision API
-    const visionData = await detectPatternsInChart(filePath);
+    // Analizar el patrón del gráfico
+    const result = await chartService.analyzeChartPattern(imageBase64);
     
-    // Analyze the chart pattern using Vertex AI
-    const chartContext = `This is a ${timeframe} chart for ${symbol}`;
-    const aiAnalysis = await analyzeChartWithVertexAI(visionData, chartContext);
-    
-    // Enhance with additional pattern information
-    const enhancedAnalysis = enhancePatternAnalysis(aiAnalysis);
-    
-    // Clean up the temporary file
-    const unlinkAsync = promisify(fs.unlink);
-    await unlinkAsync(filePath);
-
-    res.json({
-      status: 'success',
-      data: enhancedAnalysis,
-      rawVisionData: visionData
-    });
-  } catch (error: any) {
+    res.json(result);
+  } catch (error) {
     console.error('Error analyzing chart pattern:', error);
     res.status(500).json({ 
-      error: 'Error analyzing chart pattern', 
-      message: error.message 
+      success: false, 
+      message: 'Error analyzing chart pattern: ' + (error as Error).message 
     });
   }
-}
+};

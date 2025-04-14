@@ -21,6 +21,7 @@ import PortfolioAnalysis from "./pages/PortfolioAnalysis";
 import NFTGalleryPage from "./pages/nft/NFTGalleryPage";
 import TokenTrackerPage from "./pages/nft/TokenTrackerPage";
 import GamificationPage from "./pages/GamificationPage";
+import ChartAnalysisPage from "./pages/ChartAnalysisPage";
 import SystemCheck from "./pages/admin/SystemCheck";
 import SystemValidator from "./pages/admin/SystemValidator";
 import SystemReport from "./pages/admin/SystemReport";
@@ -157,6 +158,9 @@ function AppLayout() {
           <Route path="/subscription-plans" component={SubscriptionPlans} />
           <Route path="/live-price-tracker" component={LivePriceTracker} />
           <Route path="/nft-explorer" component={NFTExplorer} />
+          
+          {/* Chart Pattern Recognition - Phase 5 Feature */}
+          <Route path="/chart-analysis" component={ChartAnalysisPage} />
           
           <Route component={NotFound} />
         </Switch>
