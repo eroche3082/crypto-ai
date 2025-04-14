@@ -6,6 +6,8 @@ import Stripe from "stripe";
 import fs from 'fs';
 import path from 'path';
 import { googleTTSHandler, elevenLabsTTSHandler } from "./tts";
+import { googleSTTHandler, detectSpeechLanguageHandler } from "./stt";
+import { analyzeEntitiesHandler, analyzeSentimentHandler, analyzeSyntaxHandler } from "./naturalLanguage";
 import { analyzeImage, uploadMiddleware } from "./vision";
 import { getTwitterSentiment, getMarketSentiment } from "./twitter";
 import { analyzeSentiment } from "./sentiment";
@@ -1070,6 +1072,15 @@ Watch for increased volatility around upcoming economic announcements.
   // Text-to-Speech API routes
   app.post('/api/tts/google', googleTTSHandler);
   app.post('/api/tts/elevenlabs', elevenLabsTTSHandler);
+  
+  // Speech-to-Text endpoints
+  app.post('/api/speech-to-text', googleSTTHandler);
+  app.post('/api/speech-to-text/detect-language', detectSpeechLanguageHandler);
+  
+  // Natural Language API endpoints
+  app.post('/api/natural-language/entities', analyzeEntitiesHandler);
+  app.post('/api/natural-language/sentiment', analyzeSentimentHandler);
+  app.post('/api/natural-language/syntax', analyzeSyntaxHandler);
   
   // Speech-to-text API for audio transcription
   app.post('/api/speech/transcribe', audioMiddleware, transcribeAudio);

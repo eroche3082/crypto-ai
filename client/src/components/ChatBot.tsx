@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLocation } from 'wouter';
+import { SpeechButton } from '@/components/SpeechButton';
+import { SpeechRecordButton } from '@/components/SpeechRecordButton';
 
 interface Message {
   id: string;
