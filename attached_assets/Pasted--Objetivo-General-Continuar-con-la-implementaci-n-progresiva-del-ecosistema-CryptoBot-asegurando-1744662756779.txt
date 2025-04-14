@@ -1,0 +1,99 @@
+🔁 Objetivo General:
+Continuar con la implementación progresiva del ecosistema CryptoBot, asegurando que se mantengan las funcionalidades protegidas y se expanda la plataforma con integraciones útiles, análisis avanzados y una experiencia multimodal coherente. Priorizar fluidez, seguridad, automatización y precisión.
+
+---
+
+🔒 COMPONENTES BLOQUEADOS – NO MODIFICAR
+- FloatingChatbot.tsx
+- AdvancedChatbot.tsx
+- ZoomStyleChat.tsx
+- generateGeminiResponse
+- generateVertexResponse
+- systemPrompts.ts
+- chatConfig.ts
+
+---
+
+🚀 TAREAS PARA CONTINUAR (FASE 4)
+
+✅ 1. Wallet Web3 Integration
+- Conectar con MetaMask y WalletConnect desde el botón de Wallet
+- Mostrar red activa y dirección conectada
+- Integrar balance y tokens ERC-20 visibles desde la wallet
+
+✅ 2. NFT Gallery y Token Tracker
+- Crear un componente llamado `NFTGallery.tsx`
+- Obtener NFTs desde OpenSea o Moralis API usando la dirección de la wallet conectada
+- Visualizar imagen, nombre y floor price por colección
+- Añadir pestaña de seguimiento para tokens nuevos
+
+✅ 3. Crypto Tax Simulator
+- Crear módulo `/components/TaxCalculator.tsx`
+- Incluir simulación básica: ganancias/pérdidas por transacción + fecha
+- Añadir botón “Exportar a CSV” y detectar jurisdicción del usuario (🇺🇸🇪🇸🇧🇷)
+
+✅ 4. Twitter/X Integration Real
+- Conectar al API oficial de Twitter/X v2
+- Implementar endpoint `/api/twitter/sentiment/:symbol`
+- Mostrar gráfico de sentimiento en tiempo real y palabras más usadas por token
+- Analizar emociones con Google NLP y fallback Claude
+
+✅ 5. Gamification Layer
+- Crear sistema de experiencia (XP) en `hooks/useGamification.ts`
+- Ganar XP por: usar el chatbot, completar cursos, crear alertas
+- Añadir sistema de `Streaks`, `Badges`, y `Rango` visible en el perfil
+
+✅ 6. Education Center Enhancements
+- Cargar dinámicamente los cursos desde Firestore
+- Agregar progreso con barra visual por curso
+- Integrar AI assistant que da feedback a respuestas del estudiante
+
+✅ 7. Investment Advisor
+- Conectar con Vertex AI o Claude para analizar portafolio del usuario
+- Incluir un prompt base: "Act as an investment advisor and suggest a low/medium/high risk portfolio for this user"
+- Mostrar sugerencias con visualización en gráficos
+
+✅ 8. News Feed Real (FULL)
+- Terminar integración con NewsAPI (KEY activa)
+- Permitir búsqueda por token
+- Añadir botón “AI Summary” que utilice Gemini o Claude para resumir cada noticia
+
+✅ 9. Notificaciones + Alertas
+- Conectar Twilio o Push Protocol para notificaciones reales
+- Alertas por precio, sentimiento, evento o señal de IA
+- Añadir componente `NotificationSettings.tsx` en el perfil
+
+✅ 10. Seguridad & Cumplimiento
+- Añadir botón para activar 2FA (usando Firebase Auth o Google Authenticator)
+- Añadir módulo `SmartContractScanner.tsx` que revise seguridad de contratos (con API como GoPlus)
+
+---
+
+🧠 SUGERENCIAS TÉCNICAS Y FUNCIONALES
+- Reforzar sistema de fallback para Gemini, Vertex y Claude
+- Implementar sistema de logs por API y usuario en Firebase para debugging y analítica
+- Usar cache de CoinGecko (memoria o Redis) para evitar throttling
+- Añadir modo “Pro Trader” que activa funciones avanzadas como gráficos técnicos, DEX price scanner
+- Activar visualización “Market Bubbles” (gráfico de burbujas interactivo por volumen)
+- Implementar sistema de inteligencia predictiva en `/ai/predict-market.ts`
+- Crear chatbot 24/7 que vigile el mercado y envíe reportes semanales por email
+- Añadir visualización “Top Wallets Movements” para detectar actividad inusual
+
+---
+
+🧪 QA & VERIFICACIÓN CONTINUA
+- Probar cada nuevo módulo con mock data + fallback incluido
+- Usar testing visual para componentes críticos
+- Validar idiomas disponibles en cada nuevo componente
+- Incluir `status.json` para monitoreo de sistema por sección
+- Asegurar respuesta en móvil (responsive)
+
+---
+
+📦 DEPLOYMENT & ESCALABILIDAD
+- Preparar `.env.production` con todas las API Keys reales
+- Conectar Analytics (Google/Firebase) para trazabilidad de uso
+- Optimizar WebSocket con pings cada 30s y cierre limpio
+- Habilitar backups automáticos de Firestore y PostgreSQL
+- Incluir roadmap visual dentro del Dashboard con progreso de features
+
