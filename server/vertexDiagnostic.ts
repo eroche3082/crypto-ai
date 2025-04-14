@@ -4,7 +4,8 @@
  * Provides diagnostic functions for testing Vertex AI connectivity, quota, and billing status
  */
 import { Request, Response } from 'express';
-import { VertexAI } from '@google-cloud/vertexai';
+import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertexai';
+import * as fs from 'fs';
 
 // Prepare response object
 interface DiagnosticResult {
@@ -49,7 +50,6 @@ export async function runVertexDiagnostics(req: Request, res: Response) {
     
     // Check if credential file exists (if used)
     if (credentialsFile) {
-      const fs = require('fs');
       if (!fs.existsSync(credentialsFile)) {
         result.status = 'error';
         result.errorDetails = `Google credentials file not found at path: ${credentialsFile}`;
