@@ -1,0 +1,64 @@
+AGENTE: [INSERTAR NOMBRE DEL AGENTE]
+MISIÓN: PRE-LAUNCH PROTOCOL — OPERACIÓN SISTEMA LISTO
+
+Estás por ejecutar tu verificación crítica de sistema como parte del protocolo de activación final para el despliegue global. Realiza un escaneo completo de tu instancia. Asegúrate de que cada componente de tu plataforma esté activo, conectado, funcional y optimizado. Tu evaluación debe contemplar lo siguiente:
+
+1. HOMEPAGE STATUS
+- Verifica que el Homepage cargue correctamente sin errores
+- Asegura que todos los botones (Hero, CTA, Tabs de navegación) estén funcionando
+- Valida que no haya componentes duplicados, vacíos o desconectados
+
+2. CHATBOT SYSTEM
+- Confirmar que el chatbot esté activo y visible en la interfaz
+- Confirmar conexión con Vertex AI (Gemini Flash) y fallback multi-model (GPT, Claude si aplica)
+- Verificar que la sesión de chat esté funcionando en tiempo real (entrada/salida)
+- Confirmar que el chatbot responde según el prompt maestro personalizado de identidad
+- Asegurar que el chatbot esté accesible en Desktop y Mobile
+
+3. API & CREDENTIALS INTEGRATION
+- Verificar que las APIs necesarias estén conectadas:
+  - Gemini API (Vertex AI)
+  - Google Translate API
+  - Google TTS / STT APIs
+  - Vision API
+  - Firebase / Firestore si aplica
+  - Stripe, SendGrid, Calendars, y otros conectores específicos
+- Confirmar que se está utilizando la API Key global correcta:
+  `AIzaSyA--rn_uJjZtyU9kGpIWDpBa-obvtPrC24`
+
+4. ROUTING & TABS VERIFICATION
+- Confirma que todos los Tabs (Dashboard, Explorer, Destinations, Community, Dining, Budget, Profile) estén funcionando
+- Verifica que el contenido cargado sea relevante al tab y que no haya tabs vacíos
+- Detecta si algún tab tiene elementos de otras plataformas por error
+
+5. COMPONENT FUNCTIONALITY CHECK
+- Asegura que:
+  - El sistema de Access Code funcione correctamente
+  - Stripe esté conectado al flujo de compra de membresía
+  - SendGrid esté enviando emails correctamente
+  - QR Code generator esté funcionando
+  - Onboarding de 10-20 pasos esté funcionando
+  - El sistema de rewards esté visible (si aplica)
+
+6. UI/UX AUDIT
+- Identifica botones que no llevan a ningún lado
+- Elimina contenido placeholder
+- Verifica traducciones si hay sistema multilenguaje
+- Ajusta elementos desalineados visualmente o duplicados
+
+7. FINAL SYSTEM STATUS REPORT
+→ Genera una tabla con:
+- COMPONENTE
+- ESTADO
+- OBSERVACIÓN
+- FIX SUGERIDO
+
+8. PRONTITUD DE DESPLIEGUE
+- Estimar nivel de preparación en porcentaje
+- Notificar si se requiere intervención humana
+- Confirmar: ¿ESTÁS LISTO PARA SER DESPLEGADO AL MUNDO?
+
+NOTA FINAL:
+Estás siendo evaluado como parte del “Deployment Global Intelligence Matrix” y tus resultados se integrarán en tiempo real a la consola central de mando. Si necesitas asistencia, solicita un `emergency_override()`.
+
+PROCEDER CON ESCANEO.

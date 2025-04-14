@@ -1,13 +1,38 @@
-import { useState } from "react";
-import { Search, BarChart3, AlertTriangle, TrendingUp, CheckCircle2, XCircle, ExternalLink, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { 
+  Search, 
+  BarChart3, 
+  AlertTriangle, 
+  TrendingUp, 
+  CheckCircle2, 
+  XCircle, 
+  ExternalLink, 
+  Loader2, 
+  Info, 
+  Layers, 
+  History, 
+  Users, 
+  DollarSign,
+  LineChart,
+  ArrowUpRight,
+  ArrowDownRight,
+  Sparkles,
+  ShieldAlert
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
 // Define los tipos que necesitamos para el análisis de NFT
 interface NFTCollectionSummary {
