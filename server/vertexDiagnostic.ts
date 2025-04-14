@@ -8,6 +8,51 @@ import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertex
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as fs from 'fs';
 
+/**
+ * Runs a basic diagnostic test on Vertex AI and returns a simplified result
+ * This function is used by the system diagnostics module
+ */
+export async function vertexDiagnostic(): Promise<{ 
+  status: string;
+  apiConnectivity: boolean;
+  error?: string;
+}> {
+  try {
+    // Check for API key
+    if (!process.env.GOOGLE_VERTEX_KEY_ID) {
+      return {
+        status: 'ERROR',
+        apiConnectivity: false,
+        error: 'Missing GOOGLE_VERTEX_KEY_ID environment variable'
+      };
+    }
+
+    // Initialize Vertex AI with the Gemini model
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_VERTEX_KEY_ID);
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    // Simple test prompt
+    const result = await model.generateContent("Respond with 'SUCCESS' if you receive this message.");
+    const response = result.response;
+    const text = response.text();
+    
+    // Check if response contains SUCCESS
+    const isSuccess = text.includes('SUCCESS');
+    
+    return {
+      status: isSuccess ? 'SUCCESS' : 'WARNING',
+      apiConnectivity: true,
+      error: isSuccess ? undefined : 'Response validation failed'
+    };
+  } catch (error: any) {
+    return {
+      status: 'ERROR',
+      apiConnectivity: false,
+      error: error.message || 'Unknown error occurred'
+    };
+  }
+}
+
 // Prepare response object
 interface DiagnosticResult {
   status: 'success' | 'error' | 'warning';

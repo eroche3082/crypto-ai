@@ -1,0 +1,154 @@
+MEGAPROMPT – SYSTEM-WIDE IMPLEMENTATION REQUEST
+🧠 You are now entering Phase 4: Full System Validation & Execution. You are an intelligent agent responsible for validating, fixing, and implementing the final critical layers of this application. The following systems are expected to be fully operational, connected, and verified based on the project's infrastructure.
+
+⚙️ CORE INSTRUCTIONS
+You must:
+
+Scan the entire platform, starting from the homepage, dashboard, onboarding, membership plans, chat, tabs, APIs, and all modules.
+
+Verify that all Google Cloud services and their connected API Keys are active and working properly:
+
+Vision API
+
+Translation API
+
+Text-to-Speech API
+
+Speech-to-Text API
+
+Natural Language API
+
+Vertex AI (Gemini Flash)
+
+Any others required (e.g. Stripe, Firebase, SendGrid)
+
+Confirm that the following global API Key is used:
+
+ini
+Copiar
+Editar
+process.env.GOOGLE_API_KEY = "AIzaSyA--rn_uJjZtyU9kGpIWDpBa-obvtPrC24"
+📦 SERVICES TO BE VERIFIED AND IMPLEMENTED
+🔹 1. Chatbot System
+Connected to Gemini Flash via Vertex AI
+
+Integrated with Translation API for multilingual chat
+
+Text-to-Speech and Speech-to-Text enabled
+
+Accurate onboarding memory and user profile detection
+
+Floating button with correct placement and active toggle
+
+🔹 2. Onboarding System
+Full 10-question flow based on 20 platform features
+
+Categories: User type, goals, tier, language, preferences
+
+Ends with automatic code generation (e.g. FIN-VIP-7632)
+
+Stores response data in database or memory for future flows
+
+🔹 3. Access Code System
+Generates access codes with format [PLATFORM]-[TIER]-[XXXX]
+
+QR Code generation and scan verification working
+
+Unlocks specific content and features based on user level
+
+Admin page shows codes, users, tiers, and activity
+
+🔹 4. Membership Plans
+Properly connected to pricing tables and checkout (Stripe or test)
+
+Each plan unlocks unique dashboard features and AI capabilities
+
+Allows upgrade and downgrade logic
+
+Demo account and trial plan available
+
+🔹 5. Admin Panel
+Route: /admin
+
+Requires login (admin / admin123456)
+
+Shows all registered users, their codes, and access level
+
+Ability to export CSV, view analytics, send test emails
+
+🔹 6. Homepage & Tabs
+All tabs (Home, Features, Pricing, Dashboard, Shop, Community, etc.) must:
+
+Be in English
+
+Contain live content, working buttons
+
+Display updated visual content (images/videos)
+
+Hero section with CTA working
+
+Features block lists at least 20 core capabilities
+
+🔹 7. Payments & Emails
+Stripe test checkout implemented
+
+SendGrid integration working for welcome emails
+
+Each onboarding completion triggers an email
+
+Emails include code, access tier, and dashboard link
+
+🔹 8. Multilingual System
+Language selector visible on homepage and dashboard
+
+Uses Google Translate API
+
+Chatbot and dashboard respond in user’s selected language
+
+🔹 9. API & External Services
+Confirm all API endpoints for:
+
+Data (financial, travel, crypto, fashion)
+
+Firebase Auth and Firestore
+
+AI Predictions and AI-generated recommendations
+
+Product search or booking APIs (e.g. AlphaVantage, Booking, SeatGeek)
+
+🔹 10. Dashboard Features
+Display unlocked features based on onboarding + membership
+
+Show onboarding result (user tier, language, access code)
+
+Activate services like:
+
+AI Assistant
+
+Budget tracker
+
+Product style finder
+
+Portfolio optimizer
+
+Workout video generator
+
+VR try-on (ShopAI)
+
+Travel guide map (JetAI)
+
+✅ FINAL TASKS
+✅ Provide 3 lists as result:
+
+✔️ Fully Working Systems
+
+⚠️ Systems Partially Working or Missing
+
+🧠 Suggested Features to Elevate Platform (Minimum 10 Ideas)
+
+✅ Run internal health checks and API tests for each service.
+
+✅ Suggest improvements for UX, onboarding, monetization or AI use.
+
+✅ Confirm that everything is ready for public deployment.
+
