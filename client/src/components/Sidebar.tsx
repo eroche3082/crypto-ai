@@ -57,6 +57,26 @@ const Sidebar = () => {
       tag: "New"
     },
     
+    // New Phase 1 pages with tags
+    { 
+      path: "/subscription-plans", 
+      icon: <Trophy size={20} />, 
+      label: t("subscriptionPlans.title", "Subscription Plans"),
+      tag: "New"
+    },
+    { 
+      path: "/live-price-tracker", 
+      icon: <Wallet size={20} />, 
+      label: t("priceTracker.title", "Live Price Tracker"),
+      tag: "New"
+    },
+    { 
+      path: "/nft-explorer", 
+      icon: <Image size={20} />, 
+      label: t("nftExplorer.title", "NFT Explorer"),
+      tag: "New"
+    },
+    
     // Legacy portfolio sections
     // { path: "/portfolio", icon: <BarChart3 size={20} />, label: t("portfolio.title", "Portfolio") },
     // { path: "/portfolio-analysis", icon: <Brain size={20} />, label: t("portfolioAnalysis.title", "Portfolio AI") },

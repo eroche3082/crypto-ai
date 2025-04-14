@@ -35,6 +35,10 @@ import DashboardPage from "./pages/DashboardPage";
 // Unified pages
 import UnifiedPortfolio from "./pages/UnifiedPortfolio";
 import UnifiedDigitalAssets from "./pages/UnifiedDigitalAssets";
+// New Phase 1 pages
+import SubscriptionPlans from "./pages/SubscriptionPlans";
+import LivePriceTracker from "./pages/LivePriceTracker";
+import NFTExplorer from "./pages/NFTExplorer";
 import FloatingChatbot from "./components/FloatingChatbot";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -146,6 +150,12 @@ function AppLayout() {
           <Route path="/admin/api-health" component={ApiHealthDashboard} />
           <Route path="/admin/panel" component={AdminPanel} />
           <Route path="/dashboard/payment/:levelId" component={MultiPaymentPage} />
+          
+          {/* New Phase 1 pages */}
+          <Route path="/subscription-plans" component={SubscriptionPlans} />
+          <Route path="/live-price-tracker" component={LivePriceTracker} />
+          <Route path="/nft-explorer" component={NFTExplorer} />
+          
           <Route component={NotFound} />
         </Switch>
         <Footer />
