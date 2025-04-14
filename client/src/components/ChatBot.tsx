@@ -1219,9 +1219,25 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
                           <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full">
                             <Image size={14} />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full">
-                            <Mic size={14} />
-                          </Button>
+                          <SpeechRecordButton 
+                            compact
+                            variant="ghost" 
+                            className="h-7 w-7 rounded-full"
+                            onTranscriptionComplete={(text) => {
+                              // When speech is transcribed, add it to the input
+                              setInputMessage(prev => {
+                                // If there's already text, add a space before adding the new transcription
+                                const space = prev.trim() ? ' ' : '';
+                                return prev + space + text;
+                              });
+                            }}
+                            onRecordingStart={() => {
+                              // Optional feedback when recording starts
+                            }}
+                            onRecordingEnd={() => {
+                              // Optional feedback when recording ends
+                            }}
+                          />
                         </div>
                       </div>
                       <Button 
