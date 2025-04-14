@@ -220,6 +220,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add a status endpoint to check system health including email service status
   app.get('/api/system/status', getSystemStatus);
   
+  // Comprehensive system diagnostics endpoint for MEGAPROMPT validation
+  app.get('/api/system-diagnostics', getSystemDiagnostics);
+  
+  // Google services test endpoint
+  app.get('/api/system/google-services-test', handleRunServiceTests);
+  
+  // Vertex AI diagnostics endpoints
+  app.get('/api/system/vertex/diagnostics', runVertexDiagnostics);
+  app.get('/api/system/vertex/comprehensive-diagnostics', runComprehensiveVertexDiagnostic);
+  
   // API status endpoint for monitoring data sources health
   app.get('/api/system/api-status', async (req, res) => {
     try {
@@ -284,15 +294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Vertex AI diagnostics endpoints
-  app.get('/api/system/vertex-diagnostics', runVertexDiagnostics);
-  app.get('/api/system/vertex-diagnostics/comprehensive', runComprehensiveVertexDiagnostic);
-  
-  // Google Cloud services test endpoint
-  app.get('/api/system/google-services-test', handleRunServiceTests);
-  
-  // System diagnostics endpoint for full platform validation
-  app.get('/api/system/diagnostics', getSystemDiagnostics);
+  // System diagnostics endpoints are registered at the top of this file
   
   // Add a route to serve the static HTML fallback page
   app.get('/static', (req: Request, res: Response) => {
