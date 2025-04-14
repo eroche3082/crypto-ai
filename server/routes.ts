@@ -10,7 +10,12 @@ import { analyzeImage, uploadMiddleware } from "./vision";
 import { getTwitterSentiment, getMarketSentiment } from "./twitter";
 import { analyzeSentiment } from "./sentiment";
 import { generateAIResponse } from "./gemini";
-import { handleVertexAIResponse } from "./vertexai";
+import { 
+  handleVertexAIResponse, 
+  handleVisionAIResponse, 
+  generateMarketAnalysis,
+  getAIDiagnostics
+} from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
 import { checkVertexAi, checkPaymentMethods, getSystemStatus } from "./systemCheck";
@@ -431,11 +436,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/email/send-access-code", sendAccessCodeEmail);
   app.post("/api/email/send-newsletter", sendNewsletterCampaign);
   
-  // VertexAI proxy for enhanced Gemini capabilities
+  // VertexAI endpoints with enhanced fallback capabilities
   app.post("/api/vertex-ai-response", handleVertexAIResponse);
+  app.post("/api/vertex-ai-vision", handleVisionAIResponse);
+  app.get("/api/vertex-ai-diagnostics", getAIDiagnostics);
   
-  // Vertex AI Market Analysis
-  app.post("/api/v2/vertex/market/analyze", async (req, res) => {
+  // Vertex AI Market Analysis with full fallback support
+  app.post("/api/v2/vertex/market/analyze", generateMarketAnalysis);
+  
+  // Legacy Market Analysis endpoint (keeping for compatibility)
+  app.post("/api/v2/vertex/market/analyze-legacy", async (req, res) => {
     try {
       const { coins, timeframe, language = 'en' } = req.body;
       
