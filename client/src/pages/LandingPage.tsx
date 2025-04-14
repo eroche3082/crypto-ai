@@ -697,18 +697,7 @@ export default function LandingPage() {
             </div>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/login">
-              <Button size="lg" className="gap-2 bg-indigo-600 hover:bg-indigo-700">
-                Get Started Now <ArrowRight size={16} />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button variant="outline" size="lg" className="gap-2 text-white border-white hover:bg-white/10">
-                Explore Platform <ChevronRight size={16} />
-              </Button>
-            </Link>
-          </div>
+          {/* No additional call-to-action buttons needed - Using top navigation buttons */}
         </div>
       </section>
 
@@ -758,10 +747,10 @@ export default function LandingPage() {
             <div>
               <h3 className="font-bold text-lg mb-4">Resources</h3>
               <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">API</a></li>
+                <li><Link href="/news" className="text-gray-400 hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/education" className="text-gray-400 hover:text-white transition-colors">Documentation</Link></li>
+                <li><Link href="/education" className="text-gray-400 hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link href="/admin/api-health" className="text-gray-400 hover:text-white transition-colors">API</Link></li>
               </ul>
             </div>
             
@@ -790,9 +779,9 @@ export default function LandingPage() {
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-400 text-sm mb-4 md:mb-0">© 2025 CryptoBot AI. All rights reserved.</p>
               <div className="flex gap-6 text-sm text-gray-400">
-                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+                <Link href="/login" className="hover:text-white transition-colors">Terms of Service</Link>
+                <Link href="/login" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <Link href="/login" className="hover:text-white transition-colors">Cookie Policy</Link>
               </div>
             </div>
           </div>
