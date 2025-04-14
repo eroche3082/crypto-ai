@@ -1,0 +1,187 @@
+CRYPTOBOT PHASE 5 – FULL SYSTEM FINALIZATION MEGAPROMPT
+Agents, this is your comprehensive instruction set to take CryptoBot from 76% readiness to full deployment. Execute all final validation, fixes, integrations, and AI upgrades required.
+
+🪙 CONTEXT:
+CryptoBot is an advanced crypto intelligence platform featuring:
+
+AI-powered market insights
+
+Real-time portfolio analytics
+
+Multilingual assistant
+
+Secure access code system
+
+Multi-payment infrastructure
+
+Phase 4 diagnostics confirm solid infrastructure, but several high-impact systems remain incomplete or blocked.
+
+You are now instructed to finalize the entire system for launch.
+
+📦 OBJECTIVES
+1. ✅ ENABLE & VERIFY ALL GOOGLE CLOUD APIs
+Immediately confirm that the following services are active and responding:
+
+bash
+Copiar
+Editar
+TEXT_TO_SPEECH
+SPEECH_TO_TEXT
+NATURAL_LANGUAGE
+Once verified:
+
+Add voice input in the chatbot (Speech-to-Text)
+
+Enable spoken AI responses (Text-to-Speech)
+
+Enhance chat analysis with entity extraction & sentiment (Natural Language)
+
+Use the following key and group:
+
+env
+Copiar
+Editar
+process.env.GOOGLE_API_KEY = "AIzaSyA--rn_uJjZtyU9kGpIWDpBa-obvtPrC24"
+API_GROUP = "GROUP5"
+PROJECT_ID = "erudite-creek-431302-q3"
+2. 🧠 COMPLETE AI SYSTEM FEATURES
+Validate multi-model fallback (Gemini > GPT-4o > Claude)
+
+Optimize AI response speed (target ≤ 1.8s)
+
+Add support for:
+
+📊 Market sentiment analysis
+
+📈 AI portfolio rebalance alerts
+
+🧩 Trading pattern detection
+
+🗣 Voice-activated trade queries
+
+3. 🧾 VERIFY PAYMENTS & MEMBERSHIPS
+Ensure:
+
+Stripe is fully functional with:
+
+Basic, Premium, VIP tier plans
+
+Checkout works for:
+
+Stripe
+
+PayPal
+
+Crypto (mock or live)
+
+Bank Transfer
+
+Membership plan connects to:
+
+Access Code Tier
+
+Feature unlock logic
+
+Premium analytics pages
+
+4. 💬 FINALIZE CHATBOT SYSTEM
+Chatbot must:
+
+Speak and listen (TTS/STT)
+
+Understand financial queries using Natural Language API
+
+Answer in multiple languages (EN, ES, FR, PT)
+
+Render markdown and financial charts in chat
+
+Fallback to Gemini if GPT/Claude are unavailable
+
+Trigger specific flows:
+
+Portfolio Analysis
+
+Coin Watch Alerts
+
+Market Education
+
+Personal Wallet Q&A
+
+5. 📋 ACCESS CODE & ONBOARDING CHECK
+Verify that:
+
+Onboarding 10-question flow works
+
+Code system follows: CRYPTO-[TIER]-XXXX
+
+QR Code Generator is downloadable and scannable
+
+Tier access unlocks correct features
+
+Admin sees and manages all codes via dashboard
+
+6. 💻 UI & FRONTEND POLISH
+Features page must list 20+ complete features
+
+Add animations or videos to hero section
+
+Feature blocks must link to detailed tooltips or popups
+
+Mobile dashboard layout for:
+
+Portfolio tracking
+
+Coin performance charts
+
+Recent news and predictions
+
+7. 💰 SUGGESTED HIGH-IMPACT FEATURES
+Integrate if time permits:
+
+Crypto Market Trend Prediction AI
+
+AI-Powered Portfolio Rebalancing
+
+Social Portfolio Sharing + Leaderboard
+
+Voice Assistant for crypto commands
+
+Investment Progress Gamification (e.g., badges, levels)
+
+🔒 SECURITY & PERFORMANCE
+Implement security checks for payment webhooks
+
+Limit API token exposure to backend only
+
+Ensure all AI services gracefully handle fallback & quota issues
+
+Track AI performance (response time, error rate)
+
+Enable MFA if possible (admin panel)
+
+✅ REQUIRED OUTPUT FROM AGENTS
+Return a structured report containing:
+
+✅ Working APIs + timestamps
+
+❌ Blocked or failing systems with root cause
+
+🔧 Fixes applied (per module)
+
+📈 Deployment Readiness Score (target: ≥ 95%)
+
+💡 Top 5 user-facing features for marketing
+
+🚨 Any critical blockers for launch
+
+⚙️ INFRA ENVIRONMENT
+env
+Copiar
+Editar
+PROJECT_ID="erudite-creek-431302-q3"
+GOOGLE_API_KEY="AIzaSyA--rn_uJjZtyU9kGpIWDpBa-obvtPrC24"
+GOOGLE_APPLICATION_CREDENTIALS="/home/eroche/.keys/google-credentials-global.json"
+STRIPE_PUBLIC_KEY="pk_live_..."
+STRIPE_SECRET_KEY="sk_live_..."
+SENDGRID_API_KEY="SG.XXX"
+FIREBASE_MODE="development"

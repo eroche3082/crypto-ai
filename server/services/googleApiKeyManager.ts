@@ -81,6 +81,27 @@ const apiKeyGroups: ApiKeyGroup[] = [
     key: process.env.GOOGLE_GROUP4_API_KEY || null,
     services: ['firebase', 'firestore', 'storage', 'secret-manager'],
     isAvailable: !!process.env.GOOGLE_GROUP4_API_KEY
+  },
+  {
+    id: 'GROUP5',
+    key: process.env.GOOGLE_API_KEY || null,
+    services: [
+      'vertex-ai', 
+      'gemini', 
+      'vision', 
+      'language', 
+      'translate', 
+      'speech', 
+      'text-to-speech',
+      'maps',
+      'places',
+      'youtube',
+      'firebase',
+      'firestore',
+      'storage',
+      'secret-manager'
+    ],
+    isAvailable: !!process.env.GOOGLE_API_KEY && process.env.API_GROUP === 'GROUP5'
   }
 ];
 
@@ -108,6 +129,10 @@ export function selectApiKeyGroupForService(service: GoogleServiceType): ApiKeyG
   const candidateGroups = apiKeyGroups
     .filter(group => group.isAvailable && group.services.includes(service))
     .sort((a, b) => {
+      // Prioritize GROUP5 for all services if available
+      if (a.id === 'GROUP5') return -1;
+      if (b.id === 'GROUP5') return 1;
+      
       // Prioritize GROUP1 for AI services
       if (['vertex-ai', 'gemini', 'vision', 'language'].includes(service)) {
         if (a.id === 'GROUP1') return -1;
@@ -125,7 +150,7 @@ export function selectApiKeyGroupForService(service: GoogleServiceType): ApiKeyG
   }
   
   // If no group was found with this service, try fallback order
-  const fallbackOrder = ['GROUP2', 'GROUP3', 'GROUP4', 'GROUP1'];
+  const fallbackOrder = ['GROUP5', 'GROUP2', 'GROUP3', 'GROUP4', 'GROUP1'];
   for (const groupId of fallbackOrder) {
     const group = apiKeyGroups.find(g => g.id === groupId && g.isAvailable);
     if (group) {

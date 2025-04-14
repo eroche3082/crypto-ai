@@ -1,46 +1,28 @@
 import { Request, Response } from 'express';
-import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
-
-// Initialize Google TTS client
-let ttsClient: TextToSpeechClient;
-try {
-  // Try to use the credentials JSON file if available
-  const credentialsPath = path.join(process.cwd(), 'google-credentials-global.json');
-  if (fs.existsSync(credentialsPath)) {
-    ttsClient = new TextToSpeechClient({
-      keyFilename: credentialsPath
-    });
-    console.log('Google TTS client initialized with credentials file');
-  } else if (process.env.GOOGLE_TTS_KEY_ID) {
-    // Use environment variables if file is not available
-    ttsClient = new TextToSpeechClient();
-    console.log('Google TTS client initialized with environment credentials');
-  } else {
-    console.warn('No Google TTS credentials found');
-  }
-} catch (error) {
-  console.error('Error initializing Google TTS client:', error);
-}
+import googleApiKeyManager from './services/googleApiKeyManager';
 
 /**
- * Google TTS API endpoint
+ * Google TTS API endpoint using the REST API with API Key
  */
 export async function googleTTSHandler(req: Request, res: Response) {
   try {
-    if (!ttsClient) {
+    // Get API key from the Google API Key Manager (uses GROUP5)
+    const apiKey = googleApiKeyManager.getApiKeyForService('text-to-speech');
+    
+    if (!apiKey) {
       return res.status(500).json({
-        error: 'Google TTS client not initialized. Please provide valid credentials.'
+        error: 'No API key available for Text-to-Speech service'
       });
     }
 
     const {
       text,
       languageCode = 'en-US',
-      name = 'en-US-Neural2-A',
-      gender = 'NEUTRAL',
+      name = 'en-US-Neural2-F', // Updated to a newer neural voice
+      gender = 'FEMALE',
       speakingRate = 1.0,
       pitch = 0,
     } = req.body;
@@ -56,8 +38,8 @@ export async function googleTTSHandler(req: Request, res: Response) {
       });
     }
 
-    // Prepare request
-    const request = {
+    // Prepare request data for REST API
+    const requestData = {
       input: { text },
       voice: {
         languageCode,
@@ -65,29 +47,57 @@ export async function googleTTSHandler(req: Request, res: Response) {
         ssmlGender: gender,
       },
       audioConfig: {
-        audioEncoding: 'MP3' as const,
+        audioEncoding: 'MP3',
         speakingRate,
         pitch,
       },
     };
 
-    // Call Google TTS API
-    const [response] = await ttsClient.synthesizeSpeech(request);
+    // Call Google TTS API using REST endpoint with API key
+    const response = await fetch(
+      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`API returned status ${response.status}: ${JSON.stringify(errorData)}`);
+    }
+
+    const responseData = await response.json();
     
-    if (!response.audioContent) {
+    if (!responseData.audioContent) {
       throw new Error('No audio content received from Google TTS API');
     }
 
-    // Convert to base64
-    const audioContent = Buffer.from(response.audioContent as Uint8Array).toString('base64');
+    // Track successful initialization
+    googleApiKeyManager.trackServiceInitialization(
+      'text-to-speech',
+      'GROUP5',
+      true
+    );
 
-    // Return as JSON
+    // Return as JSON (the API already returns base64-encoded audio)
     res.json({
-      audioContent,
+      audioContent: responseData.audioContent,
       format: 'mp3',
       provider: 'google',
     });
   } catch (error) {
+    // Track failed initialization
+    googleApiKeyManager.trackServiceInitialization(
+      'text-to-speech',
+      'GROUP5',
+      false,
+      error.message
+    );
+    
     console.error('Google TTS API error:', error);
     res.status(500).json({
       error: `Failed to synthesize speech: ${error instanceof Error ? error.message : String(error)}`
