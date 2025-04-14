@@ -34,6 +34,7 @@ import NotFound from "@/pages/not-found";
 // Landing and Login pages
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
 import DashboardPage from "./pages/DashboardPage";
 // Unified pages
 import UnifiedPortfolio from "./pages/UnifiedPortfolio";
@@ -86,6 +87,11 @@ function App() {
               {/* Public route for Login Page */}
               <Route path="/login">
                 <LoginPage />
+              </Route>
+
+              {/* Public route for Sign Up Page */}
+              <Route path="/signup">
+                <SignUpPage />
               </Route>
               
               {/* Admin Dashboard Route */}
