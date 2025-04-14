@@ -37,6 +37,7 @@ import {
   getBankTransferInstructions,
   verifyCryptoPayment 
 } from './paymentService';
+import { nftController } from './services/nft/nftController';
 import apiRouter from "./apiRoutes";
 import { accessCodeRouter, accessCodeAdminRouter } from "./accessCodeRoutes";
 import { db } from "./db";
@@ -454,6 +455,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/vertex-ai-response", handleVertexAIResponse);
   app.post("/api/vertex-ai-vision", handleVisionAIResponse);
   app.get("/api/vertex-ai-diagnostics", getAIDiagnostics);
+  
+  // NFT Collection Evaluator API endpoints
+  app.get("/api/nft/collection/:query", nftController.findCollection);
+  app.get("/api/nft/evaluate/:collectionId", nftController.evaluateCollection);
+  app.get("/api/nft/stats/:slug", nftController.getCollectionStats);
   
   // API Key Manager diagnostics endpoint
   app.get("/api/google-api-key-manager/diagnostics", (req, res) => {
