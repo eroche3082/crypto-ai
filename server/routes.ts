@@ -18,6 +18,7 @@ import {
 } from "./vertexai";
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
+import googleApiKeyManager from "./services/googleApiKeyManager";
 import { checkVertexAi, checkPaymentMethods, getSystemStatus } from "./systemCheck";
 import { runVertexDiagnostics, runComprehensiveVertexDiagnostic } from "./vertexDiagnostic";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
@@ -443,13 +444,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // API Key Manager diagnostics endpoint
   app.get("/api/google-api-key-manager/diagnostics", (req, res) => {
-    const googleApiKeyManager = require('./services/googleApiKeyManager').default;
-    
-    res.json({
-      timestamp: new Date().toISOString(),
-      initializationSummary: googleApiKeyManager.getServiceInitializationSummary(),
-      detailedReport: googleApiKeyManager.getServiceInitializationReport()
-    });
+    try {
+      // Capture available Google API Keys (masked for security)
+      const availableKeys = {
+        'GROUP1': process.env.GOOGLE_GROUP1_API_KEY ? 
+          `${process.env.GOOGLE_GROUP1_API_KEY.substring(0, 6)}...${process.env.GOOGLE_GROUP1_API_KEY.slice(-4)}` : null,
+        'GROUP2': process.env.GOOGLE_GROUP2_API_KEY ? 
+          `${process.env.GOOGLE_GROUP2_API_KEY.substring(0, 6)}...${process.env.GOOGLE_GROUP2_API_KEY.slice(-4)}` : null,
+        'GROUP3': process.env.GOOGLE_GROUP3_API_KEY ? 
+          `${process.env.GOOGLE_GROUP3_API_KEY.substring(0, 6)}...${process.env.GOOGLE_GROUP3_API_KEY.slice(-4)}` : null,
+        'GROUP4': process.env.GOOGLE_GROUP4_API_KEY ? 
+          `${process.env.GOOGLE_GROUP4_API_KEY.substring(0, 6)}...${process.env.GOOGLE_GROUP4_API_KEY.slice(-4)}` : null,
+      };
+      
+      // Get detailed key diagnostics from the service
+      const summary = googleApiKeyManager.getServiceInitializationSummary();
+      const detailedReport = googleApiKeyManager.getServiceInitializationReport();
+      
+      // Return comprehensive diagnostics information
+      res.json({
+        timestamp: new Date().toISOString(),
+        apiKeyConfiguration: {
+          availableKeys: availableKeys,
+          totalAvailableKeys: Object.values(availableKeys).filter(k => k !== null).length,
+          primaryKey: availableKeys['GROUP1'],
+          isConfigured: !!process.env.GOOGLE_GROUP1_API_KEY
+        },
+        initializationSummary: summary,
+        detailedReport: detailedReport
+      });
+    } catch (error) {
+      console.error("Error getting Google API Key Manager diagnostics:", error);
+      res.status(500).json({
+        error: "Failed to retrieve API Key Manager diagnostics",
+        message: (error as Error).message
+      });
+    }
   });
   app.get("/api/vertex-ai-diagnostics/comprehensive", async (req, res) => {
     try {
