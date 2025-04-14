@@ -312,7 +312,7 @@ export default function LandingPage() {
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold mb-4 text-white">Live Market Data</h2>
             <p className="text-gray-400">
-              Real-time cryptocurrency prices and market insights powered by CoinGecko API
+              Real-time cryptocurrency prices and market insights powered by CoinAPI
             </p>
           </div>
 
