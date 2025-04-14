@@ -1,0 +1,99 @@
+FEATURE 1: CHART PATTERN RECOGNITION (Top Priority)
+🔍 MegaPrompt: Chart Pattern Recognition Module Implementation
+Objective:
+Enable CryptoBot to visually recognize chart patterns (e.g., head and shoulders, double tops, triangles) from user-uploaded images or in-browser chart captures, and provide predictive insights based on those patterns.
+
+🧠 Core Capabilities to Implement
+Image Upload & Input Modalities
+
+Allow users to:
+
+Upload chart screenshots (PNG, JPG)
+
+Paste URLs to charts
+
+Capture snapshots directly from browser if possible (using HTML5 canvas or extensions)
+
+Google Vision API Integration
+
+Use Vision API to:
+
+Preprocess the image: crop axes/text, normalize resolution
+
+Run trained ML models for shape recognition
+
+Label technical indicators and detect price trend lines
+
+Use Vertex AI to:
+
+Match detected shapes with known chart patterns
+
+Output predicted pattern type + expected market movement
+
+Technical Pattern Database
+
+Maintain a local DB or JSON structure of:
+
+Pattern names
+
+Confidence intervals
+
+Historical win rates
+
+Typical entry/exit rules
+
+Link this with learning path for educational explanation
+
+Chat + Visual Output
+
+Generate:
+
+Chat summary: "This appears to be a bullish flag with 78% historical accuracy"
+
+Visual overlay on chart showing entry, exit, SL zones
+
+Table output: pattern info, accuracy, asset history, notes
+
+Voice Accessibility (Optional)
+
+Enable voice command trigger: “Analyze this chart”
+
+Output results via Text-to-Speech if enabled
+
+Command Examples
+
+/analyze chart BTC/USDT H1
+
+/upload pattern-check
+
+🔐 Required APIs & Services
+Google Vision API – Image pattern labeling & shape detection
+
+Vertex AI – Pattern classification using custom models
+
+Gemini (Vertex) or GPT-4o – Summary generation & explanation
+
+Chart Overlay Tool – QuickChart or similar to annotate images
+
+🧪 Output Example
+json
+Copiar
+Editar
+{
+  "pattern": "Inverse Head and Shoulders",
+  "confidence": 0.91,
+  "predictedMove": "+7.8%",
+  "timeframe": "1D",
+  "entryZone": "$32,200 - $32,800",
+  "stopLoss": "$30,900",
+  "targetZone": "$34,500"
+}
+📈 Benefits of Implementation
+Enhances the technical analysis capabilities of CryptoBot
+
+Enables a new input modality: visual chart recognition
+
+Boosts user engagement with AI-powered visual diagnostics
+
+Sets foundation for trading strategy recommendation and bot integration
+

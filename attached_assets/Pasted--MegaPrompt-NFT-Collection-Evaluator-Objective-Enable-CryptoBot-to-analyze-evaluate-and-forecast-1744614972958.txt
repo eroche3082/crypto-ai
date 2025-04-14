@@ -1,0 +1,127 @@
+ MegaPrompt: NFT Collection Evaluator
+Objective:
+Enable CryptoBot to analyze, evaluate, and forecast NFT collections using real-time marketplace data, AI-driven valuation models, and risk metrics—offering users actionable insights about NFT trends, rarity, liquidity, and future potential.
+
+🧠 Core Capabilities to Implement
+NFT Collection Query & Recognition
+
+Allow user input:
+
+/evaluate BAYC
+
+/nft floor Azuki
+
+“How’s CloneX performing?”
+
+Detect and match collection name from major NFT platforms:
+
+OpenSea, Blur, LooksRare, Magic Eden
+
+Marketplace API Integrations
+
+Use:
+
+OpenSea API
+
+Rarible API
+
+Magic Eden (Solana)
+
+Optional: Zora / Foundation / Blur for advanced users
+
+Pull data:
+
+Floor price, volume, supply, listings
+
+Recent sales and average price
+
+Rarity distribution
+
+Holder concentration
+
+AI-Driven Insights (Gemini/Vertex)
+
+Interpret trends:
+
+"Volume is up 24% in the last 7 days"
+
+"Whale wallets increased holdings by 6%"
+
+"High overlap with top metaverse collections"
+
+Predict potential movement or valuation models:
+
+“Estimated upside: +18% based on sales velocity”
+
+“Listing-to-sale ratio suggests impending floor drop”
+
+Risk/Volatility Scoring
+
+Introduce “NFT Risk Meter”:
+
+Score based on liquidity, volume, holder distribution, wash trading
+
+Example: “Risk Level: ⚠️ Medium – Low liquidity + high whale concentration”
+
+NFT Tracker Dashboard
+
+Visual frontend showing:
+
+Floor price trend chart
+
+Volume/sales heatmaps
+
+Whale activity table
+
+Twitter/social sentiment summary
+
+Educational Overlay
+
+If user is unfamiliar:
+
+“Would you like a breakdown of what makes a good NFT investment?”
+
+Generate explainer using GPT-4o or Gemini Flash (“Rarity explained”, “What is floor price?”)
+
+🔧 API Requirements
+Service	Purpose
+OpenSea API	Floor price, traits, sales
+Rarible API	Multi-chain support
+Twitter API	Social sentiment scraping
+Dune Analytics	Optional: Collection dashboards
+Google Cloud	NLP + Chart rendering
+🧪 Output Example (JSON + Chat Summary)
+json
+Copiar
+Editar
+{
+  "collection": "Azuki",
+  "floorPrice": "8.2 ETH",
+  "volume24h": "1,100 ETH",
+  "avgSale": "9.1 ETH",
+  "holderConcentration": "Top 5 wallets own 42%",
+  "raritySpread": "30% are high rarity",
+  "riskScore": "Moderate",
+  "aiPrediction": "Floor price may rise to 9.5 ETH in the next 7 days based on current velocity."
+}
+🧾 Chat Output
+
+“Azuki is currently trading at a floor of 8.2 ETH, up 5.6% in the past 24h. Sales volume remains high, with top wallets increasing holdings. Risk level: Moderate. Want to track this collection moving forward?”
+
+🌐 Optional Extensions
+✅ Add "Track This Collection" button
+
+✅ Enable alerts on volume spikes or floor drops
+
+✅ Offer “NFT Newsletter Digest” with weekly summaries
+
+✅ Embed Discord alerts with wallet triggers
+
+⚡ Strategic Benefits
+CryptoBot expands from tokens → NFT domain (broader appeal)
+
+Attracts new users interested in web3 collectibles
+
+Adds a visual & social analysis layer to platform
+
+Foundation for NFT Portfolio Management module

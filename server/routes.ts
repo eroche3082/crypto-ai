@@ -18,6 +18,7 @@ import {
   generateMarketAnalysis,
   getAIDiagnostics
 } from "./vertexai";
+import { analyzeChartPattern, uploadChartMiddleware } from "./services/chartPatternRecognition";
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
 import googleApiKeyManager from "./services/googleApiKeyManager";

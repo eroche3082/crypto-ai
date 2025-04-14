@@ -1,0 +1,63 @@
+Powered by Artificial Intelligence
+CryptoBot combines advanced data analysis, machine learning, and artificial intelligence to provide you with cutting-edge investment tools.
+
+Portfolio Advisor
+Automatic portfolio analysis with optimization suggestions based on current market trends
+
+Market Sentiment Analyzer
+Real-time interpretation of market sentiment from news sources and social media
+
+Price Alert Creator
+Set up personalized price alerts through the chat with simple commands
+
+Chart Pattern Recognition
+Analysis of technical patterns in charts shared by the user with predictive insights
+
+Trading Strategy Simulator
+Suggests and simulates strategies with hypothetical results and risk assessment
+
+Crypto News Summarizer
+Summary of relevant industry news personalized based on your favorite assets
+
+Tax Implications Calculator
+Evaluation of tax implications for potential transactions based on your jurisdiction
+
+Educational Content Recommender
+Educational recommendations based on your questions and knowledge level
+
+Wallet Security Advisor
+Security recommendations for wallets, detecting and alerting about potential risks
+
+Multi-Asset Converter
+Instant conversion between multiple cryptocurrencies and fiat currencies with simple commands
+
+Investment Diversification Guide
+Concentration analysis and diversification suggestions based on asset correlations
+
+Token Metrics Analyzer
+Detailed analysis of metrics, utility, demand, and supply for any cryptocurrency
+
+DeFi Yield Optimizer
+Identifies and compares yield opportunities in DeFi with risk analysis
+
+NFT Collection Evaluator
+Evaluation of NFT collections by volume, liquidity, and value projections
+
+Regulatory Updates Tracker
+Information on regulatory changes that could affect your investments
+
+Portfolio Risk Assessment
+Stress tests on your portfolio with customized hypothetical scenarios
+
+Trading Bot Configuration
+Configuration and parameter adjustment for automated strategies through chat
+
+Multi-Chain Gas Optimizer
+Recommendations on optimal times for transactions based on current fees
+
+Voice Note Market Analysis
+Send voice notes with questions about the market and receive detailed analysis
+
+Personalized Learning Path
+Create and adapt a personalized learning path based on your goals and knowledge
+
