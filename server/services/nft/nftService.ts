@@ -1,4 +1,5 @@
 import { processSecret } from '../../secrets';
+import { GoogleVertexAI } from '../../google/vertexAi';
 
 // Interfaces para datos NFT
 export interface NFTCollection {
@@ -107,11 +108,15 @@ export class NFTService {
   private openSeaApiKey: string;
   private raribleApiKey: string;
   private magicEdenApiKey: string;
+  private moralisApiKey: string;
   
   constructor() {
     this.openSeaApiKey = processSecret('OPENSEA_API_KEY', process.env.OPENSEA_API_KEY || '');
     this.raribleApiKey = processSecret('RARIBLE_API_KEY', process.env.RARIBLE_API_KEY || '');
     this.magicEdenApiKey = processSecret('MAGIC_EDEN_API_KEY', process.env.MAGIC_EDEN_API_KEY || '');
+    this.moralisApiKey = processSecret('MORALIS_API_KEY', process.env.MORALIS_API_KEY || '');
+    
+    console.log("NFT Service initialized with API keys");
   }
   
   /**
@@ -127,7 +132,13 @@ export class NFTService {
         return this.formatOpenSeaCollection(openSeaCollection);
       }
       
-      // Si no se encuentra en OpenSea, intentar con Rarible
+      // Si no se encuentra en OpenSea, intentar con Moralis
+      const moralisCollection = await this.getMoralisCollection(query);
+      if (moralisCollection) {
+        return this.formatMoralisCollection(moralisCollection);
+      }
+      
+      // Si no se encuentra en Moralis, intentar con Rarible
       const raribleCollection = await this.getRaribleCollection(query);
       if (raribleCollection) {
         return this.formatRaribleCollection(raribleCollection);
@@ -146,6 +157,97 @@ export class NFTService {
       console.error('Error finding NFT collection:', error);
       return null;
     }
+  }
+  
+  /**
+   * Obtiene una colección de Moralis por nombre o dirección
+   */
+  private async getMoralisCollection(query: string): Promise<any> {
+    if (!this.moralisApiKey) {
+      console.warn('Moralis API key not available');
+      return null;
+    }
+    
+    try {
+      // Determinar si la consulta es una dirección o un nombre/slug
+      const isAddress = query.startsWith('0x');
+      
+      if (!isAddress) {
+        console.log('Moralis requires contract address, skipping for name-based search');
+        return null;
+      }
+      
+      // Fetch NFT collection metadata from Moralis
+      const endpoint = `https://deep-index.moralis.io/api/v2/nft/${query}/metadata`;
+      const response = await fetch(endpoint, {
+        headers: {
+          'Accept': 'application/json',
+          'X-API-Key': this.moralisApiKey
+        }
+      });
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null; // Collection not found
+        }
+        throw new Error(`Moralis API error: ${response.status} ${response.statusText}`);
+      }
+      
+      // Get collection stats
+      const statsEndpoint = `https://deep-index.moralis.io/api/v2/nft/${query}/stats`;
+      const statsResponse = await fetch(statsEndpoint, {
+        headers: {
+          'Accept': 'application/json',
+          'X-API-Key': this.moralisApiKey
+        }
+      });
+      
+      let stats = null;
+      if (statsResponse.ok) {
+        stats = await statsResponse.json();
+      }
+      
+      const data = await response.json();
+      return { metadata: data, stats };
+    } catch (error) {
+      console.error('Error fetching from Moralis:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * Formatea los datos de una colección de Moralis al formato interno
+   */
+  private formatMoralisCollection(moralisData: any): NFTCollection {
+    const metadata = moralisData.metadata;
+    const stats = moralisData.stats || {};
+    
+    // Extract name from metadata
+    const name = metadata.name || "Unknown Collection";
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+    
+    return {
+      id: metadata.token_address || "",
+      name: name,
+      slug: slug,
+      description: metadata.description || "",
+      imageUrl: metadata.image || "",
+      contractAddress: metadata.token_address,
+      blockchain: 'ethereum',
+      stats: {
+        floorPrice: parseFloat(stats.floor_price || '0'),
+        floorPriceUSD: 0, // Convert using ETH price
+        volume24h: parseFloat(stats.volume_24h || '0'),
+        volume7d: parseFloat(stats.volume_7d || '0'),
+        volumeAllTime: parseFloat(stats.total_volume || '0'),
+        averagePrice: parseFloat(stats.average_price || '0'),
+        numOwners: parseInt(stats.num_owners || '0'),
+        totalSupply: parseInt(metadata.total_supply || '0'),
+        listedCount: parseInt(stats.listed_count || '0'),
+        marketCap: parseFloat(stats.market_cap || '0'),
+        updatedAt: new Date().toISOString()
+      }
+    };
   }
   
   /**
@@ -515,47 +617,128 @@ export class NFTService {
     stats: NFTCollectionStats,
     sales?: NFTSale[]
   ): Promise<NFTPrediction> {
-    // Implementación simplificada
-    // En una implementación real, utilizaría modelos de ML o Vertex AI
-    
-    // Calcular predicciones simples basadas en tendencias recientes
-    const priceChange = stats.floorPrice / (stats.averagePrice || stats.floorPrice) - 1;
-    const volumeChange = stats.volume24h / (stats.volume7d / 7) - 1;
-    
-    // Predecir el precio del floor en 7 días con un modelo simple
-    const predictedFloorPrice7Days = stats.floorPrice * (1 + priceChange * 3);
-    const predictedFloorPrice30Days = stats.floorPrice * (1 + priceChange * 8);
-    
-    // Predecir tendencia de volumen
-    let volumeTrend: 'up' | 'down' | 'stable' = 'stable';
-    if (volumeChange > 0.1) volumeTrend = 'up';
-    else if (volumeChange < -0.1) volumeTrend = 'down';
-    
-    const predictedVolume7Days = stats.volume24h * 7 * (1 + volumeChange * 2);
-    
-    // Generar análisis
-    let analysis = '';
-    if (priceChange > 0.05 && volumeTrend === 'up') {
-      analysis = `${collection.name} is showing strong bullish signals with increasing floor price and growing trading volume. This suggests increasing market interest and potential for further growth.`;
-    } else if (priceChange < -0.05 && volumeTrend === 'down') {
-      analysis = `${collection.name} is experiencing bearish pressure with decreasing floor price and declining trading volume. This suggests reduced market interest and potential for further downside.`;
-    } else {
-      analysis = `${collection.name} is showing relatively stable metrics with moderate fluctuations in floor price and trading volume. The collection appears to be in a consolidation phase.`;
+    try {
+      // Calculate basic metrics for use with or without AI
+      const priceChange = stats.floorPrice / (stats.averagePrice || stats.floorPrice) - 1;
+      const volumeChange = stats.volume24h / (stats.volume7d / 7) - 1;
+      
+      // Basic predictions (as fallback)
+      let predictedFloorPrice7Days = stats.floorPrice * (1 + priceChange * 3);
+      let predictedFloorPrice30Days = stats.floorPrice * (1 + priceChange * 8);
+      
+      // Basic volume trend prediction
+      let volumeTrend: 'up' | 'down' | 'stable' = 'stable';
+      if (volumeChange > 0.1) volumeTrend = 'up';
+      else if (volumeChange < -0.1) volumeTrend = 'down';
+      
+      const predictedVolume7Days = stats.volume24h * 7 * (1 + volumeChange * 2);
+      
+      // Default analysis
+      let analysis = '';
+      if (priceChange > 0.05 && volumeTrend === 'up') {
+        analysis = `${collection.name} is showing strong bullish signals with increasing floor price and growing trading volume. This suggests increasing market interest and potential for further growth.`;
+      } else if (priceChange < -0.05 && volumeTrend === 'down') {
+        analysis = `${collection.name} is experiencing bearish pressure with decreasing floor price and declining trading volume. This suggests reduced market interest and potential for further downside.`;
+      } else {
+        analysis = `${collection.name} is showing relatively stable metrics with moderate fluctuations in floor price and trading volume. The collection appears to be in a consolidation phase.`;
+      }
+      
+      // Try to get enhanced analysis from Vertex AI
+      try {
+        console.log("Initializing Vertex AI for NFT prediction analysis");
+        const vertexAI = new GoogleVertexAI();
+        
+        // Prepare NFT data summary for the AI
+        const nftDataSummary = {
+          name: collection.name,
+          description: collection.description,
+          floorPrice: stats.floorPrice,
+          floorPriceUSD: stats.floorPriceUSD,
+          volume24h: stats.volume24h,
+          volume7d: stats.volume7d,
+          volumeAllTime: stats.volumeAllTime,
+          averagePrice: stats.averagePrice,
+          numOwners: stats.numOwners,
+          totalSupply: stats.totalSupply,
+          listedCount: stats.listedCount,
+          marketCap: stats.marketCap,
+          blockchain: collection.blockchain,
+          priceChange: priceChange,
+          volumeChange: volumeChange,
+          recentSales: sales ? sales.slice(0, 5) : []
+        };
+        
+        // Generate prompt for AI
+        const prompt = `
+        As a crypto and NFT financial analyst, provide a detailed market analysis and prediction for the NFT collection: ${collection.name}.
+        
+        Collection Data:
+        ${JSON.stringify(nftDataSummary, null, 2)}
+        
+        Please provide:
+        1. A technical analysis of current price and volume trends
+        2. Price prediction for 7 and 30 days from now
+        3. Volume prediction for the next 7 days
+        4. Key market sentiment factors affecting this collection
+        5. Overall investment recommendation (bullish, bearish, or neutral)
+        
+        Format your analysis as a concise but detailed market report. Focus on actionable insights for investors.
+        Avoid generic statements and connect your analysis directly to the data provided.
+        `;
+        
+        // Use enhanced text generation instead of multimodal
+        const aiAnalysis = await vertexAI.generateMultimodalContent(prompt, '');
+        if (aiAnalysis && aiAnalysis.length > 0) {
+          // Use the AI-generated analysis but limit length
+          analysis = aiAnalysis.substring(0, 500) + (aiAnalysis.length > 500 ? '...' : '');
+          
+          // Try to extract more precise predictions from AI
+          const priceMatch = aiAnalysis.match(/price.{0,50}(increase|decrease).{0,30}(\d+\.?\d*)%/i);
+          if (priceMatch && priceMatch[2]) {
+            const percentChange = parseFloat(priceMatch[2]) / 100;
+            const direction = priceMatch[1].toLowerCase() === 'increase' ? 1 : -1;
+            
+            // Update predictions if we found something specific
+            const adjustedChange = percentChange * direction;
+            predictedFloorPrice7Days = stats.floorPrice * (1 + adjustedChange);
+            predictedFloorPrice30Days = stats.floorPrice * (1 + adjustedChange * 2.5);
+          }
+        }
+      } catch (error) {
+        console.error("Error generating enhanced NFT analysis with AI:", error);
+        // Will fall back to basic analysis
+      }
+      
+      return {
+        floorPricePrediction: {
+          in7Days: predictedFloorPrice7Days,
+          in30Days: predictedFloorPrice30Days
+        },
+        volumePrediction: {
+          in7Days: predictedVolume7Days,
+          trend: volumeTrend,
+          confidence: 0.7 // Confianza moderada
+        },
+        analysis,
+        updatedAt: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error("Error in NFT prediction generation:", error);
+      // Return fallback prediction in case of errors
+      return {
+        floorPricePrediction: {
+          in7Days: stats.floorPrice,
+          in30Days: stats.floorPrice
+        },
+        volumePrediction: {
+          in7Days: stats.volume24h * 7,
+          trend: 'stable',
+          confidence: 0.5
+        },
+        analysis: `Unable to generate prediction for ${collection.name} at this time.`,
+        updatedAt: new Date().toISOString()
+      };
     }
-    
-    return {
-      floorPricePrediction: {
-        in7Days: predictedFloorPrice7Days,
-        in30Days: predictedFloorPrice30Days
-      },
-      volumePrediction: {
-        in7Days: predictedVolume7Days,
-        trend: volumeTrend,
-        confidence: 0.7 // Confianza moderada
-      },
-      analysis,
-      updatedAt: new Date().toISOString()
-    };
   }
   
   /**
