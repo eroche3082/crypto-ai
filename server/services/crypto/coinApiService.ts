@@ -24,8 +24,8 @@ export class CoinApiService {
   private baseUrl: string;
   
   constructor() {
-    // Use the API key you provided
-    this.apiKey = '3ce51981-a99b-4daa-b4f9-bfdd5c0e297f';
+    // Use the environment variable if available, otherwise use the provided key
+    this.apiKey = process.env.COINAPI_KEY || '3ce51981-a99b-4daa-b4f9-bfdd5c0e297f';
     this.baseUrl = 'https://rest.coinapi.io/v1';
     
     console.log('CoinAPI service initialized with API key');
