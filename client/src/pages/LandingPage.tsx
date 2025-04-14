@@ -203,7 +203,7 @@ export default function LandingPage() {
           
           <div className="hidden md:flex items-center gap-8">
             <nav className="flex gap-6">
-              <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
+              <Link href="/features" className="text-gray-300 hover:text-white transition-colors">Features</Link>
               <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
               <a href="#testimonials" className="text-gray-300 hover:text-white transition-colors">Testimonials</a>
             </nav>
@@ -425,6 +425,14 @@ export default function LandingPage() {
                 <p className="text-muted-foreground">{feature.description}</p>
               </div>
             ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <Link href="/features">
+              <Button size="lg" className="bg-primary/90 hover:bg-primary">
+                Explore All Features <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -727,10 +735,10 @@ export default function LandingPage() {
             <div>
               <h3 className="font-bold text-lg mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">Features</a></li>
+                <li><Link href="/features" className="text-gray-400 hover:text-white transition-colors">Features</Link></li>
                 <li><a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
                 <li><a href="#testimonials" className="text-gray-400 hover:text-white transition-colors">Testimonials</a></li>
-                <li><a href="/login" className="text-gray-400 hover:text-white transition-colors">Dashboard</a></li>
+                <li><Link href="/login" className="text-gray-400 hover:text-white transition-colors">Dashboard</Link></li>
               </ul>
             </div>
             
