@@ -273,16 +273,16 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: `
-<div class="bg-amber-100/90 p-4 rounded-lg">
+<div class="bg-primary/10 p-4 rounded-lg">
   <div class="flex items-center gap-2 mb-3">
-    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-primary">
       <span class="text-lg font-semibold">👋</span>
     </div>
-    <h3 class="text-amber-800 font-semibold">WELCOME TO CRYPTOBOT</h3>
+    <h3 class="text-primary font-semibold">WELCOME TO CRYPTOBOT</h3>
   </div>
-  <p class="text-amber-800/80 mb-4 text-sm">Let's start with a few quick questions</p>
+  <p class="text-primary/80 mb-4 text-sm">Let's start with a few quick questions</p>
   
-  <p class="font-medium text-amber-900">${leadCaptureFields[0].question}</p>
+  <p class="font-medium text-primary">${leadCaptureFields[0].question}</p>
 </div>`,
         timestamp: new Date(),
         model: 'vertex-flash'
@@ -327,16 +327,16 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
           id: Date.now().toString(),
           role: 'assistant',
           content: `
-<div class="bg-amber-100/90 p-4 rounded-lg">
+<div class="bg-primary/10 p-4 rounded-lg">
   <div class="flex items-center gap-2 mb-3">
-    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-amber-600">
+    <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-primary">
       <span class="text-lg font-semibold">✉️</span>
     </div>
-    <h3 class="text-amber-800 font-semibold">PERSONALIZATION QUESTIONS</h3>
+    <h3 class="text-primary font-semibold">PERSONALIZATION QUESTIONS</h3>
   </div>
-  <p class="text-amber-800/80 mb-4 text-sm">One more quick question before we start</p>
+  <p class="text-primary/80 mb-4 text-sm">One more quick question before we start</p>
   
-  <p class="font-medium text-amber-900">${personalizedQuestion}</p>
+  <p class="font-medium text-primary">${personalizedQuestion}</p>
 </div>`,
           timestamp: new Date(),
           model: 'vertex-flash'
