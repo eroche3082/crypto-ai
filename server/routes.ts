@@ -276,6 +276,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Vertex AI diagnostics endpoints
+  app.get('/api/system/vertex-diagnostics', runVertexDiagnostics);
+  app.get('/api/system/vertex-diagnostics/comprehensive', runComprehensiveVertexDiagnostic);
+  
   // Add a route to serve the static HTML fallback page
   app.get('/static', (req: Request, res: Response) => {
     try {

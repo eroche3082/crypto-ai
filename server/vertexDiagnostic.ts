@@ -36,24 +36,49 @@ export async function runVertexDiagnostics(req: Request, res: Response) {
   const startTime = Date.now();
 
   try {
-    // Check for API key
-    if (!process.env.VERTEX_AI_API_KEY && !process.env.GOOGLE_VERTEX_KEY_ID) {
+    // Check for API key and credentials config
+    const apiKey = process.env.GOOGLE_API_KEY || process.env.VERTEX_AI_API_KEY || process.env.GOOGLE_VERTEX_KEY_ID;
+    const credentialsFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    
+    if (!apiKey && !credentialsFile) {
       result.status = 'error';
-      result.errorDetails = 'No Vertex AI API key found in environment variables';
-      result.recommendedAction = 'Please configure VERTEX_AI_API_KEY or GOOGLE_VERTEX_KEY_ID';
+      result.errorDetails = 'No Vertex AI API key or credentials found in environment variables';
+      result.recommendedAction = 'Please configure GOOGLE_API_KEY, VERTEX_AI_API_KEY, GOOGLE_VERTEX_KEY_ID, or GOOGLE_APPLICATION_CREDENTIALS';
       return res.status(500).json(result);
     }
+    
+    // Check if credential file exists (if used)
+    if (credentialsFile) {
+      const fs = require('fs');
+      if (!fs.existsSync(credentialsFile)) {
+        result.status = 'error';
+        result.errorDetails = `Google credentials file not found at path: ${credentialsFile}`;
+        result.recommendedAction = 'Please ensure the GOOGLE_APPLICATION_CREDENTIALS points to a valid file';
+        return res.status(500).json(result);
+      }
+    }
 
-    // Initialize Vertex AI client
-    const vertexAI = new VertexAI({
-      project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
-      location: process.env.GOOGLE_LOCATION || 'us-central1',
-      apiEndpoint: "us-central1-aiplatform.googleapis.com",
-      googleAuthOptions: {
-        scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-        keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials-global.json',
-      },
-    });
+    console.log(`Using API key: ${apiKey ? 'Yes (via env var)' : 'No'}, Using credentials file: ${credentialsFile ? 'Yes' : 'No'}`);
+
+    // Initialize Vertex AI client using API key if available
+    let vertexAI;
+    if (apiKey) {
+      vertexAI = new VertexAI({
+        project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+        location: process.env.GOOGLE_LOCATION || 'us-central1',
+        apiEndpoint: "us-central1-aiplatform.googleapis.com",
+      });
+    } else {
+      vertexAI = new VertexAI({
+        project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+        location: process.env.GOOGLE_LOCATION || 'us-central1',
+        apiEndpoint: "us-central1-aiplatform.googleapis.com",
+        googleAuthOptions: {
+          scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+          keyFile: credentialsFile || './google-credentials-global.json',
+        },
+      });
+    }
 
     // Try to make a simple API call to test connectivity
     const model = 'gemini-1.5-pro';
@@ -148,16 +173,31 @@ export async function runComprehensiveVertexDiagnostic(req: Request, res: Respon
   const startTime = Date.now();
 
   try {
-    // Initialize Vertex AI client
-    const vertexAI = new VertexAI({
-      project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
-      location: process.env.GOOGLE_LOCATION || 'us-central1',
-      apiEndpoint: "us-central1-aiplatform.googleapis.com",
-      googleAuthOptions: {
-        scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-        keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials-global.json',
-      },
-    });
+    // Check for API key and credentials config
+    const apiKey = process.env.GOOGLE_API_KEY || process.env.VERTEX_AI_API_KEY || process.env.GOOGLE_VERTEX_KEY_ID;
+    const credentialsFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    
+    console.log(`Comprehensive Test - Using API key: ${apiKey ? 'Yes (via env var)' : 'No'}, Using credentials file: ${credentialsFile ? 'Yes' : 'No'}`);
+
+    // Initialize Vertex AI client using API key if available
+    let vertexAI;
+    if (apiKey) {
+      vertexAI = new VertexAI({
+        project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+        location: process.env.GOOGLE_LOCATION || 'us-central1',
+        apiEndpoint: "us-central1-aiplatform.googleapis.com",
+      });
+    } else {
+      vertexAI = new VertexAI({
+        project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+        location: process.env.GOOGLE_LOCATION || 'us-central1',
+        apiEndpoint: "us-central1-aiplatform.googleapis.com",
+        googleAuthOptions: {
+          scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+          keyFile: credentialsFile || './google-credentials-global.json',
+        },
+      });
+    }
 
     // Test different models
     const models = ['gemini-1.5-pro', 'gemini-1.5-flash'];
