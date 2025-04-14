@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star, Star as StarIcon, Mail, MapPin, Phone, Scan } from "lucide-react";
+import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star as StarIcon, Mail, MapPin, Phone } from "lucide-react";
 import ChatBot from "@/components/ChatBot";
 
 // Create a custom StarHalfIcon component since it's not available in lucide-react
@@ -203,26 +203,15 @@ export default function LandingPage() {
           
           <div className="hidden md:flex items-center gap-8">
             <nav className="flex gap-6">
-              <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
               <Link href="/features" className="text-gray-300 hover:text-white transition-colors">Features</Link>
-              <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">Portfolio</Link>
               <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-              <div 
-                className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
-                onClick={() => startOnboardingRef.current && startOnboardingRef.current()}
-              >
-                <MessageCircle size={16} />
-                <span>AI Assistant</span>
-              </div>
+              <a href="#testimonials" className="text-gray-300 hover:text-white transition-colors">Testimonials</a>
             </nav>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <Link href="/login">
-              <Button variant="ghost" className="text-white hover:bg-white/10">Login</Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="bg-indigo-600 hover:bg-indigo-700">Sign Up</Button>
+              <Button variant="outline" className="text-white border-white hover:bg-white/10">Sign In</Button>
             </Link>
           </div>
         </div>
@@ -258,29 +247,19 @@ export default function LandingPage() {
           <div className="flex flex-col lg:flex-row items-center justify-between">
             <div className="max-w-3xl mb-10 lg:mb-0">
               <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
-                Smarter Crypto. Powered by AI.
+                Artificial Intelligence for Your Crypto Investments
               </h1>
               <p className="text-xl mb-8 text-gray-300">
-                Track, analyze, and optimize your crypto portfolio with real-time insights, sentiment analysis, and AI-based alerts.
+                A comprehensive AI-powered platform to analyze, manage, and optimize your cryptocurrency investments.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/login">
-                  <Button 
-                    size="lg" 
-                    className="gap-2 bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    Start Investing Smarter <ArrowRight size={16} />
-                  </Button>
-                </Link>
-                <Link href="/features">
-                  <Button 
-                    size="lg" 
-                    variant="outline"
-                    className="gap-2 border-white text-white hover:bg-white/10"
-                  >
-                    Explore Features <Star size={16} />
-                  </Button>
-                </Link>
+                <Button 
+                  size="lg" 
+                  className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+                  onClick={() => startOnboardingRef.current && startOnboardingRef.current()}
+                >
+                  Get Started <Sparkles size={16} />
+                </Button>
               </div>
             </div>
             
@@ -322,112 +301,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Key Features Section */}
-      <section className="py-12 bg-gradient-to-b from-black to-black/80">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Real-Time Sentiment Analyzer */}
-            <div className="bg-card/20 backdrop-blur-sm border border-primary/20 rounded-xl p-6 hover:shadow-lg hover:border-primary/30 transition-all">
-              <div className="rounded-full bg-primary/20 w-14 h-14 flex items-center justify-center mb-4">
-                <BrainCircuit className="h-7 w-7 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Real-Time Sentiment Analyzer</h3>
-              <p className="text-gray-400">
-                Utilizes AI to analyze social media, news feeds, and on-chain metrics to determine the overall market sentiment.
-              </p>
-            </div>
-            
-            {/* Portfolio Tracker */}
-            <div className="bg-card/20 backdrop-blur-sm border border-primary/20 rounded-xl p-6 hover:shadow-lg hover:border-primary/30 transition-all">
-              <div className="rounded-full bg-primary/20 w-14 h-14 flex items-center justify-center mb-4">
-                <BarChart3 className="h-7 w-7 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Portfolio Tracker</h3>
-              <p className="text-gray-400">
-                Connect your wallets or exchange accounts to track your entire crypto portfolio with real-time performance metrics.
-              </p>
-            </div>
-            
-            {/* Smart Alerts Engine */}
-            <div className="bg-card/20 backdrop-blur-sm border border-primary/20 rounded-xl p-6 hover:shadow-lg hover:border-primary/30 transition-all">
-              <div className="rounded-full bg-primary/20 w-14 h-14 flex items-center justify-center mb-4">
-                <Bell className="h-7 w-7 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Smart Alerts Engine</h3>
-              <p className="text-gray-400">
-                Set up custom alerts based on price movements, whale activity, technical indicators, and market sentiment.
-              </p>
-            </div>
-          </div>
-          
-          {/* Try Portfolio Analyzer Demo */}
-          <div className="mt-16 bg-card/30 backdrop-blur-sm border border-primary/20 rounded-xl p-6 max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-green-500/20 w-10 h-10 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                </div>
-                <h3 className="text-xl font-bold">Try Portfolio Analyzer</h3>
-              </div>
-              <div className="text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
-                3 Free Tries
-              </div>
-            </div>
-            <div className="mb-4">
-              <div className="mb-2 text-sm text-gray-400">Enter a wallet address or select coins to analyze:</div>
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  placeholder="Enter wallet address (0x...)" 
-                  className="flex-grow px-4 py-2 bg-black/50 border border-border rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <Button className="shrink-0">
-                  Analyze <Scan className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-              <div className="flex items-center gap-2 p-2 border border-border rounded-lg bg-black/40">
-                <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" className="w-6 h-6" alt="BTC" />
-                <span>Bitcoin</span>
-                <span className="ml-auto">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                </span>
-              </div>
-              <div className="flex items-center gap-2 p-2 border border-border rounded-lg bg-black/40">
-                <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" className="w-6 h-6" alt="ETH" />
-                <span>Ethereum</span>
-                <span className="ml-auto">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                </span>
-              </div>
-              <div className="flex items-center gap-2 p-2 border border-border rounded-lg bg-black/40">
-                <img src="https://cryptologos.cc/logos/cardano-ada-logo.png" className="w-6 h-6" alt="ADA" />
-                <span>Cardano</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 border border-border rounded-lg bg-black/40">
-                <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-6 h-6" alt="SOL" />
-                <span>Solana</span>
-              </div>
-            </div>
-            <div className="text-center">
-              <Link href="/login">
-                <Button variant="outline" className="text-primary border-primary hover:bg-primary/10">
-                  Sign in for full analysis
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      
       {/* Live Market Data */}
       <section className="py-12 bg-black/80">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold mb-4 text-white">Live Market Data</h2>
             <p className="text-gray-400">
-              Real-time cryptocurrency prices and market insights powered by CoinAPI
+              Real-time cryptocurrency prices and market insights powered by CoinGecko API
             </p>
           </div>
 
