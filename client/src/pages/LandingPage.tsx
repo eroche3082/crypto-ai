@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star as StarIcon, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, ChevronRight, CheckCircle, BarChart4, BrainCircuit, Bell, LineChart, Lock, RefreshCw, TrendingUp, Wallet, MessageCircle, AreaChart, ShieldAlert, Layers, PieChart, FileText, BarChart3, CloudLightning, ListChecks, Sparkles, Coins, ArrowUpRight, ArrowDownRight, Star, Star as StarIcon, Mail, MapPin, Phone } from "lucide-react";
 import ChatBot from "@/components/ChatBot";
 
 // Create a custom StarHalfIcon component since it's not available in lucide-react
@@ -203,15 +203,26 @@ export default function LandingPage() {
           
           <div className="hidden md:flex items-center gap-8">
             <nav className="flex gap-6">
+              <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
               <Link href="/features" className="text-gray-300 hover:text-white transition-colors">Features</Link>
+              <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">Portfolio</Link>
               <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-              <a href="#testimonials" className="text-gray-300 hover:text-white transition-colors">Testimonials</a>
+              <div 
+                className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+                onClick={() => startOnboardingRef.current && startOnboardingRef.current()}
+              >
+                <MessageCircle size={16} />
+                <span>AI Assistant</span>
+              </div>
             </nav>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link href="/login">
-              <Button variant="outline" className="text-white border-white hover:bg-white/10">Sign In</Button>
+              <Button variant="ghost" className="text-white hover:bg-white/10">Login</Button>
+            </Link>
+            <Link href="/signup">
+              <Button className="bg-indigo-600 hover:bg-indigo-700">Sign Up</Button>
             </Link>
           </div>
         </div>
