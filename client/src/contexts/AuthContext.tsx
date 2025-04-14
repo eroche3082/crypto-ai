@@ -7,6 +7,7 @@ interface User {
   role?: string;
   plan?: 'basic' | 'pro' | 'enterprise' | 'free';
   avatar?: string;
+  accessCode?: string;
 }
 
 interface AuthContextType {
@@ -14,6 +15,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<boolean>;
+  loginWithAccessCode: (accessCode: string) => Promise<boolean>;
   logout: () => void;
   error: string | null;
 }
@@ -48,7 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth();
   }, []);
 
-  // Login function
+  // Login function with username/password
   const login = async (username: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
@@ -66,6 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           role: 'admin',
           plan: 'enterprise',
           avatar: '/assets/avatar.png',
+          accessCode: 'CRYPTO-VIP-2025'
         };
         
         // Store user in localStorage for persistence
@@ -86,7 +89,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 username: 'demo',
                 email: 'demo@cryptobot.ai',
                 role: 'user',
-                plan: 'basic'
+                plan: 'basic',
+                accessCode: 'CRYPTO-STD-1234'
               }
             });
           } else {
@@ -115,6 +119,56 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Login with access code
+  const loginWithAccessCode = async (accessCode: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // In a real app, this would validate the access code with the server
+      const response = await new Promise<{success: boolean, user?: User, message?: string}>((resolve) => {
+        // Simulate API latency
+        setTimeout(() => {
+          if (accessCode === 'CRYPTO-VIP-2025' || accessCode === 'CRYPTO-STD-1234') {
+            const user: User = {
+              id: accessCode === 'CRYPTO-VIP-2025' ? 1 : 2,
+              username: accessCode === 'CRYPTO-VIP-2025' ? 'admin' : 'demo',
+              email: accessCode === 'CRYPTO-VIP-2025' ? 'admin@cryptobot.ai' : 'demo@cryptobot.ai',
+              role: accessCode === 'CRYPTO-VIP-2025' ? 'admin' : 'user',
+              plan: accessCode === 'CRYPTO-VIP-2025' ? 'enterprise' : 'basic',
+              accessCode: accessCode
+            };
+            
+            resolve({
+              success: true,
+              user
+            });
+          } else {
+            resolve({
+              success: false,
+              message: 'Invalid access code'
+            });
+          }
+        }, 800);
+      });
+      
+      if (response.success && response.user) {
+        localStorage.setItem('cryptobot_user', JSON.stringify(response.user));
+        setUser(response.user);
+        return true;
+      } else {
+        setError(response.message || 'Access code validation failed');
+        return false;
+      }
+    } catch (err) {
+      console.error('Access code login error:', err);
+      setError('An error occurred while validating your access code. Please try again.');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Logout function
   const logout = () => {
     localStorage.removeItem('cryptobot_user');
@@ -126,6 +180,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated: !!user,
     isLoading,
     login,
+    loginWithAccessCode,
     logout,
     error
   };
