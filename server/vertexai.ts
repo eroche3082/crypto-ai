@@ -1,72 +1,232 @@
 /**
  * Vertex AI Integration Service
  * 
- * Provides functions for interacting with Google Vertex AI
+ * Provides functions for interacting with Google Vertex AI and Gemini
+ * With multiple authentication methods and fallback mechanisms
  */
 import { Request, Response } from 'express';
-import { VertexAI } from '@google-cloud/vertexai';
+import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertexai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Configuration flags
+const USE_API_KEY_AUTH = true; // Use API key auth instead of service account
+const USE_GEMINI_FALLBACK = true; // Use Gemini API as fallback if Vertex AI fails
+const ENABLE_VERTEX_DIAGNOSTICS = true; // Enable detailed diagnostic logging
 
 // Check if Vertex AI is configured
-const isConfigured = !!process.env.VERTEX_AI_API_KEY || !!process.env.GOOGLE_VERTEX_KEY_ID;
+const apiKey = process.env.VERTEX_AI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_VERTEX_KEY_ID;
+const isConfigured = !!apiKey;
+const projectId = process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai';
+const location = process.env.GOOGLE_LOCATION || 'us-central1';
+const keyFilePath = process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials-global.json';
 
+// Initialize clients
 let vertexAI: VertexAI | null = null;
+let genAI: GoogleGenerativeAI | null = null;
 
-// Initialize Vertex AI if configured
+// Initialize Vertex AI with API key if configured
 if (isConfigured) {
   try {
-    vertexAI = new VertexAI({
-      project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
-      location: process.env.GOOGLE_LOCATION || 'us-central1',
-      apiEndpoint: "us-central1-aiplatform.googleapis.com",
-      googleAuthOptions: {
-        scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-        keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials-global.json',
-      },
-    });
-    console.log('Vertex AI initialized successfully with API key');
+    if (USE_API_KEY_AUTH) {
+      // Initialize with API key
+      console.log(`Initializing Vertex AI with API key for project ${projectId}`);
+      vertexAI = new VertexAI({
+        project: projectId,
+        location: location,
+        apiEndpoint: "us-central1-aiplatform.googleapis.com",
+      });
+      
+      // Also initialize Gemini for fallback
+      if (USE_GEMINI_FALLBACK) {
+        console.log('Also initializing Gemini API for fallback');
+        genAI = new GoogleGenerativeAI(apiKey);
+      }
+    } else {
+      // Initialize with service account
+      console.log(`Initializing Vertex AI with service account for project ${projectId}`);
+      vertexAI = new VertexAI({
+        project: projectId,
+        location: location,
+        apiEndpoint: "us-central1-aiplatform.googleapis.com",
+        googleAuthOptions: {
+          scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+          keyFile: keyFilePath,
+        },
+      });
+    }
+    
+    console.log('Vertex AI initialized successfully');
   } catch (error) {
     console.error('Error initializing Vertex AI:', error);
     vertexAI = null;
+    
+    // Try to initialize Gemini API as fallback
+    if (USE_GEMINI_FALLBACK) {
+      try {
+        console.log('Falling back to Gemini API initialization');
+        genAI = new GoogleGenerativeAI(apiKey);
+        console.log('Gemini API initialized successfully as fallback');
+      } catch (geminiError) {
+        console.error('Error initializing Gemini API fallback:', geminiError);
+        genAI = null;
+      }
+    }
   }
 }
 
 /**
- * Generate a response using Vertex AI
+ * Diagnostic data for last request
+ */
+interface AIRequestDiagnostics {
+  method: 'vertex' | 'gemini' | 'none';
+  success: boolean;
+  error?: string;
+  errorCode?: string;
+  timestamp: string;
+  responseTime?: number;
+  modelUsed?: string;
+}
+
+// Keep track of the last request diagnostics
+let lastRequestDiagnostics: AIRequestDiagnostics = {
+  method: 'none',
+  success: false,
+  timestamp: new Date().toISOString()
+};
+
+/**
+ * Get the last request diagnostic data
+ */
+export function getLastDiagnostics(): AIRequestDiagnostics {
+  return lastRequestDiagnostics;
+}
+
+/**
+ * Generate a response using Vertex AI with fallback to Gemini
  */
 export async function generateResponse(
   prompt: string,
   temperature: number = 0.7,
   maxTokens: number = 1000
 ): Promise<string> {
-  if (!isConfigured || !vertexAI) {
-    throw new Error('Vertex AI is not configured. Please provide VERTEX_AI_API_KEY environment variable.');
+  if (!isConfigured) {
+    throw new Error('AI services are not configured. Please provide VERTEX_AI_API_KEY or GOOGLE_API_KEY environment variable.');
   }
 
-  try {
-    // Access the generative model
-    const generativeModel = vertexAI.getGenerativeModel({
-      model: 'gemini-1.5-pro',
-      generation_config: {
-        max_output_tokens: maxTokens,
-        temperature,
-      },
-    });
+  const startTime = Date.now();
 
-    // Generate text response
-    const result = await generativeModel.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    });
+  // First try Vertex AI if available
+  if (vertexAI) {
+    try {
+      if (ENABLE_VERTEX_DIAGNOSTICS) {
+        console.log(`Attempting to generate content with Vertex AI for prompt: ${prompt.substring(0, 50)}...`);
+      }
+      
+      // Access the generative model
+      const generativeModel = vertexAI.getGenerativeModel({
+        model: 'gemini-1.5-pro',
+        apiKey: apiKey,
+        generation_config: {
+          max_output_tokens: maxTokens,
+          temperature,
+        },
+      });
 
-    const response = result.response;
-    return response.candidates[0].content.parts[0].text;
-  } catch (error) {
-    console.error('Error generating text with Vertex AI:', error);
-    throw new Error(`Vertex AI error: ${error.message}`);
+      // Generate text response
+      const result = await generativeModel.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      });
+
+      const response = result.response;
+      const responseText = response.candidates[0].content.parts[0].text;
+      
+      // Record diagnostics
+      lastRequestDiagnostics = {
+        method: 'vertex',
+        success: true,
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - startTime,
+        modelUsed: 'gemini-1.5-pro'
+      };
+      
+      if (ENABLE_VERTEX_DIAGNOSTICS) {
+        console.log(`Vertex AI response successful in ${lastRequestDiagnostics.responseTime}ms`);
+      }
+      
+      return responseText;
+    } catch (error) {
+      console.error('Error generating text with Vertex AI, trying fallback:', error);
+      
+      // Record error diagnostics
+      lastRequestDiagnostics = {
+        method: 'vertex',
+        success: false,
+        error: error.message,
+        errorCode: error.code || 'UNKNOWN',
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - startTime,
+        modelUsed: 'gemini-1.5-pro'
+      };
+      
+      // If Gemini fallback is not enabled or not available, rethrow the error
+      if (!USE_GEMINI_FALLBACK || !genAI) {
+        throw new Error(`Vertex AI error: ${error.message}`);
+      }
+    }
   }
+  
+  // Try with Gemini API as fallback
+  if (USE_GEMINI_FALLBACK && genAI) {
+    try {
+      if (ENABLE_VERTEX_DIAGNOSTICS) {
+        console.log('Falling back to Gemini API');
+      }
+      
+      const geminiStartTime = Date.now();
+      
+      // Use Gemini API
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      
+      // Record fallback diagnostics
+      lastRequestDiagnostics = {
+        method: 'gemini',
+        success: true,
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - geminiStartTime,
+        modelUsed: 'gemini-1.5-pro (fallback)'
+      };
+      
+      if (ENABLE_VERTEX_DIAGNOSTICS) {
+        console.log(`Gemini API fallback successful in ${lastRequestDiagnostics.responseTime}ms`);
+      }
+      
+      return responseText;
+    } catch (geminiError) {
+      console.error('Error with Gemini fallback:', geminiError);
+      
+      // Update diagnostics with gemini error
+      lastRequestDiagnostics = {
+        ...lastRequestDiagnostics,
+        method: 'gemini',
+        success: false,
+        error: geminiError.message,
+        errorCode: geminiError.code || 'UNKNOWN',
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - startTime,
+      };
+      
+      throw new Error(`AI generation failed. Vertex AI and Gemini fallback both failed. ${geminiError.message}`);
+    }
+  }
+  
+  // If we got here, both methods failed or weren't available
+  throw new Error('AI generation failed. No available AI service could process your request.');
 }
 
 /**
- * Generate a response with image input using Vertex AI
+ * Generate a response with image input using Vertex AI with fallback to Gemini
  */
 export async function generateResponseWithImage(
   prompt: string,
@@ -75,51 +235,173 @@ export async function generateResponseWithImage(
   temperature: number = 0.7,
   maxTokens: number = 1000
 ): Promise<string> {
-  if (!isConfigured || !vertexAI) {
-    throw new Error('Vertex AI is not configured. Please provide VERTEX_AI_API_KEY environment variable.');
+  if (!isConfigured) {
+    throw new Error('AI services are not configured. Please provide VERTEX_AI_API_KEY or GOOGLE_API_KEY environment variable.');
   }
 
-  try {
-    // Access the generative model with vision capabilities
-    const generativeModel = vertexAI.getGenerativeModel({
-      model: 'gemini-1.5-pro-vision',
-      generation_config: {
-        max_output_tokens: maxTokens,
-        temperature,
-      },
-    });
+  const startTime = Date.now();
 
-    // Generate text response
-    const result = await generativeModel.generateContent({
-      contents: [{ 
-        role: 'user',
-        parts: [
-          { text: prompt },
-          { 
-            inline_data: {
-              mime_type: mimeType,
-              data: imageData
+  // First try Vertex AI if available
+  if (vertexAI) {
+    try {
+      if (ENABLE_VERTEX_DIAGNOSTICS) {
+        console.log(`Attempting to generate vision content with Vertex AI for prompt: ${prompt.substring(0, 50)}...`);
+      }
+      
+      // Access the generative model with vision capabilities
+      const generativeModel = vertexAI.getGenerativeModel({
+        model: 'gemini-1.5-pro-vision',
+        apiKey: apiKey,
+        generation_config: {
+          max_output_tokens: maxTokens,
+          temperature,
+        },
+      });
+
+      // Generate text response
+      const result = await generativeModel.generateContent({
+        contents: [{ 
+          role: 'user',
+          parts: [
+            { text: prompt },
+            { 
+              inline_data: {
+                mime_type: mimeType,
+                data: imageData
+              }
             }
-          }
-        ]
-      }],
-    });
+          ]
+        }],
+      });
 
-    const response = result.response;
-    return response.candidates[0].content.parts[0].text;
-  } catch (error) {
-    console.error('Error generating text with Vertex AI Vision:', error);
-    throw new Error(`Vertex AI error: ${error.message}`);
+      const response = result.response;
+      const responseText = response.candidates[0].content.parts[0].text;
+      
+      // Record diagnostics
+      lastRequestDiagnostics = {
+        method: 'vertex',
+        success: true,
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - startTime,
+        modelUsed: 'gemini-1.5-pro-vision'
+      };
+      
+      if (ENABLE_VERTEX_DIAGNOSTICS) {
+        console.log(`Vertex AI vision response successful in ${lastRequestDiagnostics.responseTime}ms`);
+      }
+      
+      return responseText;
+    } catch (error) {
+      console.error('Error generating vision response with Vertex AI, trying fallback:', error);
+      
+      // Record error diagnostics
+      lastRequestDiagnostics = {
+        method: 'vertex',
+        success: false,
+        error: error.message,
+        errorCode: error.code || 'UNKNOWN',
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - startTime,
+        modelUsed: 'gemini-1.5-pro-vision'
+      };
+      
+      // If Gemini fallback is not enabled or not available, rethrow the error
+      if (!USE_GEMINI_FALLBACK || !genAI) {
+        throw new Error(`Vertex AI Vision error: ${error.message}`);
+      }
+    }
   }
+  
+  // Try with Gemini API as fallback
+  if (USE_GEMINI_FALLBACK && genAI) {
+    try {
+      if (ENABLE_VERTEX_DIAGNOSTICS) {
+        console.log('Falling back to Gemini API for vision content');
+      }
+      
+      const geminiStartTime = Date.now();
+      
+      // Use Gemini API
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro-vision' });
+      
+      // Create the data parts for Gemini API
+      const result = await model.generateContent([
+        prompt,
+        {
+          inlineData: {
+            mimeType: mimeType,
+            data: imageData
+          }
+        }
+      ]);
+      
+      const responseText = result.response.text();
+      
+      // Record fallback diagnostics
+      lastRequestDiagnostics = {
+        method: 'gemini',
+        success: true,
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - geminiStartTime,
+        modelUsed: 'gemini-1.5-pro-vision (fallback)'
+      };
+      
+      if (ENABLE_VERTEX_DIAGNOSTICS) {
+        console.log(`Gemini API vision fallback successful in ${lastRequestDiagnostics.responseTime}ms`);
+      }
+      
+      return responseText;
+    } catch (geminiError) {
+      console.error('Error with Gemini vision fallback:', geminiError);
+      
+      // Update diagnostics with gemini error
+      lastRequestDiagnostics = {
+        ...lastRequestDiagnostics,
+        method: 'gemini',
+        success: false,
+        error: geminiError.message,
+        errorCode: geminiError.code || 'UNKNOWN',
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - startTime,
+      };
+      
+      throw new Error(`AI vision generation failed. Vertex AI and Gemini fallback both failed. ${geminiError.message}`);
+    }
+  }
+  
+  // If we got here, both methods failed or weren't available
+  throw new Error('AI vision generation failed. No available AI service could process your request.');
+}
+
+/**
+ * Express route to get diagnostic information about the AI services
+ */
+export async function getAIDiagnostics(req: Request, res: Response) {
+  // Get configuration status
+  const diagnosticData = {
+    configStatus: {
+      isConfigured,
+      vertexAIAvailable: !!vertexAI,
+      geminiAIAvailable: !!genAI,
+      useAPIKeyAuth: USE_API_KEY_AUTH,
+      useGeminiFallback: USE_GEMINI_FALLBACK,
+      projectId,
+      location
+    },
+    lastRequest: lastRequestDiagnostics,
+    apiKey: apiKey ? `${apiKey.substring(0, 8)}...` : null
+  };
+  
+  res.json(diagnosticData);
 }
 
 /**
  * Express handler for Vertex AI requests
  */
 export async function handleVertexAIResponse(req: Request, res: Response) {
-  if (!isConfigured || !vertexAI) {
+  if (!isConfigured) {
     return res.status(503).json({
-      error: 'Vertex AI is not configured. Please provide VERTEX_AI_API_KEY environment variable.'
+      error: 'AI services are not configured. Please provide VERTEX_AI_API_KEY or GOOGLE_API_KEY environment variable.'
     });
   }
 
@@ -139,12 +421,72 @@ export async function handleVertexAIResponse(req: Request, res: Response) {
     const response = await generateResponse(prompt, temperature, maxTokens);
     res.json({
       response,
-      model: 'gemini-1.5-pro'
+      model: lastRequestDiagnostics.modelUsed || 'gemini-1.5-pro',
+      metadata: {
+        provider: lastRequestDiagnostics.method,
+        responseTime: lastRequestDiagnostics.responseTime,
+        timestamp: lastRequestDiagnostics.timestamp
+      }
     });
   } catch (error) {
-    console.error('Error calling Vertex AI:', error);
+    console.error('Error calling AI services:', error);
     res.status(500).json({
-      error: `Vertex AI error: ${error.message}`
+      error: `AI service error: ${error.message}`,
+      provider: lastRequestDiagnostics.method,
+      errorDetails: lastRequestDiagnostics.error,
+      errorCode: lastRequestDiagnostics.errorCode
+    });
+  }
+}
+
+/**
+ * Express handler for vision AI requests
+ */
+export async function handleVisionAIResponse(req: Request, res: Response) {
+  if (!isConfigured) {
+    return res.status(503).json({
+      error: 'AI services are not configured. Please provide VERTEX_AI_API_KEY or GOOGLE_API_KEY environment variable.'
+    });
+  }
+
+  const {
+    prompt,
+    imageData,
+    mimeType = 'image/jpeg',
+    temperature = 0.7,
+    maxTokens = 1000
+  } = req.body;
+
+  if (!prompt) {
+    return res.status(400).json({
+      error: 'Prompt is required.'
+    });
+  }
+  
+  if (!imageData) {
+    return res.status(400).json({
+      error: 'Image data is required.'
+    });
+  }
+
+  try {
+    const response = await generateResponseWithImage(prompt, imageData, mimeType, temperature, maxTokens);
+    res.json({
+      response,
+      model: lastRequestDiagnostics.modelUsed || 'gemini-1.5-pro-vision',
+      metadata: {
+        provider: lastRequestDiagnostics.method,
+        responseTime: lastRequestDiagnostics.responseTime,
+        timestamp: lastRequestDiagnostics.timestamp
+      }
+    });
+  } catch (error) {
+    console.error('Error calling Vision AI services:', error);
+    res.status(500).json({
+      error: `Vision AI service error: ${error.message}`,
+      provider: lastRequestDiagnostics.method,
+      errorDetails: lastRequestDiagnostics.error,
+      errorCode: lastRequestDiagnostics.errorCode
     });
   }
 }
@@ -153,9 +495,9 @@ export async function handleVertexAIResponse(req: Request, res: Response) {
  * Express handler for Vertex AI market analysis
  */
 export async function generateMarketAnalysis(req: Request, res: Response) {
-  if (!isConfigured || !vertexAI) {
+  if (!isConfigured) {
     return res.status(503).json({
-      error: 'Vertex AI is not configured. Please provide VERTEX_AI_API_KEY environment variable.'
+      error: 'AI services are not configured. Please provide VERTEX_AI_API_KEY or GOOGLE_API_KEY environment variable.'
     });
   }
 
@@ -208,14 +550,18 @@ export async function generateMarketAnalysis(req: Request, res: Response) {
         coins,
         timeframe,
         timestamp: new Date().toISOString(),
-        analysisEngine: 'Vertex AI Gemini 1.5'
+        provider: lastRequestDiagnostics.method,
+        model: lastRequestDiagnostics.modelUsed || 'gemini-1.5-pro',
+        responseTime: lastRequestDiagnostics.responseTime
       }
     });
   } catch (error) {
     console.error('Error in market analysis:', error);
     res.status(500).json({
       error: 'Failed to analyze market trends',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
+      provider: lastRequestDiagnostics.method,
+      errorDetails: lastRequestDiagnostics.error
     });
   }
 }
