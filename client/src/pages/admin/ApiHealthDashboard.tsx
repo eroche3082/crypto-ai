@@ -23,6 +23,7 @@ import { Loader2, RefreshCw, AlertTriangle, CheckCircle, XCircle, Server, Cpu, D
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import GoogleApiKeyManager from '@/components/admin/GoogleApiKeyManager';
 
 // Vertex AI Diagnostics Component
 const VertexAIDiagnostics = () => {
@@ -456,6 +457,7 @@ export default function ApiHealthDashboard() {
         <TabsList className="mb-4">
           <TabsTrigger value="cache">Cache Statistics</TabsTrigger>
           <TabsTrigger value="vertex">Vertex AI Diagnostics</TabsTrigger>
+          <TabsTrigger value="apikeys">API Key Manager</TabsTrigger>
           <TabsTrigger value="details">Technical Details</TabsTrigger>
         </TabsList>
         
@@ -504,6 +506,10 @@ export default function ApiHealthDashboard() {
         
         <TabsContent value="vertex">
           <VertexAIDiagnostics />
+        </TabsContent>
+        
+        <TabsContent value="apikeys">
+          <GoogleApiKeyManager />
         </TabsContent>
         
         <TabsContent value="details">
