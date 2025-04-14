@@ -19,6 +19,7 @@ import {
 import { transcribeAudio, audioMiddleware } from "./speech";
 import { handleVertexChat } from "./chatbot";
 import googleApiKeyManager from "./services/googleApiKeyManager";
+import { handleRunServiceTests } from "./googleServicesTest";
 import { checkVertexAi, checkPaymentMethods, getSystemStatus } from "./systemCheck";
 import { runVertexDiagnostics, runComprehensiveVertexDiagnostic } from "./vertexDiagnostic";
 import { initializeAppSecrets } from "./services/secrets/secretManager";
@@ -285,6 +286,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Vertex AI diagnostics endpoints
   app.get('/api/system/vertex-diagnostics', runVertexDiagnostics);
   app.get('/api/system/vertex-diagnostics/comprehensive', runComprehensiveVertexDiagnostic);
+  
+  // Google Cloud services test endpoint
+  app.get('/api/system/google-services-test', handleRunServiceTests);
   
   // Add a route to serve the static HTML fallback page
   app.get('/static', (req: Request, res: Response) => {
