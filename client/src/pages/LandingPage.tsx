@@ -335,60 +335,34 @@ export default function LandingPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {cryptoData.slice(0, 8).map((coin) => (
-                <Card key={coin.id} className="bg-card/30 border-primary/20 backdrop-blur-md overflow-hidden">
+                <Card key={coin.id} className="bg-black border border-gray-800 overflow-hidden">
                   <CardContent className="p-4">
-                    <div className="flex items-center mb-3">
-                      <img src={coin.image} alt={coin.name} className="w-8 h-8 mr-3" />
-                      <div>
-                        <h3 className="font-bold">{coin.name}</h3>
-                        <p className="text-xs text-muted-foreground uppercase">{coin.symbol}</p>
+                    <div className="flex items-start">
+                      {/* Left side - Coin icon and name */}
+                      <div className="flex items-center">
+                        <img src={coin.image} alt={coin.name} className="w-10 h-10 mr-2" />
+                        <div>
+                          <h3 className="font-bold text-white">{coin.name}</h3>
+                          <p className="text-xs text-gray-400 uppercase">{coin.symbol}</p>
+                        </div>
                       </div>
+                      
+                      {/* Right side - Price and change */}
                       <div className="ml-auto text-right">
-                        <p className="font-bold">${coin.current_price.toLocaleString()}</p>
-                        <p className={`text-xs flex items-center ${coin.price_change_percentage_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                          {coin.price_change_percentage_24h >= 0 ? (
-                            <ArrowUpRight className="h-3 w-3 mr-1" />
-                          ) : (
-                            <ArrowDownRight className="h-3 w-3 mr-1" />
-                          )}
-                          {Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
+                        <p className="font-bold text-white">${coin.current_price.toLocaleString()}</p>
+                        <p className={`text-xs ${coin.price_change_percentage_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                          {coin.price_change_percentage_24h >= 0 ? '↑' : '↓'} {Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
                         </p>
                       </div>
                     </div>
                     
-                    {/* Mini chart visualization */}
-                    <div className="h-12 w-full">
-                      <div className="h-full flex items-end">
-                        {coin.sparkline_in_7d && coin.sparkline_in_7d.price ? (
-                          // Only render if sparkline data exists
-                          coin.sparkline_in_7d.price
-                            .filter((price, i) => i % 10 === 0 && price !== null && price !== undefined)
-                            .map((price, i, filteredPrices) => {
-                              if (filteredPrices.length === 0) return null;
-                              
-                              const maxPrice = Math.max(...filteredPrices);
-                              const minPrice = Math.min(...filteredPrices);
-                              const range = maxPrice - minPrice;
-                              const normalizedHeight = range === 0 ? 50 : ((price - minPrice) / range) * 100;
-                              
-                              return (
-                                <div 
-                                  key={i} 
-                                  className={`flex-1 mx-0.5 ${coin.price_change_percentage_24h >= 0 ? 'bg-green-500/40' : 'bg-red-500/40'}`}
-                                  style={{ height: `${normalizedHeight}%` }}
-                                ></div>
-                              );
-                            })
-                        ) : (
-                          // Fallback if no sparkline data
-                          <div className="w-full h-6 flex items-center justify-center text-muted-foreground text-xs">
-                            No chart data
-                          </div>
-                        )}
-                      </div>
+                    {/* Chart section */}
+                    <div className="mt-4 text-center">
+                      <p className="text-xs text-gray-500">No chart data</p>
                     </div>
                     
-                    <div className="mt-2 text-xs text-muted-foreground">
+                    {/* Market cap at bottom */}
+                    <div className="mt-3 text-xs text-gray-500">
                       Market Cap: {formatMarketCap(coin.market_cap)}
                     </div>
                   </CardContent>
