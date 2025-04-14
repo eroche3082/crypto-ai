@@ -35,7 +35,6 @@ import NotFound from "@/pages/not-found";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
-import FeaturesPage from "./pages/FeaturesPage";
 // Unified pages
 import UnifiedPortfolio from "./pages/UnifiedPortfolio";
 import UnifiedDigitalAssets from "./pages/UnifiedDigitalAssets";
@@ -87,11 +86,6 @@ function App() {
               {/* Public route for Login Page */}
               <Route path="/login">
                 <LoginPage />
-              </Route>
-              
-              {/* Public route for Features Page */}
-              <Route path="/features">
-                <FeaturesPage />
               </Route>
               
               {/* Admin Dashboard Route */}

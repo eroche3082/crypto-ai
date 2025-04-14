@@ -91,12 +91,6 @@ const Sidebar = () => {
       label: t("nftEvaluator.title", "NFT Evaluator"),
       tag: "New"
     },
-    {
-      path: "/features",
-      icon: <Star size={20} />,
-      label: t("features.title", "Platform Features"),
-      tag: "New"
-    },
     
     // Legacy portfolio sections
     // { path: "/portfolio", icon: <BarChart3 size={20} />, label: t("portfolio.title", "Portfolio") },
