@@ -459,6 +459,7 @@ export default function ApiHealthDashboard() {
           <TabsTrigger value="cache">Cache Statistics</TabsTrigger>
           <TabsTrigger value="vertex">Vertex AI Diagnostics</TabsTrigger>
           <TabsTrigger value="apikeys">API Key Manager</TabsTrigger>
+          <TabsTrigger value="gservices">Google Services Test</TabsTrigger>
           <TabsTrigger value="details">Technical Details</TabsTrigger>
         </TabsList>
         
@@ -511,6 +512,10 @@ export default function ApiHealthDashboard() {
         
         <TabsContent value="apikeys">
           <GoogleApiKeyManager />
+        </TabsContent>
+        
+        <TabsContent value="gservices">
+          <GoogleServiceTests />
         </TabsContent>
         
         <TabsContent value="details">

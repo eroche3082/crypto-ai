@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ExclamationTriangleIcon, CheckCircledIcon, CrossCircledIcon, ReloadIcon } from "@radix-ui/react-icons";
+import { AlertTriangle, CheckCircle, XCircle, RefreshCw, Loader2 } from "lucide-react";
 import { apiRequest } from '@/lib/queryClient';
 
 interface ServiceTestResult {
@@ -94,12 +94,12 @@ const GoogleServiceTests: React.FC = () => {
           >
             {loading ? (
               <>
-                <ReloadIcon className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Running...</span>
               </>
             ) : (
               <>
-                <ReloadIcon className="h-4 w-4" />
+                <RefreshCw className="h-4 w-4" />
                 <span>Run Tests</span>
               </>
             )}
@@ -112,7 +112,7 @@ const GoogleServiceTests: React.FC = () => {
       <CardContent>
         {error && (
           <Alert variant="destructive" className="mb-4">
-            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -147,12 +147,12 @@ const GoogleServiceTests: React.FC = () => {
                     <span className="font-medium">{getServiceDisplayName(result.service)}</span>
                     {result.success ? (
                       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-800 flex items-center gap-1">
-                        <CheckCircledIcon className="h-3.5 w-3.5" />
+                        <CheckCircle className="h-3.5 w-3.5" />
                         Working
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800 flex items-center gap-1">
-                        <CrossCircledIcon className="h-3.5 w-3.5" />
+                        <XCircle className="h-3.5 w-3.5" />
                         Error
                       </Badge>
                     )}
