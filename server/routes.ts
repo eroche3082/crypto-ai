@@ -440,6 +440,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/vertex-ai-response", handleVertexAIResponse);
   app.post("/api/vertex-ai-vision", handleVisionAIResponse);
   app.get("/api/vertex-ai-diagnostics", getAIDiagnostics);
+  
+  // API Key Manager diagnostics endpoint
+  app.get("/api/google-api-key-manager/diagnostics", (req, res) => {
+    const googleApiKeyManager = require('./services/googleApiKeyManager').default;
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      initializationSummary: googleApiKeyManager.getServiceInitializationSummary(),
+      detailedReport: googleApiKeyManager.getServiceInitializationReport()
+    });
+  });
   app.get("/api/vertex-ai-diagnostics/comprehensive", async (req, res) => {
     try {
       // Import all necessary variables from vertexai.ts

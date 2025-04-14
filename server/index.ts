@@ -3,6 +3,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+// Initialize environment variables and API key groups
+import "./services/envSetup";
 
 // Load environment variables from .env file
 dotenv.config();

@@ -3,18 +3,29 @@
  * 
  * Provides functions for interacting with Google Vertex AI and Gemini
  * With multiple authentication methods and fallback mechanisms
+ * Supports dynamic API key selection based on API key group management
  */
 import { Request, Response } from 'express';
 import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertexai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import googleApiKeyManager from './services/googleApiKeyManager';
 
 // Configuration flags
 export const USE_API_KEY_AUTH = true; // Use API key auth instead of service account
 export const USE_GEMINI_FALLBACK = true; // Use Gemini API as fallback if Vertex AI fails
 export const ENABLE_VERTEX_DIAGNOSTICS = true; // Enable detailed diagnostic logging
 
-// Check if Vertex AI is configured
-export const apiKey = process.env.VERTEX_AI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_VERTEX_KEY_ID;
+// Get API keys from dynamic API key manager
+export const vertexApiKey = googleApiKeyManager.getApiKeyForService('vertex-ai');
+export const geminiApiKey = googleApiKeyManager.getApiKeyForService('gemini');
+
+// Use fallback to direct env vars if key manager didn't find anything
+export const apiKey = vertexApiKey || 
+                     geminiApiKey || 
+                     process.env.VERTEX_AI_API_KEY || 
+                     process.env.GOOGLE_API_KEY || 
+                     process.env.GOOGLE_VERTEX_KEY_ID;
+
 export const isConfigured = !!apiKey;
 export const projectId = process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai';
 export const location = process.env.GOOGLE_LOCATION || 'us-central1';
@@ -24,22 +35,41 @@ export const keyFilePath = process.env.GOOGLE_APPLICATION_CREDENTIALS || './goog
 export let vertexAI: VertexAI | null = null;
 export let genAI: GoogleGenerativeAI | null = null;
 
-// Initialize Vertex AI with API key if configured
+// Initialize Vertex AI with selected API key if configured
 if (isConfigured) {
+  // Get the selected API key group for Vertex AI
+  const vertexApiKeyGroup = googleApiKeyManager.selectApiKeyGroupForService('vertex-ai');
+  const vertexGroupId = vertexApiKeyGroup?.id || 'DIRECT_ENV';
+  
   try {
     if (USE_API_KEY_AUTH) {
       // Initialize with API key
-      console.log(`Initializing Vertex AI with API key for project ${projectId}`);
+      console.log(`Initializing Vertex AI with API key from ${vertexGroupId} for project ${projectId}`);
       vertexAI = new VertexAI({
         project: projectId,
         location: location,
         apiEndpoint: "us-central1-aiplatform.googleapis.com",
       });
       
-      // Also initialize Gemini for fallback
+      // Track successful initialization
+      googleApiKeyManager.trackServiceInitialization('vertex-ai', vertexGroupId, true);
+      
+      // Also initialize Gemini for fallback if needed
       if (USE_GEMINI_FALLBACK) {
-        console.log('Also initializing Gemini API for fallback');
-        genAI = new GoogleGenerativeAI(apiKey);
+        const geminiApiKeyGroup = googleApiKeyManager.selectApiKeyGroupForService('gemini');
+        const geminiGroupId = geminiApiKeyGroup?.id || 'DIRECT_ENV';
+        
+        try {
+          console.log(`Initializing Gemini API with API key from ${geminiGroupId} for fallback`);
+          genAI = new GoogleGenerativeAI(apiKey);
+          
+          // Track successful initialization
+          googleApiKeyManager.trackServiceInitialization('gemini', geminiGroupId, true);
+        } catch (geminiError) {
+          console.error('Error initializing Gemini API as fallback:', geminiError);
+          googleApiKeyManager.trackServiceInitialization('gemini', geminiGroupId, false, geminiError.message);
+          genAI = null;
+        }
       }
     } else {
       // Initialize with service account
@@ -53,25 +83,40 @@ if (isConfigured) {
           keyFile: keyFilePath,
         },
       });
+      
+      // Track successful initialization with SERVICE_ACCOUNT group
+      googleApiKeyManager.trackServiceInitialization('vertex-ai', 'SERVICE_ACCOUNT', true);
     }
     
     console.log('Vertex AI initialized successfully');
   } catch (error) {
     console.error('Error initializing Vertex AI:', error);
+    // Track failed initialization
+    googleApiKeyManager.trackServiceInitialization('vertex-ai', vertexGroupId, false, error.message);
     vertexAI = null;
     
     // Try to initialize Gemini API as fallback
     if (USE_GEMINI_FALLBACK) {
+      const geminiApiKeyGroup = googleApiKeyManager.selectApiKeyGroupForService('gemini');
+      const geminiGroupId = geminiApiKeyGroup?.id || 'DIRECT_ENV';
+      
       try {
-        console.log('Falling back to Gemini API initialization');
+        console.log(`Falling back to Gemini API initialization using key from ${geminiGroupId}`);
         genAI = new GoogleGenerativeAI(apiKey);
         console.log('Gemini API initialized successfully as fallback');
+        
+        // Track successful initialization
+        googleApiKeyManager.trackServiceInitialization('gemini', geminiGroupId, true);
       } catch (geminiError) {
         console.error('Error initializing Gemini API fallback:', geminiError);
+        googleApiKeyManager.trackServiceInitialization('gemini', geminiGroupId, false, geminiError.message);
         genAI = null;
       }
     }
   }
+  
+  // Log initialization summary
+  console.log('API Initialization Summary:', googleApiKeyManager.getServiceInitializationSummary());
 }
 
 /**
