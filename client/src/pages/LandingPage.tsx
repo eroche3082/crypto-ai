@@ -213,9 +213,6 @@ export default function LandingPage() {
             <Link href="/login">
               <Button variant="outline" className="text-white border-white hover:bg-white/10">Sign In</Button>
             </Link>
-            <Link href="/login">
-              <Button>Get Started</Button>
-            </Link>
           </div>
         </div>
       </header>
@@ -263,11 +260,6 @@ export default function LandingPage() {
                 >
                   Get Started <Sparkles size={16} />
                 </Button>
-                <Link href="/login">
-                  <Button variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
-                    Login
-                  </Button>
-                </Link>
               </div>
             </div>
             
