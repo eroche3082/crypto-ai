@@ -5,6 +5,7 @@
  */
 import { Request, Response } from 'express';
 import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertexai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as fs from 'fs';
 
 // Prepare response object
@@ -60,46 +61,88 @@ export async function runVertexDiagnostics(req: Request, res: Response) {
 
     console.log(`Using API key: ${apiKey ? 'Yes (via env var)' : 'No'}, Using credentials file: ${credentialsFile ? 'Yes' : 'No'}`);
 
-    // Initialize Vertex AI client using API key if available
-    let vertexAI;
-    if (apiKey) {
-      vertexAI = new VertexAI({
-        project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
-        location: process.env.GOOGLE_LOCATION || 'us-central1',
-        apiEndpoint: "us-central1-aiplatform.googleapis.com",
-      });
-    } else {
-      vertexAI = new VertexAI({
-        project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
-        location: process.env.GOOGLE_LOCATION || 'us-central1',
-        apiEndpoint: "us-central1-aiplatform.googleapis.com",
-        googleAuthOptions: {
-          scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-          keyFile: credentialsFile || './google-credentials-global.json',
-        },
-      });
-    }
-
-    // Try to make a simple API call to test connectivity
+    // Try the @google/generative-ai library first (works better with API keys)
     const model = 'gemini-1.5-pro';
-    const generativeModel = vertexAI.getGenerativeModel({
-      model: model,
-      generation_config: {
-        max_output_tokens: 50,
-        temperature: 0.2,
-      },
-    });
-
-    // Use a simple diagnostic prompt
-    const prompt = "Respond with a single word: 'active' if you can read this message.";
+    let responseText = '';
+    let responseTime = 0;
     
-    const response = await generativeModel.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    });
+    try {
+      console.log('Attempting to connect using @google/generative-ai library');
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const genModel = genAI.getGenerativeModel({ model: model });
+      
+      // Use a simple diagnostic prompt
+      const prompt = "Respond with a single word: 'active' if you can read this message.";
+      
+      const genResponse = await genModel.generateContent(prompt);
+      responseText = genResponse.response.text();
+      const endTime = Date.now();
+      responseTime = endTime - startTime;
+      
+      console.log('Response from GoogleGenerativeAI:', responseText);
+    } catch (genAiError) {
+      console.error('Error with GoogleGenerativeAI:', genAiError);
+      console.log('Falling back to VertexAI library...');
+      
+      // Initialize Vertex AI client using API key if available
+      let vertexAI;
+      try {
+        if (apiKey) {
+          vertexAI = new VertexAI({
+            project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+            location: process.env.GOOGLE_LOCATION || 'us-central1',
+            apiEndpoint: "us-central1-aiplatform.googleapis.com",
+          });
+        } else {
+          vertexAI = new VertexAI({
+            project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+            location: process.env.GOOGLE_LOCATION || 'us-central1',
+            apiEndpoint: "us-central1-aiplatform.googleapis.com",
+            googleAuthOptions: {
+              scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+              keyFile: credentialsFile || './google-credentials-global.json',
+            },
+          });
+        }
 
-    const responseText = response.response.candidates[0].content.parts[0].text;
+        // Try to make a simple API call to test connectivity
+        const generativeModel = vertexAI.getGenerativeModel({
+          model: model,
+          apiKey: apiKey,
+          safetySettings: [
+            {
+              category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+              threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+              threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            },
+          ],
+          generation_config: {
+            max_output_tokens: 50,
+            temperature: 0.2,
+          },
+        });
+
+        // Use a simple diagnostic prompt
+        const prompt = "Respond with a single word: 'active' if you can read this message.";
+        
+        const response = await generativeModel.generateContent({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        });
+
+        responseText = response.response.candidates[0].content.parts[0].text;
+        const endTime = Date.now();
+        responseTime = endTime - startTime;
+      } catch (vertexError) {
+        console.error('Error with VertexAI:', vertexError);
+        throw vertexError; // Rethrow to be caught by outer catch block
+      }
+    }
+    
+    // Check the response
     const endTime = Date.now();
-    const responseTime = endTime - startTime;
 
     // Check the response
     if (responseText && responseText.toLowerCase().includes('active')) {
@@ -179,63 +222,117 @@ export async function runComprehensiveVertexDiagnostic(req: Request, res: Respon
     
     console.log(`Comprehensive Test - Using API key: ${apiKey ? 'Yes (via env var)' : 'No'}, Using credentials file: ${credentialsFile ? 'Yes' : 'No'}`);
 
-    // Initialize Vertex AI client using API key if available
-    let vertexAI;
-    if (apiKey) {
-      vertexAI = new VertexAI({
-        project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
-        location: process.env.GOOGLE_LOCATION || 'us-central1',
-        apiEndpoint: "us-central1-aiplatform.googleapis.com",
-      });
-    } else {
-      vertexAI = new VertexAI({
-        project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
-        location: process.env.GOOGLE_LOCATION || 'us-central1',
-        apiEndpoint: "us-central1-aiplatform.googleapis.com",
-        googleAuthOptions: {
-          scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-          keyFile: credentialsFile || './google-credentials-global.json',
-        },
-      });
-    }
-
     // Test different models
     const models = ['gemini-1.5-pro', 'gemini-1.5-flash'];
     
-    for (const modelName of models) {
-      try {
-        const modelTest = {
-          model: modelName,
-          status: 'pending',
-          responseTime: 0,
-          errorDetails: ''
-        };
-        
-        const modelStartTime = Date.now();
-        const generativeModel = vertexAI.getGenerativeModel({
-          model: modelName,
-          generation_config: {
-            max_output_tokens: 50,
-            temperature: 0.2,
+    // Try the @google/generative-ai library first
+    try {
+      console.log('Comprehensive test: Attempting to connect using @google/generative-ai library');
+      const genAI = new GoogleGenerativeAI(apiKey);
+      
+      for (const modelName of models) {
+        try {
+          const modelTest = {
+            model: modelName,
+            status: 'pending',
+            responseTime: 0,
+            errorDetails: '',
+            api: 'GoogleGenerativeAI'
+          };
+          
+          const modelStartTime = Date.now();
+          const genModel = genAI.getGenerativeModel({ model: modelName });
+          
+          const prompt = `Test connectivity for model: ${modelName}`;
+          const genResponse = await genModel.generateContent(prompt);
+          
+          const modelEndTime = Date.now();
+          modelTest.responseTime = modelEndTime - modelStartTime;
+          modelTest.status = 'success';
+          
+          results.modelTests.push(modelTest);
+        } catch (modelError: any) {
+          results.modelTests.push({
+            model: modelName,
+            status: 'error',
+            responseTime: 0,
+            errorDetails: modelError.message || 'Unknown error',
+            api: 'GoogleGenerativeAI'
+          });
+        }
+      }
+    } catch (genAiError) {
+      console.error('Error with GoogleGenerativeAI:', genAiError);
+      console.log('Falling back to VertexAI library...');
+      
+      // Initialize Vertex AI client as fallback
+      let vertexAI;
+      if (apiKey) {
+        vertexAI = new VertexAI({
+          project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+          location: process.env.GOOGLE_LOCATION || 'us-central1',
+          apiEndpoint: "us-central1-aiplatform.googleapis.com",
+        });
+      } else {
+        vertexAI = new VertexAI({
+          project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+          location: process.env.GOOGLE_LOCATION || 'us-central1',
+          apiEndpoint: "us-central1-aiplatform.googleapis.com",
+          googleAuthOptions: {
+            scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+            keyFile: credentialsFile || './google-credentials-global.json',
           },
         });
-        
-        const response = await generativeModel.generateContent({
-          contents: [{ role: 'user', parts: [{ text: `Test connectivity for model: ${modelName}` }] }],
-        });
-        
-        const modelEndTime = Date.now();
-        modelTest.responseTime = modelEndTime - modelStartTime;
-        modelTest.status = 'success';
-        
-        results.modelTests.push(modelTest);
-      } catch (error: any) {
-        results.modelTests.push({
-          model: modelName,
-          status: 'error',
-          responseTime: 0,
-          errorDetails: error.message || 'Unknown error'
-        });
+      }
+
+      for (const modelName of models) {
+        try {
+          const modelTest = {
+            model: modelName,
+            status: 'pending',
+            responseTime: 0,
+            errorDetails: '',
+            api: 'VertexAI'
+          };
+          
+          const modelStartTime = Date.now();
+          const generativeModel = vertexAI.getGenerativeModel({
+            model: modelName,
+            apiKey: apiKey,
+            safetySettings: [
+              {
+                category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+              },
+              {
+                category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+              },
+            ],
+            generation_config: {
+              max_output_tokens: 50,
+              temperature: 0.2,
+            },
+          });
+          
+          const response = await generativeModel.generateContent({
+            contents: [{ role: 'user', parts: [{ text: `Test connectivity for model: ${modelName}` }] }],
+          });
+          
+          const modelEndTime = Date.now();
+          modelTest.responseTime = modelEndTime - modelStartTime;
+          modelTest.status = 'success';
+          
+          results.modelTests.push(modelTest);
+        } catch (error: any) {
+          results.modelTests.push({
+            model: modelName,
+            status: 'error',
+            responseTime: 0,
+            errorDetails: error.message || 'Unknown error',
+            api: 'VertexAI'
+          });
+        }
       }
     }
     
