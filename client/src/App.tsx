@@ -22,6 +22,7 @@ import NFTGalleryPage from "./pages/nft/NFTGalleryPage";
 import TokenTrackerPage from "./pages/nft/TokenTrackerPage";
 import GamificationPage from "./pages/GamificationPage";
 import ChartAnalysisPage from "./pages/ChartAnalysisPage";
+import NFTExplorerPage from "./pages/NFTExplorerPage";
 import SystemCheck from "./pages/admin/SystemCheck";
 import SystemValidator from "./pages/admin/SystemValidator";
 import SystemReport from "./pages/admin/SystemReport";
@@ -161,6 +162,9 @@ function AppLayout() {
           
           {/* Chart Pattern Recognition - Phase 5 Feature */}
           <Route path="/chart-analysis" component={ChartAnalysisPage} />
+          
+          {/* NFT Collection Evaluator - Phase 5 Feature */}
+          <Route path="/nft-evaluator" component={NFTExplorerPage} />
           
           <Route component={NotFound} />
         </Switch>

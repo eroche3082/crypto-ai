@@ -78,11 +78,17 @@ const Sidebar = () => {
       tag: "New"
     },
     
-    // New Phase 5 feature
+    // New Phase 5 features
     {
       path: "/chart-analysis",
       icon: <Scan size={20} />,
       label: t("chartAnalysis.title", "Chart Patterns"),
+      tag: "New"
+    },
+    {
+      path: "/nft-evaluator",
+      icon: <Image size={20} />,
+      label: t("nftEvaluator.title", "NFT Evaluator"),
       tag: "New"
     },
     
