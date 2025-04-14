@@ -42,6 +42,15 @@ import apiRouter from "./apiRoutes";
 import { accessCodeRouter, accessCodeAdminRouter } from "./accessCodeRoutes";
 import { db } from "./db";
 import { insertUserOnboardingProfileSchema, userOnboardingProfiles } from "../shared/schema";
+import { 
+  getGamificationProfile,
+  getUserAchievements,
+  getAvailableAchievements,
+  getUserChallenges,
+  getAvailableChallenges,
+  startChallenge,
+  getUserActivity
+} from "./controllers/gamificationControllers";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -1252,6 +1261,15 @@ Watch for increased volatility around upcoming economic announcements.
       });
     }
   });
+  
+  // Gamification API endpoints
+  app.get("/api/gamification/profile/:userId", getGamificationProfile);
+  app.get("/api/gamification/achievements/user/:userId", getUserAchievements);
+  app.get("/api/gamification/achievements/available/:userId", getAvailableAchievements);
+  app.get("/api/gamification/challenges/user/:userId", getUserChallenges);
+  app.get("/api/gamification/challenges", getAvailableChallenges);
+  app.post("/api/gamification/challenges/user/:userId/:challengeId/start", startChallenge);
+  app.get("/api/gamification/activity/:userId", getUserActivity);
   
   return httpServer;
 }
