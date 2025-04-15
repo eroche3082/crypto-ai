@@ -38,83 +38,70 @@ const Sidebar = () => {
   const { language } = useLanguage();
   const [showLanguageSwitcher, setShowLanguageSwitcher] = useState(false);
 
+  // Reorganized navigation structure according to MEGAPROMPT specifications
+  // Maximum 10 main categories with nested items to be implemented in dropdown menus later
   const navItems = [
+    // 1. Dashboard - Main entry point
     { path: "/", icon: <LayoutDashboard size={20} />, label: t("dashboard.title", "Dashboard") },
-    { path: "/favorites", icon: <Star size={20} />, label: t("favorites.title", "Favorites") },
     
-    // Unified Portfolio section with tag
+    // 2. Market Overview
+    { path: "/live-price-tracker", icon: <Wallet size={20} />, label: t("market.overview", "Market Overview") },
+    
+    // 3. Portfolio Hub
     { 
       path: "/unified-portfolio", 
       icon: <BarChart3 size={20} />, 
-      label: t("portfolio.title", "Portfolio"),
-      tag: "New"
+      label: t("portfolio.title", "Portfolio")
     },
     
-    // Unified Digital Assets section with tag
-    {
-      path: "/unified-digital-assets",
-      icon: <Image size={20} />,
-      label: t("digitalAssets.title", "Digital Assets"),
-      tag: "New"
+    // 4. Trading Tools
+    { 
+      path: "/chart-analysis", 
+      icon: <Scan size={20} />, 
+      label: t("trading.tools", "Trading Tools")
     },
     
-    // New Phase 1 pages with tags
-    { 
-      path: "/subscription-plans", 
-      icon: <Trophy size={20} />, 
-      label: t("subscriptionPlans.title", "Subscription Plans"),
-      tag: "New"
-    },
-    { 
-      path: "/live-price-tracker", 
-      icon: <Wallet size={20} />, 
-      label: t("priceTracker.title", "Live Price Tracker"),
-      tag: "New"
-    },
+    // 5. NFT Center 
     { 
       path: "/nft-explorer", 
       icon: <Image size={20} />, 
-      label: t("nftExplorer.title", "NFT Explorer"),
-      tag: "New"
+      label: t("nft.center", "NFT Center")
     },
     
-    // New Phase 5 features
-    {
-      path: "/chart-analysis",
-      icon: <Scan size={20} />,
-      label: t("chartAnalysis.title", "Chart Patterns"),
-      tag: "New"
-    },
-    {
-      path: "/nft-evaluator",
-      icon: <Image size={20} />,
-      label: t("nftEvaluator.title", "NFT Evaluator"),
-      tag: "New"
+    // 6. Analytics & Insights
+    { 
+      path: "/analysis", 
+      icon: <BrainCircuit size={20} />, 
+      label: t("analytics.insights", "Analytics & Insights")
     },
     
-    // Legacy portfolio sections
-    // { path: "/portfolio", icon: <BarChart3 size={20} />, label: t("portfolio.title", "Portfolio") },
-    // { path: "/portfolio-analysis", icon: <Brain size={20} />, label: t("portfolioAnalysis.title", "Portfolio AI") },
-    // { path: "/nft-gallery", icon: <Image size={20} />, label: t("nftGallery.title", "NFT Gallery") },
-    // { path: "/token-tracker", icon: <Coins size={20} />, label: t("tokenTracker.title", "Token Tracker") },
+    // 7. Personal
+    { 
+      path: "/favorites", 
+      icon: <Star size={20} />, 
+      label: t("personal.section", "Your Journey")
+    },
     
-    { path: "/watchlist", icon: <ShieldAlert size={20} />, label: t("watchlist.title", "Risk Watchlist") },
-    { path: "/wallet-messaging", icon: <LockKeyhole size={20} />, label: t("walletMessaging.title", "Wallet Messaging") },
-    { path: "/investment-advisor", icon: <Sparkles size={20} />, label: t("investmentAdvisor.title", "Investment Advisor") },
-    { path: "/twitter-sentiment", icon: <MessageCircle size={20} />, label: t("twitterSentiment.title", "Twitter Analysis") },
-    { path: "/tax-simulator", icon: <Calculator size={20} />, label: t("taxSimulator.title", "Tax Simulator") },
-    { path: "/gamification", icon: <Trophy size={20} />, label: t("gamification.title", "Gamification") },
-    { path: "/news", icon: <Newspaper size={20} />, label: t("news.title", "News") },
-    { path: "/alerts", icon: <Bell size={20} />, label: t("alerts.title", "Alerts") },
-    { path: "/converter", icon: <ArrowLeftRight size={20} />, label: t("converter.title", "Converter") },
-    { path: "/analysis", icon: <BrainCircuit size={20} />, label: t("analysis.title", "AI Analysis") },
-    { path: "/education", icon: <GraduationCap size={20} />, label: t("education.title", "Education") },
-    { path: "/locations", icon: <MapPin size={20} />, label: t("locations.title", "Locations") },
-    { path: "/admin/system-check", icon: <CheckCircle2 size={20} />, label: t("admin.systemCheck", "System Check") },
-    { path: "/admin/system-validator", icon: <ShieldAlert size={20} />, label: t("admin.systemValidator", "System Validator") },
-    { path: "/admin/system-report", icon: <BarChart3 size={20} />, label: t("admin.systemReport", "System Report") },
-    { path: "/admin/api-health", icon: <Globe size={20} />, label: t("admin.apiHealth", "API Health"), tag: "New" },
-    { path: "/admin/system-diagnostics", icon: <Brain size={20} />, label: t("admin.systemDiagnostics", "System Diagnostics"), tag: "New" },
+    // 8. Alerts & Updates
+    { 
+      path: "/alerts", 
+      icon: <Bell size={20} />, 
+      label: t("alerts.title", "Alerts")
+    },
+    
+    // 9. Learning & News
+    { 
+      path: "/news", 
+      icon: <Newspaper size={20} />, 
+      label: t("news.education", "News & Learning")
+    },
+    
+    // 10. System (Admin only - this will be shown conditionally)
+    { 
+      path: "/admin/system-report", 
+      icon: <Globe size={20} />, 
+      label: t("admin.system", "System")
+    },
   ];
 
   const toggleLanguageSwitcher = () => {

@@ -4,16 +4,17 @@ import {
   Home, 
   BarChart2, 
   AlertCircle, 
-  RefreshCw, 
-  BookOpen, 
   Newspaper, 
   Star, 
-  MapPin,
   Menu,
   X,
   User,
   LogOut,
-  Settings
+  Settings,
+  Wallet,
+  Image,
+  Scan,
+  BrainCircuit
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -30,15 +31,36 @@ const MobileNavbar: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  // Use the same reorganized structure as Sidebar for consistency
   const navItems = [
-    { path: '/dashboard', icon: <Home size={20} />, label: t('dashboard', 'Dashboard') },
-    { path: '/portfolio', icon: <BarChart2 size={20} />, label: t('portfolio', 'Portfolio') },
+    // 1. Dashboard - Main entry point
+    { path: '/', icon: <Home size={20} />, label: t('dashboard', 'Dashboard') },
+    
+    // 2. Market Overview
+    { path: '/live-price-tracker', icon: <Wallet size={20} />, label: t('market.overview', 'Market Overview') },
+    
+    // 3. Portfolio Hub
+    { path: '/unified-portfolio', icon: <BarChart2 size={20} />, label: t('portfolio', 'Portfolio') },
+    
+    // 4. Trading Tools
+    { path: '/chart-analysis', icon: <Scan size={20} />, label: t('trading.tools', 'Trading Tools') },
+    
+    // 5. NFT Center
+    { path: '/nft-explorer', icon: <Image size={20} />, label: t('nft.center', 'NFT Center') },
+    
+    // 6. Analytics & Insights
+    { path: '/analysis', icon: <BrainCircuit size={20} />, label: t('analytics.insights', 'Analytics & Insights') },
+    
+    // 7. Personal
+    { path: '/favorites', icon: <Star size={20} />, label: t('personal.section', 'Your Journey') },
+    
+    // 8. Alerts & Updates
     { path: '/alerts', icon: <AlertCircle size={20} />, label: t('alerts', 'Alerts') },
-    { path: '/converter', icon: <RefreshCw size={20} />, label: t('converter', 'Converter') },
-    { path: '/education', icon: <BookOpen size={20} />, label: t('education', 'Education') },
-    { path: '/news', icon: <Newspaper size={20} />, label: t('news', 'News') },
-    { path: '/favorites', icon: <Star size={20} />, label: t('favorites', 'Favorites') },
-    { path: '/locations', icon: <MapPin size={20} />, label: t('locations', 'Locations') }
+    
+    // 9. Learning & News 
+    { path: '/news', icon: <Newspaper size={20} />, label: t('news.education', 'News & Learning') }
+    
+    // System is hidden on mobile for simplicity
   ];
 
   return (

@@ -134,50 +134,60 @@ function AppLayout() {
       <MobileNavbar />
       <div className="flex-1 flex flex-col overflow-hidden md:overflow-auto pt-14 md:pt-0">
         <Switch>
+          {/* 1. DASHBOARD - Main entry point */}
+          <Route path="/" component={Dashboard} />
           <Route path="/dashboard" component={Dashboard} />
-          {/* Legacy routes - to be replaced with unified versions */}
-          <Route path="/portfolio" component={Portfolio} />
+          
+          {/* 2. MARKET OVERVIEW - Crypto price tracking and data */}
+          <Route path="/live-price-tracker" component={LivePriceTracker} />
+          
+          {/* 3. PORTFOLIO HUB - All portfolio related features */}
+          <Route path="/unified-portfolio" component={UnifiedPortfolio} />
+          <Route path="/portfolio" component={UnifiedPortfolio} /> {/* Redirect to unified view */}
           <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
+          
+          {/* 4. TRADING TOOLS - Chart patterns, analysis and trading utilities */}
+          <Route path="/chart-analysis" component={ChartAnalysisPage} />
+          <Route path="/watchlist" component={Watchlist} />
+          <Route path="/converter" component={Converter} />
+          
+          {/* 5. NFT CENTER - All NFT related features */}
+          <Route path="/nft-explorer" component={NFTExplorer} />
+          <Route path="/nft-evaluator" component={NFTExplorerPage} />
           <Route path="/nft-gallery" component={NFTGalleryPage} />
           <Route path="/token-tracker" component={TokenTrackerPage} />
-          
-          {/* Unified routes */}
-          <Route path="/unified-portfolio" component={UnifiedPortfolio} />
           <Route path="/unified-digital-assets" component={UnifiedDigitalAssets} />
           
-          {/* Other routes */}
-          <Route path="/favorites" component={Favorites} />
-          <Route path="/alerts" component={Alerts} />
-          <Route path="/converter" component={Converter} />
-          <Route path="/education" component={Education} />
-          <Route path="/news" component={News} />
-          <Route path="/locations" component={Locations} />
+          {/* 6. ANALYTICS & INSIGHTS - AI and data analysis */}
           <Route path="/analysis" component={Analysis} />
-          <Route path="/watchlist" component={Watchlist} />
           <Route path="/investment-advisor" component={InvestmentAdvisorPage} />
           <Route path="/twitter-sentiment" component={TwitterSentiment} />
           <Route path="/tax-simulator" component={TaxSimulator} />
+          
+          {/* 7. PERSONAL - User journey, profile and favorites */}
+          <Route path="/favorites" component={Favorites} />
           <Route path="/wallet-messaging" component={WalletMessaging} />
+          <Route path="/subscription-plans" component={SubscriptionPlans} />
           <Route path="/gamification" component={GamificationPage} />
+          <Route path="/locations" component={Locations} />
+          <Route path="/dashboard/payment/:levelId" component={MultiPaymentPage} />
+          
+          {/* 8. ALERTS & UPDATES - Notifications and alerts */}
+          <Route path="/alerts" component={Alerts} />
+          
+          {/* 9. LEARNING & NEWS - Educational content and news */}
+          <Route path="/news" component={News} />
+          <Route path="/education" component={Education} />
+          
+          {/* 10. SYSTEM - Admin features */}
+          <Route path="/admin/system-report" component={SystemReport} />
           <Route path="/admin/system-check" component={SystemCheck} />
           <Route path="/admin/system-validator" component={SystemValidator} />
-          <Route path="/admin/system-report" component={SystemReport} />
           <Route path="/admin/api-health" component={ApiHealthDashboard} />
           <Route path="/admin/system-diagnostics" component={SystemDiagnostics} />
           <Route path="/admin/panel" component={AdminPanel} />
-          <Route path="/dashboard/payment/:levelId" component={MultiPaymentPage} />
           
-          {/* New Phase 1 pages */}
-          <Route path="/subscription-plans" component={SubscriptionPlans} />
-          <Route path="/live-price-tracker" component={LivePriceTracker} />
-          <Route path="/nft-explorer" component={NFTExplorer} />
-          
-          {/* Chart Pattern Recognition - Phase 5 Feature */}
-          <Route path="/chart-analysis" component={ChartAnalysisPage} />
-          
-          {/* NFT Collection Evaluator - Phase 5 Feature */}
-          <Route path="/nft-evaluator" component={NFTExplorerPage} />
-          
+          {/* FALLBACK - 404 page */}
           <Route component={NotFound} />
         </Switch>
         <Footer />
