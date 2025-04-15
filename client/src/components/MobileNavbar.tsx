@@ -91,7 +91,7 @@ const MobileNavbar: React.FC = () => {
             <div className="space-y-1">
               {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
-                  <a 
+                  <div 
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-md cursor-pointer transition-colors",
                       location === item.path 
@@ -102,7 +102,7 @@ const MobileNavbar: React.FC = () => {
                   >
                     {item.icon}
                     <span>{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
               ))}
             </div>

@@ -40,31 +40,31 @@ export function Footer() {
 
   return (
     <footer className="border-t py-3 bg-card/40">
-      <div className="container flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="flex items-center gap-6">
-          <div className="text-sm text-muted-foreground">
+      <div className="container px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex items-center mb-3 md:mb-0">
+          <div className="text-sm text-muted-foreground text-center md:text-left">
             © {currentYear} CryptoBot AI. All rights reserved.
           </div>
         </div>
         
-        <div className="flex flex-wrap items-center gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row flex-wrap items-center gap-y-3 gap-x-4 justify-center">
           {/* Resources section */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <Link href="/education">
-              <span className="text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center">
+              <span className="text-xs sm:text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center">
                 <BookOpen size={14} className="mr-1" />
                 Learning Center
               </span>
             </Link>
             <Link href="/news">
-              <span className="text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center">
+              <span className="text-xs sm:text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center">
                 <Info size={14} className="mr-1" />
                 Market News
               </span>
             </Link>
             <a 
               href="mailto:contact@socialbrands.ai" 
-              className="text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center"
+              className="text-xs sm:text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center"
             >
               <HeartHandshake size={14} className="mr-1" />
               Contact Us
@@ -72,24 +72,24 @@ export function Footer() {
           </div>
           
           {/* Legal section with coming soon dialogs */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <button 
               onClick={() => handleLegalLink('Privacy Policy')}
-              className="text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center"
+              className="text-xs sm:text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center"
             >
               <ShieldCheck size={14} className="mr-1" />
               Privacy
             </button>
             <button 
               onClick={() => handleLegalLink('Terms of Service')}
-              className="text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center"
+              className="text-xs sm:text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center"
             >
               <BookText size={14} className="mr-1" />
               Terms
             </button>
             <Dialog>
               <DialogTrigger asChild>
-                <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground cursor-pointer">
+                <button className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground hover:text-foreground cursor-pointer">
                   <LockKeyhole size={14} />
                   <span>Admin</span>
                 </button>
