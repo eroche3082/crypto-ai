@@ -59,37 +59,37 @@ const CryptoCard = ({ crypto, timeFilter, onClick, active = false }: CryptoCardP
   return (
     <div 
       className={cn(
-        "crypto-card bg-card rounded-lg p-4 shadow hover:shadow-md transition-all cursor-pointer",
+        "crypto-card bg-card rounded-lg p-3 sm:p-4 shadow hover:shadow-md transition-all cursor-pointer",
         active && "ring-1 ring-primary"
       )}
       onClick={onClick}
     >
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-2 sm:mb-3">
         <div className="flex items-center">
-          <div className={`w-8 h-8 ${bgColor} rounded-full flex items-center justify-center mr-3`}>
-            <span className="font-semibold text-sm">{symbol.charAt(0)}</span>
+          <div className={`w-7 h-7 sm:w-8 sm:h-8 ${bgColor} rounded-full flex items-center justify-center mr-2 sm:mr-3`}>
+            <span className="font-semibold text-xs sm:text-sm">{symbol.charAt(0)}</span>
           </div>
           <div>
-            <h3 className="font-semibold">{crypto.name}</h3>
+            <h3 className="font-semibold text-sm sm:text-base">{crypto.name}</h3>
             <p className="text-xs text-muted-foreground">{symbol}</p>
           </div>
         </div>
-        <button className="text-muted-foreground hover:text-primary transition-colors">
+        <button className="text-muted-foreground hover:text-primary transition-colors" aria-label="Add to favorites">
           <Star size={16} />
         </button>
       </div>
       
-      <div className="flex justify-between items-end mb-3">
-        <div className="text-xl font-bold">${crypto.current_price.toLocaleString()}</div>
+      <div className="flex justify-between items-end mb-2 sm:mb-3">
+        <div className="text-base sm:text-xl font-bold">${crypto.current_price.toLocaleString()}</div>
         <div 
-          className={`text-sm ${isPositive ? 'text-success' : 'text-error'}`}
+          className={`text-xs sm:text-sm ${isPositive ? 'text-success' : 'text-error'}`}
         >
           {isPositive ? '+' : ''}{percentageChange.toFixed(2)}%
         </div>
       </div>
       
       {/* Using the actual PriceChart component */}
-      <div className="h-12 w-full overflow-hidden">
+      <div className="h-10 sm:h-12 w-full overflow-hidden">
         {crypto.sparkline_in_7d?.price ? (
           <PriceChart 
             data={crypto.sparkline_in_7d.price} 
@@ -98,7 +98,7 @@ const CryptoCard = ({ crypto, timeFilter, onClick, active = false }: CryptoCardP
           />
         ) : (
           <div 
-            className={`h-full w-full ${isPositive ? 'bg-success/10' : 'bg-error/10'} flex items-center justify-center`}
+            className={`h-full w-full ${isPositive ? 'bg-success/10' : 'bg-error/10'} flex items-center justify-center rounded-md`}
           >
             <div className={`h-px w-full ${isPositive ? 'bg-success/30' : 'bg-error/30'}`}></div>
           </div>

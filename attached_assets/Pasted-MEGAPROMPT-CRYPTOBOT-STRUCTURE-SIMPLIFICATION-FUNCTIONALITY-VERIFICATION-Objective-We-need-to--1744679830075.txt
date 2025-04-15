@@ -1,0 +1,158 @@
+MEGAPROMPT – CRYPTOBOT STRUCTURE SIMPLIFICATION & FUNCTIONALITY VERIFICATION
+
+Objective: We need to simplify, verify, and optimize the entire structure of CryptoBot, especially the sidebar and dashboard system. The current interface contains too many separated tabs (over 20), many of which are redundant or broken. We require a streamlined, scalable architecture that ensures usability, clarity, and system stability.
+
+PHASE 1 – STRUCTURE OPTIMIZATION
+1. Sidebar Reduction & Reorganization (Max 10 Tabs): Reorganize the current side panel to include a maximum of 8–10 tabs, grouping similar functionalities under unified parent categories.
+
+Suggested Tab Structure:
+
+Dashboard
+
+Market Overview
+
+Your Journey
+
+Alerts
+
+Favorites
+
+Portfolio
+
+Portfolio Simulator
+
+Digital Assets
+
+Subscription Plans
+
+Trading Tools
+
+Live Price Tracker
+
+Chart Patterns
+
+Risk Watchlist
+
+NFT Center
+
+NFT Explorer
+
+NFT Evaluator
+
+NFT Gallery (if active)
+
+Analytics & Insights
+
+AI Analysis
+
+Twitter Analysis
+
+Investment Advisor
+
+News
+
+Reports & Validation
+
+System Report
+
+System Validator
+
+API Health
+
+System Check
+
+Diagnostics (Group into one page or modal)
+
+Simulators
+
+Tax Simulator
+
+Gamification
+
+Converter
+
+Settings & Onboarding
+
+Your Profile / Journey
+
+Membership
+
+Wallet Messaging
+
+Locations
+
+Admin (if user is Admin)
+
+User Management
+
+Logs
+
+Access Control
+
+PHASE 2 – FUNCTIONALITY TESTING
+2. Functionality Checklist:
+
+ All pages should allow vertical scrolling (no layout blocks).
+
+ Clicking Dashboard should not redirect to the Homepage.
+
+ All tabs should load correctly and not be broken or "sample-only."
+
+ Any non-functional tab must be removed or moved to Dev Mode.
+
+ Grouped sections (e.g. NFT Explorer + NFT Evaluator) should be merged or linked from a single entry point.
+
+ "Subscription Plans" must only appear inside user journey or dashboard, not floating in the side panel.
+
+ "System Report," "System Validator," and "System Diagnostics" must be unified under a single System Health tab, or removed if non-functional.
+
+ Remove duplicate or misleading items from the UI.
+
+PHASE 3 – UI/UX IMPROVEMENTS
+3. Simplification & Consistency:
+
+ Ensure the app is visually consistent across all tabs (fonts, margins, paddings, button styles).
+
+ All sections should use dark mode styling if enabled.
+
+ Maintain responsiveness across mobile, tablet, desktop.
+
+ All links/buttons must have visual feedback and action confirmation.
+
+ Side panel tabs must highlight current selection.
+
+ All sections should load in the same viewport without exiting the app container.
+
+PHASE 4 – DEPLOYMENT CHECKPOINT
+4. Testing & Deployment Flow:
+
+ Test user onboarding flow: Start Onboarding → Journey Creation → Dashboard
+
+ Test membership tab redirection to pricing & confirmation page
+
+ Test Wallet Messaging & Alerts to ensure message system is active
+
+ Verify AI modules (AI Analysis, Investment Advisor, Twitter Analysis) are connected to Vertex AI or Gemini API
+
+ Verify Contact Us, Learning Center, Terms, and Footer links are working or hidden if empty.
+
+DELIVERABLE:
+
+Submit:
+
+Simplified sidebar mockup
+
+List of working tabs
+
+List of broken/non-functional tabs
+
+Proposed new layout
+
+Before/After screen of dashboard flow
+
+Confirmation that scroll works in all sections
+
+Any recommendations for additional merging or features
+
+Note: CryptoBot must be deploy-ready with scalable structure, unified flow, and no sample tabs or broken routes.
+

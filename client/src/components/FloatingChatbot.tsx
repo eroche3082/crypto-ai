@@ -100,14 +100,14 @@ export default function FloatingChatbot({
     <>
       {/* Floating button */}
       <div 
-        className={`fixed bottom-4 right-4 z-50 ${className}`}
+        className={`fixed bottom-4 right-4 z-50 safe-area-padding ${className}`}
       >
         <Button 
           onClick={handleToggle}
           size="lg"
-          className="rounded-full h-14 w-14 shadow-lg"
+          className="rounded-full h-12 w-12 sm:h-14 sm:w-14 shadow-lg"
         >
-          <Bot className="h-6 w-6" />
+          <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
         </Button>
       </div>
 
@@ -120,24 +120,24 @@ export default function FloatingChatbot({
         }}
       >
         <DialogContent 
-          className={`p-0 ${isExpanded ? 'fixed inset-0 w-full h-full max-w-none rounded-none' : 'sm:max-w-[95vw] md:max-w-[90vw] h-[95vh]'} flex flex-col`}
+          className={`p-0 ${isExpanded ? 'fixed inset-0 w-full h-full max-w-none rounded-none' : 'w-[95vw] sm:max-w-[95vw] md:max-w-[90vw] h-[80vh] sm:h-[90vh] md:h-[95vh]'} flex flex-col`}
         >
           {/* Header with controls */}
-          <div className="flex items-center justify-between p-3 bg-primary/10 border-b">
+          <div className="flex items-center justify-between p-2 sm:p-3 bg-primary/10 border-b">
             <div className="flex items-center">
-              <Bot className="h-5 w-5 mr-2" />
-              <h2 className="font-semibold text-lg">CryptoBot Universal Assistant</h2>
+              <Bot className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <h2 className="font-semibold text-sm sm:text-lg">CryptoBot Universal Assistant</h2>
             </div>
-            <div className="flex items-center gap-1">
-              {/* Voice toggle */}
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              {/* Voice toggle - hidden on small mobile */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={toggleVoice}>
+                    <Button variant="ghost" size="icon" onClick={toggleVoice} className="hidden sm:flex">
                       {voiceEnabled ? (
-                        <Icons.volumeOn className="h-5 w-5" />
+                        <Icons.volumeOn className="h-4 w-4 sm:h-5 sm:w-5" />
                       ) : (
-                        <Icons.volumeOff className="h-5 w-5" />
+                        <Icons.volumeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                       )}
                     </Button>
                   </TooltipTrigger>
@@ -153,9 +153,9 @@ export default function FloatingChatbot({
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
                       {isExpanded ? (
-                        <Icons.minimize className="h-5 w-5" />
+                        <Icons.minimize className="h-4 w-4 sm:h-5 sm:w-5" />
                       ) : (
-                        <Icons.maximize className="h-5 w-5" />
+                        <Icons.maximize className="h-4 w-4 sm:h-5 sm:w-5" />
                       )}
                     </Button>
                   </TooltipTrigger>
@@ -165,12 +165,12 @@ export default function FloatingChatbot({
                 </Tooltip>
               </TooltipProvider>
               
-              {/* Settings button */}
+              {/* Settings button - hidden on small mobile */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Icons.settings className="h-5 w-5" />
+                    <Button variant="ghost" size="icon" className="hidden sm:flex">
+                      <Icons.settings className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -181,14 +181,14 @@ export default function FloatingChatbot({
               
               {/* Close button */}
               <Button variant="ghost" size="icon" onClick={handleClose}>
-                <Icons.close className="h-5 w-5" />
+                <Icons.close className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </div>
           </div>
           
-          {/* Toolbar */}
-          <div className="flex items-center justify-between p-2 border-b bg-card/50">
-            <div className="flex gap-1">
+          {/* Toolbar - scrollable on mobile */}
+          <div className="flex items-center justify-between p-1 sm:p-2 border-b bg-card/50 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-0.5 sm:gap-1">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -196,9 +196,9 @@ export default function FloatingChatbot({
                       variant={activeTool === 'chat' ? 'secondary' : 'ghost'} 
                       size="sm" 
                       onClick={() => activateTool('chat')}
-                      className="px-2 h-8"
+                      className="px-1.5 sm:px-2 h-7 sm:h-8 whitespace-nowrap"
                     >
-                      <Bot className="h-4 w-4 mr-2" />
+                      <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       <span className="text-xs">Chat</span>
                     </Button>
                   </TooltipTrigger>
@@ -215,9 +215,9 @@ export default function FloatingChatbot({
                       variant={activeTool === 'qr-scan' ? 'secondary' : 'ghost'} 
                       size="sm" 
                       onClick={() => activateTool('qr-scan')}
-                      className="px-2 h-8"
+                      className="px-1.5 sm:px-2 h-7 sm:h-8 whitespace-nowrap"
                     >
-                      <Icons.qrCode className="h-4 w-4 mr-2" />
+                      <Icons.qrCode className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       <span className="text-xs">Scan QR</span>
                     </Button>
                   </TooltipTrigger>
@@ -234,9 +234,9 @@ export default function FloatingChatbot({
                       variant={activeTool === 'qr-generate' ? 'secondary' : 'ghost'} 
                       size="sm" 
                       onClick={() => activateTool('qr-generate')}
-                      className="px-2 h-8"
+                      className="px-1.5 sm:px-2 h-7 sm:h-8 whitespace-nowrap"
                     >
-                      <Icons.qrCode className="h-4 w-4 mr-2" />
+                      <Icons.qrCode className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       <span className="text-xs">Create QR</span>
                     </Button>
                   </TooltipTrigger>
@@ -253,9 +253,9 @@ export default function FloatingChatbot({
                       variant={activeTool === 'ar' ? 'secondary' : 'ghost'} 
                       size="sm" 
                       onClick={() => activateTool('ar')}
-                      className="px-2 h-8"
+                      className="px-1.5 sm:px-2 h-7 sm:h-8 whitespace-nowrap"
                     >
-                      <Package className="h-4 w-4 mr-2" />
+                      <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       <span className="text-xs">AR View</span>
                     </Button>
                   </TooltipTrigger>
@@ -266,16 +266,18 @@ export default function FloatingChatbot({
               </TooltipProvider>
             </div>
             
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              {/* Only show voice input option on mobile, others only on larger screens */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="px-2 h-8"
+                      className="w-8 h-7 sm:h-8 sm:px-2"
+                      aria-label="Voice Input"
                     >
-                      <Icons.mic className="h-4 w-4" />
+                      <Icons.mic className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -290,9 +292,10 @@ export default function FloatingChatbot({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="px-2 h-8"
+                      className="w-8 h-7 sm:h-8 sm:px-2 hidden sm:flex"
+                      aria-label="Camera Input"
                     >
-                      <Icons.camera className="h-4 w-4" />
+                      <Icons.camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -307,9 +310,10 @@ export default function FloatingChatbot({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="px-2 h-8"
+                      className="w-8 h-7 sm:h-8 sm:px-2 hidden sm:flex"
+                      aria-label="Upload File"
                     >
-                      <Icons.plus className="h-4 w-4" />
+                      <Icons.plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -324,9 +328,10 @@ export default function FloatingChatbot({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="px-2 h-8"
+                      className="w-8 h-7 sm:h-8 sm:px-2"
+                      aria-label="Share Conversation"
                     >
-                      <Icons.share className="h-4 w-4" />
+                      <Icons.share className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
