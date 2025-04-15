@@ -90,11 +90,24 @@ function App() {
             <ServiceWorkerManager />
             
             <Switch>
-              {/* Public route for Landing Page */}
-              <Route path="/">
-                <LandingPage />
+              {/* Super Admin routes - these bypass normal layout */}
+              <Route path="/superadmin/dashboard">
+                <SuperAdminDashboard />
               </Route>
-
+              
+              <Route path="/superadmin">
+                <SuperAdminLogin />
+              </Route>
+              
+              {/* Admin Manager routes - Standard admin access */}
+              <Route path="/admin/dashboard">
+                <AdminDashboard />
+              </Route>
+              
+              <Route path="/admin">
+                <AdminLogin />
+              </Route>
+              
               {/* Public route for Login Page */}
               <Route path="/login">
                 <LoginPage />
@@ -105,22 +118,9 @@ function App() {
                 <SignUpPage />
               </Route>
               
-              {/* Admin Manager routes - Standard admin access */}
-              <Route path="/admin">
-                <AdminLogin />
-              </Route>
-              
-              <Route path="/admin/dashboard">
-                <AdminDashboard />
-              </Route>
-              
-              {/* Super Admin routes - these bypass normal layout */}
-              <Route path="/superadmin">
-                <SuperAdminLogin />
-              </Route>
-              
-              <Route path="/superadmin/dashboard">
-                <SuperAdminDashboard />
+              {/* Public route for Landing Page */}
+              <Route path="/" exact>
+                <LandingPage />
               </Route>
 
               {/* All other routes get the dashboard layout */}
