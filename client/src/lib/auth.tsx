@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const mockUser: AuthUser = {
       id: 1,
       uid: 'mock-uid-123',
-      email: 'demo@cryptobot.ai',
+      email: 'demo@socialbrands.ai',
       displayName: 'Demo User',
       photoURL: undefined
     };

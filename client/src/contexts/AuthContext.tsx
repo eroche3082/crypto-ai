@@ -64,7 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const user: User = {
           id: 1,
           username: 'admin',
-          email: 'admin@cryptobot.ai',
+          email: 'admin@socialbrands.ai',
           role: 'admin',
           plan: 'enterprise',
           avatar: '/assets/avatar.png',

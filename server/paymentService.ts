@@ -259,7 +259,7 @@ export async function getBankTransferInstructions(req: Request, res: Response) {
       instructions: [
         `Please transfer the exact amount including the reference code.`,
         `Your payment will be processed within 1-3 business days.`,
-        `Please email a copy of your transfer receipt to support@cryptobot.ai with your access code.`
+        `Please email a copy of your transfer receipt to contact@socialbrands.ai with your access code.`
       ]
     });
   } catch (error) {
