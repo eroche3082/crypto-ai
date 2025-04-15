@@ -19,30 +19,17 @@ try {
  * @returns The secret payload as a string
  */
 export async function getSecret(secretName: string, version: string = 'latest'): Promise<string> {
-  if (!secretManagerClient) {
-    console.error('Secret Manager client not initialized');
-    throw new Error('Secret Manager is not available');
-  }
-
   try {
-    const projectId = process.env.GOOGLE_PROJECT_ID || "erudite-creek-431302-q3";
-    
-    // Construct the resource name
-    const name = `projects/${projectId}/secrets/${secretName}/versions/${version}`;
-    
-    // Access the secret version
-    const [response] = await secretManagerClient.accessSecretVersion({ name });
-    
-    // Extract the payload as a string
-    const payload = response.payload?.data?.toString() || '';
-    
-    // Log access for auditing (but not the actual secret)
-    console.log(`Successfully accessed secret ${secretName}:${version}`);
-    
-    return payload;
+    // Use Replit's environment variables directly
+    const secret = process.env[secretName];
+    if (!secret) {
+      console.warn(`Secret ${secretName} not found in environment`);
+      return '';
+    }
+    return secret;
   } catch (error) {
     console.error(`Error accessing secret ${secretName}:`, error);
-    throw error;
+    return '';
   }
 }
 
