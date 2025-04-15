@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 // Import useLanguage hook
 import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { 
   LayoutDashboard, 
@@ -36,11 +37,16 @@ const Sidebar = () => {
   const [location] = useLocation();
   const { t } = useTranslation();
   const { language } = useLanguage();
+  const { user } = useAuth();
   const [showLanguageSwitcher, setShowLanguageSwitcher] = useState(false);
+  
+  // Check if user is admin
+  const isAdmin = user?.role === 'admin';
 
   // Reorganized navigation structure according to MEGAPROMPT specifications
   // Maximum 10 main categories with nested items to be implemented in dropdown menus later
-  const navItems = [
+  // Base items visible to all users
+  let navItems = [
     // 1. Dashboard - Main entry point
     { path: "/", icon: <LayoutDashboard size={20} />, label: t("dashboard.title", "Dashboard") },
     
@@ -95,14 +101,16 @@ const Sidebar = () => {
       icon: <Newspaper size={20} />, 
       label: t("news.education", "News & Learning")
     },
-    
-    // 10. System (Admin only - this will be shown conditionally)
-    { 
+  ];
+  
+  // Add System item only for admin users
+  if (isAdmin) {
+    navItems.push({
       path: "/admin/system-report", 
       icon: <Globe size={20} />, 
       label: t("admin.system", "System")
-    },
-  ];
+    });
+  }
 
   const toggleLanguageSwitcher = () => {
     setShowLanguageSwitcher(!showLanguageSwitcher);
