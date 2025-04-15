@@ -1,0 +1,57 @@
+MEGAPROMPT – PHASE 3 (CRYPTOBOT) – PRE-DEPLOYMENT SYSTEM VERIFICATION
+plaintext
+Copiar
+Editar
+AGENT: CryptoBot
+
+PHASE: 3 – Pre-Deployment System Verification
+
+OBJECTIVE:
+Perform a comprehensive scan of the entire CryptoBot system before deploying to Firebase Hosting. Ensure all UI components, routes, features, assistant functionality, and visual editor components are working as expected and connected properly.
+
+TASKS TO EXECUTE:
+
+1. VISUAL STRUCTURE VERIFICATION
+- ✅ Homepage layout structure is consistent across all devices (desktop, tablet, mobile)
+- ✅ Color palette and typography follow the UIConfig in Firestore
+- ✅ All visual changes made in /editor are reflected live
+
+2. USER FLOW CHECKPOINTS
+- ✅ /login, /signup, /dashboard, /features, /pricing, /chat, /superadmin, /admin, /editor all load successfully
+- ✅ Protected routes are only accessible by logged-in users (admin/superadmin)
+
+3. AI SYSTEM INTEGRATION
+- ✅ AI Assistant loads properly on homepage and dashboard
+- ✅ Assistant supports English and Spanish
+- ✅ API Keys for Gemini or OpenAI are connected
+- ✅ Avatar displays properly (if applicable)
+
+4. API CONNECTIVITY VERIFICATION
+- ✅ Cryptocurrency price data fetched from CoinAPI
+- ✅ Membership purchases connected to Stripe (and/or PayPal)
+- ✅ Firestore config loads without error
+
+5. MEMBERSHIPS & PRICING VALIDATION
+- ✅ Pricing section is connected to Firestore (or hardcoded) and visually correct
+- ✅ Users can purchase or activate plans
+- ✅ Confirmation screen or modal is triggered
+- ✅ Codes and discount logic (if any) are working
+
+6. UI RESPONSIVENESS TEST
+- ✅ App adjusts layout and components for desktop, tablet, and mobile
+- ✅ Navbar, footer, and all sections collapse/expand properly
+
+7. CODE & SYSTEM CLEANUP
+- ✅ No visible console warnings or errors
+- ✅ Remove placeholder text, "Lorem Ipsum," or broken buttons
+- ✅ Footer links lead to valid sections or are removed
+
+8. EDITOR INTEGRITY
+- ✅ /editor is accessible to SuperAdmin and Admin roles
+- ✅ Live updates sync to Firestore and reflect on UI
+- ✅ No broken controls or empty states
+
+DELIVERABLES:
+- ✅ Pre-deployment scan report
+- ✅ Confirm all routes, features, assistant, and design updates are operational
+- ✅ System ready for Phase 5 – Deployment to Firebase Hosting

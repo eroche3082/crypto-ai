@@ -1,0 +1,65 @@
+MEGAPROMPT – PHASE 6 (CRYPTOBOT) – LIVE TESTING & FINAL VERIFICATION
+plaintext
+Copiar
+Editar
+AGENT: CryptoBot
+
+PHASE: 6 – Live Testing & Final Verification (Post-Firebase Deployment)
+
+OBJECTIVE:
+Conduct a full diagnostic of the deployed CryptoBot platform at `https://cryptobot.socialbrands.ai` to validate performance, route behavior, assistant response, visual editor integrity, payment flow, and device compatibility across all screens.
+
+TASKS TO EXECUTE:
+
+🔹 ROUTE VERIFICATION
+- [ ] Visit and test each route:
+  - `/` – Homepage loads with UIConfig applied
+  - `/login` – Login form functional (access code + credential)
+  - `/signup` – Sign up form functional and storing users
+  - `/dashboard` – Main dashboard renders with AI content
+  - `/features` – Loads complete feature list
+  - `/pricing` – All pricing tiers visible, buttons work
+  - `/chat` – AI Assistant responds (Gemini or OpenAI connected)
+  - `/superadmin` – Accessible via QR + facial ID simulation
+  - `/admin` – Login works with Admin3082# and dashboard loads
+  - `/editor` – Visual editor updates values in real-time
+
+🔹 VISUAL & UI INTEGRITY
+- [ ] Typography and colors match Firestore config
+- [ ] Layout is stable on desktop, tablet, and mobile
+- [ ] All buttons and forms function without reloads
+- [ ] Visual Editor changes reflect live without errors
+
+🔹 ASSISTANT BEHAVIOR
+- [ ] AI Assistant responds to prompts
+- [ ] Supports both English and Spanish
+- [ ] Personalization settings remain persistent
+- [ ] Memory system responds with accurate context
+
+🔹 MEMBERSHIPS & PAYMENT FLOW
+- [ ] Stripe keys are connected and plans display correctly
+- [ ] Payment modal or redirect activates
+- [ ] Confirmation screens work after purchase
+- [ ] Admin dashboard logs new members
+
+🔹 EDITOR & SUPERADMIN TESTING
+- [ ] `/editor` syncs UIConfig to Firestore
+- [ ] Changes are visible instantly on homepage
+- [ ] Avatar tab displays images and allows uploads
+- [ ] SuperAdmin memory viewer works correctly
+
+🔹 RESPONSIVE DESIGN
+- [ ] App is fully responsive (test Chrome DevTools)
+- [ ] Navbar collapses into mobile version
+- [ ] All elements are touch-friendly
+
+🔹 SYSTEM CLEANUP
+- [ ] Footer links are working (remove dummy links)
+- [ ] No "Lorem Ipsum" or placeholder text remains
+- [ ] No broken images or 404 pages
+
+DELIVERABLES:
+✅ CryptoBot platform is confirmed live, clean, and user-ready  
+✅ All components working across all screen sizes and devices  
+✅ System memory, admin roles, editor, and assistant fully functional  
+✅ Ready to promote, onboard users, and scale to other agents

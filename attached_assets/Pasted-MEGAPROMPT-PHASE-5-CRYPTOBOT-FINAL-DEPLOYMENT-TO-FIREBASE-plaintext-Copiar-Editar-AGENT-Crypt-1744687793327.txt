@@ -1,0 +1,80 @@
+MEGAPROMPT – PHASE 5 (CRYPTOBOT) – FINAL DEPLOYMENT TO FIREBASE
+plaintext
+Copiar
+Editar
+AGENT: CryptoBot
+
+PHASE: 5 – Final Deployment to Firebase Hosting
+
+OBJECTIVE:
+Deploy the CryptoBot platform to Firebase Hosting using its dedicated configuration under the shared Firebase project `erudite-creek-431302-q3`. Ensure all components, features, editor, assistant, memory, and admin systems are live and functional.
+
+FIREBASE CONFIGURATION (CONFIRMED):
+
+Project ID: erudite-creek-431302-q3  
+App ID: 1:744217150021:web:5aecdac01f6ab64b7c192c  
+Firebase Hosting Site: cryptobot  
+Hosting Domain: cryptobot.socialbrands.ai  
+
+ROUTES TO VERIFY:
+`/` – Homepage  
+`/login` – Login Portal  
+`/signup` – Registration Form  
+`/dashboard` – Main user interface  
+`/features` – Features Overview  
+`/pricing` – Membership and pricing table  
+`/chat` – AI Assistant interface  
+`/editor` – Live UI visual editor  
+`/superadmin` – Master admin portal  
+`/admin` – Standard admin manager interface
+
+TASKS TO EXECUTE:
+
+1. FINAL VERIFICATION
+- ✅ All routes load and function correctly
+- ✅ Visual editor is connected and updates UI in real time
+- ✅ AI Assistant is active and responding
+- ✅ Stripe (and optionally PayPal) connected and working
+- ✅ No broken UI elements, links, or images
+- ✅ Footer cleaned of non-functional links
+
+2. FIREBASE CONFIGURATION FILE
+Make sure your `firebase.json` includes:
+```json
+{
+  "hosting": {
+    "site": "cryptobot",
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ]
+  }
+}
+FIREBASE CLI COMMANDS (ON TERMINAL)
+
+bash
+Copiar
+Editar
+firebase use --add
+# Select: erudite-creek-431302-q3
+firebase target:apply hosting cryptobot cryptobot
+firebase deploy --only hosting:cryptobot
+POST-DEPLOYMENT CHECKS After deployment to https://cryptobot.socialbrands.ai:
+
+ Load homepage and validate layout
+
+ Navigate to /dashboard, /editor, /superadmin
+
+ Test membership sign-up and pricing page
+
+ Validate AI chat functionality and memory integration
+
+ Test admin panel access and avatar view
+
+ Verify full responsiveness on desktop and mobile
+
+DELIVERABLES: ✅ CryptoBot live at cryptobot.socialbrands.ai
+✅ All platform features connected and working
+✅ Visual editing, assistant, memberships, and dashboards live
+✅ Fully Firebase-integrated version ready for public access
