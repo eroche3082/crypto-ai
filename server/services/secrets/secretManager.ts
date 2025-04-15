@@ -55,40 +55,34 @@ export async function getSecrets(secretNames: string[]): Promise<Record<string, 
  */
 export async function initializeAppSecrets(): Promise<boolean> {
   try {
-    // Define essential secrets for the application
+    // Define essential secrets for the application with fallbacks
     const essentialSecrets = [
       'COINGECKO_API_KEY',
       'GEMINI_API_KEY',
-      'OPENAI_API_KEY',
+      'OPENAI_API_KEY', 
       'GOOGLE_MAPS_API_KEY',
       'STRIPE_SECRET_KEY',
       'STRIPE_PUBLISHABLE_KEY',
       'TWITTER_API_KEY',
       'TWITTER_API_SECRET',
       'ELEVENLABS_API_KEY',
-      // Add other essential secrets as needed
     ];
 
     console.log('Initializing application secrets from environment variables...');
 
-    // Load secrets
-    const secrets = await getSecrets(essentialSecrets);
+    // Load secrets with fallbacks from process.env
+    const secrets: Record<string, string> = {};
+    for (const name of essentialSecrets) {
+      const value = process.env[name] || '';
+      secrets[name] = value;
 
-    // Set secrets as environment variables
-    let loadedCount = 0;
-    for (const [name, value] of Object.entries(secrets)) {
-      if (value) {
-        // Only set if secret was successfully retrieved
-        process.env[name] = value;
-        loadedCount++;
-
-        // For client-side variables, also set the VITE_ prefixed version
-        if (['STRIPE_PUBLISHABLE_KEY', 'GEMINI_API_KEY', 'GOOGLE_MAPS_API_KEY', 'COINGECKO_API_KEY'].includes(name)) {
-          process.env[`VITE_${name}`] = value;
-        }
+      // For client-side variables, also set the VITE_ prefixed version
+      if (['STRIPE_PUBLISHABLE_KEY', 'GEMINI_API_KEY', 'GOOGLE_MAPS_API_KEY', 'COINGECKO_API_KEY'].includes(name)) {
+        process.env[`VITE_${name}`] = value;
       }
     }
 
+    const loadedCount = Object.values(secrets).filter(Boolean).length;
     console.log(`Successfully loaded ${loadedCount}/${essentialSecrets.length} secrets from environment variables`);
     return true;
   } catch (error) {
