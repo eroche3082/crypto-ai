@@ -87,7 +87,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               user: {
                 id: 2,
                 username: 'demo',
-                email: 'demo@cryptobot.ai',
+                email: 'demo@socialbrands.ai',
                 role: 'user',
                 plan: 'basic',
                 accessCode: 'CRYPTO-STD-1234'
@@ -133,7 +133,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const user: User = {
               id: accessCode === 'CRYPTO-VIP-2025' ? 1 : 2,
               username: accessCode === 'CRYPTO-VIP-2025' ? 'admin' : 'demo',
-              email: accessCode === 'CRYPTO-VIP-2025' ? 'admin@cryptobot.ai' : 'demo@cryptobot.ai',
+              email: accessCode === 'CRYPTO-VIP-2025' ? 'admin@socialbrands.ai' : 'demo@socialbrands.ai',
               role: accessCode === 'CRYPTO-VIP-2025' ? 'admin' : 'user',
               plan: accessCode === 'CRYPTO-VIP-2025' ? 'enterprise' : 'basic',
               accessCode: accessCode

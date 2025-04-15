@@ -236,7 +236,7 @@ const AdminPanel = () => {
               <p style="margin-bottom: 20px;">You can use it to log in to your dashboard at any time.</p>
               
               <div style="text-align: center; margin-top: 20px;">
-                <a href="https://cryptobot.ai/dashboard" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">Access Your Dashboard</a>
+                <a href="https://socialbrands.ai/dashboard" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">Access Your Dashboard</a>
               </div>
             </div>
             

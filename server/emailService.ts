@@ -267,7 +267,7 @@ function generateWelcomeEmailHtml(profile: UserOnboardingProfile): string {
           
           <p>To get started, simply click the button below to access your dashboard:</p>
           <div style="text-align: center;">
-            <a href="https://cryptobot.ai/dashboard" class="button">View Your Dashboard</a>
+            <a href="https://socialbrands.ai/dashboard" class="button">View Your Dashboard</a>
           </div>
           
           <p>If you have any questions or need assistance, our support team is here to help!</p>
@@ -318,7 +318,7 @@ function generateAccessCodeEmailHtml(profile: Partial<UserOnboardingProfile>): s
           <p>Use this code to log in to your personalized dashboard and access all the features available for your account level.</p>
           
           <div style="text-align: center;">
-            <a href="https://cryptobot.ai/dashboard" class="button">Go to Dashboard</a>
+            <a href="https://socialbrands.ai/dashboard" class="button">Go to Dashboard</a>
           </div>
           
           <p>Thank you for using CryptoBot!</p>

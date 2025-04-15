@@ -27,7 +27,7 @@ export const apiKey = vertexApiKey ||
                      process.env.GOOGLE_VERTEX_KEY_ID;
 
 export const isConfigured = !!apiKey;
-export const projectId = process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai';
+export const projectId = process.env.GOOGLE_PROJECT_ID || 'erudite-creek-431302-q3';
 export const location = process.env.GOOGLE_LOCATION || 'us-central1';
 export const keyFilePath = process.env.GOOGLE_APPLICATION_CREDENTIALS || './google-credentials-global.json';
 
