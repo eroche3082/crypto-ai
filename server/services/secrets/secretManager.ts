@@ -18,17 +18,12 @@ try {
  * @returns The secret payload as a string
  */
 export async function getSecret(secretName: string): Promise<string> {
-  try {
-    const secret = process.env[secretName];
-    if (!secret) {
-      console.warn(`Secret ${secretName} not found in environment`);
-      return '';
-    }
-    return secret;
-  } catch (error) {
-    console.error(`Error accessing secret ${secretName}:`, error);
+  const secret = process.env[secretName];
+  if (!secret) {
+    console.warn(`Secret ${secretName} not found in environment`);
     return '';
   }
+  return secret;
 }
 
 /**
