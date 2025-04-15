@@ -55,24 +55,38 @@ export async function getSecrets(secretNames: string[]): Promise<Record<string, 
  */
 export async function initializeAppSecrets(): Promise<boolean> {
   try {
-    // Define essential secrets for the application with fallbacks
-    const essentialSecrets = [
-      'COINGECKO_API_KEY',
+    // Critical API keys needed for core functionality
+    const criticalSecrets = [
       'GEMINI_API_KEY',
-      'OPENAI_API_KEY', 
+      'GOOGLE_PROJECT_ID',
+      'COINGECKO_API_KEY'
+    ];
+
+    // Optional API keys for extended functionality
+    const optionalSecrets = [
+      'OPENAI_API_KEY',
       'GOOGLE_MAPS_API_KEY',
       'STRIPE_SECRET_KEY',
       'STRIPE_PUBLISHABLE_KEY',
       'TWITTER_API_KEY',
       'TWITTER_API_SECRET',
-      'ELEVENLABS_API_KEY',
+      'ELEVENLABS_API_KEY'
     ];
 
     console.log('Initializing application secrets from environment variables...');
 
-    // Load secrets with fallbacks from process.env
+    // Verify critical secrets first
+    const missingCritical = criticalSecrets.filter(name => !process.env[name]);
+    if (missingCritical.length > 0) {
+      console.error('Missing critical secrets:', missingCritical);
+      return false;
+    }
+
+    // Load all secrets
+    const allSecrets = [...criticalSecrets, ...optionalSecrets];
     const secrets: Record<string, string> = {};
-    for (const name of essentialSecrets) {
+    
+    for (const name of allSecrets) {
       const value = process.env[name] || '';
       secrets[name] = value;
 
@@ -83,7 +97,8 @@ export async function initializeAppSecrets(): Promise<boolean> {
     }
 
     const loadedCount = Object.values(secrets).filter(Boolean).length;
-    console.log(`Successfully loaded ${loadedCount}/${essentialSecrets.length} secrets from environment variables`);
+    console.log(`Successfully loaded ${loadedCount}/${allSecrets.length} secrets`);
+    console.log('Critical secrets verified and loaded successfully');
     return true;
   } catch (error) {
     console.error('Error initializing app secrets:', error);
