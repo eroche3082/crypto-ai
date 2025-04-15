@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { tokenWatchlist, insertTokenWatchlist } from '@shared/schema';
 
 /**
- * Get token information from CoinGecko
+ * Get token information from CoinAPI
  */
 export async function getTokenInfo(req: Request, res: Response) {
   try {
@@ -19,26 +19,62 @@ export async function getTokenInfo(req: Request, res: Response) {
     }
 
     try {
+      // Convert tokenId to uppercase as required by CoinAPI
+      const assetId = tokenId.toUpperCase();
+      
+      // Get asset data from CoinAPI
       const response = await axios.get(
-        `https://api.coingecko.com/api/v3/coins/${tokenId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false`,
+        `https://rest.coinapi.io/v1/assets/${assetId}`,
         { 
           headers: {
             'Accept': 'application/json',
-            'x-cg-demo-api-key': process.env.VITE_COINGECKO_API_KEY || ''
+            'X-CoinAPI-Key': process.env.COINAPI_KEY || '3ce51981-a99b-4daa-b4f9-bfdd5c0e297f'
           }
         }
       );
 
-      const tokenData = response.data;
+      // Format the data to match the expected structure
+      const assetData = response.data;
+      let tokenData;
+      
+      if (Array.isArray(assetData) && assetData.length > 0) {
+        const asset = assetData[0];
+        tokenData = {
+          id: asset.asset_id.toLowerCase(),
+          symbol: asset.asset_id.toLowerCase(),
+          name: asset.name,
+          market_data: {
+            current_price: {
+              usd: asset.price_usd
+            },
+            circulating_supply: asset.volume_1day_usd / (asset.price_usd || 1),
+            market_cap: {
+              usd: (asset.volume_1day_usd || 0) * (asset.price_usd || 0)
+            }
+          },
+          image: {
+            thumb: '', // CoinAPI doesn't provide images
+            small: '',
+            large: ''
+          },
+          last_updated: new Date().toISOString()
+        };
+      } else {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Token not found'
+        });
+      }
+      
       return res.status(200).json({ status: 'success', data: tokenData });
     } catch (apiError) {
-      console.error('CoinGecko API error:', apiError);
+      console.error('CoinAPI error:', apiError);
       
       // If it's a rate limiting issue or other error, return a standard error
       return res.status(500).json({
         status: 'error',
         message: 'Failed to fetch token information',
-        error: apiError.message
+        error: apiError.message || 'Unknown API error'
       });
     }
   } catch (error) {

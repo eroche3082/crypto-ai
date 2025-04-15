@@ -261,9 +261,18 @@ export default function LandingPage() {
                 <Link href="/login">
                   <Button 
                     size="lg" 
-                    className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+                    className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
                   >
                     Get Started <Sparkles size={16} />
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="gap-2 border-indigo-400 text-indigo-400 hover:bg-indigo-500/10"
+                  >
+                    Create Account <ArrowRight size={16} />
                   </Button>
                 </Link>
               </div>

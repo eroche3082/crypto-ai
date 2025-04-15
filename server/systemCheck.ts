@@ -98,17 +98,21 @@ export async function getSystemStatus(req: Request, res: Response) {
       }
     };
     
-    // Try to connect to CoinGecko API
+    // Try to connect to CoinAPI
     try {
-      const response = await axios.get('https://api.coingecko.com/api/v3/ping');
-      systemStatus.services.coingecko = { 
+      const response = await axios.get('https://rest.coinapi.io/v1/assets', {
+        headers: {
+          'X-CoinAPI-Key': process.env.COINAPI_KEY || '3ce51981-a99b-4daa-b4f9-bfdd5c0e297f'
+        }
+      });
+      systemStatus.services.coinapi = { 
         operational: response.status === 200,
-        tier: process.env.VITE_COINGECKO_API_KEY ? 'pro' : 'free'
+        tier: 'standard'
       };
     } catch (error) {
-      systemStatus.services.coingecko = { 
+      systemStatus.services.coinapi = { 
         operational: false,
-        error: 'Could not connect to CoinGecko API'
+        error: 'Could not connect to CoinAPI'
       };
     }
     

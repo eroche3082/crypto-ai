@@ -677,9 +677,9 @@ function renderTokenDetails(
         
         <Button 
           variant="outline" 
-          onClick={() => window.open(`https://coingecko.com/en/coins/${tokenInfo.id}`, '_blank')}
+          onClick={() => window.open(`https://coinapi.io/market-data/assets/${tokenInfo.id.toUpperCase()}`, '_blank')}
         >
-          <ExternalLink className="h-4 w-4 mr-2" /> View More
+          <ExternalLink className="h-4 w-4 mr-2" /> View on CoinAPI
         </Button>
       </div>
       
