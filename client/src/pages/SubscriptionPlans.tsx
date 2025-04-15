@@ -70,7 +70,7 @@ const SubscriptionPlans = () => {
         t("subscriptions.pro.feature4", "Social sentiment analysis"),
         t("subscriptions.pro.feature5", "Portfolio optimization AI"),
         t("subscriptions.pro.feature6", "Premium API access"),
-        t("subscriptions.pro.feature7", "Priority support")
+        t("subscriptions.pro.feature7", "Priority support via contact@socialbrands.ai")
       ],
       limitations: [],
       cta: t("subscriptions.pro.cta", "Upgrade Now"),
@@ -212,7 +212,7 @@ const SubscriptionPlans = () => {
           </div>
           <div>
             <h3 className="font-medium mb-2">{t("subscriptions.faq.q3", "Is there a refund policy?")}</h3>
-            <p className="text-muted-foreground">{t("subscriptions.faq.a3", "We offer a 14-day money-back guarantee on all paid subscriptions. If you're not satisfied with your experience, contact our support team within 14 days of your purchase.")}</p>
+            <p className="text-muted-foreground">{t("subscriptions.faq.a3", "We offer a 14-day money-back guarantee on all paid subscriptions. If you're not satisfied with your experience, contact us at contact@socialbrands.ai within 14 days of your purchase.")}</p>
           </div>
         </div>
       </div>

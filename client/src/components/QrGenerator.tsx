@@ -18,9 +18,9 @@ export default function QrGenerator({ onCancel, language = 'en' }: QrGeneratorPr
   const [text, setText] = useState('');
   const [url, setUrl] = useState('');
   const [contactInfo, setContactInfo] = useState({
-    name: '',
+    name: 'CryptoBot Support',
     phone: '',
-    email: '',
+    email: 'contact@socialbrands.ai',
     address: '',
   });
   const [qrCodeData, setQrCodeData] = useState<string>('');
