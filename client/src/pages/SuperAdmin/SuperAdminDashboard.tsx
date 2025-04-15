@@ -99,7 +99,7 @@ const SuperAdminDashboard = () => {
               onClick={() => setActiveTab('finance')}
             >
               <CreditCard size={18} className="mr-2" />
-              Finanzas
+              Finance
             </Button>
             
             <Button
@@ -108,7 +108,7 @@ const SuperAdminDashboard = () => {
               onClick={() => setActiveTab('security')}
             >
               <Lock size={18} className="mr-2" />
-              Seguridad
+              Security
             </Button>
             
             <Button
@@ -117,7 +117,7 @@ const SuperAdminDashboard = () => {
               onClick={() => setActiveTab('infrastructure')}
             >
               <Server size={18} className="mr-2" />
-              Infraestructura
+              Infrastructure
             </Button>
             
             <Button
@@ -126,7 +126,7 @@ const SuperAdminDashboard = () => {
               onClick={() => setActiveTab('admins')}
             >
               <UserCog size={18} className="mr-2" />
-              Gestión de Admins
+              Admin Management
             </Button>
             
             <Button
@@ -135,7 +135,7 @@ const SuperAdminDashboard = () => {
               onClick={() => setActiveTab('business')}
             >
               <Building size={18} className="mr-2" />
-              Negocio
+              Business
             </Button>
             
             <Button
@@ -151,7 +151,7 @@ const SuperAdminDashboard = () => {
           <Separator className="my-4" />
           
           <div className="px-3">
-            <h3 className="px-3 text-xs font-semibold text-muted-foreground mb-2">SISTEMAS</h3>
+            <h3 className="px-3 text-xs font-semibold text-muted-foreground mb-2">SYSTEMS</h3>
             <div className="flex flex-col space-y-1">
               <Button
                 variant="ghost"
@@ -205,7 +205,7 @@ const SuperAdminDashboard = () => {
             onClick={handleLogout}
           >
             <LogOut size={18} className="mr-2" />
-            Cerrar sesión
+            Log Out
           </Button>
         </div>
       </div>
@@ -219,12 +219,12 @@ const SuperAdminDashboard = () => {
             
             <div className="flex items-center gap-4">
               <Badge variant="outline" className="bg-red-500/10 text-red-500 hidden md:flex">
-                Acceso total
+                Full Access
               </Badge>
               
               <Button size="sm" variant="outline">
                 <Bell size={16} className="mr-2" />
-                <span className="sr-only md:not-sr-only">Alertas</span>
+                <span className="sr-only md:not-sr-only">Alerts</span>
               </Button>
               
               <div className="flex items-center gap-2">
@@ -232,8 +232,8 @@ const SuperAdminDashboard = () => {
                   <ShieldAlert size={16} />
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-medium">Super Administrador</p>
-                  <p className="text-xs text-muted-foreground">Privilegios totales</p>
+                  <p className="text-sm font-medium">Super Administrator</p>
+                  <p className="text-xs text-muted-foreground">Full Privileges</p>
                 </div>
               </div>
             </div>
