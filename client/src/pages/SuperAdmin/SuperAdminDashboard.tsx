@@ -246,14 +246,14 @@ const SuperAdminDashboard = () => {
             {/* DASHBOARD TAB */}
             <TabsContent value="dashboard" className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Dashboard Global</h2>
+                <h2 className="text-2xl font-bold">Global Dashboard</h2>
                 <div className="flex gap-2">
                   <Badge variant="outline" className="gap-1 items-center text-green-500 bg-green-500/10">
                     <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-                    Sistema en línea
+                    System Online
                   </Badge>
                   <Button variant="default">
-                    Informe completo
+                    Full Report
                   </Button>
                 </div>
               </div>
@@ -262,14 +262,14 @@ const SuperAdminDashboard = () => {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Total de usuarios
+                      Total Users
                     </CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{platformStatus.usersTotal.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      {platformStatus.activeUsers.toLocaleString()} activos ahora
+                      {platformStatus.activeUsers.toLocaleString()} currently active
                     </p>
                   </CardContent>
                 </Card>
@@ -277,14 +277,14 @@ const SuperAdminDashboard = () => {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Transacciones
+                      Transactions
                     </CardTitle>
                     <BarChart4 className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{platformStatus.transactions.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      Últimas 24 horas
+                      Last 24 hours
                     </p>
                   </CardContent>
                 </Card>
@@ -292,14 +292,14 @@ const SuperAdminDashboard = () => {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Ingresos
+                      Revenue
                     </CardTitle>
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">${platformStatus.revenue.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      +12% desde el mes pasado
+                      +12% since last month
                     </p>
                   </CardContent>
                 </Card>
@@ -307,14 +307,14 @@ const SuperAdminDashboard = () => {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Tiempo activo
+                      Uptime
                     </CardTitle>
                     <Activity className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{platformStatus.uptime}</div>
                     <p className="text-xs text-muted-foreground">
-                      Últimos 30 días
+                      Last 30 days
                     </p>
                   </CardContent>
                 </Card>
@@ -323,9 +323,9 @@ const SuperAdminDashboard = () => {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="md:col-span-4">
                   <CardHeader>
-                    <CardTitle>Análisis global de plataforma</CardTitle>
+                    <CardTitle>Platform Global Analysis</CardTitle>
                     <CardDescription>
-                      Estado y rendimiento de todos los sistemas
+                      Status and performance of all systems
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -344,7 +344,7 @@ const SuperAdminDashboard = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Server size={16} />
-                          <span>Memoria</span>
+                          <span>Memory</span>
                         </div>
                         <span className="text-sm font-medium">{platformStatus.memoryUsage}%</span>
                       </div>
@@ -355,7 +355,7 @@ const SuperAdminDashboard = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Database size={16} />
-                          <span>Almacenamiento</span>
+                          <span>Storage</span>
                         </div>
                         <span className="text-sm font-medium">{platformStatus.storageUsage}%</span>
                       </div>
@@ -365,10 +365,10 @@ const SuperAdminDashboard = () => {
                     <div className="pt-2">
                       <div className="rounded-lg border p-3">
                         <div className="flex justify-between items-center">
-                          <h4 className="font-medium">Llamadas a API</h4>
+                          <h4 className="font-medium">API Calls</h4>
                           <Badge variant="outline">{platformStatus.apiCalls.toLocaleString()}</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">Últimas 24 horas. Rendimiento normal.</p>
+                        <p className="text-sm text-muted-foreground mt-1">Last 24 hours. Normal performance.</p>
                       </div>
                     </div>
                   </CardContent>
@@ -376,9 +376,9 @@ const SuperAdminDashboard = () => {
                 
                 <Card className="md:col-span-3">
                   <CardHeader>
-                    <CardTitle>Alertas del sistema</CardTitle>
+                    <CardTitle>System Alerts</CardTitle>
                     <CardDescription>
-                      Incidents requiriendo atención prioritaria
+                      Incidents requiring priority attention
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
