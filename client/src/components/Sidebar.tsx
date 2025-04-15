@@ -122,13 +122,13 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="flex flex-col bg-card/50 w-[180px] border-r border-border h-full">
+    <div className="hidden md:flex flex-col bg-card/50 w-[180px] border-r border-border h-full">
       <Link href="/">
         <div className="p-4 border-b border-border flex items-center gap-2 hover:bg-accent/20 transition-colors">
           <div className="bg-primary/20 text-primary rounded-full w-8 h-8 flex items-center justify-center">
             <MessageSquare size={16} />
           </div>
-          <span className="font-bold">CryptoBot</span>
+          <span className="font-bold">CryptoPulse</span>
         </div>
       </Link>
       

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>CryptoPulse - Offline</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #121212;
+        color: #e1e1e1;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+      }
+      
+      .offline-container {
+        max-width: 500px;
+        padding: 2rem;
+        background-color: #1a1a1a;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      
+      h1 {
+        color: #3861fb;
+        margin-bottom: 1rem;
+      }
+      
+      p {
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+      }
+      
+      button {
+        background-color: #3861fb;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      }
+      
+      button:hover {
+        background-color: #2a4bd4;
+      }
+      
+      .icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-container">
+      <div class="icon">📶</div>
+      <h1>You're Offline</h1>
+      <p>CryptoPulse requires an internet connection to fetch real-time cryptocurrency data and access your portfolio information.</p>
+      <p>Please check your connection and try again.</p>
+      <button onclick="window.location.reload()">Retry Connection</button>
+    </div>
+    
+    <script>
+      // Listen for online status changes
+      window.addEventListener('online', () => {
+        window.location.reload();
+      });
+    </script>
+  </body>
+</html>
