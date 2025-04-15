@@ -1,0 +1,46 @@
+AGENT NAME: CryptoBot
+
+OBJECTIVE: 
+Perform a full structural and functional system scan of CryptoBot before deployment to Firebase Hosting.
+
+Your mission is to analyze all key areas of the app and return a detailed report of what is working, what is missing, and what must be fixed before launch.
+
+PHASE CHECKLIST:
+
+1. VISUAL STRUCTURE
+- [ ] Is the Home Page structured correctly and loading without visual issues?
+- [ ] Are all main menu links functional and routing to the correct destinations (Home, Features, Pricing, AI Assistant, Login, Sign Up)?
+- [ ] Is the footer clean? All links must be active or removed if not in use (Careers, Press, Contact, etc.)
+
+2. USER FLOW & PROTECTION
+- [ ] Is the Login system working (access code and credentials)?
+- [ ] Are protected routes (like /dashboard, /plans, /admin) locked until login?
+- [ ] Does the Logout button appear once the user is authenticated?
+
+3. AI SYSTEM & INTEGRATIONS
+- [ ] Is the AI Assistant active and responding correctly via the chat widget?
+- [ ] Are all connected APIs functional? (Gemini, OpenAI, Stripe, Google Cloud)
+- [ ] Is the chatbot available both from the floating icon and the menu link?
+
+4. MEMBERSHIPS & PRICING
+- [ ] Does the Pricing section display all plans correctly?
+- [ ] Are the "Buy Now" buttons functional and properly connected to Stripe?
+- [ ] Are membership features clearly described and linked to the login/checkout flow?
+
+5. UI RESPONSIVENESS & BEHAVIOR
+- [ ] Is the platform fully responsive on mobile, tablet, and desktop?
+- [ ] Does every tab and section support vertical scrolling?
+- [ ] Are all cards, texts, buttons, and containers styled consistently?
+
+6. CODE & SYSTEM VALIDATION
+- [ ] Are there any console errors or 404s when navigating the app?
+- [ ] Has all placeholder/sample data been removed?
+- [ ] Is the `firebase.json` file configured and ready for deployment?
+
+FINAL OUTPUT:
+Return a full scan report with:
+- List of all ✅ PASSED items
+- List of ⚠️ NEEDS FIX
+- List of ❌ MISSING or CRITICAL FAILURES
+- A deployment readiness score from 0 to 100%
+- Your recommendation: LAUNCH READY or NOT READY
