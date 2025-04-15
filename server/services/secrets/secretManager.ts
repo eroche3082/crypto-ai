@@ -1,6 +1,6 @@
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
-// Initialize the Secret Manager client
+// Initialize the Secret Manager client - This is now unused.
 let secretManagerClient: SecretManagerServiceClient | null = null;
 
 try {
@@ -15,12 +15,10 @@ try {
 /**
  * Access a secret from Secret Manager
  * @param secretName The name of the secret
- * @param version The version of the secret (default: 'latest')
  * @returns The secret payload as a string
  */
-export async function getSecret(secretName: string, version: string = 'latest'): Promise<string> {
+export async function getSecret(secretName: string): Promise<string> {
   try {
-    // Use Replit's environment variables directly
     const secret = process.env[secretName];
     if (!secret) {
       console.warn(`Secret ${secretName} not found in environment`);
@@ -40,7 +38,7 @@ export async function getSecret(secretName: string, version: string = 'latest'):
  */
 export async function getSecrets(secretNames: string[]): Promise<Record<string, string>> {
   const secrets: Record<string, string> = {};
-  
+
   // Get each secret in parallel
   const secretPromises = secretNames.map(async (name) => {
     try {
@@ -51,7 +49,7 @@ export async function getSecrets(secretNames: string[]): Promise<Record<string, 
       secrets[name] = ''; // Set empty string for failed secrets
     }
   });
-  
+
   await Promise.all(secretPromises);
   return secrets;
 }
@@ -75,18 +73,12 @@ export async function initializeAppSecrets(): Promise<boolean> {
       'ELEVENLABS_API_KEY',
       // Add other essential secrets as needed
     ];
-    
-    // Only attempt to load secrets if Secret Manager is available
-    if (!secretManagerClient) {
-      console.warn('Secret Manager not available, skipping secret initialization');
-      return false;
-    }
-    
-    console.log('Initializing application secrets from Secret Manager...');
-    
+
+    console.log('Initializing application secrets from environment variables...');
+
     // Load secrets
     const secrets = await getSecrets(essentialSecrets);
-    
+
     // Set secrets as environment variables
     let loadedCount = 0;
     for (const [name, value] of Object.entries(secrets)) {
@@ -94,15 +86,15 @@ export async function initializeAppSecrets(): Promise<boolean> {
         // Only set if secret was successfully retrieved
         process.env[name] = value;
         loadedCount++;
-        
+
         // For client-side variables, also set the VITE_ prefixed version
         if (['STRIPE_PUBLISHABLE_KEY', 'GEMINI_API_KEY', 'GOOGLE_MAPS_API_KEY', 'COINGECKO_API_KEY'].includes(name)) {
           process.env[`VITE_${name}`] = value;
         }
       }
     }
-    
-    console.log(`Successfully loaded ${loadedCount}/${essentialSecrets.length} secrets from Secret Manager`);
+
+    console.log(`Successfully loaded ${loadedCount}/${essentialSecrets.length} secrets from environment variables`);
     return true;
   } catch (error) {
     console.error('Error initializing app secrets:', error);
@@ -111,7 +103,7 @@ export async function initializeAppSecrets(): Promise<boolean> {
 }
 
 /**
- * Rotates a secret in Secret Manager if it needs to be updated
+ * Rotates a secret in Secret Manager if it needs to be updated - This function is now unused
  * This is a complex operation that requires specific permissions
  * @param secretName Name of the secret to rotate
  * @param newValue New value for the secret
@@ -125,10 +117,10 @@ export async function rotateSecret(secretName: string, newValue: string): Promis
   try {
     const projectId = process.env.GOOGLE_PROJECT_ID || "erudite-creek-431302-q3";
     const parent = `projects/${projectId}`;
-    
+
     // Check if secret exists
     const secretPath = `${parent}/secrets/${secretName}`;
-    
+
     try {
       // Try to get the secret to see if it exists
       await secretManagerClient.getSecret({ name: secretPath });
@@ -145,7 +137,7 @@ export async function rotateSecret(secretName: string, newValue: string): Promis
         }
       });
     }
-    
+
     // Add new secret version
     const [version] = await secretManagerClient.addSecretVersion({
       parent: secretPath,
@@ -153,7 +145,7 @@ export async function rotateSecret(secretName: string, newValue: string): Promis
         data: Buffer.from(newValue)
       }
     });
-    
+
     console.log(`Successfully rotated secret ${secretName} to version ${version.name}`);
     return true;
   } catch (error) {
