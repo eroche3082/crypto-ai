@@ -1,0 +1,103 @@
+[ CRYPTOBOT – FINAL HOMEPAGE CHECKLIST BEFORE DEPLOYMENT ]
+
+Phase: CryptoBot Launch Readiness
+
+You must now perform a full SCAN of the **homepage only** for CryptoBot and return a detailed REPORT.
+
+---
+
+### 1. LANGUAGE & CLARITY CHECK
+- [ ] Confirm entire homepage content is in **English only**
+- [ ] Remove any placeholders, Latin text, dummy values, or filler elements
+
+---
+
+### 2. HOMEPAGE BUTTON FUNCTIONALITY
+Verify the following buttons are **working and correctly linked**:
+
+| Button                       | Should Link To                       |
+|-----------------------------|---------------------------------------|
+| Get Started (top section)   | /login or /signup                     |
+| View All Markets            | /markets or crypto data section       |
+| Get Started (Basic/Pro)     | /signup or /login (based on logic)    |
+| Contact Sales (Enterprise)  | /contact or sales@cryptobot.ai        |
+
+**If any of the above do nothing or are broken, they must be removed or fixed immediately.**
+
+---
+
+### 3. NAVIGATION BAR FUNCTIONALITY
+Tabs in the navbar must be **working**:
+
+| Tab            | Expected Destination         |
+|----------------|------------------------------|
+| Features       | /features                    |
+| Pricing        | /pricing                     |
+| Testimonials   | /testimonials                |
+| Sign Up        | /signup                      |
+| Log In         | /login                       |
+
+If any route is broken or inactive → remove/hide it now.
+
+---
+
+### 4. FOOTER CLEANUP – REQUIRED
+
+**Remove or update the following immediately:**
+- ❌ Fake contact email: `support@cryptobot.ai` (replace if not real)
+- ❌ Fake address: `123 Blockchain Blvd, San Francisco, CA` (remove or update)
+- ❌ Phone number `+1 (555) 123-4567` → REMOVE unless functional
+- ❌ Remove any blog/help/API/documentation links if those pages are not real
+
+✅ Keep only these if they are working:
+- Terms of Service
+- Privacy Policy
+- Cookie Policy
+
+---
+
+### 5. AI ASSISTANT STATUS
+- Confirm the **AI Assistant chat icon is present** in the bottom right
+- It should **respond and function** OR be hidden if inactive
+
+---
+
+### 6. VISUAL + DATA DISPLAY CHECK
+
+| Section                        | What to Verify                         |
+|--------------------------------|----------------------------------------|
+| Crypto Dashboard               | Prices appear and update in real time  |
+| Live Market Data Section       | Charts or values must be real/linked   |
+| Membership Plans               | Display prices, features & buttons     |
+| Stats Section (25k+, etc.)     | Confirm all numbers are realistic or remove |
+
+---
+
+### 7. FINAL REPORT FORMAT
+
+Return the following:
+
+**SECTION A – ACTIVE COMPONENTS**
+List all buttons and sections that are working correctly
+
+**SECTION B – REMOVED OR BROKEN ITEMS**
+List all elements that were removed (e.g. fake email, dummy phone)
+
+**SECTION C – OPTIONAL IMPROVEMENTS**
+Any ideas the team has for making the homepage more secure, trustworthy, or interactive (optional)
+
+---
+
+### CRITICAL LAUNCH BLOCKERS
+DO NOT move forward to launch unless:
+- [ ] Homepage is fully in English
+- [ ] All buttons function and routes are active
+- [ ] Footer is clean (no fake info)
+- [ ] AI Assistant is either active or hidden
+- [ ] Prices and stats are based on real data or clearly marked as demos
+
+---
+
+Return your full checklist report now.
+
+This is the final validation for CryptoBot’s homepage before we proceed to the next deployment stage.
