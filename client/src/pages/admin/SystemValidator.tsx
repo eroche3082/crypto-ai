@@ -224,7 +224,7 @@ const menuStructure: SystemCheckCategory = {
           "Dashboard Demo - Preview the dashboard without login",
           "Resources - Educational materials and documentation",
           "Community - Forum and social channels",
-          "Support - Help center and contact options",
+          "Support - Help center and contact options (contact@socialbrands.ai)",
           "Blog - Latest news and updates"
         ]
       }

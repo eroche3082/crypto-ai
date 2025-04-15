@@ -456,7 +456,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                  <span>Email support</span>
+                  <span>Email support via contact@socialbrands.ai</span>
                 </li>
               </ul>
               
@@ -500,7 +500,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                  <span>Priority support</span>
+                  <span>Priority support via contact@socialbrands.ai</span>
                 </li>
               </ul>
               
@@ -729,7 +729,7 @@ export default function LandingPage() {
               <ul className="space-y-2">
                 <li className="flex items-start gap-2">
                   <Mail className="h-5 w-5 text-primary mt-0.5" />
-                  <span className="text-gray-400">For support inquiries, please log in to your account</span>
+                  <span className="text-gray-400">Email us at contact@socialbrands.ai or log in to your account for support</span>
                 </li>
               </ul>
             </div>

@@ -269,7 +269,7 @@ const Dashboard = () => {
                               {index === 1 && 'Access to price alerts and portfolio tracking tools'}
                               {index === 2 && 'Advanced market data and personalized insights'}
                               {index === 3 && 'AI-powered trading recommendations and risk assessment'}
-                              {index === 4 && 'Premium features with priority support and exclusive reports'}
+                              {index === 4 && 'Premium features with priority support (contact@socialbrands.ai) and exclusive reports'}
                             </p>
                             {!level.unlocked && (
                               <Button 
