@@ -19,6 +19,7 @@ import {
   updateMessageStatus 
 } from './features/wallet/messaging';
 import { analyzePortfolio } from './portfolio/analyzer';
+import avatarRoutes from './routes/avatarRoutes';
 
 // Create router
 const apiRouter = Router();
@@ -188,5 +189,8 @@ apiRouter.get('/gamification/profile/:userId', getGamificationUserProfile);
 
 apiRouter.get('/gamification/leaderboards', getLeaderboards);
 apiRouter.get('/gamification/leaderboards/:leaderboardId/entries', getLeaderboardEntries);
+
+// Avatar AI Video routes
+apiRouter.use('/avatars', avatarRoutes);
 
 export default apiRouter;
