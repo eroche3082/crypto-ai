@@ -717,10 +717,9 @@ export default function LandingPage() {
             <div>
               <h3 className="font-bold text-lg mb-4">Resources</h3>
               <ul className="space-y-2">
-                <li><Link href="/news" className="text-gray-400 hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="/education" className="text-gray-400 hover:text-white transition-colors">Documentation</Link></li>
-                <li><Link href="/education" className="text-gray-400 hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="/admin/api-health" className="text-gray-400 hover:text-white transition-colors">API</Link></li>
+                <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">Features</a></li>
+                <li><a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#testimonials" className="text-gray-400 hover:text-white transition-colors">Testimonials</a></li>
               </ul>
             </div>
             
@@ -730,15 +729,7 @@ export default function LandingPage() {
               <ul className="space-y-2">
                 <li className="flex items-start gap-2">
                   <Mail className="h-5 w-5 text-primary mt-0.5" />
-                  <span className="text-gray-400">support@cryptobot.ai</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <MapPin className="h-5 w-5 text-primary mt-0.5" />
-                  <span className="text-gray-400">123 Blockchain Blvd, San Francisco, CA</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Phone className="h-5 w-5 text-primary mt-0.5" />
-                  <span className="text-gray-400">+1 (555) 123-4567</span>
+                  <span className="text-gray-400">For support inquiries, please log in to your account</span>
                 </li>
               </ul>
             </div>
