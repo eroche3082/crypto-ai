@@ -144,7 +144,16 @@ const SuperAdminDashboard = () => {
               onClick={() => setActiveTab('avatars')}
             >
               <User3D size={18} className="mr-2" />
-              Avatars 3D
+              3D Avatars
+            </Button>
+            
+            <Button
+              variant={activeTab === 'editor' ? 'secondary' : 'ghost'}
+              className="justify-start"
+              onClick={() => setActiveTab('editor')}
+            >
+              <Sliders size={18} className="mr-2" />
+              Visual Editor
             </Button>
           </div>
 
@@ -844,6 +853,135 @@ const SuperAdminDashboard = () => {
                       <h4 className="font-medium">Tiempo promedio de interacción</h4>
                       <p className="text-2xl font-bold mt-1">2:45 min</p>
                       <p className="text-xs text-muted-foreground">Por sesión de usuario</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* VISUAL EDITOR TAB */}
+            <TabsContent value="editor" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Visual Editor System</h2>
+                <Button 
+                  variant="default"
+                  onClick={() => setLocation('/editor')}
+                >
+                  Launch Visual Editor
+                </Button>
+              </div>
+              
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Live UI Customization</CardTitle>
+                    <CardDescription>
+                      Edit your platform design in real-time without code changes
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="rounded-lg border p-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Editor Status</h4>
+                          <Badge variant="outline" className="bg-green-500/10 text-green-500">
+                            Active
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Firestore-powered visual editor is ready for use
+                        </p>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">Last updated</span>
+                        <span className="text-sm">April 14, 2025</span>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => setLocation('/editor')}
+                        >
+                          <Sliders size={16} className="mr-2" />
+                          Customize UI Elements
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Features & Capabilities</CardTitle>
+                    <CardDescription>
+                      What you can modify with the visual editor
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span>Edit text elements (titles, subtitles, buttons)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span>Customize colors and typography</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span>Toggle visibility of sections</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span>Upload and replace images</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span>Edit navigation menu items</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span>Preview changes in real-time</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Protected Route</CardTitle>
+                  <CardDescription>
+                    Access control information for Visual Editor
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <p>The Visual Editor is protected and only accessible to users with these roles:</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="rounded-lg border p-3">
+                        <h4 className="font-medium">SuperAdmin</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Full access via QR authentication
+                        </p>
+                      </div>
+                      <div className="rounded-lg border p-3">
+                        <h4 className="font-medium">Admin Manager</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Access via credentials login
+                        </p>
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <Button 
+                        variant="default" 
+                        className="w-full"
+                        onClick={() => setLocation('/editor')}
+                      >
+                        Access Visual Editor Now
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
