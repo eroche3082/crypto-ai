@@ -134,13 +134,13 @@ export async function runVertexDiagnostics(req: Request, res: Response) {
       try {
         if (apiKey) {
           vertexAI = new VertexAI({
-            project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+            project: process.env.GOOGLE_PROJECT_ID || 'erudite-creek-431302-q3',
             location: process.env.GOOGLE_LOCATION || 'us-central1',
             apiEndpoint: "us-central1-aiplatform.googleapis.com",
           });
         } else {
           vertexAI = new VertexAI({
-            project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+            project: process.env.GOOGLE_PROJECT_ID || 'erudite-creek-431302-q3',
             location: process.env.GOOGLE_LOCATION || 'us-central1',
             apiEndpoint: "us-central1-aiplatform.googleapis.com",
             googleAuthOptions: {
@@ -324,13 +324,13 @@ export async function runComprehensiveVertexDiagnostic(req: Request, res: Respon
       let vertexAI;
       if (apiKey) {
         vertexAI = new VertexAI({
-          project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+          project: process.env.GOOGLE_PROJECT_ID || 'erudite-creek-431302-q3',
           location: process.env.GOOGLE_LOCATION || 'us-central1',
           apiEndpoint: "us-central1-aiplatform.googleapis.com",
         });
       } else {
         vertexAI = new VertexAI({
-          project: process.env.GOOGLE_PROJECT_ID || 'cryptobot-ai',
+          project: process.env.GOOGLE_PROJECT_ID || 'erudite-creek-431302-q3',
           location: process.env.GOOGLE_LOCATION || 'us-central1',
           apiEndpoint: "us-central1-aiplatform.googleapis.com",
           googleAuthOptions: {

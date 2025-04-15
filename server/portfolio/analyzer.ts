@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 
 // Create a client
 const vertexAI = new VertexAI({
-  project: 'cryptobot-ai',
+  project: 'erudite-creek-431302-q3',
   location: 'us-central1',
 });
 
