@@ -44,7 +44,7 @@ export async function sendWelcomeEmail(profile: UserOnboardingProfile): Promise<
     const params: EmailParams = {
       to: profile.email,
       // In a production environment, this would be a verified sender email address
-      from: 'welcome@cryptobot.ai',
+      from: 'contact@socialbrands.ai',
       subject: `Welcome to CryptoBot, ${profile.name}! Your Access Code is Inside`,
       html: generateWelcomeEmailHtml(profile),
     };
@@ -85,7 +85,7 @@ export async function sendAccessCodeEmail(req: Request, res: Response): Promise<
 
     const params: EmailParams = {
       to: email,
-      from: 'access@cryptobot.ai',
+      from: 'contact@socialbrands.ai',
       subject: 'Your CryptoBot Access Code',
       html: generateAccessCodeEmailHtml({
         name: name || 'Crypto Enthusiast',
@@ -167,7 +167,7 @@ export async function sendNewsletterCampaign(req: Request, res: Response): Promi
         try {
           await mailService.send({
             to: recipient.email,
-            from: 'newsletter@cryptobot.ai',
+            from: 'contact@socialbrands.ai',
             subject,
             html: content.replace('{{name}}', recipient.name || 'Crypto Enthusiast')
                          .replace('{{code}}', recipient.code || 'No Code Available'),
@@ -343,7 +343,7 @@ function getCategorySpecificMessage(category?: string): string {
     case 'EXPERT':
       return "As an Expert, you'll enjoy AI-powered trading signals, risk analysis tools, and market sentiment features to maximize your trading potential.";
     case 'VIP':
-      return "As a VIP member, you have access to our premium features including priority support, exclusive research, custom alerts, and whale activity monitoring.";
+      return "As a VIP member, you have access to our premium features including priority support (contact@socialbrands.ai), exclusive research, custom alerts, and whale activity monitoring.";
     default:
       return "Your dashboard is tailored to your specific needs and experience level to help you get the most out of CryptoBot.";
   }

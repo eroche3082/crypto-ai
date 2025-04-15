@@ -104,8 +104,8 @@ export default function SystemReport() {
             name: "SendGrid Integration",
             status: statusData.services?.email?.configured ? "success" : "warning",
             message: statusData.services?.email?.configured 
-              ? "SendGrid email services are active" 
-              : "SendGrid is not configured (running in simulation mode)",
+              ? "SendGrid email services are active (contact@socialbrands.ai)" 
+              : "SendGrid is not configured (running in simulation mode - contact@socialbrands.ai)",
           },
           {
             name: "Email Provider",
