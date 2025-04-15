@@ -1,0 +1,15 @@
+#chatRoom {
+    position: relative;
+    z-index: 2;
+    max-width: 100vw !important;
+}
+
+.chat .chat-history {
+    padding: 10px !important;
+}
+
+#chatRoom {
+    .card {
+        margin-bottom: 0px !important;
+    }
+}

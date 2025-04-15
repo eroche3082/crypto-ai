@@ -1,0 +1,15 @@
+.chat .chat-history {
+    padding: 10px !important;
+    max-height: 38vh !important;
+    height: 38vh !important;
+}
+
+#chatRoom {
+    .col-lg-12 {
+        height: 20%;
+    }
+
+    .card {
+        margin-bottom: 0px !important;
+    }
+}

@@ -1,0 +1,3 @@
+location /subfoldername/ {
+	rewrite ^/subfoldername/(\w+)$ /subfoldername/pages/p.php?short=$1 last;
+}

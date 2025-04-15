@@ -1,0 +1,1 @@
+ALTER TABLE `lsv_rooms` ADD `language` VARCHAR(10) NULL AFTER `video_ai_tools`;

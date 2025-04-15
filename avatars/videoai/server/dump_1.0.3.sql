@@ -1,0 +1,1 @@
+ALTER TABLE `lsv_rooms` ADD `ai_greeting_text` VARCHAR(2000) NULL AFTER `language`, ADD`is_context` tinyint(4) NOT NULL DEFAULT '1' AFTER `ai_greeting_text`;

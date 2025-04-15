@@ -1,0 +1,48 @@
+#chatRoom {
+    position: absolute;
+    z-index: 2;
+    max-width: 100vw !important;
+}
+
+#actionButtons {
+    left: 53% !important;
+}
+
+.chat-app .chat-history {
+    max-height: 70vh;
+    overflow-x: auto;
+}
+
+@media only screen and (max-width: 767px) {
+    #actionButtons {
+        left: 70% !important;
+        transform: translate(-60%, -10%);
+        bottom: 0px !important;
+    }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 992px) {
+    #actionButtons {
+        left: 70% !important;
+        transform: translate(-60%, -10%);
+    }
+}
+
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
+    #actionButtons {
+        left: 70% !important;
+        transform: translate(-60%, -10%);
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    #chatRoom {
+        bottom: 25px;
+    }
+    .chat-app .chat-history {
+        height: 66vh;
+        max-height: 66vh;
+        overflow-x: auto;
+    }
+}
