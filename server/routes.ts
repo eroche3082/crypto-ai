@@ -456,6 +456,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/vertex-ai-vision", handleVisionAIResponse);
   app.get("/api/vertex-ai-diagnostics", getAIDiagnostics);
   
+  // Crypto cache management endpoint
+  app.get("/api/crypto/invalidate-cache", async (req, res) => {
+    const { cryptoDataService } = await import('./services/crypto/cryptoDataService');
+    cryptoDataService.invalidateAllCaches();
+    res.json({ success: true, message: "All crypto caches invalidated" });
+  });
+  
   // NFT Collection Evaluator API endpoints
   app.get("/api/nft/collection/:query", nftController.findCollection);
   app.get("/api/nft/evaluate/:collectionId", nftController.evaluateCollection);

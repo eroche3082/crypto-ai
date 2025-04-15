@@ -149,10 +149,14 @@ export class CoinApiService {
       
       // Transform to CoinGecko format for compatibility
       const formattedAssets = topAssets.map((asset, index) => {
+        // Generate crypto icon URL from static resource
+        let iconUrl = `https://assets.coincap.io/assets/icons/${asset.asset_id.toLowerCase()}@2x.png`;
+        
         return {
           id: asset.asset_id.toLowerCase(),
           symbol: asset.asset_id.toLowerCase(),
           name: asset.name,
+          image: iconUrl, // Add image URL for the cryptocurrency icon
           current_price: asset.price_usd,
           market_cap: (asset.volume_1day_usd || 0) * (asset.price_usd || 0),
           market_cap_rank: index + 1 + start,

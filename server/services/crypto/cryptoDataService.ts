@@ -43,6 +43,7 @@ export class CryptoDataService {
         id: id,
         symbol: id,
         name: id.charAt(0).toUpperCase() + id.slice(1),
+        image: `https://assets.coincap.io/assets/icons/${id.toLowerCase()}@2x.png`,
         market_data: {
           current_price: {
             usd: assetHistory[0]?.price_close || 0
