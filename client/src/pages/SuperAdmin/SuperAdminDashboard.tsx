@@ -1,51 +1,67 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { 
-  Briefcase,
-  BarChart3, 
+  Layout, 
   Users, 
   Settings, 
-  CreditCard, 
   Bell, 
   Globe, 
-  Server, 
-  LogOut,
-  ChevronRight,
-  PieChart,
-  DollarSign,
-  User,
-  LifeBuoy,
-  Wallet,
-  Shield,
-  Sliders,
+  LogOut, 
+  Sliders, 
+  CheckCircle,
   Layers,
-  Bot,
-  CircleAlert,
-  Database
+  PieChart,
+  Tag,
+  CreditCard,
+  Lock,
+  AlertTriangle,
+  Database,
+  Server,
+  CloudCog,
+  Activity,
+  UserCog,
+  Building,
+  BarChart4,
+  ShieldAlert
 } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 
 const SuperAdminDashboard = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   // Simular cierre de sesión
   const handleLogout = () => {
     toast({
       title: "Cerrando sesión",
-      description: "Finalizando sesión de Super Admin...",
+      description: "Finalizando sesión de Super Administrador...",
     });
     
     setTimeout(() => {
       setLocation('/superadmin');
     }, 1000);
+  };
+
+  // Estado de la plataforma (simulado)
+  const platformStatus = {
+    usersTotal: 12458,
+    activeUsers: 8342,
+    transactions: 2350,
+    revenue: 45820,
+    cpuUsage: 32,
+    memoryUsage: 48,
+    storageUsage: 27,
+    apiCalls: 238502,
+    uptime: "99.98%"
   };
 
   return (
@@ -54,12 +70,12 @@ const SuperAdminDashboard = () => {
       <div className="hidden md:flex w-64 flex-col fixed inset-y-0 z-50 bg-card border-r">
         <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
           <div className="flex items-center gap-2 px-4 mb-6">
-            <div className="bg-primary/10 text-primary p-2 rounded-full">
-              <Shield size={20} />
+            <div className="bg-destructive/90 text-destructive-foreground p-2 rounded-full">
+              <ShieldAlert size={20} />
             </div>
             <div className="flex flex-col">
               <h2 className="font-semibold text-lg">Super Admin</h2>
-              <span className="text-xs text-muted-foreground">Panel Global</span>
+              <span className="text-xs text-muted-foreground">Control total</span>
             </div>
           </div>
 
@@ -67,12 +83,12 @@ const SuperAdminDashboard = () => {
           
           <div className="flex flex-col space-y-1 px-3">
             <Button
-              variant={activeTab === 'overview' ? 'secondary' : 'ghost'}
+              variant={activeTab === 'dashboard' ? 'secondary' : 'ghost'}
               className="justify-start"
-              onClick={() => setActiveTab('overview')}
+              onClick={() => setActiveTab('dashboard')}
             >
               <PieChart size={18} className="mr-2" />
-              Dashboard
+              Dashboard Global
             </Button>
             
             <Button
@@ -80,71 +96,101 @@ const SuperAdminDashboard = () => {
               className="justify-start"
               onClick={() => setActiveTab('finance')}
             >
-              <DollarSign size={18} className="mr-2" />
+              <CreditCard size={18} className="mr-2" />
               Finanzas
             </Button>
             
             <Button
-              variant={activeTab === 'users' ? 'secondary' : 'ghost'}
+              variant={activeTab === 'security' ? 'secondary' : 'ghost'}
               className="justify-start"
-              onClick={() => setActiveTab('users')}
+              onClick={() => setActiveTab('security')}
             >
-              <User size={18} className="mr-2" />
-              Usuarios
+              <Lock size={18} className="mr-2" />
+              Seguridad
             </Button>
             
             <Button
-              variant={activeTab === 'memberships' ? 'secondary' : 'ghost'}
+              variant={activeTab === 'infrastructure' ? 'secondary' : 'ghost'}
               className="justify-start"
-              onClick={() => setActiveTab('memberships')}
+              onClick={() => setActiveTab('infrastructure')}
             >
-              <Briefcase size={18} className="mr-2" />
-              Membresías
+              <Server size={18} className="mr-2" />
+              Infraestructura
             </Button>
             
             <Button
-              variant={activeTab === 'agents' ? 'secondary' : 'ghost'}
+              variant={activeTab === 'admins' ? 'secondary' : 'ghost'}
               className="justify-start"
-              onClick={() => setActiveTab('agents')}
+              onClick={() => setActiveTab('admins')}
             >
-              <Bot size={18} className="mr-2" />
-              Agentes IA
+              <UserCog size={18} className="mr-2" />
+              Gestión de Admins
             </Button>
             
             <Button
-              variant={activeTab === 'system' ? 'secondary' : 'ghost'}
+              variant={activeTab === 'business' ? 'secondary' : 'ghost'}
               className="justify-start"
-              onClick={() => setActiveTab('system')}
+              onClick={() => setActiveTab('business')}
             >
-              <Sliders size={18} className="mr-2" />
-              Configuración
+              <Building size={18} className="mr-2" />
+              Negocio
             </Button>
-            
-            <Button
-              variant={activeTab === 'incidents' ? 'secondary' : 'ghost'}
-              className="justify-start"
-              onClick={() => setActiveTab('incidents')}
-            >
-              <CircleAlert size={18} className="mr-2" />
-              Alertas
-              <Badge variant="destructive" className="ml-auto">3</Badge>
-            </Button>
-            
-            <Button
-              variant={activeTab === 'database' ? 'secondary' : 'ghost'}
-              className="justify-start"
-              onClick={() => setActiveTab('database')}
-            >
-              <Database size={18} className="mr-2" />
-              Base de datos
-            </Button>
+          </div>
+
+          <Separator className="my-4" />
+          
+          <div className="px-3">
+            <h3 className="px-3 text-xs font-semibold text-muted-foreground mb-2">SISTEMAS</h3>
+            <div className="flex flex-col space-y-1">
+              <Button
+                variant="ghost"
+                className="justify-start"
+                onClick={() => {
+                  toast({
+                    title: "Acceso al sistema",
+                    description: "Conectando con sistemas centrales...",
+                  });
+                }}
+              >
+                <CloudCog size={18} className="mr-2" />
+                API Central
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start"
+                onClick={() => {
+                  toast({
+                    title: "Base de datos global",
+                    description: "Accediendo a administración de datos...",
+                  });
+                }}
+              >
+                <Database size={18} className="mr-2" />
+                Base de datos
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start"
+                onClick={() => {
+                  toast({
+                    title: "Logs del sistema",
+                    description: "Accediendo a logs centralizados...",
+                  });
+                }}
+              >
+                <Activity size={18} className="mr-2" />
+                Logs
+              </Button>
+            </div>
           </div>
         </div>
         
         <div className="p-4">
           <Button
             variant="outline"
-            className="w-full justify-start"
+            className="w-full justify-start text-destructive border-destructive"
             onClick={handleLogout}
           >
             <LogOut size={18} className="mr-2" />
@@ -161,23 +207,22 @@ const SuperAdminDashboard = () => {
             <h1 className="text-lg font-semibold md:hidden">Super Admin</h1>
             
             <div className="flex items-center gap-4">
-              <Button size="sm" variant="outline">
-                <Bell size={16} className="mr-2" />
-                <span className="sr-only md:not-sr-only">Notificaciones</span>
-              </Button>
+              <Badge variant="outline" className="bg-red-500/10 text-red-500 hidden md:flex">
+                Acceso total
+              </Badge>
               
               <Button size="sm" variant="outline">
-                <Globe size={16} className="mr-2" />
-                <span className="sr-only md:not-sr-only">Global</span>
+                <Bell size={16} className="mr-2" />
+                <span className="sr-only md:not-sr-only">Alertas</span>
               </Button>
               
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                  <User size={16} />
+                <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center text-destructive">
+                  <ShieldAlert size={16} />
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-medium">La Capitana</p>
-                  <p className="text-xs text-muted-foreground">Propietaria</p>
+                  <p className="text-sm font-medium">Super Administrador</p>
+                  <p className="text-xs text-muted-foreground">Privilegios totales</p>
                 </div>
               </div>
             </div>
@@ -187,27 +232,33 @@ const SuperAdminDashboard = () => {
         {/* Content area */}
         <main className="flex-1 overflow-auto p-4 md:p-6 bg-background/60">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            {/* Global Dashboard Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            {/* DASHBOARD TAB */}
+            <TabsContent value="dashboard" className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Dashboard Global</h2>
-                <Button variant="outline">
-                  Exportar informes
-                </Button>
+                <div className="flex gap-2">
+                  <Badge variant="outline" className="gap-1 items-center text-green-500 bg-green-500/10">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                    Sistema en línea
+                  </Badge>
+                  <Button variant="default">
+                    Informe completo
+                  </Button>
+                </div>
               </div>
               
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Usuarios Totales
+                      Total de usuarios
                     </CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">12,847</div>
+                    <div className="text-2xl font-bold">{platformStatus.usersTotal.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      +18% desde el mes pasado
+                      {platformStatus.activeUsers.toLocaleString()} activos ahora
                     </p>
                   </CardContent>
                 </Card>
@@ -215,14 +266,29 @@ const SuperAdminDashboard = () => {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Ingresos Mensuales
+                      Transacciones
+                    </CardTitle>
+                    <BarChart4 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{platformStatus.transactions.toLocaleString()}</div>
+                    <p className="text-xs text-muted-foreground">
+                      Últimas 24 horas
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Ingresos
                     </CardTitle>
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">$54,231</div>
+                    <div className="text-2xl font-bold">${platformStatus.revenue.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      +12.5% desde el mes pasado
+                      +12% desde el mes pasado
                     </p>
                   </CardContent>
                 </Card>
@@ -230,319 +296,328 @@ const SuperAdminDashboard = () => {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Aplicaciones Activas
+                      Tiempo activo
                     </CardTitle>
-                    <Layers className="h-4 w-4 text-muted-foreground" />
+                    <Activity className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">6</div>
+                    <div className="text-2xl font-bold">{platformStatus.uptime}</div>
                     <p className="text-xs text-muted-foreground">
-                      CryptoBot, FitnessAI, JetAI...
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Estado del Sistema
-                    </CardTitle>
-                    <Server className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-500">Estable</div>
-                    <p className="text-xs text-muted-foreground">
-                      99.98% de tiempo activo
+                      Últimos 30 días
                     </p>
                   </CardContent>
                 </Card>
               </div>
               
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card className="md:col-span-2">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                <Card className="md:col-span-4">
                   <CardHeader>
-                    <CardTitle>Análisis de tráfico por plataforma</CardTitle>
+                    <CardTitle>Análisis global de plataforma</CardTitle>
                     <CardDescription>
-                      Distribución de usuarios activos por aplicación en tiempo real
+                      Estado y rendimiento de todos los sistemas
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="h-80 flex items-center justify-center bg-muted/30 rounded-md">
-                      <BarChart3 className="h-16 w-16 text-muted-foreground opacity-30" />
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Server size={16} />
+                          <span>CPU</span>
+                        </div>
+                        <span className="text-sm font-medium">{platformStatus.cpuUsage}%</span>
+                      </div>
+                      <Progress value={platformStatus.cpuUsage} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Server size={16} />
+                          <span>Memoria</span>
+                        </div>
+                        <span className="text-sm font-medium">{platformStatus.memoryUsage}%</span>
+                      </div>
+                      <Progress value={platformStatus.memoryUsage} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Database size={16} />
+                          <span>Almacenamiento</span>
+                        </div>
+                        <span className="text-sm font-medium">{platformStatus.storageUsage}%</span>
+                      </div>
+                      <Progress value={platformStatus.storageUsage} className="h-2" />
+                    </div>
+                    
+                    <div className="pt-2">
+                      <div className="rounded-lg border p-3">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium">Llamadas a API</h4>
+                          <Badge variant="outline">{platformStatus.apiCalls.toLocaleString()}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">Últimas 24 horas. Rendimiento normal.</p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
                 
-                <Card>
+                <Card className="md:col-span-3">
                   <CardHeader>
-                    <CardTitle>Actividad reciente</CardTitle>
+                    <CardTitle>Alertas del sistema</CardTitle>
                     <CardDescription>
-                      Eventos del sistema en las últimas 24 horas
+                      Incidents requiriendo atención prioritaria
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {[
-                        { time: '1 min', event: 'Nuevo usuario registrado en CryptoBot', icon: <User size={14} /> },
-                        { time: '15 min', event: 'Actualización de API completada', icon: <Server size={14} /> },
-                        { time: '2 horas', event: 'Alerta de seguridad resuelta', icon: <Shield size={14} /> },
-                        { time: '4 horas', event: 'Transacción de $1,250 procesada', icon: <Wallet size={14} /> },
-                        { time: '1 día', event: 'Nuevo agente IA desplegado', icon: <Bot size={14} /> },
-                      ].map((item, i) => (
-                        <div key={i} className="flex gap-2">
-                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            {item.icon}
-                          </div>
-                          <div className="flex flex-col">
-                            <p className="text-sm">{item.event}</p>
-                            <p className="text-xs text-muted-foreground">Hace {item.time}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Finance Tab */}
-            <TabsContent value="finance" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Finanzas</h2>
-                <div className="flex gap-2">
-                  <Button variant="outline">
-                    Exportar CSV
-                  </Button>
-                  <Button variant="default">
-                    Ver reportes
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Resumen financiero</CardTitle>
-                    <CardDescription>
-                      Datos consolidados de todas las plataformas
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Ingresos totales</span>
-                        <span className="font-medium">$324,521.48</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Último mes</span>
-                        <span className="font-medium">$54,231.25</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Membresías activas</span>
-                        <span className="font-medium">4,235</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Transacciones recientes</span>
-                        <span className="font-medium">1,243</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Valor promedio</span>
-                        <span className="font-medium">$47.85</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Por plataforma</CardTitle>
-                    <CardDescription>
-                      Distribución de ingresos por aplicación
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {[
-                        { name: 'CryptoBot', value: '$23,521.12', percent: '42%' },
-                        { name: 'FitnessAI', value: '$12,433.55', percent: '23%' },
-                        { name: 'JetAI', value: '$8,754.23', percent: '16%' },
-                        { name: 'ShopAI', value: '$5,432.87', percent: '10%' },
-                        { name: 'EduAI', value: '$4,089.48', percent: '9%' }
-                      ].map((platform, i) => (
-                        <div key={i} className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <div className={`h-2 w-2 rounded-full bg-${i % 2 === 0 ? 'primary' : 'green-500'}`} />
-                            <span>{platform.name}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">{platform.percent}</span>
-                            <span className="font-medium">{platform.value}</span>
+                      <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-3">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-yellow-500">Error de conexión a la API externa</h4>
+                            <p className="text-sm mt-1">Error temporal de conexión con el proveedor de datos CoinAPI.</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
+                                Ver detalles
+                              </Button>
+                              <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
+                                Resolver
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Cuentas bancarias</CardTitle>
-                    <CardDescription>
-                      Cuentas conectadas y saldos
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {[
-                        { bank: 'Bancomer MX', account: '****8342', balance: '$124,532.25' },
-                        { bank: 'Santander US', account: '****9764', balance: '$87,245.12' },
-                        { bank: 'Chase', account: '****5231', balance: '$45,876.43' }
-                      ].map((account, i) => (
-                        <div key={i} className="flex items-center justify-between p-2 border rounded-md">
-                          <div className="flex flex-col">
-                            <span className="font-medium">{account.bank}</span>
-                            <span className="text-xs text-muted-foreground">{account.account}</span>
-                          </div>
-                          <span className="font-medium">{account.balance}</span>
-                        </div>
-                      ))}
+                      </div>
                       
-                      <Button variant="outline" className="w-full mt-2">
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        Agregar cuenta
-                      </Button>
+                      <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-red-500">Pico de consumo de memoria</h4>
+                            <p className="text-sm mt-1">Instancia principal alcanzó 85% de uso de memoria durante pico de tráfico.</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
+                                Ver detalles
+                              </Button>
+                              <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
+                                Resolver
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="rounded-lg border p-3">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium">Sistema de pago sin incidencias</h4>
+                            <p className="text-sm text-muted-foreground mt-1">Todas las pasarelas de pago funcionando normalmente.</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-            </TabsContent>
-
-            {/* Users Tab */}
-            <TabsContent value="users" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Usuarios</h2>
-                <Button variant="outline">
-                  Exportar usuarios
-                </Button>
               </div>
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Base de usuarios global</CardTitle>
+                  <CardTitle>Actividad administrativa</CardTitle>
                   <CardDescription>
-                    Gestión centralizada de todos los usuarios del ecosistema
+                    Acciones de administradores y configuraciones del sistema
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="rounded-md border">
-                    <div className="grid grid-cols-5 p-4 font-medium border-b">
-                      <div>Usuario</div>
-                      <div>Plataforma</div>
-                      <div>Membresía</div>
-                      <div>Registro</div>
-                      <div>Acciones</div>
-                    </div>
-                    <div className="divide-y">
-                      {[
-                        { name: 'Carlos Rodriguez', platform: 'CryptoBot', plan: 'Premium', date: '12/03/2024' },
-                        { name: 'Marta Sánchez', platform: 'FitnessAI', plan: 'Basic', date: '05/02/2024' },
-                        { name: 'Juan Pérez', platform: 'JetAI', plan: 'Pro', date: '28/01/2024' },
-                        { name: 'Ana Gómez', platform: 'CryptoBot', plan: 'Premium', date: '15/03/2024' },
-                        { name: 'Roberto Torres', platform: 'ShopAI', plan: 'Basic', date: '10/03/2024' },
-                      ].map((user, i) => (
-                        <div key={i} className="grid grid-cols-5 p-4 items-center">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                              <User size={14} />
-                            </div>
-                            <span>{user.name}</span>
-                          </div>
-                          <div>{user.platform}</div>
-                          <div>
-                            <Badge variant={user.plan === 'Premium' ? 'default' : 'secondary'}>
-                              {user.plan}
-                            </Badge>
-                          </div>
-                          <div className="text-muted-foreground">{user.date}</div>
-                          <div>
-                            <Button variant="ghost" size="sm">
-                              Ver detalles
-                              <ChevronRight className="ml-1 h-4 w-4" />
-                            </Button>
-                          </div>
+                  <div className="space-y-4">
+                    {[
+                      { 
+                        action: "Configuración API", 
+                        details: "Actualizado token de API de CoinAPI", 
+                        admin: "SuperAdmin", 
+                        time: "Hace 2 horas" 
+                      },
+                      { 
+                        action: "Cambio de precios", 
+                        details: "Modificado plan 'Elite' de $19.99 a $24.99", 
+                        admin: "Admin Manager", 
+                        time: "Hace 5 horas" 
+                      },
+                      { 
+                        action: "Reinicio de servidor", 
+                        details: "Reinicio programado de servidor principal", 
+                        admin: "SuperAdmin", 
+                        time: "Hace 1 día" 
+                      },
+                      { 
+                        action: "Modificación de UI", 
+                        details: "Actualización de textos en homepage", 
+                        admin: "Admin Manager", 
+                        time: "Hace 2 días" 
+                      },
+                      { 
+                        action: "Configuración de seguridad", 
+                        details: "Actualización de política de contraseñas", 
+                        admin: "SuperAdmin", 
+                        time: "Hace 3 días" 
+                      },
+                    ].map((log, i) => (
+                      <div key={i} className="flex justify-between border-b pb-3 last:border-0 last:pb-0">
+                        <div className="space-y-1">
+                          <div className="font-medium">{log.action}</div>
+                          <div className="text-sm text-muted-foreground">{log.details}</div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-center space-x-2 py-4">
-                    <Button variant="outline" size="sm" disabled>
-                      Anterior
-                    </Button>
-                    <Button variant="outline" size="sm" className="px-3 font-medium bg-primary/10">
-                      1
-                    </Button>
-                    <Button variant="outline" size="sm" className="px-3">
-                      2
-                    </Button>
-                    <Button variant="outline" size="sm" className="px-3">
-                      3
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Siguiente
-                    </Button>
+                        <div className="text-right">
+                          <div className="text-sm">{log.time}</div>
+                          <div className="text-xs text-muted-foreground">Por: {log.admin}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* System Configuration Tab */}
-            <TabsContent value="system" className="space-y-4">
+            {/* FINANCE TAB */}
+            <TabsContent value="finance" className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Configuración del Sistema</h2>
-                <div className="flex gap-2">
-                  <Button variant="outline">
-                    Cancelar
-                  </Button>
-                  <Button>
-                    Guardar cambios
-                  </Button>
-                </div>
+                <h2 className="text-2xl font-bold">Finanzas</h2>
+                <Button variant="outline">
+                  Exportar datos
+                </Button>
               </div>
+              
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Ingresos totales
+                    </CardTitle>
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">$152,432.65</div>
+                    <p className="text-xs text-muted-foreground">
+                      Últimos 30 días
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Transacciones
+                    </CardTitle>
+                    <Activity className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">5,234</div>
+                    <p className="text-xs text-muted-foreground">
+                      +12% vs mes anterior
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Valor promedio
+                    </CardTitle>
+                    <BarChart4 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">$29.12</div>
+                    <p className="text-xs text-muted-foreground">
+                      Por transacción
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Configuración de pagos</CardTitle>
+                  <CardDescription>
+                    Administrar métodos y procesadores de pago
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="rounded-lg border p-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
+                            <CreditCard className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium">Stripe</h3>
+                            <p className="text-sm text-muted-foreground">Procesador de pago principal</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="bg-green-500/10 text-green-500">Activo</Badge>
+                      </div>
+                    </div>
+                    
+                    <div className="rounded-lg border p-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
+                            <CreditCard className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium">PayPal</h3>
+                            <p className="text-sm text-muted-foreground">Procesador de pago alternativo</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline">Inactivo</Badge>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-2">
+                      <Button variant="outline" className="w-full">
+                        Configurar nuevo método de pago
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               
               <div className="grid gap-4 md:grid-cols-2">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Configuración general</CardTitle>
+                    <CardTitle>Información bancaria</CardTitle>
                     <CardDescription>
-                      Ajustes globales del ecosistema de aplicaciones
+                      Datos de cuentas para liquidaciones
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-medium">Tema global</h3>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="bg-primary/10">Claro</Button>
-                        <Button variant="outline" size="sm">Oscuro</Button>
-                        <Button variant="outline" size="sm">Sistema</Button>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="rounded-lg border p-3">
+                        <h4 className="font-medium mb-2">Cuenta principal</h4>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Banco:</span>
+                            <span>Banco Internacional</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Titular:</span>
+                            <span>CryptoBot Inc.</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Cuenta:</span>
+                            <span>XXXX-XXXX-XXXX-4850</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-medium">Idioma predeterminado</h3>
+                      
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="bg-primary/10">Español</Button>
-                        <Button variant="outline" size="sm">English</Button>
-                        <Button variant="outline" size="sm">Português</Button>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-medium">Región</h3>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="bg-primary/10">México</Button>
-                        <Button variant="outline" size="sm">Estados Unidos</Button>
-                        <Button variant="outline" size="sm">Otro</Button>
+                        <Button variant="outline" size="sm" className="flex-1">
+                          Editar
+                        </Button>
+                        <Button variant="outline" size="sm" className="flex-1">
+                          Agregar cuenta
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -550,102 +625,94 @@ const SuperAdminDashboard = () => {
                 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Seguridad</CardTitle>
+                    <CardTitle>Ciclo de facturación</CardTitle>
                     <CardDescription>
-                      Controles de seguridad y acceso
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <h3 className="text-sm font-medium">Autenticación de dos factores</h3>
-                        <p className="text-xs text-muted-foreground">Requerir para todos los administradores</p>
-                      </div>
-                      <Button variant="outline" size="sm" className="bg-primary/10">
-                        Activado
-                      </Button>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <h3 className="text-sm font-medium">Verificación biométrica</h3>
-                        <p className="text-xs text-muted-foreground">Para acceso a panel de Super Admin</p>
-                      </div>
-                      <Button variant="outline" size="sm" className="bg-primary/10">
-                        Requerido
-                      </Button>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <h3 className="text-sm font-medium">Registro de actividad</h3>
-                        <p className="text-xs text-muted-foreground">Guardar historial de acciones administrativas</p>
-                      </div>
-                      <Button variant="outline" size="sm" className="bg-primary/10">
-                        Activado
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="md:col-span-2">
-                  <CardHeader>
-                    <CardTitle>Configuración de API</CardTitle>
-                    <CardDescription>
-                      Administración de claves de API y servicios externos
+                      Configuración de periodos de facturación
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {[
-                        { name: 'Google Vertex AI', status: 'Conectado', lastUpdated: '10/04/2025' },
-                        { name: 'Stripe', status: 'Conectado', lastUpdated: '05/04/2025' },
-                        { name: 'CoinAPI', status: 'Conectado', lastUpdated: '12/03/2025' },
-                        { name: 'OpenAI', status: 'Inactivo', lastUpdated: '01/03/2025' },
-                        { name: 'News API', status: 'Conectado', lastUpdated: '15/03/2025' },
-                      ].map((api, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full ${api.status === 'Conectado' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                            <div>
-                              <h4 className="font-medium">{api.name}</h4>
-                              <p className="text-xs text-muted-foreground">Actualizado: {api.lastUpdated}</p>
-                            </div>
-                          </div>
-                          <Button variant="outline" size="sm">
-                            Configurar
-                          </Button>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span>Cobrar automáticamente</span>
+                          <Switch defaultChecked />
                         </div>
-                      ))}
+                        
+                        <div className="flex justify-between">
+                          <span>Enviar recibos por email</span>
+                          <Switch defaultChecked />
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span>Período de gracia</span>
+                          <Switch defaultChecked />
+                        </div>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="pt-2">
+                        <Button variant="outline" className="w-full">
+                          Configurar parámetros avanzados
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
             </TabsContent>
 
-            {/* Other tab contents would be implemented similarly */}
-            <TabsContent value="memberships">
-              <h2 className="text-2xl font-bold mb-4">Gestión de Membresías</h2>
-              {/* Contenido de membresías */}
+            {/* Contenido de otras pestañas estaría aquí */}
+            <TabsContent value="security" className="space-y-4">
+              <h2 className="text-2xl font-bold">Seguridad</h2>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Acceso y permisos</CardTitle>
+                  <CardDescription>Gestión avanzada de acceso al sistema</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p>Configuración de permisos, autenticación y acceso seguros</p>
+                </CardContent>
+              </Card>
             </TabsContent>
             
-            <TabsContent value="agents">
-              <h2 className="text-2xl font-bold mb-4">Agentes IA</h2>
-              {/* Contenido de agentes */}
+            <TabsContent value="infrastructure" className="space-y-4">
+              <h2 className="text-2xl font-bold">Infraestructura</h2>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Servidores y recursos</CardTitle>
+                  <CardDescription>Gestión de infraestructura y escalabilidad</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p>Administración de servidores, recursos y despliegue</p>
+                </CardContent>
+              </Card>
             </TabsContent>
             
-            <TabsContent value="incidents">
-              <h2 className="text-2xl font-bold mb-4">Centro de Alertas</h2>
-              {/* Contenido de alertas */}
+            <TabsContent value="admins" className="space-y-4">
+              <h2 className="text-2xl font-bold">Gestión de Admins</h2>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Administradores del sistema</CardTitle>
+                  <CardDescription>Control de permisos y accesos administrativos</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p>Gestión de usuarios administradores y permisos</p>
+                </CardContent>
+              </Card>
             </TabsContent>
             
-            <TabsContent value="database">
-              <h2 className="text-2xl font-bold mb-4">Base de Datos</h2>
-              {/* Contenido de base de datos */}
+            <TabsContent value="business" className="space-y-4">
+              <h2 className="text-2xl font-bold">Negocio</h2>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Operaciones de negocio</CardTitle>
+                  <CardDescription>Métricas y configuración corporativa</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p>Administración de aspectos comerciales y métricas de negocio</p>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </main>
