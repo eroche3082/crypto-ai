@@ -40,6 +40,7 @@ import {
 import { nftController } from './services/nft/nftController';
 import apiRouter from "./apiRoutes";
 import { accessCodeRouter, accessCodeAdminRouter } from "./accessCodeRoutes";
+import configRouter from "./routes/configRoutes";
 import { db } from "./db";
 import { insertUserOnboardingProfileSchema, userOnboardingProfiles } from "../shared/schema";
 
@@ -335,6 +336,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Universal Access Code System routes
   app.use('/api/access-code', accessCodeRouter);
   app.use('/api/admin/access-code', accessCodeAdminRouter);
+  
+  // Register UI Configuration routes for Visual Editor
+  app.use('/api/config', configRouter);
   
   // API Routes
   
