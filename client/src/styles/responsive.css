@@ -1,0 +1,151 @@
+/* Mobile-first responsive styles for CryptoPulse */
+
+/* Base mobile styles */
+.crypto-card {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.chart-container {
+  height: 250px;
+}
+
+.data-table {
+  font-size: 0.8rem;
+}
+
+/* Tables are horizontally scrollable on mobile */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive typography */
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  padding: 1rem 0.75rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  padding: 0.75rem 0.5rem;
+}
+
+/* Buttons have adequate touch targets */
+button, 
+.button, 
+[role="button"] {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+}
+
+/* Tablet styles */
+@media (min-width: 768px) {
+  .crypto-card {
+    width: calc(50% - 1rem);
+    margin-right: 1rem;
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+  
+  .data-table {
+    font-size: 0.9rem;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .page-title {
+    font-size: 1.75rem;
+    padding: 1.5rem 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    padding: 1rem 0.75rem;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .crypto-card {
+    width: calc(33.333% - 1rem);
+  }
+  
+  .chart-container {
+    height: 400px;
+  }
+  
+  .data-table {
+    font-size: 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+    padding: 2rem 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Large desktop styles */
+@media (min-width: 1280px) {
+  .crypto-card {
+    width: calc(25% - 1rem);
+  }
+}
+
+/* Custom media query for handling orientation changes */
+@media (orientation: landscape) and (max-height: 600px) {
+  /* Adjust layout for landscape orientation on smaller devices */
+  .page-container {
+    padding-top: 0.5rem;
+  }
+  
+  .chart-container {
+    height: 200px;
+  }
+}
+
+/* Handle notch displays and safe areas */
+@supports (padding: max(0px)) {
+  .safe-area-padding {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  
+  /* Apply safe area to mobile header */
+  .mobile-header {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}

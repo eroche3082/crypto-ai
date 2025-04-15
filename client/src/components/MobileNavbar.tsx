@@ -1,121 +1,141 @@
-import { useState } from "react";
-import { useLocation, Link } from "wouter";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react';
+import { Link, useLocation } from 'wouter';
 import { 
-  Menu, 
-  X, 
-  LayoutDashboard, 
+  Home, 
+  BarChart2, 
+  AlertCircle, 
+  RefreshCw, 
+  BookOpen, 
+  Newspaper, 
   Star, 
-  BarChart3, 
-  Image, 
-  Bell, 
-  GraduationCap, 
-  Scan,
-  Globe
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "../contexts/LanguageContext";
-import LanguageSwitcher from "./LanguageSwitcher";
+  MapPin,
+  Menu,
+  X,
+  User,
+  LogOut,
+  Settings
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
-const MobileNavbar = () => {
+const MobileNavbar: React.FC = () => {
   const [location] = useLocation();
   const { t } = useTranslation();
-  const { language } = useLanguage();
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showLanguageSwitcher, setShowLanguageSwitcher] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    if (isMenuOpen) {
-      setShowLanguageSwitcher(false);
-    }
   };
 
-  const toggleLanguageSwitcher = () => {
-    setShowLanguageSwitcher(!showLanguageSwitcher);
-  };
-
-  const mainNavItems = [
-    { path: "/dashboard", icon: <LayoutDashboard size={18} />, label: t("dashboard.title", "Dashboard") },
-    { path: "/favorites", icon: <Star size={18} />, label: t("favorites.title", "Favorites") },
-    { path: "/unified-portfolio", icon: <BarChart3 size={18} />, label: t("portfolio.title", "Portfolio") },
-    { path: "/unified-digital-assets", icon: <Image size={18} />, label: t("digitalAssets.title", "Digital Assets") },
-    { path: "/alerts", icon: <Bell size={18} />, label: t("alerts.title", "Alerts") },
-    { path: "/education", icon: <GraduationCap size={18} />, label: t("education.title", "Education") },
-    { path: "/chart-analysis", icon: <Scan size={18} />, label: t("chartAnalysis.title", "Chart Analysis") }
+  const navItems = [
+    { path: '/dashboard', icon: <Home size={20} />, label: t('dashboard', 'Dashboard') },
+    { path: '/portfolio', icon: <BarChart2 size={20} />, label: t('portfolio', 'Portfolio') },
+    { path: '/alerts', icon: <AlertCircle size={20} />, label: t('alerts', 'Alerts') },
+    { path: '/converter', icon: <RefreshCw size={20} />, label: t('converter', 'Converter') },
+    { path: '/education', icon: <BookOpen size={20} />, label: t('education', 'Education') },
+    { path: '/news', icon: <Newspaper size={20} />, label: t('news', 'News') },
+    { path: '/favorites', icon: <Star size={20} />, label: t('favorites', 'Favorites') },
+    { path: '/locations', icon: <MapPin size={20} />, label: t('locations', 'Locations') }
   ];
 
   return (
     <>
-      {/* Fixed mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-card z-50 border-b border-border px-4 flex items-center justify-between">
+      {/* Fixed Mobile Header */}
+      <div className="fixed top-0 left-0 right-0 h-14 bg-card/90 backdrop-blur-md border-b border-border flex items-center justify-between px-4 z-40 md:hidden">
         <Link href="/">
           <div className="flex items-center gap-2">
             <div className="bg-primary/20 text-primary rounded-full w-8 h-8 flex items-center justify-center">
-              <BarChart3 size={16} />
+              <Home size={16} />
             </div>
-            <span className="font-bold text-sm">CryptoPulse</span>
+            <span className="font-bold">CryptoPulse</span>
           </div>
         </Link>
         
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-muted-foreground"
+        <button
           onClick={toggleMenu}
+          className="p-2 rounded-full hover:bg-accent/20 transition-colors"
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         >
-          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </Button>
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
 
-      {/* Mobile menu overlay */}
-      {isMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-background z-40 pt-14 overflow-y-auto">
-          <div className="p-4">
-            <div className="space-y-1 mb-6">
-              {mainNavItems.map((item) => (
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={cn(
+          "fixed inset-0 bg-background/90 backdrop-blur-sm z-30 flex flex-col transition-transform duration-300 ease-in-out md:hidden",
+          isMenuOpen ? "translate-y-0" : "translate-y-full"
+        )}
+      >
+        <div className="pt-16 px-4 flex-1 overflow-y-auto">
+          <div className="space-y-4">
+            {/* User info */}
+            {user && (
+              <div className="border border-border rounded-lg p-4 mb-6 bg-card/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                    <User size={20} />
+                  </div>
+                  <div>
+                    <div className="font-medium">{user.username || 'User'}</div>
+                    <div className="text-xs text-muted-foreground">{user.email || 'user@example.com'}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation links */}
+            <div className="space-y-1">
+              {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
-                  <div
+                  <a 
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-md cursor-pointer transition-colors",
                       location === item.path 
-                        ? "bg-accent/40 text-primary" 
-                        : "text-muted-foreground hover:bg-accent/20 hover:text-foreground"
+                        ? "bg-primary text-primary-foreground" 
+                        : "text-foreground hover:bg-accent/20"
                     )}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.icon}
                     <span>{item.label}</span>
-                  </div>
+                  </a>
                 </Link>
               ))}
             </div>
 
-            {/* Language setting */}
-            <div 
-              className="flex items-center gap-3 px-4 py-3 rounded-md cursor-pointer text-muted-foreground hover:bg-accent/20 hover:text-foreground transition-colors mt-auto"
-              onClick={toggleLanguageSwitcher}
-            >
-              <Globe size={18} />
-              <span>{t("language.settings", "Language Settings")}</span>
-              <span className="ml-auto text-xs bg-primary/20 text-primary rounded-full px-1.5 py-0.5">
-                {language.toUpperCase()}
-              </span>
+            {/* Account actions */}
+            <div className="border-t border-border pt-4 mt-4">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  // Navigate to settings when implemented
+                }}
+              >
+                <Settings size={18} className="mr-2" />
+                {t('settings', 'Settings')}
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  logout();
+                  setIsMenuOpen(false);
+                }}
+              >
+                <LogOut size={18} className="mr-2" />
+                {t('logout', 'Logout')}
+              </Button>
             </div>
           </div>
-
-          {/* Language switcher */}
-          {showLanguageSwitcher && (
-            <div className="px-4 mt-4">
-              <LanguageSwitcher 
-                onClose={() => setShowLanguageSwitcher(false)} 
-                isMobile={true}
-              />
-            </div>
-          )}
         </div>
-      )}
+      </div>
     </>
   );
 };

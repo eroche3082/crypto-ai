@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Route, Switch, useLocation } from "wouter";
 import { useAuth } from "./contexts/AuthContext";
 import Sidebar from "./components/Sidebar";
+import MobileNavbar from "./components/MobileNavbar";
 import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
 import Portfolio from "./pages/Portfolio";
@@ -130,7 +131,8 @@ function AppLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <MobileNavbar />
+      <div className="flex-1 flex flex-col overflow-hidden md:overflow-auto pt-14 md:pt-0">
         <Switch>
           <Route path="/dashboard" component={Dashboard} />
           {/* Legacy routes - to be replaced with unified versions */}
