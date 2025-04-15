@@ -24,7 +24,7 @@ import {
   BarChart4,
   ShieldAlert,
   Video,
-  User3D
+  User3dGlasses
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
