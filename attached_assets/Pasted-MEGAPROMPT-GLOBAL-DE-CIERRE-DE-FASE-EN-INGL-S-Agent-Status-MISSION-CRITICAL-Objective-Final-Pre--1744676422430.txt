@@ -1,0 +1,77 @@
+MEGAPROMPT GLOBAL DE CIERRE DE FASE (EN INGLÉS)
+Agent Status: MISSION-CRITICAL
+Objective: Final Pre-Launch Validation & Intelligence Report for Platform Readiness
+
+ORDERS FOR ALL ACTIVE PLATFORMS (Jet AI, CryptoBot, Fitness AI, Sports AI)
+Your mission is to perform a complete final audit of your entire platform and confirm readiness for the public release. You must now:
+
+1. VERIFY ALL FIXES FROM PREVIOUS PROMPTS
+Go through each section where previous prompts requested fixes, updates, or removals.
+
+Verify that these changes have been correctly implemented.
+
+Provide a checklist confirming:
+
+Copiar
+Editar
+✅ Completed Fixes  
+❌ Unresolved Items  
+⚠️ Partially Completed
+This includes but is not limited to:
+
+Header navigation functionality
+
+Homepage buttons
+
+Image and content alignment
+
+Chatbot activation and naming
+
+UI visual consistency
+
+Pricing plans and subscription behavior
+
+Dashboard integration (if applicable)
+
+Broken or inactive links
+
+Footer cleanup (no empty pages, fake contacts, or dead links)
+
+2. CONDUCT A FULL SCAN OF THE HOMEPAGE
+Validate that every button, link, section, image, and text block is working and responsive.
+
+All components must be aligned with the brand's design and tone.
+
+Remove any content that is placeholder, fake, or redundant.
+
+3. SUBMIT A 3-PART LAUNCH REPORT
+Each platform must return the following:
+
+A) WORKING ELEMENTS
+Full list of what’s working as expected. Be specific. (Ex: "Explore Destinations button is routing correctly to /destinations.")
+
+B) NON-FUNCTIONAL ITEMS
+Any sections or links that are broken, missing, or leading nowhere. No false positives. If it doesn’t work → it goes here.
+
+C) RECOMMENDATIONS
+Ideas to elevate the user experience or enhance platform performance. (Ex: “Add a quick-tour onboarding”, “Integrate newsletter popup”, “Refactor navbar for mobile.”)
+
+4. ENFORCE CLARITY AND CLEANLINESS
+No dummy data, lorem ipsum, broken icons, or non-functional tabs are allowed.
+
+All external links must be removed unless real and validated.
+
+Branding (name, color, tone) must be consistent across pages.
+
+Any non-approved elements (such as incorrect chatbot names like 'Aurora') must be renamed immediately.
+
+5. DEPLOYMENT GREENLIGHT
+Only platforms that complete this full scan and submit the 3-part report will receive the GO signal for deployment.
+No platform will move forward without confirmation.
+
+Codename: FINAL-SYSTEM-CHECK-PROTOCOL
+Deadline: IMMEDIATE
+Priority Level: URGENT – DEPLOYMENT INCOMING
+Status Required: “ALL SYSTEMS GO” or “STANDBY WITH ERRORS”
+
+Begin now and report back.
