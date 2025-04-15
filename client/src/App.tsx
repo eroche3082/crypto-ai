@@ -32,6 +32,9 @@ import SystemDiagnostics from "./pages/admin/SystemDiagnostics";
 import AdminPanel from "./pages/AdminPanel";
 import MultiPaymentPage from "./pages/MultiPaymentPage";
 import NotFound from "@/pages/not-found";
+// Super Admin pages
+import SuperAdminLogin from "./pages/SuperAdmin/SuperAdminLogin";
+import SuperAdminDashboard from "./pages/SuperAdmin/SuperAdminDashboard";
 // Landing and Login pages
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -102,6 +105,15 @@ function App() {
               {/* Admin Dashboard Route */}
               <Route path="/admin/dashboard">
                 <DashboardPage />
+              </Route>
+              
+              {/* Super Admin routes - these bypass normal layout */}
+              <Route path="/superadmin">
+                <SuperAdminLogin />
+              </Route>
+              
+              <Route path="/superadmin/dashboard">
+                <SuperAdminDashboard />
               </Route>
 
               {/* All other routes get the dashboard layout */}
@@ -186,6 +198,8 @@ function AppLayout() {
           <Route path="/admin/api-health" component={ApiHealthDashboard} />
           <Route path="/admin/system-diagnostics" component={SystemDiagnostics} />
           <Route path="/admin/panel" component={AdminPanel} />
+          
+          {/* SUPER ADMIN routes are handled at the root level */}
           
           {/* FALLBACK - 404 page */}
           <Route component={NotFound} />
