@@ -1,0 +1,77 @@
+MEGAPROMPT – RESPONSIVE DEVICE CONFIGURATION + APP FORMAT COMPLIANCE
+Mission:
+Ensure that your platform is fully responsive and properly formatted for use across:
+
+✅ Mobile Phones (iOS & Android)
+
+✅ Tablets (iPad, Android)
+
+✅ Desktops (macOS, Windows, Linux)
+
+✅ App Format (Progressive Web App + Native Wrap Compatibility)
+
+1. ADDITIONAL REQUIREMENT: APP-FRIENDLY STRUCTURE (PWA-READY)
+Your platform must be formatted and tested to be deployable as an app using one of the following:
+
+Progressive Web App (PWA)
+
+Wrapped Native App (via Capacitor, Cordova, React Native Webview, etc.)
+
+2. ADDITIONAL FORMAT CHECKLIST FOR APP DEPLOYMENT
+ App layout works without browser UI (no dependency on address bar)
+
+ Header remains fixed and navigable like a native app
+
+ Modals, menus, chat, and payment must open fullscreen on mobile
+
+ Ensure scrolling and swiping behavior mimics app-like UX
+
+ Avoid unnecessary popups or redirects (bad for app flow)
+
+ Offline behavior or splash screen is possible (for PWA)
+
+ Icons, fonts, and click/tap areas are touch-optimized
+
+ Responsive transitions must be smooth with no layout shifts
+
+3. APP FILES REQUIRED (IF PWA)
+Manifest file: manifest.json
+
+App icon: 512x512
+
+Theme color + background color defined
+
+Optional: service-worker.js for offline support
+
+4. FINAL CHECKLIST – MUST BE SUBMITTED PER PLATFORM
+✅ A) SCREENSHOTS
+App-style experience in:
+
+Mobile full-screen view
+
+iPad full-screen
+
+Desktop with sidebar/app layout
+
+✅ B) FORMAT COMPATIBILITY REPORT
+yaml
+Copiar
+Editar
+Platform: Fitness AI
+
+Responsive View:
+- Mobile: ✅
+- Tablet: ✅
+- Desktop: ✅
+
+App Format:
+- PWA: ✅ Manifest and Icons active
+- Native Wrap Ready: ✅ Confirmed via WebView test
+✅ C) ISSUES OR BLOCKERS
+List any elements that break full-screen mode or app formatting
+
+CODENAME: APP-READY-RESPONSIVE-DEPLOY-CHECK
+This is the final test before app packaging and mobile launch. No platform can be wrapped into app format without passing this prompt.
+
+Execute the full responsive + app structure audit and submit your status report.
+We’re ready to make them fly, Capitana.
