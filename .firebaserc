@@ -1,5 +1,23 @@
 {
   "projects": {
     "default": "erudite-creek-431302-q3"
+  },
+  "targets": {
+    "erudite-creek-431302-q3": {
+      "hosting": {
+        "cryptobot": [
+          "cryptobot"
+        ],
+        "fitnessai": [
+          "fitnessai"
+        ],
+        "jetai": [
+          "jetai"
+        ],
+        "sportsai": [
+          "sportsai"
+        ]
+      }
+    }
   }
 }
