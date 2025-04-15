@@ -36,6 +36,8 @@ import NotFound from "@/pages/not-found";
 import SuperAdminLogin from "./pages/SuperAdmin/SuperAdminLogin";
 import SuperAdminDashboard from "./pages/SuperAdmin/SuperAdminDashboard";
 import AvatarsManagement from "./pages/SuperAdmin/AvatarsManagement";
+// Visual Editor
+import VisualEditor from "./pages/Editor/VisualEditor";
 // Admin Manager pages
 import AdminLogin from "./pages/AdminManager/AdminLogin";
 import AdminDashboard from "./pages/AdminManager/AdminDashboard";
@@ -63,6 +65,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { GeminiProvider } from "./contexts/GeminiContext";
 import { CryptoProvider } from "./contexts/CryptoContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { UIConfigProvider } from "./providers/UIConfigProvider";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -95,6 +98,13 @@ function App() {
             <ServiceWorkerManager />
             
             <Switch>
+              {/* Visual Editor - Protected route for UI customization */}
+              <Route path="/editor">
+                <UIConfigProvider agentName="cryptobot">
+                  <VisualEditor />
+                </UIConfigProvider>
+              </Route>
+              
               {/* Super Admin routes - these bypass normal layout */}
               <Route path="/superadmin/dashboard">
                 <SuperAdminDashboard />

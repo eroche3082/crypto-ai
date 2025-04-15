@@ -728,12 +728,12 @@ const SuperAdminDashboard = () => {
             
             <TabsContent value="avatars" className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Gestión de Avatars 3D</h2>
+                <h2 className="text-2xl font-bold">3D Avatars Management</h2>
                 <Button 
                   variant="default"
                   onClick={() => setLocation('/superadmin/avatars')}
                 >
-                  Abrir gestor de avatars
+                  Open Avatar Manager
                 </Button>
               </div>
               
