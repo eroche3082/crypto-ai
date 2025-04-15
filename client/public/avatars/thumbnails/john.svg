@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="300" viewBox="0 0 300 300">
+  <defs>
+    <clipPath id="clip-path">
+      <circle cx="150" cy="150" r="150" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="Avatar_Male" data-name="Avatar Male" clip-path="url(#clip-path)">
+    <rect width="300" height="300" fill="#2572d9"/>
+    <circle cx="150" cy="120" r="70" fill="#fff"/>
+    <path d="M230,260l-10-80H80L70,260" fill="#fff"/>
+    <path d="M80,180h20v20h20v-40" fill="#f4a461"/>
+    <path d="M160,160v40h20v-20h20" fill="#f4a461"/>
+    <path d="M110,80h20v10c0,11.046-8.954,10-20,10c-11.046,0-20,1.046-20-10V80H110z" fill="#f4a461"/>
+    <rect x="90" y="90" width="40" height="20" fill="#f4a461"/>
+    <circle cx="125" cy="115" r="5"/>
+    <circle cx="175" cy="115" r="5"/>
+    <path d="M140,135c0,5.5,4.5,10,10,10s10-4.5,10-10" fill="none" stroke="#000" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <path d="M175,180H100c-27.614,0-50,22.386-50,50v40h200V230C250,202.386,227.614,180,175,180Z" fill="#0a4499"/>
+    <circle cx="125" cy="200" r="10" fill="#fff"/>
+    <circle cx="175" cy="200" r="10" fill="#fff"/>
+  </g>
+</svg>
