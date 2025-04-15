@@ -225,7 +225,7 @@ export default function ChatBot({ startOnboardingRef }: ChatBotProps = {}) {
     <h3 class="text-red-800 font-semibold">EMAIL ERROR</h3>
   </div>
   
-  <p class="text-red-700 mb-4">There was a problem sending your access code email. Please try again later or contact support for assistance.</p>
+  <p class="text-red-700 mb-4">There was a problem sending your access code email. Please try again later or contact us at <a href="mailto:contact@socialbrands.ai" class="underline hover:text-red-800">contact@socialbrands.ai</a> for assistance.</p>
 </div>`,
           timestamp: new Date(),
           model: 'error'

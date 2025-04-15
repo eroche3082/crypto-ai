@@ -62,6 +62,13 @@ export function Footer() {
                 Market News
               </span>
             </Link>
+            <a 
+              href="mailto:contact@socialbrands.ai" 
+              className="text-sm text-muted-foreground hover:text-foreground cursor-pointer flex items-center"
+            >
+              <HeartHandshake size={14} className="mr-1" />
+              Contact Us
+            </a>
           </div>
           
           {/* Legal section with coming soon dialogs */}
