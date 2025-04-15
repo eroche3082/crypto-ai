@@ -149,7 +149,7 @@ export function getSystemDiagnosticReport(): DiagnosticReport {
         status: 'in-progress',
         items: {
           google_apis: '✅',
-          coingecko_api: '✅',
+          coinapi_integration: '✅',
           twitter_api: '✅',
           moralis_api: '✅',
           anthropic_claude: '✅',
