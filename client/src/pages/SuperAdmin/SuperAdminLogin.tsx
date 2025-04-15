@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Shield, User, Lock, AlertCircle, Scan, Camera, FingerprintIcon } from 'lucide-react';
+import { Shield, User, Lock, AlertCircle, Scan, Camera, Fingerprint } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { qrCodeMockData } from './mockData';
@@ -126,7 +126,7 @@ const SuperAdminLogin = () => {
                   </div>
                 ) : isVerifying ? (
                   <div className="flex flex-col items-center space-y-4">
-                    <FingerprintIcon size={48} className="animate-pulse" />
+                    <Fingerprint size={48} className="animate-pulse" />
                     <p className="text-sm">Verificando identidad...</p>
                   </div>
                 ) : (
@@ -199,7 +199,7 @@ const SuperAdminLogin = () => {
                   </div>
                 ) : isVerifying ? (
                   <div className="flex flex-col items-center space-y-4">
-                    <FingerprintIcon size={48} className="animate-pulse" />
+                    <Fingerprint size={48} className="animate-pulse" />
                     <p className="text-sm">Verificando identidad...</p>
                   </div>
                 ) : (
