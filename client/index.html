@@ -4,6 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>CryptoPulse - Crypto AI Assistant</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Advanced cryptocurrency platform with AI-driven insights and portfolio tracking">
+    <meta name="theme-color" content="#3861fb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CryptoPulse">
+    
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Favicon and Apple Touch Icons -->
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/icon-192x192.svg">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.svg">
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
@@ -64,6 +80,18 @@
       #root {
         height: 100vh;
       }
+      
+      /* Mobile Optimizations */
+      @media (max-width: 768px) {
+        #app-loading-state h2 {
+          font-size: 1.5rem;
+        }
+        #app-loading-state p {
+          font-size: 0.9rem;
+          padding: 0 1rem;
+          text-align: center;
+        }
+      }
     </style>
   </head>
   <body>
@@ -120,6 +148,19 @@
           return true;
         }
         return false;
+      }
+      
+      // Service Worker Registration for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/src/service-worker.ts')
+            .then(function(registration) {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(function(err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
       }
       
       // Hide the fallback UI when the React app loads

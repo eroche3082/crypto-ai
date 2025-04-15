@@ -44,6 +44,7 @@ import SubscriptionPlans from "./pages/SubscriptionPlans";
 import LivePriceTracker from "./pages/LivePriceTracker";
 import NFTExplorer from "./pages/NFTExplorer";
 import FloatingChatbot from "./components/FloatingChatbot";
+import ServiceWorkerManager from "./components/ServiceWorkerManager";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -78,6 +79,9 @@ function App() {
       <GeminiProvider>
         <CryptoProvider>
           <AuthProvider>
+            {/* PWA Service Worker Manager for update notifications */}
+            <ServiceWorkerManager />
+            
             <Switch>
               {/* Public route for Landing Page */}
               <Route path="/">
