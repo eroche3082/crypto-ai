@@ -22,7 +22,9 @@ import {
   UserCog,
   Building,
   BarChart4,
-  ShieldAlert
+  ShieldAlert,
+  Video,
+  User3D
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -88,7 +90,7 @@ const SuperAdminDashboard = () => {
               onClick={() => setActiveTab('dashboard')}
             >
               <PieChart size={18} className="mr-2" />
-              Dashboard Global
+              Global Dashboard
             </Button>
             
             <Button
@@ -134,6 +136,15 @@ const SuperAdminDashboard = () => {
             >
               <Building size={18} className="mr-2" />
               Negocio
+            </Button>
+            
+            <Button
+              variant={activeTab === 'avatars' ? 'secondary' : 'ghost'}
+              className="justify-start"
+              onClick={() => setActiveTab('avatars')}
+            >
+              <User3D size={18} className="mr-2" />
+              Avatars 3D
             </Button>
           </div>
 
@@ -711,6 +722,130 @@ const SuperAdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p>Administración de aspectos comerciales y métricas de negocio</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="avatars" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Gestión de Avatars 3D</h2>
+                <Button 
+                  variant="default"
+                  onClick={() => setLocation('/superadmin/avatars')}
+                >
+                  Abrir gestor de avatars
+                </Button>
+              </div>
+              
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Ready Player Me</CardTitle>
+                    <CardDescription>
+                      Integración con Ready Player Me para avatars 3D personalizados
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="rounded-lg border p-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Estado de la API</h4>
+                          <Badge variant="outline" className="bg-green-500/10 text-green-500">
+                            Activa
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Conexión con Ready Player Me configurada correctamente
+                        </p>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">Avatars disponibles</span>
+                        <Badge>12</Badge>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => setLocation('/superadmin/avatars')}
+                        >
+                          <User3D size={16} className="mr-2" />
+                          Gestionar avatars
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>AI Video Avatars</CardTitle>
+                    <CardDescription>
+                      Integración con servicios de video AI (Heygen, ElevenLabs, etc.)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="rounded-lg border p-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Estado de integración</h4>
+                          <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500">
+                            Configuración pendiente
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Se requiere configurar las APIs de OpenAI, Heygen y ElevenLabs
+                        </p>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => {
+                            toast({
+                              title: "Configuración de APIs",
+                              description: "Accediendo a configuración de servicios de IA...",
+                            });
+                          }}
+                        >
+                          <Video size={16} className="mr-2" />
+                          Configurar servicios
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Estadísticas de uso de avatars</CardTitle>
+                  <CardDescription>
+                    Métricas de utilización e interacción con avatars
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="rounded-lg border p-3">
+                      <h4 className="font-medium">Interacciones totales</h4>
+                      <p className="text-2xl font-bold mt-1">1,245</p>
+                      <p className="text-xs text-muted-foreground">Últimos 30 días</p>
+                    </div>
+                    
+                    <div className="rounded-lg border p-3">
+                      <h4 className="font-medium">Avatars más utilizados</h4>
+                      <p className="text-2xl font-bold mt-1">3 de 12</p>
+                      <p className="text-xs text-muted-foreground">Representan el 80% de uso</p>
+                    </div>
+                    
+                    <div className="rounded-lg border p-3">
+                      <h4 className="font-medium">Tiempo promedio de interacción</h4>
+                      <p className="text-2xl font-bold mt-1">2:45 min</p>
+                      <p className="text-xs text-muted-foreground">Por sesión de usuario</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

@@ -35,6 +35,7 @@ import NotFound from "@/pages/not-found";
 // Super Admin pages
 import SuperAdminLogin from "./pages/SuperAdmin/SuperAdminLogin";
 import SuperAdminDashboard from "./pages/SuperAdmin/SuperAdminDashboard";
+import AvatarsManagement from "./pages/SuperAdmin/AvatarsManagement";
 // Admin Manager pages
 import AdminLogin from "./pages/AdminManager/AdminLogin";
 import AdminDashboard from "./pages/AdminManager/AdminDashboard";
@@ -97,6 +98,10 @@ function App() {
               {/* Super Admin routes - these bypass normal layout */}
               <Route path="/superadmin/dashboard">
                 <SuperAdminDashboard />
+              </Route>
+              
+              <Route path="/superadmin/avatars">
+                <AvatarsManagement />
               </Route>
               
               <Route path="/superadmin">
