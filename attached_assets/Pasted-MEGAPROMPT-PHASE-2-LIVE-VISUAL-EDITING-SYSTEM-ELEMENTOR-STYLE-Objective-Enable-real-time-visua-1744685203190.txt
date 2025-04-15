@@ -1,0 +1,131 @@
+MEGAPROMPT – PHASE 2: LIVE VISUAL EDITING SYSTEM (ELEMENTOR-STYLE)
+Objective:
+Enable real-time visual editing capabilities across all agents through a Firebase Firestore-powered system. This will allow SuperAdmin and Admin users to modify design elements, content, and layout without deploying code again, using a secure editor interface at /editor.
+
+✅ 1. FIRESTORE CONFIGURATION PER AGENT
+Each agent must read and write live UI/UX config data from:
+
+arduino
+Copiar
+Editar
+/config/{agentName}
+Examples:
+
+/config/cryptobot
+
+/config/jetai
+
+/config/fitnessai
+
+/config/sportsai
+
+Expected structure:
+
+json
+Copiar
+Editar
+{
+  "primary_color": "#000000",
+  "font_family": "Inter",
+  "layout": "dark",
+  "button_shape": "rounded",
+  "homepage_title": "Welcome to CryptoBot AI",
+  "homepage_subtitle": "Your smart crypto assistant",
+  "cta_text": "Start Now",
+  "header_menu": ["Home", "Features", "Pricing", "Assistant"],
+  "visible_sections": {
+    "chat": true,
+    "features": true,
+    "pricing": true
+  }
+}
+🛠️ 2. EDITOR UI AT /editor ROUTE
+Each agent must implement a visual editor accessible from:
+
+bash
+Copiar
+Editar
+/editor
+The editor must support:
+
+Editing text elements (titles, subtitles, button labels)
+
+Customizing colors (primary, secondary, backgrounds)
+
+Changing fonts and typography scale
+
+Uploading and replacing images (logos, headers)
+
+Editing navigation menu items
+
+Toggling visibility of sections via switches (e.g., show/hide Chat, Pricing)
+
+Live preview: show real-time preview beside the editing panel
+
+Save to Firestore with confirmation alert
+
+🔐 Access Restrictions:
+
+Only SuperAdmin (QR authenticated) or Admin users (logged in) can access /editor
+
+🔄 3. REAL-TIME PROPAGATION
+When values are updated:
+
+All UI components across the platform must listen to Firestore changes
+
+Changes are instantly reflected without a full page reload
+
+If /config/{agentName} does not exist, system must fallback to default values
+
+🧠 4. GLOBAL DESIGN SYSTEM (Optional)
+Create a shared document:
+
+sql
+Copiar
+Editar
+/design-system/global
+To define global design behavior:
+
+json
+Copiar
+Editar
+{
+  "border_radius": "16px",
+  "font_scale": 1.1,
+  "theme_variants": ["dark", "light"],
+  "default_language": "en"
+}
+Each agent can override these values locally via its /config/{agentName} file.
+
+📦 5. DELIVERABLES FOR PHASE 2
+Each agent must provide:
+
+ Live reading from /config/{agentName}
+
+ Fully functional /editor route
+
+ Two-way Firestore binding (read & write)
+
+ UI responds to changes without reload
+
+ Sections to edit:
+
+Primary color
+
+Fonts
+
+Layout type (dark/light)
+
+Button text & shapes
+
+Header menu
+
+Homepage content
+
+Section visibility toggles
+
+Image uploads
+
+ Secure role-based access to the editor
+
+ Visual coherence across all device sizes (mobile/tablet/desktop)

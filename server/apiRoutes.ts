@@ -20,6 +20,7 @@ import {
 } from './features/wallet/messaging';
 import { analyzePortfolio } from './portfolio/analyzer';
 import avatarRoutes from './routes/avatarRoutes';
+import readyPlayerMeRoutes from './routes/readyPlayerMeRoutes';
 
 // Create router
 const apiRouter = Router();
@@ -192,5 +193,8 @@ apiRouter.get('/gamification/leaderboards/:leaderboardId/entries', getLeaderboar
 
 // Avatar AI Video routes
 apiRouter.use('/avatars', avatarRoutes);
+
+// Ready Player Me Avatars routes
+apiRouter.use('/readyplayerme', readyPlayerMeRoutes);
 
 export default apiRouter;
