@@ -1,0 +1,69 @@
+FOOTER MEGAPROMPT – CryptoBot AI
+Agent Instructions:
+
+We are in final pre-deployment for CryptoBot AI. You are now required to conduct a complete audit and sanitization of the footer to ensure:
+
+No broken or empty links
+
+All items are functional and real
+
+Visual consistency is maintained
+
+1. SOCIAL MEDIA ICONS
+ Only keep icons that are linked to active and real accounts.
+
+Twitter, GitHub, Instagram, LinkedIn.
+
+If any icon is linked to #, javascript:void(0), or is empty → Remove it immediately.
+
+2. "Quick Links" COLUMN
+Items to verify:
+
+Features → Must link to a real and populated section
+
+Pricing → Must take the user to the pricing page or scroll to the plan comparison
+
+Testimonials → Must link to the client feedback/testimonial section
+
+Dashboard → Only keep if user is already logged in or if route is active
+
+If any of these links do not open anything valid → REMOVE or comment out
+
+3. "Resources" COLUMN
+Blog → REMOVE unless there is a working blog page with at least 1 post
+
+Documentation → REMOVE if it leads nowhere or placeholder
+
+Help Center → Only keep if it opens a support portal, contact form, or help articles
+
+API → If API docs are NOT ready and hosted publicly, REMOVE
+
+4. "Contact" COLUMN
+support@cryptobot.ai → Only show if this inbox is functional
+
+123 Blockchain Blvd, San Francisco, CA → Placeholder address. REMOVE unless real
+
++1 (555) 123-4567 → Placeholder number. REMOVE unless active and monitored
+
+Capitana’s Orders: This section must only show information that is real and verified by the team.
+If the address or number is fake or generic → DELETE.
+
+5. LEGAL LINKS (BOTTOM BAR)
+ Verify Terms of Service, Privacy Policy, and Cookie Policy are active links
+
+ If the legal documents are not available, either comment out or replace with a “Coming Soon” modal
+
+6. MOBILE RESPONSIVENESS
+ Confirm that the entire footer renders cleanly on mobile
+
+ No overlapping, invisible links, or overflowing icons
+
+7. FINAL CONFIRMATION REPORT
+Submit a checklist with:
+
+✅ Verified and functional links
+
+❌ Links or items removed
+
+⚠️ Suggestions for content to add later (e.g. blog, docs, API when ready)
+

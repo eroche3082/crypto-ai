@@ -258,13 +258,14 @@ export default function LandingPage() {
                 A comprehensive AI-powered platform to analyze, manage, and optimize your cryptocurrency investments.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button 
-                  size="lg" 
-                  className="gap-2 bg-indigo-600 hover:bg-indigo-700"
-                  onClick={() => startOnboardingRef.current && startOnboardingRef.current()}
-                >
-                  Get Started <Sparkles size={16} />
-                </Button>
+                <Link href="/login">
+                  <Button 
+                    size="lg" 
+                    className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    Get Started <Sparkles size={16} />
+                  </Button>
+                </Link>
               </div>
             </div>
             
