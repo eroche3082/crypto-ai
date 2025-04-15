@@ -35,6 +35,9 @@ import NotFound from "@/pages/not-found";
 // Super Admin pages
 import SuperAdminLogin from "./pages/SuperAdmin/SuperAdminLogin";
 import SuperAdminDashboard from "./pages/SuperAdmin/SuperAdminDashboard";
+// Admin Manager pages
+import AdminLogin from "./pages/AdminManager/AdminLogin";
+import AdminDashboard from "./pages/AdminManager/AdminDashboard";
 // Landing and Login pages
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -102,9 +105,13 @@ function App() {
                 <SignUpPage />
               </Route>
               
-              {/* Admin Dashboard Route */}
+              {/* Admin Manager routes - Standard admin access */}
+              <Route path="/admin">
+                <AdminLogin />
+              </Route>
+              
               <Route path="/admin/dashboard">
-                <DashboardPage />
+                <AdminDashboard />
               </Route>
               
               {/* Super Admin routes - these bypass normal layout */}
