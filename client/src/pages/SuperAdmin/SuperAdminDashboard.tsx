@@ -387,14 +387,14 @@ const SuperAdminDashboard = () => {
                         <div className="flex items-start gap-3">
                           <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
                           <div>
-                            <h4 className="font-medium text-yellow-500">Error de conexión a la API externa</h4>
-                            <p className="text-sm mt-1">Error temporal de conexión con el proveedor de datos CoinAPI.</p>
+                            <h4 className="font-medium text-yellow-500">External API Connection Error</h4>
+                            <p className="text-sm mt-1">Temporary connection issue with CoinAPI data provider.</p>
                             <div className="flex items-center gap-2 mt-2">
                               <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
-                                Ver detalles
+                                View Details
                               </Button>
                               <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
-                                Resolver
+                                Resolve
                               </Button>
                             </div>
                           </div>
@@ -405,14 +405,14 @@ const SuperAdminDashboard = () => {
                         <div className="flex items-start gap-3">
                           <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                           <div>
-                            <h4 className="font-medium text-red-500">Pico de consumo de memoria</h4>
-                            <p className="text-sm mt-1">Instancia principal alcanzó 85% de uso de memoria durante pico de tráfico.</p>
+                            <h4 className="font-medium text-red-500">Memory Usage Spike</h4>
+                            <p className="text-sm mt-1">Main instance reached 85% memory usage during traffic peak.</p>
                             <div className="flex items-center gap-2 mt-2">
                               <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
-                                Ver detalles
+                                View Details
                               </Button>
                               <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
-                                Resolver
+                                Resolve
                               </Button>
                             </div>
                           </div>
@@ -423,8 +423,8 @@ const SuperAdminDashboard = () => {
                         <div className="flex items-start gap-3">
                           <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <div>
-                            <h4 className="font-medium">Sistema de pago sin incidencias</h4>
-                            <p className="text-sm text-muted-foreground mt-1">Todas las pasarelas de pago funcionando normalmente.</p>
+                            <h4 className="font-medium">Payment System Running Smoothly</h4>
+                            <p className="text-sm text-muted-foreground mt-1">All payment gateways operating normally.</p>
                           </div>
                         </div>
                       </div>
@@ -435,43 +435,43 @@ const SuperAdminDashboard = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Actividad administrativa</CardTitle>
+                  <CardTitle>Administrative Activity</CardTitle>
                   <CardDescription>
-                    Acciones de administradores y configuraciones del sistema
+                    Admin actions and system configurations
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {[
                       { 
-                        action: "Configuración API", 
-                        details: "Actualizado token de API de CoinAPI", 
+                        action: "API Configuration", 
+                        details: "Updated CoinAPI token", 
                         admin: "SuperAdmin", 
-                        time: "Hace 2 horas" 
+                        time: "2 hours ago" 
                       },
                       { 
-                        action: "Cambio de precios", 
-                        details: "Modificado plan 'Elite' de $19.99 a $24.99", 
+                        action: "Pricing Change", 
+                        details: "Modified 'Elite' plan from $19.99 to $24.99", 
                         admin: "Admin Manager", 
-                        time: "Hace 5 horas" 
+                        time: "5 hours ago" 
                       },
                       { 
-                        action: "Reinicio de servidor", 
-                        details: "Reinicio programado de servidor principal", 
+                        action: "Server Restart", 
+                        details: "Scheduled restart of main server", 
                         admin: "SuperAdmin", 
-                        time: "Hace 1 día" 
+                        time: "1 day ago" 
                       },
                       { 
-                        action: "Modificación de UI", 
-                        details: "Actualización de textos en homepage", 
+                        action: "UI Modification", 
+                        details: "Updated homepage text content", 
                         admin: "Admin Manager", 
-                        time: "Hace 2 días" 
+                        time: "2 days ago" 
                       },
                       { 
-                        action: "Configuración de seguridad", 
-                        details: "Actualización de política de contraseñas", 
+                        action: "Security Configuration", 
+                        details: "Updated password policy", 
                         admin: "SuperAdmin", 
-                        time: "Hace 3 días" 
+                        time: "3 days ago" 
                       },
                     ].map((log, i) => (
                       <div key={i} className="flex justify-between border-b pb-3 last:border-0 last:pb-0">
@@ -481,7 +481,7 @@ const SuperAdminDashboard = () => {
                         </div>
                         <div className="text-right">
                           <div className="text-sm">{log.time}</div>
-                          <div className="text-xs text-muted-foreground">Por: {log.admin}</div>
+                          <div className="text-xs text-muted-foreground">By: {log.admin}</div>
                         </div>
                       </div>
                     ))}
