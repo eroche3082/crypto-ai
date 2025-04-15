@@ -43,6 +43,10 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import DashboardPage from "./pages/DashboardPage";
+// Public pages
+import PricingPage from "./pages/PricingPage";
+import FeaturesPage from "./pages/FeaturesPage";
+import ApiDocsPage from "./pages/ApiDocsPage";
 // Unified pages
 import UnifiedPortfolio from "./pages/UnifiedPortfolio";
 import UnifiedDigitalAssets from "./pages/UnifiedDigitalAssets";
@@ -116,6 +120,21 @@ function App() {
               {/* Public route for Sign Up Page */}
               <Route path="/signup">
                 <SignUpPage />
+              </Route>
+              
+              {/* Public route for Pricing Page */}
+              <Route path="/pricing">
+                <PricingPage />
+              </Route>
+              
+              {/* Public route for Features Page */}
+              <Route path="/features">
+                <FeaturesPage />
+              </Route>
+              
+              {/* Public route for API Documentation */}
+              <Route path="/api">
+                <ApiDocsPage />
               </Route>
               
               {/* Public route for Landing Page */}
